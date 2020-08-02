@@ -1,0 +1,20 @@
+mm-expenses-manager:
+  app-version: 0.1.0
+  app-name: Expenses manager order
+
+server:
+  port: 8181
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/expenses-manager-order
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 50
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /expenses-manager-order/v2/api-docs

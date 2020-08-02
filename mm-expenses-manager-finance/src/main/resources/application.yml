@@ -1,0 +1,31 @@
+mm-expenses-manager-finance:
+  app-version: 0.1.0
+  app-name: Expenses manager finance
+  currency:
+    default: PLN
+    provider: nbp-provider
+
+server:
+  port: 8185
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/expenses-manager-finance
+      auto-index-creation: true
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 50
+
+api:
+  nbp:
+    name: nbp-exchange-rates
+    url: http://api.nbp.pl/api/exchangerates
+    data:
+      format: json
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /expenses-manager-finance/v2/api-docs
