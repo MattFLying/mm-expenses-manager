@@ -20,14 +20,18 @@ public class ExceptionMessage {
 
     static ExceptionMessage fromApiException(final ApiException apiException) {
         final var status = apiException.httpStatus();
-        final var formattedStatus = String.format("%d(%s)", status.value(), status.getReasonPhrase());
+        final var formattedStatus = formatStatus(status);
         return new ExceptionMessage(apiException.code(), formattedStatus, apiException.getMessage(), apiException.occurredAt());
     }
 
     static ExceptionMessage fromException(final Exception exception) {
         final var status = HttpStatus.INTERNAL_SERVER_ERROR;
-        final var formattedStatus = String.format("%d(%s)", status.value(), status.getReasonPhrase());
+        final var formattedStatus = formatStatus(status);
         return new ExceptionMessage(INTERNAL_SERVER_ERROR_CODE, formattedStatus, exception.getMessage(), Instant.now());
+    }
+
+    public static String formatStatus(final HttpStatus status) {
+        return String.format("%d(%s)", status.value(), status.getReasonPhrase());
     }
 
 }

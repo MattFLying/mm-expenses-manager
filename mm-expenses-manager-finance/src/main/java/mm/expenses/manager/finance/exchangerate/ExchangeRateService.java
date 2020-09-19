@@ -21,8 +21,6 @@ import java.util.Optional;
 public class ExchangeRateService {
 
     private final @Qualifier("${mm-expenses-manager-finance.currency.provider}") CurrencyRateProvider<? extends CurrencyRate> nbpService;
-    private final ExchangeRateRepository repository;
-    private final ExchangeRateMapper mapper;
     private final ExchangeRateCreator creator;
 
     @Value("${mm-expenses-manager-finance.currency.default}")
@@ -47,7 +45,7 @@ public class ExchangeRateService {
     Collection<ExchangeRate> saveForDateRange(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
         final var forDateRange = nbpService.getCurrencyRateForDateRange(currency, from, to);
         if (!forDateRange.isEmpty()) {
-            return creator.createForDateRange(forDateRange);
+            return creator.createForDateRange(currency, forDateRange);
         }
         return Collections.emptyList();
     }
@@ -71,10 +69,9 @@ public class ExchangeRateService {
     Collection<ExchangeRate> saveAllForDateRange(final LocalDate from, final LocalDate to) {
         final var allForDateRange = nbpService.getCurrencyRatesForDateRange(from, to);
         if (!allForDateRange.isEmpty()) {
-            return creator.createAll(allForDateRange);
+            return creator.createAllForDateRange(allForDateRange);
         }
         return Collections.emptyList();
     }
-
 
 }

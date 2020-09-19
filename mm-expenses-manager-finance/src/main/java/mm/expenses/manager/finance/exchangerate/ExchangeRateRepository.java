@@ -7,12 +7,17 @@ import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 interface ExchangeRateRepository extends MongoRepository<ExchangeRateEntity, String> {
 
-    Optional<ExchangeRateEntity> findByCurrencyAndDate(final CurrencyCode currency, final String date);
+    Optional<ExchangeRateEntity> findByCurrencyAndDate(final CurrencyCode currency, final Instant date);
+
+    Collection<ExchangeRateEntity> findByCurrencyInAndDate(final Set<CurrencyCode> currencies, final Instant date);
 
     Collection<ExchangeRateEntity> findByCurrencyAndDateBetween(final CurrencyCode currency, final Instant from, final Instant to);
+
+    Collection<ExchangeRateEntity> findByCurrencyInAndDateBetween(final Set<CurrencyCode> currencies, final Instant from, final Instant to);
 
 }
