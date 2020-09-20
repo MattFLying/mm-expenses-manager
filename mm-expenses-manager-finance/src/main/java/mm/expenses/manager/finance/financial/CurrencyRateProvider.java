@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.financial;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.common.CurrencyProviderType;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -14,9 +15,7 @@ import java.util.Optional;
  */
 public interface CurrencyRateProvider<T extends CurrencyRate> {
 
-    String getProviderName();
-
-    Class<T> getCustomCurrencyImplementationType();
+    CurrencyCode getDefaultCurrency();
 
     Optional<T> getCurrentCurrencyRate(final CurrencyCode currencyCode);
 
@@ -29,5 +28,14 @@ public interface CurrencyRateProvider<T extends CurrencyRate> {
     Collection<T> getCurrencyRatesForDate(final LocalDate date);
 
     Collection<T> getCurrencyRatesForDateRange(final LocalDate from, final LocalDate to);
+
+    /**
+     * Specific details of currency provided by currency provider
+     */
+    interface CurrencyDetails {
+
+        CurrencyProviderType getType();
+
+    }
 
 }

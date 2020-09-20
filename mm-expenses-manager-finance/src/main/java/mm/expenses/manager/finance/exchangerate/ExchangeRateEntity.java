@@ -3,6 +3,7 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.Builder;
 import lombok.Data;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import org.json.simple.JSONObject;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,6 +24,8 @@ class ExchangeRateEntity {
     private final Double rate;
 
     private final Instant date;
+
+    private final JSONObject details;
 
     private final Instant createdAt;
 

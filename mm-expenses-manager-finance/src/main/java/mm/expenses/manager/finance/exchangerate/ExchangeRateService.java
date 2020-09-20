@@ -7,7 +7,6 @@ import mm.expenses.manager.finance.exchangerate.model.ExchangeRate;
 import mm.expenses.manager.finance.financial.CurrencyRate;
 import mm.expenses.manager.finance.financial.CurrencyRateProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -22,9 +21,7 @@ public class ExchangeRateService {
 
     private final @Qualifier("${mm-expenses-manager-finance.currency.provider}") CurrencyRateProvider<? extends CurrencyRate> nbpService;
     private final ExchangeRateCreator creator;
-
-    @Value("${mm-expenses-manager-finance.currency.default}")
-    private String defaultCurrency;
+    private final ExchangeRateConfig config;
 
     Optional<ExchangeRate> saveCurrent(final CurrencyCode currency) {
         final var current = nbpService.getCurrentCurrencyRate(currency);
