@@ -64,8 +64,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                                     .map(rateDto -> NbpCurrencyRate.builder()
                                             .currency(currency)
                                             .date(rateDto.getEffectiveDate())
-                                            .rate(rateDto.getMid())
-                                            .nbpDetails(NbpDetails.builder().tableType(table).tableNumber(rateDto.getNo()).build())
+                                            .nbpDetails(buildNbpDetails(table, rateDto.getNo(), rateDto.getMid()))
                                             .build())
                                     .collect(Collectors.toList())
                     ).orElse(Collections.emptyList());
@@ -99,19 +98,19 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                 .collect(Collectors.toList());
     }
 
-    private NbpDetails map(final TableType tableType, final String tableNumber) {
-        return NbpDetails.builder()
-                .tableType(tableType)
-                .tableNumber(tableNumber)
-                .build();
+    private NbpDetails buildNbpDetails(final TableType table, final String tableNumber, final Double rate) {
+        return NbpDetails.builder().tableType(table).tableNumber(tableNumber).rate(rate).build();
+    }
+
+    private NbpDetails map(final TableType tableType, final String tableNumber, final Double rate) {
+        return buildNbpDetails(tableType, tableNumber, rate);
     }
 
     private NbpCurrencyRate map(final CurrencyCode currency, final LocalDate date, final Double rate, final TableType tableType, final String tableNumber) {
         return NbpCurrencyRate.builder()
                 .currency(currency)
                 .date(date)
-                .rate(rate)
-                .nbpDetails(map(tableType, tableNumber))
+                .nbpDetails(map(tableType, tableNumber, rate))
                 .build();
     }
 

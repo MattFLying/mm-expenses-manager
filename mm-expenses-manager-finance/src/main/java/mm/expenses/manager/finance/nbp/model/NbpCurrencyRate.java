@@ -8,14 +8,15 @@ import mm.expenses.manager.finance.financial.CurrencyRateProvider.CurrencyDetail
 
 import java.beans.ConstructorProperties;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class NbpCurrencyRate extends CurrencyRate {
 
     @Builder
-    public NbpCurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final NbpDetails nbpDetails) {
-        super(currency, date, rate, nbpDetails);
+    public NbpCurrencyRate(final CurrencyCode currency, final LocalDate date, final NbpDetails nbpDetails) {
+        super(currency, date, nbpDetails);
     }
 
     @Data
@@ -26,15 +27,22 @@ public class NbpCurrencyRate extends CurrencyRate {
 
         private final String tableNumber;
 
-        @ConstructorProperties({"tableType", "tableNumber"})
-        public NbpDetails(final TableType tableType, final String tableNumber) {
+        private final Double rate;
+
+        @ConstructorProperties({"tableType", "tableNumber", "rate"})
+        public NbpDetails(final TableType tableType, final String tableNumber, final Double rate) {
             this.tableType = tableType;
             this.tableNumber = tableNumber;
+            this.rate = rate;
         }
 
         @Override
         public CurrencyProviderType getType() {
             return CurrencyProviderType.NBP;
+        }
+
+        public Double getRate() {
+            return Objects.nonNull(rate) ? rate : 0.0;
         }
 
     }

@@ -34,6 +34,8 @@ public interface CurrencyRateProvider<T extends CurrencyRate> {
      */
     interface CurrencyDetails {
 
+        Double getRate();
+
         CurrencyProviderType getType();
 
     }

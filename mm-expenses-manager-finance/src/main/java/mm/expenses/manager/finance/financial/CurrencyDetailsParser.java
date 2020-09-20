@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.finance.common.CurrencyProviderType;
+import mm.expenses.manager.finance.financial.CurrencyRateProvider.CurrencyDetails;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -38,8 +39,8 @@ public class CurrencyDetailsParser {
         return json;
     }
 
-    public Map<CurrencyProviderType, CurrencyRateProvider.CurrencyDetails> parseJsonDetailsToCurrencyRateDetailsTypes(final JSONObject currencyDetailsAsJson) {
-        final var detailsMap = new EnumMap<CurrencyProviderType, CurrencyRateProvider.CurrencyDetails>(CurrencyProviderType.class);
+    public Map<CurrencyProviderType, CurrencyDetails> parseJsonDetailsToCurrencyRateDetailsTypes(final JSONObject currencyDetailsAsJson) {
+        final var detailsMap = new EnumMap<CurrencyProviderType, CurrencyDetails>(CurrencyProviderType.class);
         try {
             if (!currencyDetailsAsJson.isEmpty()) {
                 for (final var type : CurrencyProviderType.values()) {

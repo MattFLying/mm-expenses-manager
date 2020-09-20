@@ -20,8 +20,6 @@ public class ExchangeRate {
 
     private final LocalDate date;
 
-    private final Double rate;
-
     private final Map<CurrencyProviderType, CurrencyDetails> details;
 
     private final Instant createdAt;

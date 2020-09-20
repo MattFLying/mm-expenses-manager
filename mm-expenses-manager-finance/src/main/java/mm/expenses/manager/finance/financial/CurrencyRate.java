@@ -19,8 +19,6 @@ public abstract class CurrencyRate {
 
     private final LocalDate date;
 
-    private final Double rate;
-
     private final CurrencyDetails details;
 
     public Optional<CurrencyDetails> getDetails() {
