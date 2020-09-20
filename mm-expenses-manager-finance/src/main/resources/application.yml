@@ -2,7 +2,7 @@ mm-expenses-manager-finance:
   app-version: 0.1.0
   app-name: Expenses manager finance
   currency:
-    default: PLN
+    default-currency: PLN
     provider: nbp-provider
 
 server:
@@ -21,8 +21,9 @@ api:
   nbp:
     name: nbp-exchange-rates
     url: http://api.nbp.pl/api/exchangerates
-    data:
-      format: json
+    details:
+      data-format: json
+      default-currency: PLN
 
 springfox:
   documentation:
