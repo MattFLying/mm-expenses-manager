@@ -21,8 +21,6 @@ class ExchangeRateEntity {
 
     private final CurrencyCode currency;
 
-    private final Double rate;
-
     private final Instant date;
 
     private final JSONObject details;
