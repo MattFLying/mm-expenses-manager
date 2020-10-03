@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -57,6 +58,28 @@ public class CurrencyDetailsParser {
             log.error("Error occurred during parsing currency rate details: {}", currencyDetailsAsJson, exception);
         }
         return detailsMap;
+    }
+
+    public CurrencyDetails parseJsonDetailsToCurrencyRateDetails(final JSONObject currencyDetailsAsJson, final CurrencyProviderType provider, final boolean shouldFindAny) {
+        try {
+            var detailsForType = currencyDetailsAsJson.get(provider.getProviderName());
+            if (Objects.isNull(detailsForType) && shouldFindAny) {
+                boolean found = false;
+                while (!found) {
+                    for (final var type : CurrencyProviderType.values()) {
+                        detailsForType = currencyDetailsAsJson.get(type.getProviderName());
+                        if (Objects.nonNull(detailsForType)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            return mapper.readValue(mapper.writeValueAsString(detailsForType), provider.getClassType());
+        } catch (final JsonProcessingException exception) {
+            log.error("Error occurred during parsing currency rate details: {}", currencyDetailsAsJson, exception);
+            throw new IllegalArgumentException("Cannot parse currency details", exception);
+        }
     }
 
 }

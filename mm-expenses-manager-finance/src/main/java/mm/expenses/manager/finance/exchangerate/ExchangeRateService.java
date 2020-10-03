@@ -3,6 +3,7 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.exchangerate.model.CurrencyRates;
 import mm.expenses.manager.finance.exchangerate.model.ExchangeRate;
 import mm.expenses.manager.finance.financial.CurrencyRate;
 import mm.expenses.manager.finance.financial.CurrencyRateProvider;
@@ -19,12 +20,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ExchangeRateService {
 
-    private final @Qualifier("${mm-expenses-manager-finance.currency.provider}") CurrencyRateProvider<? extends CurrencyRate> nbpService;
+    private final @Qualifier("${mm-expenses-manager-finance.currency.provider}")
+    CurrencyRateProvider<? extends CurrencyRate> provider;
     private final ExchangeRateCreator creator;
+    private final ExchangeRateFinder finder;
     private final ExchangeRateConfig config;
 
     Optional<ExchangeRate> saveCurrent(final CurrencyCode currency) {
-        final var current = nbpService.getCurrentCurrencyRate(currency);
+        final var current = provider.getCurrentCurrencyRate(currency);
         if (current.isPresent()) {
             return creator.create(current.get());
         }
@@ -32,7 +35,7 @@ public class ExchangeRateService {
     }
 
     Optional<ExchangeRate> saveForDate(final CurrencyCode currency, final LocalDate date) {
-        final var forDate = nbpService.getCurrencyRateForDate(currency, date);
+        final var forDate = provider.getCurrencyRateForDate(currency, date);
         if (forDate.isPresent()) {
             return creator.create(forDate.get());
         }
@@ -40,7 +43,7 @@ public class ExchangeRateService {
     }
 
     Collection<ExchangeRate> saveForDateRange(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
-        final var forDateRange = nbpService.getCurrencyRateForDateRange(currency, from, to);
+        final var forDateRange = provider.getCurrencyRateForDateRange(currency, from, to);
         if (!forDateRange.isEmpty()) {
             return creator.createForDateRange(currency, forDateRange);
         }
@@ -48,7 +51,7 @@ public class ExchangeRateService {
     }
 
     Collection<ExchangeRate> saveAllCurrent() {
-        final var allCurrent = nbpService.getCurrentCurrencyRates();
+        final var allCurrent = provider.getCurrentCurrencyRates();
         if (!allCurrent.isEmpty()) {
             return creator.createAll(allCurrent);
         }
@@ -56,7 +59,7 @@ public class ExchangeRateService {
     }
 
     Collection<ExchangeRate> saveAllForDate(final LocalDate date) {
-        final var allForDate = nbpService.getCurrencyRatesForDate(date);
+        final var allForDate = provider.getCurrencyRatesForDate(date);
         if (!allForDate.isEmpty()) {
             return creator.createAll(allForDate);
         }
@@ -64,11 +67,19 @@ public class ExchangeRateService {
     }
 
     Collection<ExchangeRate> saveAllForDateRange(final LocalDate from, final LocalDate to) {
-        final var allForDateRange = nbpService.getCurrencyRatesForDateRange(from, to);
+        final var allForDateRange = provider.getCurrencyRatesForDateRange(from, to);
         if (!allForDateRange.isEmpty()) {
             return creator.createAllForDateRange(allForDateRange);
         }
         return Collections.emptyList();
+    }
+
+    Collection<CurrencyRates> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
+        return finder.findAllCurrenciesRates(date, from, to);
+    }
+
+    Collection<CurrencyRates> findAllForCurrency(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
+        return finder.findAllForCurrencyRates(currency, date, from, to);
     }
 
 }
