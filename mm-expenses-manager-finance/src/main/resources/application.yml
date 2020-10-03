@@ -25,6 +25,8 @@ api:
     details:
       data-format: json
       default-currency: PLN
+      history-from-year: 2002
+      max-months-to-fetch: 3
 
 springfox:
   documentation:

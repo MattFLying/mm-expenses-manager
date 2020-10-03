@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.model.ExchangeRate;
 import mm.expenses.manager.finance.financial.CurrencyRate;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -122,6 +123,26 @@ class ExchangeRateCreator {
 
         log.info("{} currencies exist and won't be saved, {} new saved", existed.size(), notExisted.size());
         return Stream.concat(existed.stream(), notExisted.stream()).collect(Collectors.toList());
+    }
+
+    <T extends CurrencyRate> void saveHistory(final Collection<T> historicData) {
+        final var savedHistory = historicData.stream()
+                .map(mapper::map)
+                .map(this::save)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(mapper::map)
+                .collect(Collectors.toList());
+        log.info("{} historical currencies saved, {} duplicates skipped.", savedHistory.size(), historicData.size());
+    }
+
+    private Optional<ExchangeRateEntity> save(final ExchangeRateEntity entity) {
+        try {
+            return Optional.of(repository.save(entity));
+        } catch(final DataIntegrityViolationException exception) {
+            log.debug("Currency {} for date {} already exists and won't be saved.", entity.getCurrency(), entity.getDate());
+            return Optional.empty();
+        }
     }
 
     private <T extends CurrencyRate> Map<CurrencyCode, Map<LocalDate, List<ExchangeRateEntity>>> mapMissingCurrencies(final Map<CurrencyCode, Map<LocalDate, List<ExchangeRate>>> existed, final Map.Entry<CurrencyCode, Map<LocalDate, List<T>>> currencyRate) {
