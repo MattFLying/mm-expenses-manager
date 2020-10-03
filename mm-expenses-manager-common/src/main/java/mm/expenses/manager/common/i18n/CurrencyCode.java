@@ -203,13 +203,17 @@ public enum CurrencyCode {
         return this.name();
     }
 
-    public static CurrencyCode getCurrencyFromString(final String value) {
+    public static CurrencyCode getCurrencyFromString(final String value, final boolean ignoreCase) {
         try {
-            return CurrencyCode.valueOf(value);
+            return CurrencyCode.valueOf(ignoreCase ? value : value.toUpperCase());
         } catch (final Exception exception) {
             log.error("Unknown currency code was passed: {}", value);
             return CurrencyCode.UNDEFINED;
         }
+    }
+
+    public static CurrencyCode getCurrencyFromString(final String value) {
+        return getCurrencyFromString(value, true);
     }
 
 }
