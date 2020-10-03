@@ -17,6 +17,8 @@ public interface CurrencyRateProvider<T extends CurrencyRate> {
 
     CurrencyCode getDefaultCurrency();
 
+    Collection<T> getAllHistoricalCurrencies();
+
     Optional<T> getCurrentCurrencyRate(final CurrencyCode currencyCode);
 
     Optional<T> getCurrencyRateForDate(final CurrencyCode currencyCode, final LocalDate date);

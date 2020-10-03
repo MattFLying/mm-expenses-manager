@@ -26,6 +26,12 @@ public class ExchangeRateService {
     private final ExchangeRateFinder finder;
     private final ExchangeRateConfig config;
 
+    void historyUpdate() {
+        log.info("Currencies history update in progress.");
+        creator.saveHistory(provider.getAllHistoricalCurrencies());
+        log.info("Currencies history update has been done.");
+    }
+
     Optional<ExchangeRate> saveCurrent(final CurrencyCode currency) {
         final var current = provider.getCurrentCurrencyRate(currency);
         if (current.isPresent()) {

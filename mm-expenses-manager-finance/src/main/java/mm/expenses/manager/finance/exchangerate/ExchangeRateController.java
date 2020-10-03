@@ -1,10 +1,13 @@
 package mm.expenses.manager.finance.exchangerate;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ApiBadRequestException;
 import mm.expenses.manager.finance.exchangerate.model.CurrencyRates;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -38,6 +41,13 @@ class ExchangeRateController {
             throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currency can be filtered by date or by date from and date to at once");
         }
         return service.findAllForCurrency(currencyCode, date, from, to);
+    }
+
+    @PostMapping(value = "/history-update")
+    @ApiOperation(value = "Fetching and saving historical currencies", hidden = true)
+    ResponseEntity<Void> fetchAndSaveHistoricCurrencies() {
+        service.historyUpdate();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

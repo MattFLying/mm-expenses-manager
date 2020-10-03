@@ -207,7 +207,7 @@ public enum CurrencyCode {
         try {
             return CurrencyCode.valueOf(ignoreCase ? value : value.toUpperCase());
         } catch (final Exception exception) {
-            log.error("Unknown currency code was passed: {}", value);
+            log.warn("Unknown currency code was passed: {}", value);
             return CurrencyCode.UNDEFINED;
         }
     }

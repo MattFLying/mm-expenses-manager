@@ -32,6 +32,11 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     }
 
     @Override
+    public Collection<NbpCurrencyRate> getAllHistoricalCurrencies() {
+        return new NbpHistoryUpdater(nbpApiConfig, this).fetchHistoricalCurrencies();
+    }
+
+    @Override
     public Optional<NbpCurrencyRate> getCurrentCurrencyRate(final CurrencyCode currency) {
         final var table = TableType.findTableForCurrency(currency);
         try {
@@ -127,6 +132,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
         return tableExchangeRatesDto.getRates().stream()
                 .map(rateDto -> map(CurrencyCode.getCurrencyFromString(rateDto.getCode()), date, rateDto.getMid(), table, tableNumber))
+                .filter(currency -> !currency.getCurrency().equals(CurrencyCode.UNDEFINED))
                 .collect(Collectors.toList());
     }
 

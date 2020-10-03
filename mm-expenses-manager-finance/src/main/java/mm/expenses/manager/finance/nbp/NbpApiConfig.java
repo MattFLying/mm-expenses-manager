@@ -26,6 +26,8 @@ class NbpApiConfig {
 
         private String dataFormat;
         private String defaultCurrency;
+        private int historyFromYear;
+        private int maxMonthsToFetch;
 
     }
 
