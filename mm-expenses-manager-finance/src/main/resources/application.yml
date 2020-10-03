@@ -4,6 +4,7 @@ mm-expenses-manager-finance:
   currency:
     default-currency: PLN
     provider: nbp-provider
+    synchronization-cron: 0 0 13 ? * * #everyday at 13:00
 
 server:
   port: 8185

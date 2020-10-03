@@ -11,5 +11,6 @@ class ExchangeRateConfig {
 
     private String defaultCurrency;
     private String provider;
+    private String synchronizationCron;
 
 }
