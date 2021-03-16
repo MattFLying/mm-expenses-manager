@@ -1,14 +1,10 @@
-package mm.expenses.manager.finance.nbp;
+package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ApiFeignClientException;
-import mm.expenses.manager.finance.financial.CurrencyRateProvider;
-import mm.expenses.manager.finance.nbp.NbpClient.TableExchangeRatesDto;
-import mm.expenses.manager.finance.nbp.model.NbpCurrencyRate;
-import mm.expenses.manager.finance.nbp.model.NbpCurrencyRate.NbpDetails;
-import mm.expenses.manager.finance.nbp.model.TableType;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -19,12 +15,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-@Component("${mm-expenses-manager-finance.currency.provider}")
+@Component("${app.currency.provider.nbp.name}")
 @RequiredArgsConstructor
 class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
     private final NbpClient client;
     private final NbpApiConfig nbpApiConfig;
+
+    @Override
+    public String getName() {
+        return nbpApiConfig.getName();
+    }
 
     @Override
     public CurrencyCode getDefaultCurrency() {
@@ -40,7 +41,12 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     public Optional<NbpCurrencyRate> getCurrentCurrencyRate(final CurrencyCode currency) {
         final var table = TableType.findTableForCurrency(currency);
         try {
-            return client.fetchCurrentExchangeRateForCurrencyFromTableType(table.name(), currency.getCode(), nbpApiConfig.getDataFormat()).flatMap(dto -> map(dto, currency, table));
+            return client.fetchCurrentExchangeRateForCurrencyFromTableType(table.name(), currency.getCode(), nbpApiConfig.getDataFormat())
+                    .flatMap(dto -> dto.getRates()
+                            .stream()
+                            .findFirst()
+                            .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
+                    );
         } catch (final ApiFeignClientException exception) {
             log.error("Could not fetch data for currency: {}", table, exception);
             return Optional.empty();
@@ -51,7 +57,12 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     public Optional<NbpCurrencyRate> getCurrencyRateForDate(final CurrencyCode currency, final LocalDate date) {
         final var table = TableType.findTableForCurrency(currency);
         try {
-            return client.fetchExchangeRateForCurrencyFromTableTypeAndDate(table.name(), currency.getCode(), date, nbpApiConfig.getDataFormat()).flatMap(dto -> map(dto, currency, table));
+            return client.fetchExchangeRateForCurrencyFromTableTypeAndDate(table.name(), currency.getCode(), date, nbpApiConfig.getDataFormat())
+                    .flatMap(dto -> dto.getRates()
+                            .stream()
+                            .findFirst()
+                            .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
+                    );
         } catch (final ApiFeignClientException exception) {
             log.error("Could not fetch data for currency: {} and date : {}", table, date, exception);
             return Optional.empty();
@@ -63,15 +74,10 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
         final var table = TableType.findTableForCurrency(currency);
         try {
             return client.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(table.name(), currency.getCode(), from, to, nbpApiConfig.getDataFormat())
-                    .<Collection<NbpCurrencyRate>>map(
-                            dto -> dto.getRates()
-                                    .stream()
-                                    .map(rateDto -> NbpCurrencyRate.builder()
-                                            .currency(currency)
-                                            .date(rateDto.getEffectiveDate())
-                                            .nbpDetails(buildNbpDetails(table, rateDto.getNo(), rateDto.getMid()))
-                                            .build())
-                                    .collect(Collectors.toList())
+                    .<Collection<NbpCurrencyRate>>map(dto -> dto.getRates()
+                            .stream()
+                            .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
+                            .collect(Collectors.toList())
                     ).orElse(Collections.emptyList());
         } catch (final ApiFeignClientException exception) {
             log.error("Could not fetch data for currency: {} and date range {} - {}", table, from, to, exception);
@@ -103,40 +109,18 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                 .collect(Collectors.toList());
     }
 
-    private NbpDetails buildNbpDetails(final TableType table, final String tableNumber, final Double rate) {
-        return NbpDetails.builder().tableType(table).tableNumber(tableNumber).rate(rate).build();
-    }
-
-    private NbpDetails map(final TableType tableType, final String tableNumber, final Double rate) {
-        return buildNbpDetails(tableType, tableNumber, rate);
-    }
-
-    private NbpCurrencyRate map(final CurrencyCode currency, final LocalDate date, final Double rate, final TableType tableType, final String tableNumber) {
-        return NbpCurrencyRate.builder()
-                .currency(currency)
-                .date(date)
-                .nbpDetails(map(tableType, tableNumber, rate))
-                .build();
-    }
-
-    private Optional<NbpCurrencyRate> map(final NbpClient.ExchangeRateDto dto, final CurrencyCode currency, final TableType table) {
-        return dto.getRates().stream()
-                .findFirst()
-                .map(rateDto -> map(currency, rateDto.getEffectiveDate(), rateDto.getMid(), table, rateDto.getNo()));
-    }
-
-    private Collection<NbpCurrencyRate> map(final TableExchangeRatesDto tableExchangeRatesDto) {
+    private Collection<NbpCurrencyRate> map(final NbpClient.TableExchangeRatesDto tableExchangeRatesDto) {
         final var date = tableExchangeRatesDto.getEffectiveDate();
         final var table = TableType.parse(tableExchangeRatesDto.getTable());
         final var tableNumber = tableExchangeRatesDto.getNo();
 
         return tableExchangeRatesDto.getRates().stream()
-                .map(rateDto -> map(CurrencyCode.getCurrencyFromString(rateDto.getCode()), date, rateDto.getMid(), table, tableNumber))
+                .map(rateDto -> new NbpCurrencyRate(CurrencyCode.getCurrencyFromString(rateDto.getCode()), date, rateDto.getMid(), table, tableNumber))
                 .filter(currency -> !currency.getCurrency().equals(CurrencyCode.UNDEFINED))
                 .collect(Collectors.toList());
     }
 
-    private Stream<TableExchangeRatesDto> getCurrentExchangeRatesForTable(final TableType tableType) {
+    private Stream<NbpClient.TableExchangeRatesDto> getCurrentExchangeRatesForTable(final TableType tableType) {
         try {
             return client.fetchCurrentAllExchangeRatesForTableType(tableType.name(), nbpApiConfig.getDataFormat()).stream();
         } catch (final ApiFeignClientException exception) {
@@ -145,7 +129,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
         }
     }
 
-    private Stream<TableExchangeRatesDto> getExchangeRatesForDateAndTable(final TableType tableType, final LocalDate date) {
+    private Stream<NbpClient.TableExchangeRatesDto> getExchangeRatesForDateAndTable(final TableType tableType, final LocalDate date) {
         try {
             return client.fetchAllExchangeRatesForTableTypeAndDate(tableType.name(), date, nbpApiConfig.getDataFormat()).stream();
         } catch (final ApiFeignClientException exception) {
@@ -154,7 +138,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
         }
     }
 
-    private Stream<TableExchangeRatesDto> getExchangeRatesForDateRangeAndTable(final TableType tableType, final LocalDate from, final LocalDate to) {
+    private Stream<NbpClient.TableExchangeRatesDto> getExchangeRatesForDateRangeAndTable(final TableType tableType, final LocalDate from, final LocalDate to) {
         try {
             return client.fetchAllExchangeRatesForTableTypeAndDateRange(tableType.name(), from, to, nbpApiConfig.getDataFormat()).stream();
         } catch (final ApiFeignClientException exception) {

@@ -12,7 +12,7 @@ class ExchangeRateSynchronizer {
 
     private final ExchangeRateService service;
 
-    @Scheduled(cron = "${mm-expenses-manager-finance.currency.synchronization-cron}")
+    @Scheduled(cron = "${app.currency.synchronization-cron}")
     void dailySynchronization() {
         log.info("Currencies synchronization in progress.");
         service.saveAllCurrent();

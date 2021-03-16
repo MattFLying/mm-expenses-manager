@@ -1,10 +1,9 @@
-package mm.expenses.manager.finance.nbp;
+package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.finance.financial.HistoricCurrencies;
-import mm.expenses.manager.finance.nbp.model.NbpCurrencyRate;
+import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

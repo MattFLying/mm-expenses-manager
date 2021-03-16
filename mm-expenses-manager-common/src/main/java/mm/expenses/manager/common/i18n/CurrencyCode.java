@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -214,6 +215,10 @@ public enum CurrencyCode {
 
     public static CurrencyCode getCurrencyFromString(final String value) {
         return getCurrencyFromString(value, true);
+    }
+
+    public static CurrencyCode of(final CurrencyCode currencyCode) {
+        return Objects.nonNull(currencyCode) ? currencyCode : CurrencyCode.UNDEFINED;
     }
 
 }

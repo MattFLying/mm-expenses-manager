@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.nbp;
+package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "api.nbp")
+@ConfigurationProperties(prefix = "app.currency.provider.nbp")
 class NbpApiConfig {
 
     private String name;
