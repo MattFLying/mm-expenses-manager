@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.nbp;
+package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
-@FeignClient(name = "${api.nbp.name}", url = "${api.nbp.url}")
+@FeignClient(name = "${app.currency.provider.nbp.client}", url = "${app.currency.provider.nbp.url}")
 interface NbpClient {
 
     @GetMapping(value = "tables/{tableType}/")

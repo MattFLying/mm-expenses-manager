@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "mm-expenses-manager-finance.currency")
+@ConfigurationProperties(prefix = "app.currency")
 class ExchangeRateConfig {
 
     private String defaultCurrency;
-    private String provider;
+    private String defaultProvider;
     private String synchronizationCron;
 
 }

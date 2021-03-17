@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.nbp.model;
+package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.Set;
 @Slf4j
 @Getter
 @RequiredArgsConstructor
-public enum TableType {
+enum TableType {
     UNKNOWN(Set.of()),
     A(Set.of(
             CurrencyCode.THB, CurrencyCode.USD, CurrencyCode.AUD, CurrencyCode.HKD, CurrencyCode.CAD, CurrencyCode.NZD,
@@ -46,7 +46,11 @@ public enum TableType {
 
     private final Set<CurrencyCode> currencies;
 
-    public static TableType parse(final String value) {
+    static TableType parse(final Object value) {
+        return parse(value.toString());
+    }
+
+    static TableType parse(final String value) {
         try {
             return valueOf(value.toUpperCase());
         } catch (final Exception exception) {
@@ -55,7 +59,7 @@ public enum TableType {
         }
     }
 
-    public static TableType findTableForCurrency(final CurrencyCode currencyCode) {
+    static TableType findTableForCurrency(final CurrencyCode currencyCode) {
         if (TableType.A.getCurrencies().contains(currencyCode)) {
             return TableType.A;
         }
@@ -66,7 +70,7 @@ public enum TableType {
         return TableType.UNKNOWN;
     }
 
-    public static Set<CurrencyCode> findCurrencies(final TableType table) {
+    static Set<CurrencyCode> findCurrencies(final TableType table) {
         switch (table) {
             case A:
                 return TableType.A.getCurrencies();

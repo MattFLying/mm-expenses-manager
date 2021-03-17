@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.financial;
+package mm.expenses.manager.finance.exchangerate.provider;
 
 import java.util.Collection;
 

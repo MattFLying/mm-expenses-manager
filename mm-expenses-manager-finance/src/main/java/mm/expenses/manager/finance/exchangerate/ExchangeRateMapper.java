@@ -2,48 +2,62 @@ package mm.expenses.manager.finance.exchangerate;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.mapper.AbstractMapper;
-import mm.expenses.manager.finance.common.CurrencyProviderType;
-import mm.expenses.manager.finance.exchangerate.model.CurrencyRates;
 import mm.expenses.manager.finance.exchangerate.model.ExchangeRate;
-import mm.expenses.manager.finance.financial.CurrencyDetailsParser;
-import mm.expenses.manager.finance.financial.CurrencyRate;
+import mm.expenses.manager.finance.exchangerate.model.ExchangeRates;
+import mm.expenses.manager.finance.exchangerate.model.dto.ExchangeRatesDto;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
+import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class ExchangeRateMapper extends AbstractMapper {
 
     @Autowired
-    protected CurrencyDetailsParser detailsParser;
+    protected DefaultCurrencyProvider<?> provider;
+
+    @Mapping(target = "date", expression = "java(fromLocalDateToInstant(entity.getDate()))")
+    abstract ExchangeRateEntity map(final ExchangeRate entity);
 
     @Mapping(target = "date", expression = "java(fromInstantToLocalDate(entity.getDate()))")
-    @Mapping(target = "details", expression = "java(detailsParser.parseJsonDetailsToCurrencyRateDetailsTypes(entity.getDetails()))")
     abstract ExchangeRate map(final ExchangeRateEntity entity);
 
     @Mapping(target = "date", expression = "java(fromLocalDateToInstant(domain.getDate()))")
+    @Mapping(target = "ratesByProvider", expression = "java(mapToRatesByProvider(domain, provider.getName()))")
+    @Mapping(target = "detailsByProvider", expression = "java(mapToDetailsByProvider(domain, provider.getName()))")
     @Mapping(target = "createdAt", expression = "java(createInstantNow())")
-    @Mapping(target = "details", expression = "java(detailsParser.parseCurrencyRateDetailsToJson(domain))")
     abstract ExchangeRateEntity map(final CurrencyRate domain);
 
-    protected CurrencyRates map(final CurrencyCode currencyCode, final List<ExchangeRateEntity> entities, final CurrencyProviderType provider) {
-        return CurrencyRates.builder()
-                .currency(currencyCode)
-                .rates(
-                        entities.stream()
-                                .map(entity -> CurrencyRates.CurrencyRate.builder()
-                                        .date(fromInstantToLocalDate(entity.getDate()))
-                                        .rate(detailsParser.parseJsonDetailsToCurrencyRateDetails(entity.getDetails(), provider, true).getRate())
-                                        .build())
-                                .sorted(Comparator.comparing(CurrencyRates.CurrencyRate::getDate).reversed())
-                                .collect(Collectors.toList())
-                )
+    @Mapping(target = "date", source = "exchangeRate.date")
+    @Mapping(target = "rate", expression = "java(exchangeRate.getRateByProvider(provider.getName()))")
+    abstract ExchangeRatesDto.ExchangeRateDto mapToDto(final ExchangeRate exchangeRate);
+
+    public ExchangeRatesDto mapToDto(final ExchangeRates exchangeRates) {
+        return ExchangeRatesDto.builder()
+                .currency(exchangeRates.getCurrency())
+                .rates(exchangeRates.getRates().stream().map(this::mapToDto).collect(Collectors.toList()))
                 .build();
+    }
+
+    protected ExchangeRates map(final CurrencyCode currency, final Collection<ExchangeRateEntity> entities) {
+        return ExchangeRates.builder()
+                .currency(currency)
+                .rates(entities.stream().map(this::map).collect(Collectors.toList()))
+                .build();
+    }
+
+    protected Map<String, Double> mapToRatesByProvider(final CurrencyRate domain, final String providerName) {
+        return Map.of(providerName, domain.getRate());
+    }
+
+    protected Map<String, Map<String, Object>> mapToDetailsByProvider(final CurrencyRate domain, final String providerName) {
+        return Map.of(providerName, domain.getDetails());
     }
 
 }

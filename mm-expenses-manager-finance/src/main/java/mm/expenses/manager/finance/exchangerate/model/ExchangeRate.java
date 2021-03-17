@@ -3,15 +3,14 @@ package mm.expenses.manager.finance.exchangerate.model;
 import lombok.Builder;
 import lombok.Data;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.finance.common.CurrencyProviderType;
-import mm.expenses.manager.finance.financial.CurrencyRateProvider.CurrencyDetails;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Data
-@Builder(toBuilder = true)
 public class ExchangeRate {
 
     private final String id;
@@ -20,8 +19,36 @@ public class ExchangeRate {
 
     private final LocalDate date;
 
-    private final Map<CurrencyProviderType, CurrencyDetails> details;
+    private final Map<String, Double> ratesByProvider;
+
+    private final Map<String, Map<String, Object>> detailsByProvider;
 
     private final Instant createdAt;
+
+    @Builder(toBuilder = true)
+    public ExchangeRate(final String id, final CurrencyCode currency, final LocalDate date, final Map<String, Double> ratesByProvider, final Map<String, Map<String, Object>> detailsByProvider, final Instant createdAt) {
+        this.id = id;
+        this.currency = currency;
+        this.date = date;
+        this.ratesByProvider = Objects.nonNull(ratesByProvider) ? ratesByProvider : new HashMap<>();
+        this.detailsByProvider = Objects.nonNull(detailsByProvider) ? detailsByProvider : new HashMap<>();
+        this.createdAt = createdAt;
+    }
+
+    public void addRateForProvider(final String providerName, final Double rate) {
+        ratesByProvider.put(providerName, rate);
+    }
+
+    public void addDetailsForProvider(final String providerName, final Map<String, Object> details) {
+        detailsByProvider.put(providerName, details);
+    }
+
+    public boolean hasProvider(final String providerName) {
+        return ratesByProvider.containsKey(providerName) && detailsByProvider.containsKey(providerName);
+    }
+
+    public Double getRateByProvider(final String providerName) {
+        return ratesByProvider.getOrDefault(providerName, 0.0);
+    }
 
 }

@@ -3,11 +3,10 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.finance.exchangerate.model.CurrencyRates;
 import mm.expenses.manager.finance.exchangerate.model.ExchangeRate;
-import mm.expenses.manager.finance.financial.CurrencyRate;
-import mm.expenses.manager.finance.financial.CurrencyRateProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
+import mm.expenses.manager.finance.exchangerate.model.ExchangeRates;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -18,13 +17,11 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ExchangeRateService {
+class ExchangeRateService {
 
-    private final @Qualifier("${mm-expenses-manager-finance.currency.provider}")
-    CurrencyRateProvider<? extends CurrencyRate> provider;
-    private final ExchangeRateCreator creator;
-    private final ExchangeRateFinder finder;
-    private final ExchangeRateConfig config;
+    private final CurrencyRateProvider<? extends CurrencyRate> provider;
+    private final ExchangeRateCommand creator;
+    private final ExchangeRateQuery finder;
 
     void historyUpdate() {
         log.info("Currencies history update in progress.");
@@ -80,11 +77,11 @@ public class ExchangeRateService {
         return Collections.emptyList();
     }
 
-    Collection<CurrencyRates> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
+    Collection<ExchangeRates> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
         return finder.findAllCurrenciesRates(date, from, to);
     }
 
-    Collection<CurrencyRates> findAllForCurrency(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
+    Collection<ExchangeRates> findAllForCurrency(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
         return finder.findAllForCurrencyRates(currency, date, from, to);
     }
 

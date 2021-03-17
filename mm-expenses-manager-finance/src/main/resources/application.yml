@@ -1,13 +1,25 @@
-mm-expenses-manager-finance:
-  app-version: 0.1.0
-  app-name: Expenses manager finance
+app:
+  version: @project.version@
+  name: @project.artifactId@
+  port: 8185
   currency:
     default-currency: PLN
-    provider: nbp-provider
+    default-provider: ${app.currency.provider.nbp.name}
     synchronization-cron: 0 0 13 ? * * #everyday at 13:00
+    provider:
+      nbp:
+        name: nbp-provider
+        client: npb-client
+        url: http://api.nbp.pl/api/exchangerates
+        details:
+          data-format: json
+          default-currency: PLN
+          history-from-year: 2002
+          max-months-to-fetch: 3
 
 server:
-  port: 8185
+  port: ${app.port}
+
 spring:
   data:
     mongodb:
@@ -18,18 +30,9 @@ spring:
         default-page-size: 10
         max-page-size: 50
 
-api:
-  nbp:
-    name: nbp-exchange-rates
-    url: http://api.nbp.pl/api/exchangerates
-    details:
-      data-format: json
-      default-currency: PLN
-      history-from-year: 2002
-      max-months-to-fetch: 3
-
-springfox:
-  documentation:
-    swagger:
-      v2:
-        path: /expenses-manager-finance/v2/api-docs
+springdoc:
+  swagger-ui:
+    path: /api/ui
+    disable-swagger-default-url: true
+  api-docs:
+    path: /api
