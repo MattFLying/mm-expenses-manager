@@ -53,7 +53,7 @@ class ExchangeRateCommand {
         final var currenciesByName = forDateRange.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
 
         final var existed = findByDateOrDateRange(currency, fromDate, toDate).stream()
-                .map(rateEntity -> updateIfCurrentProviderDoesNotExists(currenciesByName, rateEntity))
+                .map(rateEntity -> updateIfCurrentProviderDoesNotExistsAndSaveChanges(currenciesByName, rateEntity))
                 .collect(Collectors.toMap(
                         ExchangeRate::getDate,
                         Function.identity()
@@ -80,7 +80,7 @@ class ExchangeRateCommand {
         final var toDate = findDateTo(all);
 
         final var existed = findByDateOrDateRange(currencies, fromDate, toDate).stream()
-                .map(rateEntity -> updateIfCurrentProviderDoesNotExists(currenciesByName, rateEntity))
+                .map(rateEntity -> updateIfCurrentProviderDoesNotExistsAndSaveChanges(currenciesByName, rateEntity))
                 .collect(Collectors.toMap(
                         ExchangeRate::getCurrency,
                         Function.identity(),
@@ -108,7 +108,7 @@ class ExchangeRateCommand {
         final var toDate = findDateTo(allForDateRange);
 
         final var existedByCurrency = findByDateOrDateRange(currencies, fromDate, toDate).stream()
-                .map(rateEntity -> updateIfCurrentProviderDoesNotExists(currenciesByName, rateEntity))
+                .map(rateEntity -> updateIfCurrentProviderDoesNotExistsAndSaveChanges(currenciesByName, rateEntity))
                 .collect(Collectors.groupingBy(ExchangeRate::getCurrency, Collectors.groupingBy(ExchangeRate::getDate)));
 
         final var notExisted = allForDateRange.stream()
@@ -146,14 +146,14 @@ class ExchangeRateCommand {
         final var currenciesByName = historicData.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
         final var toSave = historicData.stream()
                 .map(mapper::map)
-                .map(rateEntity -> updateIfCurrentProviderDoesNotExists2(currenciesByName, rateEntity))
-                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExchangeRateEntity::getCurrency).thenComparing(ExchangeRateEntity::getDate))));
+                .map(rateEntity -> updateIfCurrentProviderDoesNotExists(currenciesByName, rateEntity))
+                .collect(Collectors.toList());
         final var savedHistory = repository.saveAll(toSave);
 
         log.info("{} historical currencies saved, {} duplicates skipped.", savedHistory.size(), historicData.size() - savedHistory.size());
     }
 
-    private <T extends CurrencyRate> ExchangeRateEntity updateIfCurrentProviderDoesNotExists2(final Map<CurrencyCode, List<T>> currenciesByName, final ExchangeRateEntity rateEntity) {
+    private <T extends CurrencyRate> ExchangeRateEntity updateIfCurrentProviderDoesNotExists(final Map<CurrencyCode, List<T>> currenciesByName, final ExchangeRateEntity rateEntity) {
         final var exchangeRate = mapper.map(rateEntity);
         if (!exchangeRate.hasProvider(provider.getName())) {
             log.info("Currency {} for date {} already exists but without current provider. Will be updated.", exchangeRate.getCurrency(), exchangeRate.getDate());
@@ -170,7 +170,7 @@ class ExchangeRateCommand {
         return mapper.map(exchangeRate);
     }
 
-    private <T extends CurrencyRate> ExchangeRate updateIfCurrentProviderDoesNotExists(final Map<CurrencyCode, List<T>> currenciesByName, final ExchangeRateEntity rateEntity) {
+    private <T extends CurrencyRate> ExchangeRate updateIfCurrentProviderDoesNotExistsAndSaveChanges(final Map<CurrencyCode, List<T>> currenciesByName, final ExchangeRateEntity rateEntity) {
         final var exchangeRate = mapper.map(rateEntity);
         if (!exchangeRate.hasProvider(provider.getName())) {
             log.info("Currency {} for date {} already exists but without current provider. Will be updated.", exchangeRate.getCurrency(), exchangeRate.getDate());

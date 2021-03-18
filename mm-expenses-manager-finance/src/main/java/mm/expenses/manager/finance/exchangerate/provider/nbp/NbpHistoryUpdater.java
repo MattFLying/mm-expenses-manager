@@ -12,6 +12,8 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Component
@@ -32,7 +34,7 @@ class NbpHistoryUpdater implements HistoricCurrencies<NbpCurrencyRate> {
         return dates.parallelStream()
                 .map(dateRange -> provider.getCurrencyRatesForDateRange(dateRange.getFrom(), dateRange.getTo()))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(NbpCurrencyRate::getCurrency).thenComparing(NbpCurrencyRate::getDate))));
     }
 
     private Collection<DateRange> findDates(final Instant today, final int startYear, final int maxMothsToFetch, final int maxDaysToFetch) {
