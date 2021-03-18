@@ -6,17 +6,16 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.model.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 @Slf4j
 @Component
@@ -145,24 +144,30 @@ class ExchangeRateCommand {
 
     <T extends CurrencyRate> void saveHistory(final Collection<T> historicData) {
         final var currenciesByName = historicData.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
-        final var savedHistory = historicData.stream()
+        final var toSave = historicData.stream()
                 .map(mapper::map)
-                .map(rateEntity -> updateIfCurrentProviderDoesNotExists(currenciesByName, rateEntity))
-                .map(this::save)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(mapper::map)
-                .collect(toList());
+                .map(rateEntity -> updateIfCurrentProviderDoesNotExists2(currenciesByName, rateEntity))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ExchangeRateEntity::getCurrency).thenComparing(ExchangeRateEntity::getDate))));
+        final var savedHistory = repository.saveAll(toSave);
+
         log.info("{} historical currencies saved, {} duplicates skipped.", savedHistory.size(), historicData.size() - savedHistory.size());
     }
 
-    private Optional<ExchangeRateEntity> save(final ExchangeRate exchangeRate) {
-        try {
-            return Optional.of(repository.save(mapper.map(exchangeRate)));
-        } catch (final DataIntegrityViolationException exception) {
-            log.debug("Currency {} for date {} already exists and won't be saved.", exchangeRate.getCurrency(), exchangeRate.getDate());
-            return Optional.empty();
+    private <T extends CurrencyRate> ExchangeRateEntity updateIfCurrentProviderDoesNotExists2(final Map<CurrencyCode, List<T>> currenciesByName, final ExchangeRateEntity rateEntity) {
+        final var exchangeRate = mapper.map(rateEntity);
+        if (!exchangeRate.hasProvider(provider.getName())) {
+            log.info("Currency {} for date {} already exists but without current provider. Will be updated.", exchangeRate.getCurrency(), exchangeRate.getDate());
+            final var toUpdateOpt = currenciesByName.getOrDefault(exchangeRate.getCurrency(), Collections.emptyList())
+                    .stream()
+                    .filter(currencyRate -> currencyRate.getDate().equals(exchangeRate.getDate()))
+                    .findFirst();
+            if (toUpdateOpt.isPresent()) {
+                final var toUpdate = toUpdateOpt.get();
+                exchangeRate.addRateForProvider(provider.getName(), toUpdate.getRate());
+                exchangeRate.addDetailsForProvider(provider.getName(), toUpdate.getDetails());
+            }
         }
+        return mapper.map(exchangeRate);
     }
 
     private <T extends CurrencyRate> ExchangeRate updateIfCurrentProviderDoesNotExists(final Map<CurrencyCode, List<T>> currenciesByName, final ExchangeRateEntity rateEntity) {

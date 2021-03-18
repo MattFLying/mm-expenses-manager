@@ -29,7 +29,7 @@ class NbpHistoryUpdater implements HistoricCurrencies<NbpCurrencyRate> {
         final var today = Instant.now();
         final var dates = findDates(today, startYear, maxMothsToFetch, maxDaysToFetch);
 
-        return dates.stream()
+        return dates.parallelStream()
                 .map(dateRange -> provider.getCurrencyRatesForDateRange(dateRange.getFrom(), dateRange.getTo()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());

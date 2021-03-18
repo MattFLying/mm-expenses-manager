@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
@@ -24,9 +25,11 @@ class ExchangeRateService {
     private final ExchangeRateQuery finder;
 
     void historyUpdate() {
-        log.info("Currencies history update in progress.");
-        creator.saveHistory(provider.getAllHistoricalCurrencies());
-        log.info("Currencies history update has been done.");
+        Executors.newSingleThreadExecutor().execute(() -> {
+            log.info("Currencies history update in progress.");
+            creator.saveHistory(provider.getAllHistoricalCurrencies());
+            log.info("Currencies history update has been done.");
+        });
     }
 
     Optional<ExchangeRate> saveCurrent(final CurrencyCode currency) {
