@@ -28,6 +28,7 @@ class NbpApiConfig {
         private String defaultCurrency;
         private int historyFromYear;
         private int maxMonthsToFetch;
+        private int maxDaysToFetch;
 
     }
 

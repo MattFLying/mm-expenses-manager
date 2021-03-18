@@ -96,8 +96,7 @@ class ExchangeRateController {
             description = "Fetching all historical exchange rates for all available currencies and saving.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "OK", content = @Content)
-            },
-            hidden = true
+            }
     )
     @PostMapping(value = "/history-update")
     ResponseEntity<Void> fetchAndSaveHistoricCurrencies() {

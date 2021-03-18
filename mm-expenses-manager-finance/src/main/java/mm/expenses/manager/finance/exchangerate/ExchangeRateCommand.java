@@ -146,14 +146,14 @@ class ExchangeRateCommand {
     <T extends CurrencyRate> void saveHistory(final Collection<T> historicData) {
         final var currenciesByName = historicData.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
         final var savedHistory = historicData.stream()
-                .map(toSave -> mapper.map(toSave))
+                .map(mapper::map)
                 .map(rateEntity -> updateIfCurrentProviderDoesNotExists(currenciesByName, rateEntity))
                 .map(this::save)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(mapper::map)
                 .collect(toList());
-        log.info("{} historical currencies saved, {} duplicates skipped.", savedHistory.size(), historicData.size());
+        log.info("{} historical currencies saved, {} duplicates skipped.", savedHistory.size(), historicData.size() - savedHistory.size());
     }
 
     private Optional<ExchangeRateEntity> save(final ExchangeRate exchangeRate) {

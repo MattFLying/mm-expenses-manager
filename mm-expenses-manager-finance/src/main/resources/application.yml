@@ -16,6 +16,7 @@ app:
           default-currency: PLN
           history-from-year: 2002
           max-months-to-fetch: 3
+          max-days-to-fetch: 88
 
 server:
   port: ${app.port}
