@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 
 @Slf4j
@@ -32,7 +31,17 @@ class ExchangeRateService {
         });
     }
 
-    Optional<ExchangeRate> saveCurrent(final CurrencyCode currency) {
+    Collection<ExchangeRate> saveAllCurrent() {
+        final var allCurrent = provider.getCurrentCurrencyRates();
+        if (!allCurrent.isEmpty()) {
+            return creator.createOrUpdate(allCurrent);
+        }
+        return Collections.emptyList();
+    }
+
+
+
+    /*Optional<ExchangeRate> saveCurrent(final CurrencyCode currency) {
         final var current = provider.getCurrentCurrencyRate(currency);
         if (current.isPresent()) {
             return creator.create(current.get());
@@ -56,14 +65,6 @@ class ExchangeRateService {
         return Collections.emptyList();
     }
 
-    Collection<ExchangeRate> saveAllCurrent() {
-        final var allCurrent = provider.getCurrentCurrencyRates();
-        if (!allCurrent.isEmpty()) {
-            return creator.createAll(allCurrent);
-        }
-        return Collections.emptyList();
-    }
-
     Collection<ExchangeRate> saveAllForDate(final LocalDate date) {
         final var allForDate = provider.getCurrencyRatesForDate(date);
         if (!allForDate.isEmpty()) {
@@ -78,7 +79,7 @@ class ExchangeRateService {
             return creator.createAllForDateRange(allForDateRange);
         }
         return Collections.emptyList();
-    }
+    }*/
 
     Collection<ExchangeRates> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
         return finder.findAllCurrenciesRates(date, from, to);

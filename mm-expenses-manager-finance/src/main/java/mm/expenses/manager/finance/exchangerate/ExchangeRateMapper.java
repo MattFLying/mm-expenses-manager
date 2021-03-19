@@ -23,16 +23,16 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     protected DefaultCurrencyProvider<?> provider;
 
     @Mapping(target = "date", expression = "java(fromLocalDateToInstant(entity.getDate()))")
-    abstract ExchangeRateEntity map(final ExchangeRate entity);
+    abstract ExchangeRateEntity mapToEntityFromDomain(final ExchangeRate entity);
 
     @Mapping(target = "date", expression = "java(fromInstantToLocalDate(entity.getDate()))")
-    abstract ExchangeRate map(final ExchangeRateEntity entity);
+    abstract ExchangeRate mapFromEntity(final ExchangeRateEntity entity);
 
     @Mapping(target = "date", expression = "java(fromLocalDateToInstant(domain.getDate()))")
     @Mapping(target = "ratesByProvider", expression = "java(mapToRatesByProvider(domain, provider.getName()))")
     @Mapping(target = "detailsByProvider", expression = "java(mapToDetailsByProvider(domain, provider.getName()))")
     @Mapping(target = "createdAt", expression = "java(createInstantNow())")
-    abstract ExchangeRateEntity map(final CurrencyRate domain);
+    abstract ExchangeRateEntity mapToEntity(final CurrencyRate domain);
 
     @Mapping(target = "date", source = "exchangeRate.date")
     @Mapping(target = "rate", expression = "java(exchangeRate.getRateByProvider(provider.getName()))")
@@ -48,7 +48,7 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     protected ExchangeRates map(final CurrencyCode currency, final Collection<ExchangeRateEntity> entities) {
         return ExchangeRates.builder()
                 .currency(currency)
-                .rates(entities.stream().map(this::map).collect(Collectors.toList()))
+                .rates(entities.stream().map(this::mapFromEntity).collect(Collectors.toList()))
                 .build();
     }
 

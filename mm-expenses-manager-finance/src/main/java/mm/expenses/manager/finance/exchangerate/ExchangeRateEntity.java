@@ -32,4 +32,16 @@ class ExchangeRateEntity {
 
     private final Instant createdAt;
 
+    public void addRateForProvider(final String providerName, final Double rate) {
+        ratesByProvider.put(providerName, rate);
+    }
+
+    public void addDetailsForProvider(final String providerName, final Map<String, Object> details) {
+        detailsByProvider.put(providerName, details);
+    }
+
+    public boolean hasProvider(final String providerName) {
+        return ratesByProvider.containsKey(providerName) && detailsByProvider.containsKey(providerName);
+    }
+
 }
