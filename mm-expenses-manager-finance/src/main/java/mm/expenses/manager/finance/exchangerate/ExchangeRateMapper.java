@@ -12,6 +12,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,8 +32,9 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     @Mapping(target = "date", expression = "java(fromLocalDateToInstant(domain.getDate()))")
     @Mapping(target = "ratesByProvider", expression = "java(mapToRatesByProvider(domain, provider.getName()))")
     @Mapping(target = "detailsByProvider", expression = "java(mapToDetailsByProvider(domain, provider.getName()))")
-    @Mapping(target = "createdAt", expression = "java(createInstantNow())")
-    abstract ExchangeRateEntity mapToEntity(final CurrencyRate domain);
+    @Mapping(target = "createdAt", source = "now")
+    @Mapping(target = "modifiedAt", source = "now")
+    abstract ExchangeRateEntity mapToEntity(final CurrencyRate domain, final Instant now);
 
     @Mapping(target = "date", source = "exchangeRate.date")
     @Mapping(target = "rate", expression = "java(exchangeRate.getRateByProvider(provider.getName()))")

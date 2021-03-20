@@ -5,25 +5,25 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Repository
 interface ExchangeRateRepository extends MongoRepository<ExchangeRateEntity, String> {
 
-    Collection<ExchangeRateEntity> findByDate(final Instant date);
+    Stream<ExchangeRateEntity> findByDate(final Instant date);
 
-    Collection<ExchangeRateEntity> findByDateBetween(final Instant from, final Instant to);
+    Stream<ExchangeRateEntity> findByDateBetween(final Instant from, final Instant to);
 
-    Collection<ExchangeRateEntity> findByCurrency(final CurrencyCode currency);
+    Stream<ExchangeRateEntity> findByCurrency(final CurrencyCode currency);
 
     Optional<ExchangeRateEntity> findByCurrencyAndDate(final CurrencyCode currency, final Instant date);
 
-    Collection<ExchangeRateEntity> findByCurrencyInAndDate(final Set<CurrencyCode> currencies, final Instant date);
+    Stream<ExchangeRateEntity> findByCurrencyInAndDate(final Set<CurrencyCode> currencies, final Instant date);
 
-    Collection<ExchangeRateEntity> findByCurrencyAndDateBetween(final CurrencyCode currency, final Instant from, final Instant to);
+    Stream<ExchangeRateEntity> findByCurrencyAndDateBetween(final CurrencyCode currency, final Instant from, final Instant to);
 
-    Collection<ExchangeRateEntity> findByCurrencyInAndDateBetween(final Set<CurrencyCode> currencies, final Instant from, final Instant to);
+    Stream<ExchangeRateEntity> findByCurrencyInAndDateBetween(final Set<CurrencyCode> currencies, final Instant from, final Instant to);
 
 }

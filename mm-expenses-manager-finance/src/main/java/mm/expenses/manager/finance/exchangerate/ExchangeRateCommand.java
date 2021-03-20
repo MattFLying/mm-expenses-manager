@@ -13,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
@@ -55,7 +56,9 @@ class ExchangeRateCommand {
 
         final var fromDate = findDateFrom(exchangeRates);
         final var toDate = findDateTo(exchangeRates);
-        final var existedByCurrency = findByCurrenciesAndDateOrDateRange(currencies, fromDate, toDate).stream().collect(Collectors.groupingBy(ExchangeRateEntity::getCurrency, toList()));
+        final var existedByCurrency = findByCurrenciesAndDateOrDateRange(currencies, fromDate, toDate).collect(
+                Collectors.groupingBy(ExchangeRateEntity::getCurrency, toList())
+        );
 
         final var toBeSaved = createOrUpdate(toSaveByCurrency, existedByCurrency);
         final var savedHistory = repository.saveAll(toBeSaved);
@@ -92,7 +95,7 @@ class ExchangeRateCommand {
                                 .collect(Collectors.toList());
                     } else {
                         return rateEntry.getValue().stream()
-                                .map(mapper::mapToEntity)
+                                .map(rate -> mapper.mapToEntity(rate, mapper.createInstantNow()))
                                 .collect(Collectors.toList());
                     }
                 })
@@ -116,11 +119,11 @@ class ExchangeRateCommand {
             if (!existed.hasProvider(providerName)) {
                 existed.addRateForProvider(providerName, currencyRate.getRate());
                 existed.addDetailsForProvider(providerName, currencyRate.getDetails());
-                return Optional.of(existed);
+                return Optional.of(ExchangeRateEntity.modified(existed, mapper.createInstantNow()));
             }
             return Optional.empty();
         }
-        return Optional.of(mapper.mapToEntity(currencyRate));
+        return Optional.of(mapper.mapToEntity(currencyRate, mapper.createInstantNow()));
     }
 
     /**
@@ -131,149 +134,33 @@ class ExchangeRateCommand {
      * @param toDate     date to
      * @return all exchange rates that fulfil ther criteria
      */
-    private Collection<ExchangeRateEntity> findByCurrenciesAndDateOrDateRange(final Set<CurrencyCode> currencies, final LocalDate fromDate, final LocalDate toDate) {
+    private Stream<ExchangeRateEntity> findByCurrenciesAndDateOrDateRange(final Set<CurrencyCode> currencies, final LocalDate fromDate, final LocalDate toDate) {
         if (!fromDate.isEqual(toDate)) {
             return repository.findByCurrencyInAndDateBetween(currencies, mapper.fromLocalDateToInstant(fromDate).minus(1, ChronoUnit.DAYS), mapper.fromLocalDateToInstant(toDate).plus(1, ChronoUnit.DAYS));
         }
         return repository.findByCurrencyInAndDate(currencies, mapper.fromLocalDateToInstant(fromDate));
     }
 
+    /**
+     * Find maximum date to.
+     *
+     * @param currencyRates currency rate data objects
+     * @param <T>
+     * @return maximum date to
+     */
     private <T extends CurrencyRate> LocalDate findDateTo(final Collection<T> currencyRates) {
         return currencyRates.stream().max(Comparator.comparing(CurrencyRate::getDate)).map(CurrencyRate::getDate).orElseThrow(() -> new IllegalArgumentException("Invalid data, could not find date from"));
     }
 
+    /**
+     * Find minimum date from.
+     *
+     * @param currencyRates currency rate data objects
+     * @param <T>           specific type of CurrencyRate depends of current provider
+     * @return minimum date from
+     */
     private <T extends CurrencyRate> LocalDate findDateFrom(final Collection<T> currencyRates) {
         return currencyRates.stream().min(Comparator.comparing(CurrencyRate::getDate)).map(CurrencyRate::getDate).orElseThrow(() -> new IllegalArgumentException("Invalid data, could not find date to"));
     }
-
-
-
-
-
-
-
-
-
-
-    /*
-    private Collection<ExchangeRateEntity> findByDateOrDateRange(final CurrencyCode currency, final LocalDate fromDate, final LocalDate toDate) {
-        if (!fromDate.isEqual(toDate)) {
-            return repository.findByCurrencyAndDateBetween(currency, mapper.fromLocalDateToInstant(fromDate).minus(1, ChronoUnit.DAYS), mapper.fromLocalDateToInstant(toDate).plus(1, ChronoUnit.DAYS));
-        }
-        return repository.findByCurrencyAndDate(currency, mapper.fromLocalDateToInstant(fromDate)).map(List::of).orElse(Collections.emptyList());
-    }
-
-
-    <T extends CurrencyRate> Optional<ExchangeRate> create(final T currencyRate) {
-        return repository.findByCurrencyAndDate(currencyRate.getCurrency(), mapper.fromLocalDateToInstant(currencyRate.getDate()))
-                .map(rateEntity -> {
-                    final var exchangeRate = mapper.mapFromEntity(rateEntity);
-                    if (exchangeRate.hasProvider(provider.getName())) {
-                        log.info("Currency {} for date {} already exists", currencyRate.getCurrency(), currencyRate.getDate());
-                        return Optional.ofNullable(mapper.mapFromEntity(rateEntity));
-                    } else {
-                        log.info("Currency {} for date {} already exists but without current provider. Will be updated.", currencyRate.getCurrency(), currencyRate.getDate());
-                        exchangeRate.addRateForProvider(provider.getName(), currencyRate.getRate());
-                        exchangeRate.addDetailsForProvider(provider.getName(), currencyRate.getDetails());
-
-                        final var updated = repository.save(mapper.mapToEntityFromDomain(exchangeRate));
-                        return Optional.ofNullable(mapper.mapFromEntity(updated));
-                    }
-                }).orElseGet(() -> {
-                    final var saved = repository.save(mapper.mapToEntity(currencyRate));
-                    return Optional.ofNullable(mapper.mapFromEntity(saved));
-                });
-    }
-
-    <T extends CurrencyRate> Collection<ExchangeRate> createForDateRange(final CurrencyCode currency, final Collection<T> forDateRange) {
-        final var fromDate = findDateFrom(forDateRange);
-        final var toDate = findDateTo(forDateRange);
-        final var currenciesByName = forDateRange.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
-
-        final var existed = findByDateOrDateRange(currency, fromDate, toDate).stream()
-                .map(rateEntity -> updateIfCurrentProviderDoesNotExistsAndSaveChanges(currenciesByName, rateEntity))
-                .collect(Collectors.toMap(
-                        ExchangeRate::getDate,
-                        Function.identity()
-                ));
-
-        final var notExisted = forDateRange.stream()
-                .filter(toSave -> !existed.containsKey(toSave.getDate()))
-                .map(toSave -> mapper.mapToEntity(toSave))
-                .map(repository::save)
-                .map(mapper::mapFromEntity)
-                .collect(Collectors.toMap(
-                        ExchangeRate::getDate,
-                        Function.identity()
-                ));
-
-        log.info("{} currencies exist and won't be saved, {} new saved", existed.size(), notExisted.size());
-        return Stream.concat(existed.values().stream(), notExisted.values().stream()).collect(toList());
-    }
-
-    <T extends CurrencyRate> Collection<ExchangeRate> createAllForDateRange(final Collection<T> allForDateRange) {
-        final var currencies = allForDateRange.stream().map(CurrencyRate::getCurrency).collect(Collectors.toSet());
-        final var currenciesByName = allForDateRange.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
-        final var fromDate = findDateFrom(allForDateRange);
-        final var toDate = findDateTo(allForDateRange);
-
-        final var existedByCurrency = findByDateOrDateRange(currencies, fromDate, toDate).stream()
-                .map(rateEntity -> updateIfCurrentProviderDoesNotExistsAndSaveChanges(currenciesByName, rateEntity))
-                .collect(Collectors.groupingBy(ExchangeRate::getCurrency, Collectors.groupingBy(ExchangeRate::getDate)));
-
-        final var notExisted = allForDateRange.stream()
-                .collect(Collectors.groupingBy(
-                        CurrencyRate::getCurrency,
-                        Collectors.groupingBy(CurrencyRate::getDate)
-                ))
-                .entrySet()
-                .stream()
-                .map(currencyRate -> mapMissingCurrencies(existedByCurrency, currencyRate))
-                .map(Map::values)
-                .map(groupedByCurrency -> groupedByCurrency.stream()
-                        .map(Map::values)
-                        .flatMap(Collection::stream)
-                        .flatMap(Collection::stream)
-                        .collect(toList())
-                )
-                .flatMap(Collection::stream)
-                .map(repository::save)
-                .map(mapper::mapFromEntity)
-                .collect(toList());
-
-        final var existed = existedByCurrency.values()
-                .stream()
-                .map(Map::values)
-                .flatMap(Collection::stream)
-                .flatMap(Collection::stream)
-                .collect(toList());
-
-        log.info("{} currencies exist and won't be saved, {} new saved", existed.size(), notExisted.size());
-        return Stream.concat(existed.stream(), notExisted.stream()).collect(toList());
-    }
-
-    private <T extends CurrencyRate> Map<CurrencyCode, Map<LocalDate, List<ExchangeRateEntity>>> mapMissingDates(final Map<CurrencyCode, Map<LocalDate, List<ExchangeRate>>> existed, final CurrencyCode currencyCode, final Map<LocalDate, List<T>> groupedByDate) {
-        final var existedGroupedByDate = existed.get(currencyCode);
-        return groupedByDate.entrySet()
-                .stream()
-                .filter(currencyRate -> !existedGroupedByDate.containsKey(currencyRate.getKey()))
-                .map(Map.Entry::getValue)
-                .flatMap(Collection::stream)
-                .map(toSave -> mapper.mapToEntity(toSave))
-                .collect(Collectors.groupingBy(ExchangeRateEntity::getCurrency, Collectors.groupingBy(entity -> mapper.fromInstantToLocalDate(entity.getDate()))));
-    }
-
-    private <T extends CurrencyRate> Map<CurrencyCode, Map<LocalDate, List<ExchangeRateEntity>>> mapMissingCurrencies(final Map<CurrencyCode, Map<LocalDate, List<ExchangeRate>>> existed, final Map.Entry<CurrencyCode, Map<LocalDate, List<T>>> currencyRate) {
-        final var currencyCode = currencyRate.getKey();
-        final var groupedByDate = currencyRate.getValue();
-
-        return existed.getOrDefault(currencyCode, Collections.emptyMap()).isEmpty()
-                ? groupedByDate.values()
-                .stream()
-                .flatMap(Collection::stream)
-                .map(toSave -> mapper.mapToEntity(toSave))
-                .collect(Collectors.groupingBy(ExchangeRateEntity::getCurrency, Collectors.groupingBy(entity -> mapper.fromInstantToLocalDate(entity.getDate()))))
-                : mapMissingDates(existed, currencyCode, groupedByDate);
-    }*/
 
 }

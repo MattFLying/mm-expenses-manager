@@ -52,8 +52,8 @@ class NbpHistoryUpdater implements HistoricCurrencies<NbpCurrencyRate> {
             }
 
             final var daysBetween = ChronoUnit.DAYS.between(dateFrom, dateTo);
-            final var moreThan90Days = daysBetween > maxDaysToFetch;
-            if (moreThan90Days) {
+            final var moreThanMaxDaysDaysToFetch = daysBetween > maxDaysToFetch;
+            if (moreThanMaxDaysDaysToFetch) {
                 dateTo = dateTo.minusDays(daysBetween - maxDaysToFetch);
             }
             if (dateTo.isAfter(finalDateTo)) {
@@ -66,7 +66,7 @@ class NbpHistoryUpdater implements HistoricCurrencies<NbpCurrencyRate> {
                     .build();
             result.add(dateRange);
 
-            if (moreThan90Days) {
+            if (moreThanMaxDaysDaysToFetch) {
                 dateFrom = dateFrom.plusMonths(maxMothsToFetch).minusDays(daysBetween - maxDaysToFetch);
             } else {
                 dateFrom = dateFrom.plusMonths(maxMothsToFetch);

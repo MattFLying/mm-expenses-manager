@@ -39,48 +39,6 @@ class ExchangeRateService {
         return Collections.emptyList();
     }
 
-
-
-    /*Optional<ExchangeRate> saveCurrent(final CurrencyCode currency) {
-        final var current = provider.getCurrentCurrencyRate(currency);
-        if (current.isPresent()) {
-            return creator.create(current.get());
-        }
-        return Optional.empty();
-    }
-
-    Optional<ExchangeRate> saveForDate(final CurrencyCode currency, final LocalDate date) {
-        final var forDate = provider.getCurrencyRateForDate(currency, date);
-        if (forDate.isPresent()) {
-            return creator.create(forDate.get());
-        }
-        return Optional.empty();
-    }
-
-    Collection<ExchangeRate> saveForDateRange(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
-        final var forDateRange = provider.getCurrencyRateForDateRange(currency, from, to);
-        if (!forDateRange.isEmpty()) {
-            return creator.createForDateRange(currency, forDateRange);
-        }
-        return Collections.emptyList();
-    }
-
-    Collection<ExchangeRate> saveAllForDate(final LocalDate date) {
-        final var allForDate = provider.getCurrencyRatesForDate(date);
-        if (!allForDate.isEmpty()) {
-            return creator.createAll(allForDate);
-        }
-        return Collections.emptyList();
-    }
-
-    Collection<ExchangeRate> saveAllForDateRange(final LocalDate from, final LocalDate to) {
-        final var allForDateRange = provider.getCurrencyRatesForDateRange(from, to);
-        if (!allForDateRange.isEmpty()) {
-            return creator.createAllForDateRange(allForDateRange);
-        }
-        return Collections.emptyList();
-    }*/
-
     Collection<ExchangeRates> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
         return finder.findAllCurrenciesRates(date, from, to);
     }
