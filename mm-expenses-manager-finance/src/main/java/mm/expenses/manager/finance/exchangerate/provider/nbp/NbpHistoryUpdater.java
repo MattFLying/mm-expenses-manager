@@ -37,6 +37,15 @@ class NbpHistoryUpdater implements HistoricCurrencies<NbpCurrencyRate> {
                 .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(NbpCurrencyRate::getCurrency).thenComparing(NbpCurrencyRate::getDate))));
     }
 
+    /**
+     * Find and build collection of date range objects according to specific provider details of fetching data limitation.
+     *
+     * @param today           today date
+     * @param startYear       year of the data beginning in provider
+     * @param maxMothsToFetch max months to fetch data
+     * @param maxDaysToFetch  max days to fetch data
+     * @return collection of built dates
+     */
     private Collection<DateRange> findDates(final Instant today, final int startYear, final int maxMothsToFetch, final int maxDaysToFetch) {
         final var result = new ArrayList<DateRange>();
 

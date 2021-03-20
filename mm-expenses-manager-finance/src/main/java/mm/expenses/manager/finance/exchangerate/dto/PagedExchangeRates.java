@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.model.dto;
+package mm.expenses.manager.finance.exchangerate.dto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

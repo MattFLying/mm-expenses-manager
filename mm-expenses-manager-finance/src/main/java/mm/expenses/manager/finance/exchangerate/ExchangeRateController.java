@@ -11,7 +11,7 @@ import mm.expenses.manager.ExceptionMessage;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ApiBadRequestException;
 import mm.expenses.manager.exception.ApiNotFoundException;
-import mm.expenses.manager.finance.exchangerate.model.dto.ExchangeRatesDto;
+import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,9 +55,7 @@ class ExchangeRateController {
         if (Objects.nonNull(date) && (Objects.nonNull(from) || Objects.nonNull(to))) {
             throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currencies can be filtered by date or by date from and date to at once");
         }
-        return service.findAll(date, from, to).stream()
-                .map(mapper::map)
-                .collect(Collectors.toList());
+        return mapper.groupAndSortResult(service.findAll(date, from, to));
     }
 
     @Operation(
@@ -80,9 +77,7 @@ class ExchangeRateController {
     )
     @GetMapping(value = "/latest", produces = MediaType.APPLICATION_JSON_VALUE)
     Collection<ExchangeRatesDto> findLatest() {
-        return service.findLatest().stream()
-                .map(mapper::map)
-                .collect(Collectors.toList());
+        return mapper.groupAndSortResult(service.findLatest());
     }
 
     @Operation(
@@ -111,9 +106,7 @@ class ExchangeRateController {
         if (Objects.nonNull(date) && (Objects.nonNull(from) || Objects.nonNull(to))) {
             throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currency can be filtered by date or by date from and date to at once");
         }
-        return service.findAllForCurrency(currencyCode, date, from, to).stream()
-                .map(mapper::map)
-                .collect(Collectors.toList());
+        return mapper.groupAndSortResult(service.findAllForCurrency(currencyCode, date, from, to));
     }
 
     @Operation(

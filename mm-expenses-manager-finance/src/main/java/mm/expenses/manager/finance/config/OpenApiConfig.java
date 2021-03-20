@@ -14,7 +14,11 @@ class OpenApiConfig {
 
     @Bean
     OpenAPI openApi() {
-        return new OpenAPI().info(new Info().title(appConfig.getName()).version(appConfig.getVersion()));
+        return new OpenAPI().info(
+                new Info()
+                        .title(appConfig.getName())
+                        .version(appConfig.getVersion())
+        );
     }
 
 }

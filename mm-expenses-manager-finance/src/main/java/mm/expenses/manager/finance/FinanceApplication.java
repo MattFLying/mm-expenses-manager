@@ -13,10 +13,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableMongoRepositories
 @SpringBootApplication
 @Import({ErrorHandlingConfig.class})
-public class Application {
+public class FinanceApplication {
 
     public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(FinanceApplication.class, args);
     }
 
 }

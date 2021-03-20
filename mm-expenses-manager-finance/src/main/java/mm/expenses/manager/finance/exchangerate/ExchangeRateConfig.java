@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "app.currency")
 class ExchangeRateConfig {
 
-    private String defaultCurrency;
     private String defaultProvider;
+    private String defaultCurrency;
     private String synchronizationCron;
 
 }

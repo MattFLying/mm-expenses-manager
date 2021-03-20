@@ -1,14 +1,19 @@
 app:
-  version: @project.version@
-  name: @project.artifactId@
-  port: 8185
+  configuration:
+    name: @project.name@
+    version: @project.version@
+    port: 8185
+    api:
+      url: /api
+    database:
+      name: expenses-manager-finance
   currency:
-    default-currency: PLN
     default-provider: ${app.currency.provider.nbp.name}
-    synchronization-cron: 0 0 13 ? * * #everyday at 13:00
+    default-currency: ${app.currency.provider.nbp.details.default-currency}
+    synchronization-cron: ${app.currency.provider.nbp.details.synchronization-cron}
     provider:
       nbp:
-        name: nbp-provider
+        name: nbp
         client: npb-client
         url: http://api.nbp.pl/api/exchangerates
         details:
@@ -17,14 +22,15 @@ app:
           history-from-year: 2002
           max-months-to-fetch: 3
           max-days-to-fetch: 88
+          synchronization-cron: 0 0 13 ? * * #everyday at 13:00
 
 server:
-  port: ${app.port}
+  port: ${app.configuration.port}
 
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/expenses-manager-finance
+      uri: mongodb://localhost:27017/${app.configuration.database.name}
       auto-index-creation: true
     web:
       pageable:
@@ -33,7 +39,7 @@ spring:
 
 springdoc:
   swagger-ui:
-    path: /api/ui
+    path: ${app.configuration.api.url}/ui
     disable-swagger-default-url: true
   api-docs:
-    path: /api
+    path: ${app.configuration.api.url}

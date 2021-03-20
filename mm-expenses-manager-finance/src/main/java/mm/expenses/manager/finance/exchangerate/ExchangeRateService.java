@@ -3,15 +3,14 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.finance.exchangerate.model.ExchangeRates;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -19,13 +18,13 @@ import java.util.concurrent.Executors;
 class ExchangeRateService {
 
     private final CurrencyRateProvider<? extends CurrencyRate> provider;
-    private final ExchangeRateCommand creator;
-    private final ExchangeRateQuery finder;
+    private final ExchangeRateCommand command;
+    private final ExchangeRateQuery query;
 
     void historyUpdate() {
         Executors.newSingleThreadExecutor().execute(() -> {
             log.info("Currencies history update in progress.");
-            creator.saveHistory(provider.getAllHistoricalCurrencies());
+            command.saveHistory(provider.getAllHistoricalCurrencies());
             log.info("Currencies history update has been done.");
         });
     }
@@ -33,24 +32,24 @@ class ExchangeRateService {
     void saveAllCurrent() {
         final var allCurrent = provider.getCurrentCurrencyRates();
         if (!allCurrent.isEmpty()) {
-            creator.createOrUpdate(allCurrent);
+            command.createOrUpdate(allCurrent);
         }
     }
 
-    Collection<ExchangeRates> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
-        return finder.findAllCurrenciesRates(date, from, to);
+    Stream<ExchangeRate> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
+        return query.findAllCurrenciesRates(date, from, to);
     }
 
-    Collection<ExchangeRates> findAllForCurrency(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
-        return finder.findAllForCurrencyRates(currency, date, from, to);
+    Stream<ExchangeRate> findAllForCurrency(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
+        return query.findAllForCurrencyRates(currency, date, from, to);
     }
 
-    Collection<ExchangeRates> findLatest() {
-        return finder.findAllLatest();
+    Stream<ExchangeRate> findLatest() {
+        return query.findAllLatest();
     }
 
-    Optional<ExchangeRates> findLatestForCurrency(final CurrencyCode currency) {
-        return finder.findLatestForCurrency(currency);
+    Optional<ExchangeRate> findLatestForCurrency(final CurrencyCode currency) {
+        return query.findLatestForCurrency(currency);
     }
 
 }

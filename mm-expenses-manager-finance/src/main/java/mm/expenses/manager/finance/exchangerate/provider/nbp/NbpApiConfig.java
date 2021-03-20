@@ -29,6 +29,7 @@ class NbpApiConfig {
         private int historyFromYear;
         private int maxMonthsToFetch;
         private int maxDaysToFetch;
+        private String synchronizationCron;
 
     }
 

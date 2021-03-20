@@ -3,7 +3,6 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.finance.exchangerate.model.ExchangeRates;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,7 @@ class ExchangeRateCommand {
      */
     <T extends CurrencyRate> void saveHistory(final Collection<T> historicData) {
         final var historicalByCurrency = historicData.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
-        final var existedByCurrency = repository.findAll().stream().collect(Collectors.groupingBy(ExchangeRateEntity::getCurrency, toList()));
+        final var existedByCurrency = repository.findAll().stream().collect(Collectors.groupingBy(ExchangeRate::getCurrency, toList()));
 
         final var toBeSaved = createOrUpdate(historicalByCurrency, existedByCurrency);
         final var savedHistoryCount = repository.saveAll(toBeSaved).size();
@@ -50,14 +49,14 @@ class ExchangeRateCommand {
      * @param <T>           specific type of CurrencyRate depends of current provider
      * @return collection of saved or updated exchange rate objects
      */
-    <T extends CurrencyRate> Collection<ExchangeRates> createOrUpdate(final Collection<T> exchangeRates) {
+    <T extends CurrencyRate> Collection<ExchangeRate> createOrUpdate(final Collection<T> exchangeRates) {
         final var currencies = exchangeRates.stream().map(CurrencyRate::getCurrency).collect(Collectors.toSet());
         final var toSaveByCurrency = exchangeRates.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
 
         final var fromDate = findDateFrom(exchangeRates);
         final var toDate = findDateTo(exchangeRates);
         final var existedByCurrency = findByCurrenciesAndDateOrDateRange(currencies, fromDate, toDate).collect(
-                Collectors.groupingBy(ExchangeRateEntity::getCurrency, toList())
+                Collectors.groupingBy(ExchangeRate::getCurrency, toList())
         );
 
         final var toBeSaved = createOrUpdate(toSaveByCurrency, existedByCurrency);
@@ -66,7 +65,7 @@ class ExchangeRateCommand {
         final var duplicatesCount = exchangeRates.size() - savedHistoryCount;
 
         log.info("{} currencies saved, {} duplicates skipped.", savedHistoryCount, duplicatesCount);
-        return mapper.groupAndSortResult(savedHistory.stream());
+        return savedHistory;
     }
 
     /**
@@ -77,7 +76,7 @@ class ExchangeRateCommand {
      * @param <T>                     specific type of CurrencyRate depends of current provider
      * @return collection of saved or updated exchange rate objects
      */
-    private <T extends CurrencyRate> List<ExchangeRateEntity> createOrUpdate(final Map<CurrencyCode, List<T>> exchangeRatesByCurrency, final Map<CurrencyCode, List<ExchangeRateEntity>> existedByCurrency) {
+    private <T extends CurrencyRate> List<ExchangeRate> createOrUpdate(final Map<CurrencyCode, List<T>> exchangeRatesByCurrency, final Map<CurrencyCode, List<ExchangeRate>> existedByCurrency) {
         return exchangeRatesByCurrency.entrySet()
                 .stream()
                 .map(rateEntry -> {
@@ -109,7 +108,7 @@ class ExchangeRateCommand {
      * @param <T>           specific type of CurrencyRate depends of current provider
      * @return saved or updated exchange rate object or empty optional if there is no provider to be added
      */
-    private <T extends CurrencyRate> Optional<ExchangeRateEntity> createOrUpdate(final Map<LocalDate, ExchangeRateEntity> existedByDate, final T currencyRate) {
+    private <T extends CurrencyRate> Optional<ExchangeRate> createOrUpdate(final Map<LocalDate, ExchangeRate> existedByDate, final T currencyRate) {
         final var providerName = provider.getName();
         final var targetCurrency = provider.getDefaultCurrency();
         final var existedOpt = Optional.ofNullable(existedByDate.get(currencyRate.getDate()));
@@ -119,7 +118,7 @@ class ExchangeRateCommand {
                 final var rate = mapper.map(existed.getCurrency(), targetCurrency, currencyRate.getRate());
                 existed.addRateForProvider(providerName, rate);
                 existed.addDetailsForProvider(providerName, currencyRate.getDetails());
-                return Optional.of(ExchangeRateEntity.modified(existed, mapper.createInstantNow()));
+                return Optional.of(ExchangeRate.modified(existed, mapper.createInstantNow()));
             }
             return Optional.empty();
         }
@@ -134,7 +133,7 @@ class ExchangeRateCommand {
      * @param toDate     date to
      * @return all exchange rates that fulfil ther criteria
      */
-    private Stream<ExchangeRateEntity> findByCurrenciesAndDateOrDateRange(final Set<CurrencyCode> currencies, final LocalDate fromDate, final LocalDate toDate) {
+    private Stream<ExchangeRate> findByCurrenciesAndDateOrDateRange(final Set<CurrencyCode> currencies, final LocalDate fromDate, final LocalDate toDate) {
         if (!fromDate.isEqual(toDate)) {
             return repository.findByCurrencyInAndDateBetween(currencies, mapper.fromLocalDateToInstant(fromDate).minus(1, ChronoUnit.DAYS), mapper.fromLocalDateToInstant(toDate).plus(1, ChronoUnit.DAYS));
         }

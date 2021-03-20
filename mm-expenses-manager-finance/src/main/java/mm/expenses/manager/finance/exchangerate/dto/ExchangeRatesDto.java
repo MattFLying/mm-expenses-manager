@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.model.dto;
+package mm.expenses.manager.finance.exchangerate.dto;
 
 import lombok.Builder;
 import lombok.Data;
