@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ApiFeignClientException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
+import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
+import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -18,28 +20,23 @@ import java.util.stream.Collectors;
 class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
     private final NbpClient client;
-    private final NbpApiConfig nbpApiConfig;
+    private final NbpApiConfig config;
 
     @Override
-    public String getName() {
-        return nbpApiConfig.getName();
+    public ProviderConfig getProviderConfig() {
+        return config;
     }
 
     @Override
-    public CurrencyCode getDefaultCurrency() {
-        return CurrencyCode.getCurrencyFromString(nbpApiConfig.getDefaultCurrency());
-    }
-
-    @Override
-    public Collection<NbpCurrencyRate> getAllHistoricalCurrencies() {
-        return new NbpHistoryUpdater(nbpApiConfig, this).fetchHistoricalCurrencies();
+    public HistoricCurrencies<NbpCurrencyRate> getHistoricCurrencies() {
+        return new NbpHistoryUpdater(getProviderConfig(), this);
     }
 
     @Override
     public Optional<NbpCurrencyRate> getCurrentCurrencyRate(final CurrencyCode currency) {
         final var table = TableType.findTableForCurrency(currency);
         try {
-            return client.fetchCurrentExchangeRateForCurrencyFromTableType(table.name(), currency.getCode(), nbpApiConfig.getDataFormat())
+            return client.fetchCurrentExchangeRateForCurrencyFromTableType(table.name(), currency.getCode(), getDataFormat())
                     .flatMap(dto -> dto.getRates()
                             .stream()
                             .findFirst()
@@ -55,7 +52,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     public Optional<NbpCurrencyRate> getCurrencyRateForDate(final CurrencyCode currency, final LocalDate date) {
         final var table = TableType.findTableForCurrency(currency);
         try {
-            return client.fetchExchangeRateForCurrencyFromTableTypeAndDate(table.name(), currency.getCode(), date, nbpApiConfig.getDataFormat())
+            return client.fetchExchangeRateForCurrencyFromTableTypeAndDate(table.name(), currency.getCode(), date, getDataFormat())
                     .flatMap(dto -> dto.getRates()
                             .stream()
                             .findFirst()
@@ -71,7 +68,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     public Collection<NbpCurrencyRate> getCurrencyRateForDateRange(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
         final var table = TableType.findTableForCurrency(currency);
         try {
-            return client.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(table.name(), currency.getCode(), from, to, nbpApiConfig.getDataFormat())
+            return client.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(table.name(), currency.getCode(), from, to, getDataFormat())
                     .<Collection<NbpCurrencyRate>>map(dto -> dto.getRates()
                             .stream()
                             .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
@@ -86,7 +83,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     @Override
     public Collection<NbpCurrencyRate> getCurrentCurrencyRates() {
         try {
-            return client.fetchCurrentAllExchangeRatesForTableType(getAvailableTableType(), nbpApiConfig.getDataFormat())
+            return client.fetchCurrentAllExchangeRatesForTableType(getAvailableTableType(), getDataFormat())
                     .stream()
                     .map(this::map)
                     .flatMap(Collection::stream)
@@ -100,7 +97,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     @Override
     public Collection<NbpCurrencyRate> getCurrencyRatesForDate(final LocalDate date) {
         try {
-            return client.fetchAllExchangeRatesForTableTypeAndDate(getAvailableTableType(), date, nbpApiConfig.getDataFormat())
+            return client.fetchAllExchangeRatesForTableTypeAndDate(getAvailableTableType(), date, getDataFormat())
                     .stream()
                     .map(this::map)
                     .flatMap(Collection::stream)
@@ -114,7 +111,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     @Override
     public Collection<NbpCurrencyRate> getCurrencyRatesForDateRange(final LocalDate from, final LocalDate to) {
         try {
-            return client.fetchAllExchangeRatesForTableTypeAndDateRange(getAvailableTableType(), from, to, nbpApiConfig.getDataFormat())
+            return client.fetchAllExchangeRatesForTableTypeAndDateRange(getAvailableTableType(), from, to, getDataFormat())
                     .stream()
                     .map(this::map)
                     .flatMap(Collection::stream)
@@ -136,6 +133,10 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                 .map(rateDto -> new NbpCurrencyRate(CurrencyCode.getCurrencyFromString(rateDto.getCode()), date, rateDto.getMid(), table, tableNumber))
                 .filter(currency -> !currency.getCurrency().equals(CurrencyCode.UNDEFINED))
                 .collect(Collectors.toList());
+    }
+
+    private String getDataFormat() {
+        return config.getDataFormat();
     }
 
     private Predicate<? super NbpClient.TableRateDto> filterAvailableCurrenciesOnly(Set<String> currenciesAsStrings) {

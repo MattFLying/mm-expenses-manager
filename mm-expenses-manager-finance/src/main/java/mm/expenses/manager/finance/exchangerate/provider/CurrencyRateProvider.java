@@ -10,6 +10,10 @@ import java.util.Collection;
  */
 public interface CurrencyRateProvider<T extends CurrencyRate> extends DefaultCurrencyProvider<T>, CurrentCurrencyProvider<T>, CurrencyProviderForDateRange<T> {
 
-    Collection<T> getAllHistoricalCurrencies();
+    HistoricCurrencies<T> getHistoricCurrencies();
+
+    default Collection<T> getAllHistoricalCurrencies() {
+        return getHistoricCurrencies().fetchHistoricalCurrencies();
+    }
 
 }

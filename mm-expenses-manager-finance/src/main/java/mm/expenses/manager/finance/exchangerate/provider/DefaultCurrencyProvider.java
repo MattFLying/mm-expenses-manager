@@ -4,8 +4,14 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 
 public interface DefaultCurrencyProvider<T extends CurrencyRate> {
 
-    String getName();
+    ProviderConfig getProviderConfig();
 
-    CurrencyCode getDefaultCurrency();
+    default String getName() {
+        return getProviderConfig().getName();
+    }
+
+    default CurrencyCode getDefaultCurrency() {
+        return CurrencyCode.getCurrencyFromString(getProviderConfig().getDefaultCurrency());
+    }
 
 }
