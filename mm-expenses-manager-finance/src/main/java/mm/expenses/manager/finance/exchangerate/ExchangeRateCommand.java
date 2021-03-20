@@ -3,7 +3,7 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.finance.exchangerate.model.ExchangeRate;
+import mm.expenses.manager.finance.exchangerate.model.ExchangeRates;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
 import org.springframework.stereotype.Component;
@@ -50,7 +50,7 @@ class ExchangeRateCommand {
      * @param <T>           specific type of CurrencyRate depends of current provider
      * @return collection of saved or updated exchange rate objects
      */
-    <T extends CurrencyRate> Collection<ExchangeRate> createOrUpdate(final Collection<T> exchangeRates) {
+    <T extends CurrencyRate> Collection<ExchangeRates> createOrUpdate(final Collection<T> exchangeRates) {
         final var currencies = exchangeRates.stream().map(CurrencyRate::getCurrency).collect(Collectors.toSet());
         final var toSaveByCurrency = exchangeRates.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
 
@@ -66,9 +66,7 @@ class ExchangeRateCommand {
         final var duplicatesCount = exchangeRates.size() - savedHistoryCount;
 
         log.info("{} currencies saved, {} duplicates skipped.", savedHistoryCount, duplicatesCount);
-        return savedHistory.stream()
-                .map(mapper::mapFromEntity)
-                .collect(toList());
+        return mapper.groupAndSortResult(savedHistory.stream());
     }
 
     /**
@@ -95,7 +93,7 @@ class ExchangeRateCommand {
                                 .collect(Collectors.toList());
                     } else {
                         return rateEntry.getValue().stream()
-                                .map(rate -> mapper.mapToEntity(rate, mapper.createInstantNow()))
+                                .map(rate -> mapper.map(rate, mapper.createInstantNow()))
                                 .collect(Collectors.toList());
                     }
                 })
@@ -113,17 +111,19 @@ class ExchangeRateCommand {
      */
     private <T extends CurrencyRate> Optional<ExchangeRateEntity> createOrUpdate(final Map<LocalDate, ExchangeRateEntity> existedByDate, final T currencyRate) {
         final var providerName = provider.getName();
+        final var targetCurrency = provider.getDefaultCurrency();
         final var existedOpt = Optional.ofNullable(existedByDate.get(currencyRate.getDate()));
         if (existedOpt.isPresent()) {
             final var existed = existedOpt.get();
             if (!existed.hasProvider(providerName)) {
-                existed.addRateForProvider(providerName, currencyRate.getRate());
+                final var rate = mapper.map(existed.getCurrency(), targetCurrency, currencyRate.getRate());
+                existed.addRateForProvider(providerName, rate);
                 existed.addDetailsForProvider(providerName, currencyRate.getDetails());
                 return Optional.of(ExchangeRateEntity.modified(existed, mapper.createInstantNow()));
             }
             return Optional.empty();
         }
-        return Optional.of(mapper.mapToEntity(currencyRate, mapper.createInstantNow()));
+        return Optional.of(mapper.map(currencyRate, mapper.createInstantNow()));
     }
 
     /**

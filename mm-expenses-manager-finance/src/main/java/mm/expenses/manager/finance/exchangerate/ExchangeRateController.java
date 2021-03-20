@@ -57,7 +57,7 @@ class ExchangeRateController {
             throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currencies can be filtered by date or by date from and date to at once");
         }
         return service.findAll(date, from, to).stream()
-                .map(mapper::mapToDto)
+                .map(mapper::map)
                 .collect(Collectors.toList());
     }
 
@@ -81,7 +81,7 @@ class ExchangeRateController {
     @GetMapping(value = "/latest", produces = MediaType.APPLICATION_JSON_VALUE)
     Collection<ExchangeRatesDto> findLatest() {
         return service.findLatest().stream()
-                .map(mapper::mapToDto)
+                .map(mapper::map)
                 .collect(Collectors.toList());
     }
 
@@ -112,7 +112,7 @@ class ExchangeRateController {
             throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currency can be filtered by date or by date from and date to at once");
         }
         return service.findAllForCurrency(currencyCode, date, from, to).stream()
-                .map(mapper::mapToDto)
+                .map(mapper::map)
                 .collect(Collectors.toList());
     }
 
@@ -146,7 +146,7 @@ class ExchangeRateController {
             throw new ApiBadRequestException("exchange-rates-invalid-currency", "Currency is not allowed");
         }
         return service.findLatestForCurrency(currencyCode)
-                .map(mapper::mapToDto)
+                .map(mapper::map)
                 .orElseThrow(() -> new ApiNotFoundException("exchange-rates-latest-not-found", "Latest currency for: " + currencyCode.getCode() + " not found."));
     }
 

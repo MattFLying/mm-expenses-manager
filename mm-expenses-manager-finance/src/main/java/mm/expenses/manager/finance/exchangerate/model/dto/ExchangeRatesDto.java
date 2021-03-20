@@ -27,12 +27,30 @@ public class ExchangeRatesDto {
 
         private final LocalDate date;
 
-        private final Double rate;
+        private final RateDto rate;
 
         @Builder(toBuilder = true)
-        public ExchangeRateDto(final LocalDate date, final Double rate) {
+        public ExchangeRateDto(final LocalDate date, final RateDto rate) {
             this.date = date;
-            this.rate = Objects.nonNull(rate) ? rate : 0.0;
+            this.rate = rate;
+        }
+
+        @Data
+        @Builder(toBuilder = true)
+        public static class RateDto {
+
+            private final CurrencyValueDto from;
+            private final CurrencyValueDto to;
+
+        }
+
+        @Data
+        @Builder(toBuilder = true)
+        public static class CurrencyValueDto {
+
+            private final CurrencyCode currency;
+            private final Double value;
+
         }
 
     }

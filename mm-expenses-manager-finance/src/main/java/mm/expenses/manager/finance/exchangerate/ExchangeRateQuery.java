@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -27,7 +26,7 @@ class ExchangeRateQuery {
         } else {
             result = repository.findAll().stream();
         }
-        return groupAndSortResult(result);
+        return mapper.groupAndSortResult(result);
     }
 
     Collection<ExchangeRates> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
@@ -42,33 +41,16 @@ class ExchangeRateQuery {
         } else {
             result = repository.findByCurrency(currency);
         }
-        return groupAndSortResult(result);
+        return mapper.groupAndSortResult(result);
     }
 
     Collection<ExchangeRates> findAllLatest() {
-        return groupAndSortResult(repository.findByDate(now()));
+        return mapper.groupAndSortResult(repository.findByDate(now()));
     }
 
     Optional<ExchangeRates> findLatestForCurrency(final CurrencyCode currency) {
         return repository.findByCurrencyAndDate(currency, now())
                 .map(entity -> mapper.map(currency, List.of(entity)));
-    }
-
-    private List<ExchangeRates> groupAndSortResult(final Stream<ExchangeRateEntity> result) {
-        return result
-                .collect(Collectors.groupingBy(
-                        ExchangeRateEntity::getCurrency,
-                        () -> new TreeMap<>(Comparator.comparing(CurrencyCode::getCode)),
-                        Collectors.toList()
-                ))
-                .entrySet()
-                .stream()
-                .map(entry -> mapper.map(entry.getKey(), sortByDateByTheNewest(entry.getValue())))
-                .collect(Collectors.toList());
-    }
-
-    private Collection<ExchangeRateEntity> sortByDateByTheNewest(final Collection<ExchangeRateEntity> entities) {
-        return entities.stream().sorted(Comparator.comparing(ExchangeRateEntity::getDate).reversed()).collect(Collectors.toList());
     }
 
     private Instant now() {
