@@ -1,5 +1,6 @@
 package mm.expenses.manager.finance.exchangerate;
 
+import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 
 @Slf4j
@@ -45,6 +47,14 @@ class ExchangeRateService {
 
     Collection<ExchangeRates> findAllForCurrency(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
         return finder.findAllForCurrencyRates(currency, date, from, to);
+    }
+
+    Collection<ExchangeRates> findLatest() {
+        return finder.findAllLatest();
+    }
+
+    Optional<ExchangeRates> findLatestForCurrency(final CurrencyCode currency) {
+        return finder.findLatestForCurrency(currency);
     }
 
 }

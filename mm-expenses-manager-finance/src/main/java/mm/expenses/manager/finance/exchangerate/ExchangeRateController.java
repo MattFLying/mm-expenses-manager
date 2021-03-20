@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.ExceptionMessage;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ApiBadRequestException;
+import mm.expenses.manager.exception.ApiNotFoundException;
 import mm.expenses.manager.finance.exchangerate.model.dto.ExchangeRatesDto;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -61,6 +62,30 @@ class ExchangeRateController {
     }
 
     @Operation(
+            summary = "Finds latest exchange rates.",
+            description = "Finds all latest exchange rates.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExchangeRatesDto.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Bad Request",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping(value = "/latest", produces = MediaType.APPLICATION_JSON_VALUE)
+    Collection<ExchangeRatesDto> findLatest() {
+        return service.findLatest().stream()
+                .map(mapper::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Operation(
             summary = "Finds all available exchange rates for specific currency code.",
             description = "Finds all available exchange rates or all according to passed options for specific currency code.",
             responses = {
@@ -89,6 +114,40 @@ class ExchangeRateController {
         return service.findAllForCurrency(currencyCode, date, from, to).stream()
                 .map(mapper::mapToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Operation(
+            summary = "Finds latest exchange rate for specific currency code.",
+            description = "Finds latest exchange rate for specific currency code.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExchangeRatesDto.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Bad Request",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Not Found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping(value = "/{currency}/latest", produces = MediaType.APPLICATION_JSON_VALUE)
+    ExchangeRatesDto findLatestForCurrency(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency) {
+        final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
+        if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
+            throw new ApiBadRequestException("exchange-rates-invalid-currency", "Currency is not allowed");
+        }
+        return service.findLatestForCurrency(currencyCode)
+                .map(mapper::mapToDto)
+                .orElseThrow(() -> new ApiNotFoundException("exchange-rates-latest-not-found", "Latest currency for: " + currencyCode.getCode() + " not found."));
     }
 
     @Operation(
