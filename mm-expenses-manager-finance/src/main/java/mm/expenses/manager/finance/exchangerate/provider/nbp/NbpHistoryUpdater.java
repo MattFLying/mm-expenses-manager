@@ -1,7 +1,6 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
-import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -11,12 +10,13 @@ import java.util.stream.Collectors;
 
 class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
 
-    NbpHistoryUpdater(final ProviderConfig config, final NbpCurrencyProvider provider) {
-        super(config, provider);
+    NbpHistoryUpdater(final NbpCurrencyProvider provider) {
+        super(provider);
     }
 
     @Override
     public Collection<NbpCurrencyRate> fetchHistoricalCurrencies() {
+        final var config = provider.getProviderConfig();
         final var maxMothsToFetch = config.getDetails().getMaxMonthsToFetch();
         final var maxDaysToFetch = config.getDetails().getMaxDaysToFetch();
         final var startYear = config.getDetails().getHistoryFromYear();

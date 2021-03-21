@@ -29,7 +29,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
     @Override
     public HistoricCurrencies<NbpCurrencyRate> getHistoricCurrencies() {
-        return new NbpHistoryUpdater(getProviderConfig(), this);
+        return new NbpHistoryUpdater(this);
     }
 
     @Override

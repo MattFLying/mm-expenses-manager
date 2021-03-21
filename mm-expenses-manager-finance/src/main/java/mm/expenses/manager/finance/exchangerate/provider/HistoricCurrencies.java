@@ -19,8 +19,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public abstract class HistoricCurrencies<T extends CurrencyRate> {
 
-    protected final ProviderConfig config;
-
     protected final CurrencyRateProvider<T> provider;
 
     public abstract Collection<T> fetchHistoricalCurrencies();
