@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @Data
 @Builder(toBuilder = true)
@@ -49,7 +50,18 @@ class ExchangeRate {
     }
 
     Rate getRateByProvider(final String providerName) {
-        return ratesByProvider.getOrDefault(providerName, Rate.empty());
+        return getRateByProvider(providerName, false);
+    }
+
+    Rate getRateByProvider(final String providerName, final boolean findAnyIfNotExist) {
+        if (!findAnyIfNotExist) {
+            return ratesByProvider.getOrDefault(providerName, Rate.empty());
+        }
+        return Optional.ofNullable(ratesByProvider.get(providerName))
+                .orElseGet(() -> ratesByProvider.values()
+                        .stream()
+                        .findAny()
+                        .orElse(Rate.empty()));
     }
 
     boolean hasProvider(final String providerName) {

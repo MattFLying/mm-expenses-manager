@@ -99,14 +99,13 @@ class ExchangeRateController {
     )
     @GetMapping(value = "/{currency}", produces = MediaType.APPLICATION_JSON_VALUE)
     Collection<ExchangeRatesDto> findAllForCurrency(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
-                                                    @Parameter(description = "Date of needed exchange rates.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
                                                     @Parameter(description = "Date from of needed exchange rates.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
                                                     @Parameter(description = "Date to of needed exchange rates.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
-        if (Objects.nonNull(date) && (Objects.nonNull(from) || Objects.nonNull(to))) {
-            throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currency can be filtered by date or by date from and date to at once");
+        if ((Objects.isNull(from) && Objects.nonNull(to)) || (Objects.nonNull(from) && Objects.isNull(to))) {
+            throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currency can be filtered by date range or without any date range.");
         }
-        return mapper.groupAndSortResult(service.findAllForCurrency(currencyCode, date, from, to));
+        return mapper.groupAndSortResult(service.findAllForCurrency(currencyCode, from, to));
     }
 
     @Operation(
@@ -141,6 +140,41 @@ class ExchangeRateController {
         return service.findLatestForCurrency(currencyCode)
                 .map(mapper::map)
                 .orElseThrow(() -> new ApiNotFoundException("exchange-rates-latest-not-found", "Latest currency for: " + currencyCode.getCode() + " not found."));
+    }
+
+    @Operation(
+            summary = "Finds exchange rate for specific currency code and date.",
+            description = "Finds exchange rate for specific currency code and specific date.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExchangeRatesDto.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Bad Request",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Not Found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping(value = "/{currency}/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ExchangeRatesDto findForCurrencyAndDate(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
+                                            @Parameter(description = "Date of needed exchange rates.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
+        final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
+        if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
+            throw new ApiBadRequestException("exchange-rates-invalid-currency", "Currency is not allowed");
+        }
+        return service.findForCurrencyAndSpecificDate(currencyCode, date)
+                .map(mapper::map)
+                .orElseThrow(() -> new ApiNotFoundException("exchange-rates-not-found", "Currency for: " + currencyCode.getCode() + " and date: " + date + " not found."));
     }
 
     @Operation(

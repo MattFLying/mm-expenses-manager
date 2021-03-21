@@ -28,14 +28,9 @@ class ExchangeRateQuery {
         return result;
     }
 
-    Stream<ExchangeRate> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate date, final LocalDate from, final LocalDate to) {
+    Stream<ExchangeRate> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
         Stream<ExchangeRate> result;
-        if (Objects.nonNull(date)) {
-            result = repository.findByCurrencyAndDate(currency, instantOf(date))
-                    .<Collection<ExchangeRate>>map(List::of)
-                    .orElseGet(List::of)
-                    .stream();
-        } else if (Objects.nonNull(from) && Objects.nonNull(to)) {
+        if (Objects.nonNull(from) && Objects.nonNull(to)) {
             result = repository.findByCurrencyAndDateBetween(currency, instantOf(from), instantOf(to));
         } else {
             result = repository.findByCurrency(currency);
@@ -44,15 +39,15 @@ class ExchangeRateQuery {
     }
 
     Stream<ExchangeRate> findAllLatest() {
-        return repository.findByDate(now());
+        return repository.findByDate(mapper.fromLocalDateToInstant(LocalDate.now()));
     }
 
     Optional<ExchangeRate> findLatestForCurrency(final CurrencyCode currency) {
-        return repository.findByCurrencyAndDate(currency, now());
+        return findByCurrencyAndDate(currency, LocalDate.now());
     }
 
-    private Instant now() {
-        return mapper.fromLocalDateToInstant(LocalDate.now());
+    Optional<ExchangeRate> findByCurrencyAndDate(final CurrencyCode currency, final LocalDate date) {
+        return repository.findByCurrencyAndDate(currency, instantOf(date));
     }
 
     private Instant instantOf(final LocalDate date) {

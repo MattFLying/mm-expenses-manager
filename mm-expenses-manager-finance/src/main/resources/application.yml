@@ -8,9 +8,10 @@ app:
     database:
       name: expenses-manager-finance
   currency:
-    default-provider: ${app.currency.provider.nbp.name}
-    default-currency: ${app.currency.provider.nbp.details.default-currency}
-    synchronization-cron: ${app.currency.provider.nbp.details.synchronization-cron}
+    default: app.currency.provider.nbp # path to default provider property
+    default-provider: ${${app.currency.default}.name}
+    default-currency: ${${app.currency.default}.details.default-currency}
+    synchronization-cron: ${${app.currency.default}.details.synchronization-cron}
     provider:
       nbp:
         name: nbp

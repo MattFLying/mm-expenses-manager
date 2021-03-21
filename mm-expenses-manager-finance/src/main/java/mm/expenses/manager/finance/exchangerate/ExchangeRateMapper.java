@@ -25,8 +25,8 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     protected DefaultCurrencyProvider<?> provider;
 
     @Mapping(target = "date", expression = "java(fromInstantToLocalDate(entity.getDate()))")
-    @Mapping(target = "rate", expression = "java(map(entity.getRateByProvider(provider.getName())))")
-    abstract ExchangeRateDto mapFromEntity(final ExchangeRate entity);
+    @Mapping(target = "rate", expression = "java(map(entity.getRateByProvider(provider.getName(), true)))")
+    abstract ExchangeRateDto mapToDto(final ExchangeRate entity);
 
     @Mapping(target = "date", expression = "java(fromLocalDateToInstant(domain.getDate()))")
     @Mapping(target = "ratesByProvider", expression = "java(map(domain, provider.getName()))")
@@ -36,11 +36,11 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     abstract ExchangeRate map(final CurrencyRate domain, final Instant now);
 
     @Mapping(target = "currency", source = "currency")
-    @Mapping(target = "rates", expression = "java(entities.stream().map(this::mapFromEntity).collect(java.util.stream.Collectors.toList()))")
+    @Mapping(target = "rates", expression = "java(entities.stream().map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
     abstract ExchangeRatesDto map(final CurrencyCode currency, final Collection<ExchangeRate> entities);
 
     @Mapping(target = "currency", expression = "java(entity.getCurrency())")
-    @Mapping(target = "rates", expression = "java(java.util.stream.Stream.of(entity).map(this::mapFromEntity).collect(java.util.stream.Collectors.toList()))")
+    @Mapping(target = "rates", expression = "java(java.util.stream.Stream.of(entity).map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
     abstract ExchangeRatesDto map(final ExchangeRate entity);
 
     abstract RateDto map(final Rate rate);
