@@ -6,12 +6,14 @@ import mm.expenses.manager.finance.exchangerate.ExchangeRate.Rate;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRateDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRateDto.RateDto;
+import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage.ExchangeRatePage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 
 import java.time.Instant;
 import java.util.*;
@@ -68,6 +70,18 @@ abstract class ExchangeRateMapper extends AbstractMapper {
                 .stream()
                 .map(entry -> map(entry.getKey(), sortByDateByTheNewest(entry.getValue())))
                 .collect(Collectors.toList());
+    }
+
+    protected Collection<ExchangeRatePage> groupAndSortPagedResult(final Stream<Page<ExchangeRate>> result) {
+        return result
+                .map(page -> new ExchangeRatePage(map(getCurrencyForPage(page), sortByDateByTheNewest(page.getContent())), page))
+                .filter(page -> !page.getContent().getRates().isEmpty())
+                .sorted(Comparator.comparing(page -> page.getContent().getCurrency()))
+                .collect(Collectors.toList());
+    }
+
+    private CurrencyCode getCurrencyForPage(final Page<ExchangeRate> page) {
+        return page.getContent().stream().findFirst().map(ExchangeRate::getCurrency).orElse(CurrencyCode.UNDEFINED);
     }
 
     private Collection<ExchangeRate> sortByDateByTheNewest(final Collection<ExchangeRate> entities) {

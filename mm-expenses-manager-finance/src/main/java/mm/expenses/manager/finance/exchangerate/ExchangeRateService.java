@@ -6,12 +6,17 @@ import mm.expenses.manager.exception.ApiInternalErrorException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -71,16 +76,17 @@ class ExchangeRateService {
         }
     }
 
-    Stream<ExchangeRate> findAll(final LocalDate date, final LocalDate from, final LocalDate to) {
-        return query.findAllCurrenciesRates(date, from, to);
+    Stream<Page<ExchangeRate>> findAll(final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
+        return query.findAllCurrenciesRates(getAllRequiredCurrenciesCode(), date, from, to, pageable);
     }
 
-    Stream<ExchangeRate> findAllForCurrency(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
-        return query.findAllForCurrencyRates(currency, from, to);
+    Stream<Page<ExchangeRate>> findAllForCurrency(final CurrencyCode currency, final LocalDate from, final LocalDate to, final Pageable pageable) {
+        return query.findAllForCurrencyRates(currency, from, to, pageable);
     }
 
-    Stream<ExchangeRate> findLatest() {
-        return query.findAllLatest();
+    Page<ExchangeRate> findLatest() {
+        final var page = PageRequest.of(0, getAllRequiredCurrenciesCode().size(), Sort.by("date").descending());
+        return query.findAllLatest(page);
     }
 
     Optional<ExchangeRate> findLatestForCurrency(final CurrencyCode currency) {
@@ -96,6 +102,10 @@ class ExchangeRateService {
                 config.getDefaultProvider(),
                 providers.values().stream().findAny().orElseThrow(this::apiInternalErrorExceptionForNoProvider)
         );
+    }
+
+    private Set<CurrencyCode> getAllRequiredCurrenciesCode() {
+        return Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.UNDEFINED) || !code.equals(CurrencyCode.valueOf(config.getDefaultCurrency()))).collect(Collectors.toSet());
     }
 
     private ApiInternalErrorException apiInternalErrorExceptionForNoProvider() {

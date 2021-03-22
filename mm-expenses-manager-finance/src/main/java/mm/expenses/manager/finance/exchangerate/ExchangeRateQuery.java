@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -16,30 +17,34 @@ class ExchangeRateQuery {
     private final ExchangeRateRepository repository;
     private final ExchangeRateMapper mapper;
 
-    Stream<ExchangeRate> findAllCurrenciesRates(final LocalDate date, final LocalDate from, final LocalDate to) {
-        Stream<ExchangeRate> result;
-        if (Objects.nonNull(date)) {
-            result = repository.findByDate(instantOf(date));
-        } else if (Objects.nonNull(from) && Objects.nonNull(to)) {
-            result = repository.findByDateBetween(instantOf(from), instantOf(to));
-        } else {
-            result = repository.findAll().stream();
-        }
-        return result;
+    Stream<Page<ExchangeRate>> findAllCurrenciesRates(final Set<CurrencyCode> currencies, final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
+        final var page = pageRequest(pageable);
+        return currencies.stream()
+                .map(code -> {
+                    if (Objects.nonNull(date)) {
+                        return repository.findByCurrencyAndDate(code, instantOf(date)).map(List::of)
+                                .map(result -> (Page<ExchangeRate>) new PageImpl<>(result, page, page.getPageSize()))
+                                .orElse(Page.empty(page));
+                    } else if (Objects.nonNull(from) && Objects.nonNull(to)) {
+                        return repository.findByDateBetween(instantOf(from), instantOf(to), page);
+                    } else {
+                        return repository.findByCurrency(code, page);
+                    }
+                });
     }
 
-    Stream<ExchangeRate> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
-        Stream<ExchangeRate> result;
+    Stream<Page<ExchangeRate>> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate from, final LocalDate to, final Pageable pageable) {
+        final var page = pageRequest(pageable);
         if (Objects.nonNull(from) && Objects.nonNull(to)) {
-            result = repository.findByCurrencyAndDateBetween(currency, instantOf(from), instantOf(to));
+            return Stream.of(repository.findByCurrencyAndDateBetween(currency, instantOf(from), instantOf(to), page));
         } else {
-            result = repository.findByCurrency(currency);
+            return Stream.of(repository.findByCurrency(currency, page));
         }
-        return result;
     }
 
-    Stream<ExchangeRate> findAllLatest() {
-        return repository.findByDate(mapper.fromLocalDateToInstant(LocalDate.now()));
+    Page<ExchangeRate> findAllLatest(final Pageable pageable) {
+        final var page = pageRequest(pageable);
+        return repository.findByDate(mapper.fromLocalDateToInstant(LocalDate.now()), page);
     }
 
     Optional<ExchangeRate> findLatestForCurrency(final CurrencyCode currency) {
@@ -52,6 +57,10 @@ class ExchangeRateQuery {
 
     private Instant instantOf(final LocalDate date) {
         return mapper.fromLocalDateToInstant(date);
+    }
+
+    private PageRequest pageRequest(final Pageable pageable) {
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("date").descending());
     }
 
 }

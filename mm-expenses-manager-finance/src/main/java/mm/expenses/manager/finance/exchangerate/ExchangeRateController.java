@@ -9,17 +9,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.ExceptionMessage;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.exception.ApiBadRequestException;
 import mm.expenses.manager.exception.ApiNotFoundException;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
+import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
+import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Objects;
 
 @RestController
@@ -38,7 +41,7 @@ class ExchangeRateController {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ExchangeRatesDto.class)
+                                    schema = @Schema(implementation = ExchangeRatesAccumulatePage.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
@@ -49,13 +52,19 @@ class ExchangeRateController {
             }
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    Collection<ExchangeRatesDto> findAllExchangeRates(@Parameter(description = "Date of needed exchange rates.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
-                                                      @Parameter(description = "Date from of needed exchange rates.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
-                                                      @Parameter(description = "Date to of needed exchange rates.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to) {
+    ExchangeRatesAccumulatePage findAllExchangeRates(@Parameter(description = "Date of needed exchange rates.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
+                                                     @Parameter(description = "Date from of needed exchange rates.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
+                                                     @Parameter(description = "Date to of needed exchange rates.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to,
+                                                     @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
+                                                     @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         if (Objects.nonNull(date) && (Objects.nonNull(from) || Objects.nonNull(to))) {
             throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currencies can be filtered by date or by date from and date to at once");
         }
-        return mapper.groupAndSortResult(service.findAll(date, from, to));
+        if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
+            throw new ApiBadRequestException("exchange-rates-invalid-page-parameters", "Both page number and page size must be filled");
+        }
+        final var pageable = PageHelper.getPageable(pageNumber, pageSize);
+        return new ExchangeRatesAccumulatePage(mapper.groupAndSortPagedResult(service.findAll(date, from, to, pageable)));
     }
 
     @Operation(
@@ -65,7 +74,7 @@ class ExchangeRateController {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ExchangeRatesDto.class)
+                                    schema = @Schema(implementation = ExchangeRatesPage.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
@@ -76,8 +85,8 @@ class ExchangeRateController {
             }
     )
     @GetMapping(value = "/latest", produces = MediaType.APPLICATION_JSON_VALUE)
-    Collection<ExchangeRatesDto> findLatest() {
-        return mapper.groupAndSortResult(service.findLatest());
+    ExchangeRatesPage findLatest() {
+        return new ExchangeRatesPage(mapper.groupAndSortResult(service.findLatest().stream()));
     }
 
     @Operation(
@@ -87,7 +96,7 @@ class ExchangeRateController {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ExchangeRatesDto.class)
+                                    schema = @Schema(implementation = ExchangeRatesAccumulatePage.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
@@ -98,14 +107,17 @@ class ExchangeRateController {
             }
     )
     @GetMapping(value = "/{currency}", produces = MediaType.APPLICATION_JSON_VALUE)
-    Collection<ExchangeRatesDto> findAllForCurrency(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
-                                                    @Parameter(description = "Date from of needed exchange rates.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
-                                                    @Parameter(description = "Date to of needed exchange rates.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to) {
+    ExchangeRatesAccumulatePage findAllForCurrency(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
+                                                   @Parameter(description = "Date from of needed exchange rates.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
+                                                   @Parameter(description = "Date to of needed exchange rates.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to,
+                                                   @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
+                                                   @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
         if ((Objects.isNull(from) && Objects.nonNull(to)) || (Objects.nonNull(from) && Objects.isNull(to))) {
             throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currency can be filtered by date range or without any date range.");
         }
-        return mapper.groupAndSortResult(service.findAllForCurrency(currencyCode, from, to));
+        final var pageable = PageHelper.getPageable(pageNumber, pageSize);
+        return new ExchangeRatesAccumulatePage(mapper.groupAndSortPagedResult(service.findAllForCurrency(currencyCode, from, to, pageable)));
     }
 
     @Operation(
@@ -167,7 +179,7 @@ class ExchangeRateController {
     )
     @GetMapping(value = "/{currency}/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
     ExchangeRatesDto findForCurrencyAndDate(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
-                                            @Parameter(description = "Date of needed exchange rates.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
+                                            @Parameter(description = "Date of needed exchange rates.", required = true) @PathVariable(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
         if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
             throw new ApiBadRequestException("exchange-rates-invalid-currency", "Currency is not allowed");

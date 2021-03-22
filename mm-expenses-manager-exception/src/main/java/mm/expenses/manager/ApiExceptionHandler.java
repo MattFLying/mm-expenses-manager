@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.security.InvalidParameterException;
+
 @Slf4j
 @ControllerAdvice
 class ApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -26,6 +28,11 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     ResponseEntity<ExceptionMessage> handleBadRequestException(final ApiInternalErrorException internalError) {
         log.error("Internal server error occurred: ", internalError);
         return message(internalError);
+    }
+
+    @ExceptionHandler(InvalidParameterException.class)
+    ResponseEntity<ExceptionMessage> handleInvalidParameterException(final InvalidParameterException invalidParameter) {
+        return message(invalidParameter);
     }
 
     @ExceptionHandler(Exception.class)
