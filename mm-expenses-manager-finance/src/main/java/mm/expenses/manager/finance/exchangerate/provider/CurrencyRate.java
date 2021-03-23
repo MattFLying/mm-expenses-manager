@@ -4,10 +4,7 @@ import lombok.Data;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Abstract representation of the currency rate with default properties described the currency rate
@@ -36,6 +33,10 @@ public abstract class CurrencyRate {
 
     public void addDetails(final String key, final Object value) {
         details.put(key, value);
+    }
+
+    public static <T extends CurrencyRate> Comparator<T> currencyRateComparator() {
+        return Comparator.comparing(T::getCurrency).thenComparing(T::getDate);
     }
 
 }

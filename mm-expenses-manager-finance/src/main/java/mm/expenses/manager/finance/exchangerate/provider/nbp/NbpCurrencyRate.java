@@ -25,6 +25,10 @@ class NbpCurrencyRate extends CurrencyRate {
         return new NbpCurrencyRate(currency, rateDto.getEffectiveDate(), rateDto.getMid(), tableType, rateDto.getNo());
     }
 
+    static NbpCurrencyRate sameDataDifferentDate(final NbpCurrencyRate rate, final LocalDate date) {
+        return new NbpCurrencyRate(rate.getCurrency(), date, rate.getRate(), rate.getTableType(), rate.getTableNumber());
+    }
+
     TableType getTableType() {
         return TableType.parse(getDetails(Details.TABLE_TYPE.getProperty()).orElse(TableType.UNKNOWN));
     }
