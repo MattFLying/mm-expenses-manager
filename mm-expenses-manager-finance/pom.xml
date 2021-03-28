@@ -13,35 +13,39 @@
 
     <name>Expenses Manager Finance Service</name>
     <artifactId>mm-expenses-manager-finance</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <properties>
+        <!-- ExpensesManager dependency versions -->
+        <mm-expenses-manager-common-version>0.1.0-SNAPSHOT</mm-expenses-manager-common-version>
+        <mm-expenses-manager-validator-version>0.1.0-SNAPSHOT</mm-expenses-manager-validator-version>
+        <mm-expenses-manager-exception-version>0.1.0-SNAPSHOT</mm-expenses-manager-exception-version>
+
+        <!-- Other dependency versions -->
         <spring-data-mongodb-version>3.0.2.RELEASE</spring-data-mongodb-version>
         <mongodb-driver-version>4.1.0</mongodb-driver-version>
         <javax-money-version>1.1</javax-money-version>
         <org-javamoney-moneta-version>1.4.2</org-javamoney-moneta-version>
     </properties>
 
-
-
     <dependencies>
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>mm-expenses-manager-validator</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <artifactId>mm-expenses-manager-common</artifactId>
+            <version>${mm-expenses-manager-common-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>mm-expenses-manager-common</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <artifactId>mm-expenses-manager-validator</artifactId>
+            <version>${mm-expenses-manager-validator-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-exception</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${mm-expenses-manager-exception-version}</version>
         </dependency>
 
         <!-- MongoDB dependencies -->

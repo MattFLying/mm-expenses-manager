@@ -16,9 +16,7 @@ import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Min;
@@ -187,19 +185,6 @@ class ExchangeRateController {
         return service.findForCurrencyAndSpecificDate(currencyCode, date)
                 .map(mapper::map)
                 .orElseThrow(() -> new ApiNotFoundException("exchange-rates-not-found", "Currency for: " + currencyCode.getCode() + " and date: " + date + " not found."));
-    }
-
-    @Operation(
-            summary = "Fetch and save historical currencies.",
-            description = "Fetching all historical exchange rates for all available currencies and saving.",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "OK", content = @Content)
-            }
-    )
-    @PostMapping(value = "/history-update")
-    ResponseEntity<Void> fetchAndSaveHistoricCurrencies() {
-        service.historyUpdate();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

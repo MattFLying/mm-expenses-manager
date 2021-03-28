@@ -19,14 +19,14 @@ import java.util.stream.Stream;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-class ExchangeRateService {
+public class ExchangeRateService {
 
     private final ExchangeRateConfig config;
     private final ExchangeRateCommand command;
     private final ExchangeRateQuery query;
     private final ExchangeRateHistoryUpdate historyUpdate;
 
-    void historyUpdate() {
+    public void historyUpdate() {
         CompletableFuture.runAsync(historyUpdate::update);
     }
 
