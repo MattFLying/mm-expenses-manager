@@ -55,12 +55,16 @@ class ExchangeRateQuery {
         return repository.findByCurrencyAndDate(currency, instantOf(date));
     }
 
-    private Instant instantOf(final LocalDate date) {
-        return mapper.fromLocalDateToInstant(date);
+    PageRequest pageRequest(final Integer pageNumber, final Integer pageSize) {
+        return PageRequest.of(pageNumber, pageSize, Sort.by("date").descending());
     }
 
     private PageRequest pageRequest(final Pageable pageable) {
-        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("date").descending());
+        return pageRequest(pageable.getPageNumber(), pageable.getPageSize());
+    }
+
+    private Instant instantOf(final LocalDate date) {
+        return mapper.fromLocalDateToInstant(date);
     }
 
 }

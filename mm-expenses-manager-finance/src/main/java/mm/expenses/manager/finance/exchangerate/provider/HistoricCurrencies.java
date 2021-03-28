@@ -3,18 +3,16 @@ package mm.expenses.manager.finance.exchangerate.provider;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import mm.expenses.manager.common.util.DateUtils;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static mm.expenses.manager.common.util.DateUtils.ZONE_UTC;
 
 /**
  * Interface for historical currencies handling with specific conditions for each provider
@@ -40,8 +38,8 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
     protected Collection<DateRange> findDates(final Instant today, final int startYear, final int maxMothsToFetch, final int maxDaysToFetch) {
         final var result = new ArrayList<DateRange>();
 
-        final var finalDateTo = LocalDate.ofInstant(today, ZONE_UTC);
-        var dateFrom = LocalDate.of(startYear, 1, 1);
+        final var finalDateTo = DateUtils.instantToLocalDateUTC(today);
+        var dateFrom = DateUtils.beginningOfTheYear(startYear);
 
         while (dateFrom.isBefore(finalDateTo)) {
             LocalDate dateTo;
@@ -51,7 +49,7 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
                 dateTo = dateFrom.plusMonths(maxMothsToFetch).minusDays(1);
             }
 
-            final var daysBetween = ChronoUnit.DAYS.between(dateFrom, dateTo);
+            final var daysBetween = DateUtils.daysBetween(dateFrom, dateTo);
             final var moreThanMaxDaysDaysToFetch = daysBetween > maxDaysToFetch;
             if (moreThanMaxDaysDaysToFetch) {
                 dateTo = dateTo.minusDays(daysBetween - maxDaysToFetch);
@@ -87,7 +85,7 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
         final var presentDates = rates.stream()
                 .map(CurrencyRate::getDate)
                 .collect(Collectors.toSet());
-        final var dateTo = LocalDate.ofInstant(today, ZONE_UTC);
+        final var dateTo = DateUtils.instantToLocalDateUTC(today);
 
         final var missingDates = Stream.iterate(
                 dateFrom,

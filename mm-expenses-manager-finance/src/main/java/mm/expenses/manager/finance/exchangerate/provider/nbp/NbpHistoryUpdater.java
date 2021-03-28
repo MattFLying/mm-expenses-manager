@@ -1,10 +1,10 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
+import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.common.util.MergeUtils;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -24,8 +24,8 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
         final var maxMothsToFetch = config.getDetails().getMaxMonthsToFetch();
         final var maxDaysToFetch = config.getDetails().getMaxDaysToFetch();
         final var startYear = config.getDetails().getHistoryFromYear();
-        final var today = Instant.now();
-        final var dateFrom = LocalDate.of(startYear, 1, 1);
+        final var today = DateUtils.now();
+        final var dateFrom = DateUtils.beginningOfTheYear(startYear);
         final var dates = findDates(today, startYear, maxMothsToFetch, maxDaysToFetch);
 
         final var fetchedRates = dates.stream()
@@ -40,13 +40,21 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
                         CurrencyRate::getCurrency,
                         Collectors.collectingAndThen(
                                 Collectors.toList(),
-                                result -> result.stream().collect(Collectors.toMap(NbpCurrencyRate::getDate, Function.identity(), MergeUtils::firstWins, LinkedHashMap::new)))
+                                result -> result.stream().collect(
+                                        Collectors.toMap(
+                                                NbpCurrencyRate::getDate,
+                                                Function.identity(),
+                                                MergeUtils::firstWins,
+                                                LinkedHashMap::new
+                                        )
+                                )
+                        )
                 ))
                 .values()
                 .stream()
                 .map(ratesForCurrencyByDate -> missingDates.stream()
                         .filter(missingDate -> !ratesForCurrencyByDate.containsKey(missingDate))
-                        .map(missingDate -> prepareMissingCurrency(dateFrom, missingDate, ratesForCurrencyByDate))
+                        .map(missingDate -> prepareMissingCurrency(dateFrom, missingDate, DateUtils.instantToLocalDateUTC(today), ratesForCurrencyByDate))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .collect(Collectors.toSet())
@@ -68,12 +76,14 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
      * @param ratesForCurrencyByDate rates for currency by date
      * @return
      */
-    private Optional<NbpCurrencyRate> prepareMissingCurrency(final LocalDate dateFrom, final LocalDate missingDate, final LinkedHashMap<LocalDate, NbpCurrencyRate> ratesForCurrencyByDate) {
+    private Optional<NbpCurrencyRate> prepareMissingCurrency(final LocalDate dateFrom, final LocalDate missingDate, final LocalDate today, final LinkedHashMap<LocalDate, NbpCurrencyRate> ratesForCurrencyByDate) {
+        final var dayToRemove = 1;
         var exists = false;
-        var previousDateToFind = missingDate.minusDays(1);
+        var previousDateToFind = missingDate.minusDays(dayToRemove);
         NbpCurrencyRate result = null;
+
         while (!exists) {
-            if (isDateEqualOrBeforeTheBeginningDate(dateFrom, previousDateToFind)) {
+            if (isDateEqualOrBeforeTheBeginningDate(dateFrom, previousDateToFind) || missingDate.isEqual(today)) {
                 break;
             }
 
@@ -81,7 +91,7 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
                 exists = true;
                 result = NbpCurrencyRate.sameDataDifferentDate(ratesForCurrencyByDate.get(previousDateToFind), missingDate);
             } else {
-                previousDateToFind = previousDateToFind.minusDays(1);
+                previousDateToFind = previousDateToFind.minusDays(dayToRemove);
             }
         }
         return Optional.ofNullable(result);

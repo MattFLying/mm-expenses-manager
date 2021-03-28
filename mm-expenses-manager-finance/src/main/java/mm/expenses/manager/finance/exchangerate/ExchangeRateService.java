@@ -5,16 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,30 +21,13 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 class ExchangeRateService {
 
-    private final CurrencyProviders providers;
+    private final ExchangeRateConfig config;
     private final ExchangeRateCommand command;
     private final ExchangeRateQuery query;
-    private final ExchangeRateConfig config;
+    private final ExchangeRateHistoryUpdate historyUpdate;
 
     void historyUpdate() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            if (providers.isAnyProviderAvailable()) {
-                throw providers.apiInternalErrorExceptionForNoProvider();
-            }
-            try {
-                final var provider = providers.findCurrentProviderOrAny();
-                log.info("Currencies history update in progress.");
-                command.saveHistory(provider.getAllHistoricalCurrencies());
-                log.info("Currencies history update has been done.");
-            } catch (final Exception unknownException) {
-                log.warn("Error occurred during currencies history update process.", unknownException);
-                providers.executeOnAllProviders(provider -> {
-                    log.info("Currencies history update retrying for another provider: {} in progress.", provider.getName());
-                    command.saveHistory(provider.getAllHistoricalCurrencies());
-                    log.info("Currencies history update retried for another provider: {}  has been done.", provider.getName());
-                });
-            }
-        });
+        CompletableFuture.runAsync(historyUpdate::update);
     }
 
     <T extends CurrencyRate> Collection<ExchangeRate> createOrUpdate(final Collection<T> exchangeRates) {
@@ -62,8 +43,7 @@ class ExchangeRateService {
     }
 
     Page<ExchangeRate> findLatest() {
-        final var page = PageRequest.of(0, getAllRequiredCurrenciesCode().size(), Sort.by("date").descending());
-        return query.findAllLatest(page);
+        return query.findAllLatest(query.pageRequest(0, getAllRequiredCurrenciesCode().size()));
     }
 
     Optional<ExchangeRate> findLatestForCurrency(final CurrencyCode currency) {
