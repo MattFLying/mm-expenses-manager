@@ -23,6 +23,8 @@ import java.util.Optional;
 })
 class ExchangeRate {
 
+    static final String DEFAULT_SORT_BY = "date";
+
     @Id
     private final String id;
 

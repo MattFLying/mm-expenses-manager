@@ -7,6 +7,7 @@ import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRateDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRateDto.RateDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage.ExchangeRatePage;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
 import org.mapstruct.InjectionStrategy;
@@ -24,15 +25,15 @@ import java.util.stream.Stream;
 abstract class ExchangeRateMapper extends AbstractMapper {
 
     @Autowired
-    protected DefaultCurrencyProvider<?> provider;
+    protected CurrencyProviders providers;
 
     @Mapping(target = "date", expression = "java(fromInstantToLocalDate(entity.getDate()))")
-    @Mapping(target = "rate", expression = "java(map(entity.getRateByProvider(provider.getName(), true)))")
+    @Mapping(target = "rate", expression = "java(map(entity.getRateByProvider(getProvider().getName(), true)))")
     abstract ExchangeRateDto mapToDto(final ExchangeRate entity);
 
     @Mapping(target = "date", expression = "java(fromLocalDateToInstant(domain.getDate()))")
-    @Mapping(target = "ratesByProvider", expression = "java(map(domain, provider.getName()))")
-    @Mapping(target = "detailsByProvider", expression = "java(map(provider.getName(), domain))")
+    @Mapping(target = "ratesByProvider", expression = "java(map(domain, getProvider().getName()))")
+    @Mapping(target = "detailsByProvider", expression = "java(map(getProvider().getName(), domain))")
     @Mapping(target = "createdAt", source = "now")
     @Mapping(target = "modifiedAt", source = "now")
     abstract ExchangeRate map(final CurrencyRate domain, final Instant now);
@@ -47,12 +48,16 @@ abstract class ExchangeRateMapper extends AbstractMapper {
 
     abstract RateDto map(final Rate rate);
 
+    protected DefaultCurrencyProvider<?> getProvider() {
+        return providers.findDefaultProviderOrAny();
+    }
+
     protected Map<String, Map<String, Object>> map(final String providerName, final CurrencyRate domain) {
         return Map.of(providerName, domain.getDetails());
     }
 
     protected Map<String, Rate> map(final CurrencyRate domain, final String providerName) {
-        return Map.of(providerName, map(domain.getCurrency(), provider.getDefaultCurrency(), domain.getRate()));
+        return Map.of(providerName, map(domain.getCurrency(), providers.getDefaultCurrency(), domain.getRate()));
     }
 
     protected Rate map(final CurrencyCode currencyFrom, final CurrencyCode currencyTo, final Double currencyValueTo) {

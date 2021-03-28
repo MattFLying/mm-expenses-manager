@@ -1,9 +1,9 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -16,12 +16,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ExchangeRateService {
 
-    private final ExchangeRateConfig config;
+    private final CurrencyRatesConfig config;
     private final ExchangeRateCommand command;
     private final ExchangeRateQuery query;
     private final ExchangeRateHistoryUpdate historyUpdate;

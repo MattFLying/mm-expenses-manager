@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.pageable.PageHelper;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static mm.expenses.manager.finance.exchangerate.ExchangeRate.DEFAULT_SORT_BY;
 
 @Component
 @RequiredArgsConstructor
@@ -56,7 +59,7 @@ class ExchangeRateQuery {
     }
 
     PageRequest pageRequest(final Integer pageNumber, final Integer pageSize) {
-        return PageRequest.of(pageNumber, pageSize, Sort.by("date").descending());
+        return PageHelper.getPageRequest(pageNumber, pageSize, Sort.by(DEFAULT_SORT_BY).descending());
     }
 
     private PageRequest pageRequest(final Pageable pageable) {

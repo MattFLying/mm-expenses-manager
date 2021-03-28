@@ -1,7 +1,10 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
+import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.common.util.MergeUtils;
+import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
 
@@ -12,6 +15,7 @@ import java.util.stream.Collectors;
 
 import static mm.expenses.manager.finance.exchangerate.provider.CurrencyRate.currencyRateComparator;
 
+@Slf4j
 class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
 
     NbpHistoryUpdater(final NbpCurrencyProvider provider) {
@@ -19,52 +23,68 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
     }
 
     @Override
-    public Collection<NbpCurrencyRate> fetchHistoricalCurrencies() {
-        final var config = provider.getProviderConfig();
-        final var maxMothsToFetch = config.getDetails().getMaxMonthsToFetch();
-        final var maxDaysToFetch = config.getDetails().getMaxDaysToFetch();
-        final var startYear = config.getDetails().getHistoryFromYear();
-        final var today = DateUtils.now();
-        final var dateFrom = DateUtils.beginningOfTheYear(startYear);
-        final var dates = findDates(today, startYear, maxMothsToFetch, maxDaysToFetch);
+    public Collection<NbpCurrencyRate> fetchHistoricalCurrencies() throws HistoricalCurrencyException {
+        try {
+            final var config = provider.getProviderConfig();
+            final var maxMothsToFetch = config.getDetails().getMaxMonthsToFetch();
+            final var maxDaysToFetch = config.getDetails().getMaxDaysToFetch();
+            final var startYear = config.getDetails().getHistoryFromYear();
+            final var today = DateUtils.now();
+            final var dateFrom = DateUtils.beginningOfTheYear(startYear);
+            final var dates = findDates(today, startYear, maxMothsToFetch, maxDaysToFetch);
 
-        final var fetchedRates = dates.stream()
-                .map(dateRange -> provider.getCurrencyRatesForDateRange(dateRange.getFrom(), dateRange.getTo()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+            final var fetchedRates = dates.stream()
+                    .map(dateRange -> {
+                        try {
+                            return provider.getCurrencyRatesForDateRange(dateRange.getFrom(), dateRange.getTo());
+                        } catch (final CurrencyProviderException exception) {
+                            log.error("Cannot fetch historical currency rates for dates between: {} - {} because of: {}",
+                                    dateRange.getFrom(), dateRange.getTo(), exception.getClientMessage().orElse(exception.getMessage()),
+                                    exception
+                            );
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
 
-        final var missingDates = findMissingDates(fetchedRates, dateFrom, today);
+            final var missingDates = findMissingDates(fetchedRates, dateFrom, today);
 
-        final var missingRates = fetchedRates.stream()
-                .collect(Collectors.groupingBy(
-                        CurrencyRate::getCurrency,
-                        Collectors.collectingAndThen(
-                                Collectors.toList(),
-                                result -> result.stream().collect(
-                                        Collectors.toMap(
-                                                NbpCurrencyRate::getDate,
-                                                Function.identity(),
-                                                MergeUtils::firstWins,
-                                                LinkedHashMap::new
-                                        )
-                                )
-                        )
-                ))
-                .values()
-                .stream()
-                .map(ratesForCurrencyByDate -> missingDates.stream()
-                        .filter(missingDate -> !ratesForCurrencyByDate.containsKey(missingDate))
-                        .map(missingDate -> prepareMissingCurrency(dateFrom, missingDate, DateUtils.instantToLocalDateUTC(today), ratesForCurrencyByDate))
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .collect(Collectors.toSet())
-                )
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+            final var missingRates = fetchedRates.stream()
+                    .collect(Collectors.groupingBy(
+                            CurrencyRate::getCurrency,
+                            Collectors.collectingAndThen(
+                                    Collectors.toList(),
+                                    result -> result.stream().collect(
+                                            Collectors.toMap(
+                                                    NbpCurrencyRate::getDate,
+                                                    Function.identity(),
+                                                    MergeUtils::firstWins,
+                                                    LinkedHashMap::new
+                                            )
+                                    )
+                            )
+                    ))
+                    .values()
+                    .stream()
+                    .map(ratesForCurrencyByDate -> missingDates.stream()
+                            .filter(missingDate -> !ratesForCurrencyByDate.containsKey(missingDate))
+                            .map(missingDate -> prepareMissingCurrency(dateFrom, missingDate, DateUtils.instantToLocalDateUTC(today), ratesForCurrencyByDate))
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .collect(Collectors.toSet())
+                    )
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
 
-        fetchedRates.addAll(missingRates);
+            fetchedRates.addAll(missingRates);
 
-        return fetchedRates.stream().collect(Collectors.toCollection(() -> new TreeSet<>(currencyRateComparator())));
+            return fetchedRates.stream().collect(Collectors.toCollection(() -> new TreeSet<>(currencyRateComparator())));
+        } catch (final Exception exception) {
+            log.error("Cannot fetch historical currencies.", exception);
+            throw new HistoricalCurrencyException("Something went wrong during fetching historical currencies.", exception);
+        }
     }
 
     /**

@@ -2,7 +2,10 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
@@ -30,27 +33,17 @@ class ExchangeRateSynchronizer {
     @Scheduled(cron = "${app.currency.synchronization-cron}")
     void scheduleUpdateLatestExchangeRates() {
         log.info("Currencies synchronization in progress.");
-        final var provider = providers.findCurrentProviderOrAny();
-        final var allCurrent = provider.getCurrentCurrencyRates();
-
-        if (!allCurrent.isEmpty()) {
-            service.createOrUpdate(allCurrent);
-        } else {
-            final var providerName = provider.getName();
-            if (!jobs.containsKey(providerName) && !rescheduledJobsSuccessfully.containsKey(providerName)) {
-                final var scheduleFailedJob = scheduler.schedule(
-                        new RescheduleFailedProvider(provider, service, rescheduledJobsSuccessfully),
-                        new CronTrigger(providers.getConfig().getRescheduleWhenSynchronizationFailedCron())
-                );
-                if (Objects.nonNull(scheduleFailedJob)) {
-                    jobs.put(providerName, scheduleFailedJob);
-                }
+        final var provider = providers.findDefaultProviderOrAny();
+        try {
+            final var allCurrent = provider.getCurrentCurrencyRates();
+            if (allCurrent.isEmpty()) {
+                rescheduleProviderAndCallAnother(provider);
+            } else {
+                service.createOrUpdate(allCurrent);
             }
-
-            providers.executeOnAllProviders(
-                    otherProvider -> !otherProvider.getName().equalsIgnoreCase(providers.getDefaultProvider()),
-                    otherProvider -> service.createOrUpdate(otherProvider.getCurrentCurrencyRates())
-            );
+        } catch (final CurrencyProviderException exception) {
+            log.warn("Cannot fetch current currency rates for provider: {}", provider.getName(), exception);
+            rescheduleProviderAndCallAnother(provider);
         }
         log.info("Currencies synchronization has been done.");
     }
@@ -60,10 +53,14 @@ class ExchangeRateSynchronizer {
      */
     @Scheduled(cron = "${app.currency.clean-reschedule-cron}")
     void cleanUpRescheduleJobsIfDone() {
-        jobs.entrySet()
-                .stream()
-                .filter(provider -> rescheduledJobsSuccessfully.containsKey(provider.getKey()))
-                .forEach(provider -> cancelCompletedRescheduledJob(provider.getKey(), provider.getValue()));
+        try {
+            jobs.entrySet()
+                    .stream()
+                    .filter(provider -> rescheduledJobsSuccessfully.containsKey(provider.getKey()))
+                    .forEach(provider -> cancelCompletedRescheduledJob(provider.getKey(), provider.getValue()));
+        } catch (final Exception exception) {
+            log.warn("Cannot clean up rescheduled jobs", exception);
+        }
     }
 
     /**
@@ -73,9 +70,51 @@ class ExchangeRateSynchronizer {
      * @param job          job to be canceled
      */
     private void cancelCompletedRescheduledJob(final String providerName, final ScheduledFuture<?> job) {
-        job.cancel(true);
-        jobs.remove(providerName);
-        rescheduledJobsSuccessfully.remove(providerName);
+        try {
+            job.cancel(true);
+            jobs.remove(providerName);
+            rescheduledJobsSuccessfully.remove(providerName);
+        } catch (final Exception exception) {
+            log.warn("Cannot cancel rescheduled job for provider: {}", providerName, exception);
+        }
+    }
+
+    /**
+     * Reschedule update latest exchange rates for given provider.
+     *
+     * @param provider currencies provider
+     */
+    private void rescheduleProviderAndCallAnother(final CurrencyRateProvider<?> provider) {
+        final var providerName = provider.getName();
+        log.info("Reschedule fetching latest exchange rates for provider: {}", providerName);
+        if (!jobs.containsKey(providerName) && !rescheduledJobsSuccessfully.containsKey(providerName)) {
+            final var scheduleFailedJob = scheduler.schedule(
+                    new RescheduleFailedProvider(provider, service, rescheduledJobsSuccessfully),
+                    new CronTrigger(providers.getConfig().getRescheduleWhenSynchronizationFailedCron())
+            );
+            if (Objects.nonNull(scheduleFailedJob)) {
+                jobs.put(providerName, scheduleFailedJob);
+            }
+        }
+
+        providers.executeOnAllProviders(
+                otherProvider -> !otherProvider.getName().equalsIgnoreCase(providers.getDefaultProvider()),
+                otherProvider -> {
+                    try {
+                        service.createOrUpdate(otherProvider.getCurrentCurrencyRates());
+                    } catch (final CurrencyProviderException exception) {
+                        log.warn("Cannot fetch currency rates for provider: {}", otherProvider.getName(), exception);
+                        if (exception.isHttpError()) {
+                            exception.getClientStatus()
+                                    .filter(HttpStatus::is5xxServerError)
+                                    .ifPresent(status -> {
+                                        log.warn("Server error for provider: {} with error: {}", otherProvider.getName(), exception.getClientMessage().orElse(exception.getMessage()));
+                                        rescheduleProviderAndCallAnother(otherProvider);
+                                    });
+                        }
+                    }
+                }
+        );
     }
 
     /**
@@ -92,10 +131,14 @@ class ExchangeRateSynchronizer {
         public void run() {
             log.info("Retrying fetch current currencies for provider: {}", failedProvider.getName());
             if (service.findLatest().isEmpty()) {
-                final var allCurrent = failedProvider.getCurrentCurrencyRates();
-                if (!allCurrent.isEmpty()) {
-                    service.createOrUpdate(allCurrent);
-                    markProviderAsDone();
+                try {
+                    final var allCurrent = failedProvider.getCurrentCurrencyRates();
+                    if (!allCurrent.isEmpty()) {
+                        service.createOrUpdate(allCurrent);
+                        markProviderAsDone();
+                    }
+                } catch (final CurrencyProviderException exception) {
+                    log.warn("Cannot fetch currency rates for failed provider: {}", failedProvider.getName(), exception);
                 }
             } else {
                 markProviderAsDone();

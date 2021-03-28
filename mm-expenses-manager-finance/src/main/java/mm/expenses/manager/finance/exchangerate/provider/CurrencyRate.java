@@ -20,7 +20,7 @@ public abstract class CurrencyRate {
 
     private final Map<String, Object> details;
 
-    public CurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final Map<String, Object> details) {
+    protected CurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final Map<String, Object> details) {
         this.currency = CurrencyCode.of(currency);
         this.date = date;
         this.rate = Objects.nonNull(rate) ? rate : 0.0;

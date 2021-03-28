@@ -2,6 +2,8 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.locks.Lock;
@@ -41,15 +43,19 @@ class ExchangeRateHistoryUpdate {
         }
 
         try {
-            final var provider = providers.findCurrentProviderOrAny();
+            final var provider = providers.findDefaultProviderOrAny();
             log.info("Currencies history update in progress.");
             command.saveHistory(provider.getAllHistoricalCurrencies());
             log.info("Currencies history update has been done.");
-        } catch (final Exception unknownException) {
+        } catch (final HistoricalCurrencyException unknownException) {
             log.warn("Error occurred during currencies history update process.", unknownException);
             providers.executeOnAllProviders(provider -> {
                 log.info("Currencies history update retrying for another provider: {} in progress.", provider.getName());
-                command.saveHistory(provider.getAllHistoricalCurrencies());
+                try {
+                    command.saveHistory(provider.getAllHistoricalCurrencies());
+                } catch (final HistoricalCurrencyException unknownExceptionForOtherProvider) {
+                    log.warn("Something went wrong during update process for provider: {}", provider.getName());
+                }
                 log.info("Currencies history update retried for another provider: {}  has been done.", provider.getName());
             });
         }

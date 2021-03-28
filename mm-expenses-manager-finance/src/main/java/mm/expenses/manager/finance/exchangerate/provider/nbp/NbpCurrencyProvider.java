@@ -1,9 +1,9 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ApiFeignClientException;
+import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
 import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
@@ -14,7 +14,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Slf4j
+import static java.lang.String.format;
+
 @Component("${app.currency.provider.nbp.name}")
 @RequiredArgsConstructor
 class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
@@ -33,7 +34,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     }
 
     @Override
-    public Optional<NbpCurrencyRate> getCurrentCurrencyRate(final CurrencyCode currency) {
+    public Optional<NbpCurrencyRate> getCurrentCurrencyRate(final CurrencyCode currency) throws CurrencyProviderException {
         final var table = TableType.findTableForCurrency(currency);
         try {
             return client.fetchCurrentExchangeRateForCurrencyFromTableType(table.name(), currency.getCode(), getDataFormat())
@@ -43,13 +44,14 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                             .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
                     );
         } catch (final ApiFeignClientException exception) {
-            log.error("Could not fetch data for currency: {}", table, exception);
-            return Optional.empty();
+            throw new CurrencyProviderException(format("Cannot fetch current currency rate for currency: %s. Client provider error.", currency), exception);
+        } catch (final Exception exception) {
+            throw new CurrencyProviderException(format("Something went wrong during fetch current currency rate for currency: %s.", currency), exception);
         }
     }
 
     @Override
-    public Optional<NbpCurrencyRate> getCurrencyRateForDate(final CurrencyCode currency, final LocalDate date) {
+    public Optional<NbpCurrencyRate> getCurrencyRateForDate(final CurrencyCode currency, final LocalDate date) throws CurrencyProviderException {
         final var table = TableType.findTableForCurrency(currency);
         try {
             return client.fetchExchangeRateForCurrencyFromTableTypeAndDate(table.name(), currency.getCode(), date, getDataFormat())
@@ -59,13 +61,14 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                             .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
                     );
         } catch (final ApiFeignClientException exception) {
-            log.error("Could not fetch data for currency: {} and date : {}", table, date, exception);
-            return Optional.empty();
+            throw new CurrencyProviderException(format("Cannot fetch currency rate for currency: %s and date: %s. Client provider error.", currency, date), exception);
+        } catch (final Exception exception) {
+            throw new CurrencyProviderException(format("Something went wrong during fetch currency rate for currency: %s and date: %s.", currency, date), exception);
         }
     }
 
     @Override
-    public Collection<NbpCurrencyRate> getCurrencyRateForDateRange(final CurrencyCode currency, final LocalDate from, final LocalDate to) {
+    public Collection<NbpCurrencyRate> getCurrencyRateForDateRange(final CurrencyCode currency, final LocalDate from, final LocalDate to) throws CurrencyProviderException {
         final var table = TableType.findTableForCurrency(currency);
         try {
             return client.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(table.name(), currency.getCode(), from, to, getDataFormat())
@@ -75,13 +78,14 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                             .collect(Collectors.toList())
                     ).orElse(Collections.emptyList());
         } catch (final ApiFeignClientException exception) {
-            log.error("Could not fetch data for currency: {} and date range {} - {}", table, from, to, exception);
-            return Collections.emptyList();
+            throw new CurrencyProviderException(format("Cannot fetch currency rate for currency: %s and date between: %s - %s. Client provider error.", currency, from, to), exception);
+        } catch (final Exception exception) {
+            throw new CurrencyProviderException(format("Something went wrong during fetch currency rate for currency: %s and date between: %s - %s.", currency, from, to), exception);
         }
     }
 
     @Override
-    public Collection<NbpCurrencyRate> getCurrentCurrencyRates() {
+    public Collection<NbpCurrencyRate> getCurrentCurrencyRates() throws CurrencyProviderException {
         try {
             return client.fetchCurrentAllExchangeRatesForTableType(getAvailableTableType(), getDataFormat())
                     .stream()
@@ -89,13 +93,14 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         } catch (final ApiFeignClientException exception) {
-            log.error("Could not fetch data for table: {}", getAvailableTableType(), exception);
-            return Collections.emptyList();
+            throw new CurrencyProviderException("Cannot fetch current currency rates. Client provider error.", exception);
+        } catch (final Exception exception) {
+            throw new CurrencyProviderException("Something went wrong during fetch current currency rates.", exception);
         }
     }
 
     @Override
-    public Collection<NbpCurrencyRate> getCurrencyRatesForDate(final LocalDate date) {
+    public Collection<NbpCurrencyRate> getCurrencyRatesForDate(final LocalDate date) throws CurrencyProviderException {
         try {
             return client.fetchAllExchangeRatesForTableTypeAndDate(getAvailableTableType(), date, getDataFormat())
                     .stream()
@@ -103,13 +108,14 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         } catch (final ApiFeignClientException exception) {
-            log.error("Could not fetch data for table: {} and date: {}", getAvailableTableType(), date, exception);
-            return Collections.emptyList();
+            throw new CurrencyProviderException(format("Cannot fetch currency rates for date: %s. Client provider error.", date), exception);
+        } catch (final Exception exception) {
+            throw new CurrencyProviderException(format("Something went wrong during fetch currency rates for date: %s.", date), exception);
         }
     }
 
     @Override
-    public Collection<NbpCurrencyRate> getCurrencyRatesForDateRange(final LocalDate from, final LocalDate to) {
+    public Collection<NbpCurrencyRate> getCurrencyRatesForDateRange(final LocalDate from, final LocalDate to) throws CurrencyProviderException {
         try {
             return client.fetchAllExchangeRatesForTableTypeAndDateRange(getAvailableTableType(), from, to, getDataFormat())
                     .stream()
@@ -117,8 +123,9 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         } catch (final ApiFeignClientException exception) {
-            log.error("Could not fetch data for table: {} and date range {} - {}", getAvailableTableType(), from, to, exception);
-            return Collections.emptyList();
+            throw new CurrencyProviderException(format("Cannot fetch currency rates for date range between: %s - %s. Client provider error.", from, to), exception);
+        } catch (final Exception exception) {
+            throw new CurrencyProviderException(format("Something went wrong during fetch currency rates for date range between: %s - %s.", from, to), exception);
         }
     }
 

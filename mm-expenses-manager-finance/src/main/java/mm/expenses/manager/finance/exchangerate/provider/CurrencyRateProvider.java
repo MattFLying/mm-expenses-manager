@@ -1,5 +1,7 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
+import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
+
 import java.util.Collection;
 
 /**
@@ -12,7 +14,7 @@ public interface CurrencyRateProvider<T extends CurrencyRate> extends DefaultCur
 
     HistoricCurrencies<T> getHistoricCurrencies();
 
-    default Collection<T> getAllHistoricalCurrencies() {
+    default Collection<T> getAllHistoricalCurrencies() throws HistoricalCurrencyException {
         return getHistoricCurrencies().fetchHistoricalCurrencies();
     }
 

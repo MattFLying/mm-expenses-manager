@@ -3,8 +3,8 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
-import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
@@ -23,7 +23,7 @@ class ExchangeRateCommand {
 
     private final ExchangeRateRepository repository;
     private final ExchangeRateMapper mapper;
-    private final DefaultCurrencyProvider<?> provider;
+    private final CurrencyProviders providers;
 
     /**
      * Save or update historical exchange rates.
@@ -109,8 +109,8 @@ class ExchangeRateCommand {
      * @return saved or updated exchange rate object or empty optional if there is no provider to be added
      */
     private <T extends CurrencyRate> Optional<ExchangeRate> createOrUpdate(final Map<LocalDate, ExchangeRate> existedByDate, final T currencyRate) {
-        final var providerName = provider.getName();
-        final var targetCurrency = provider.getDefaultCurrency();
+        final var providerName = providers.getDefaultProvider();
+        final var targetCurrency = providers.getDefaultCurrency();
         final var existedOpt = Optional.ofNullable(existedByDate.get(currencyRate.getDate()));
         if (existedOpt.isPresent()) {
             final var existed = existedOpt.get();
