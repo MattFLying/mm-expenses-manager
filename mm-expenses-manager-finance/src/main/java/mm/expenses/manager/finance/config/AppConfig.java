@@ -11,5 +11,6 @@ class AppConfig {
 
     private String name;
     private String version;
+    private Integer scheduledThreadPoolSize;
 
 }

@@ -12,5 +12,7 @@ class ExchangeRateConfig {
     private String defaultProvider;
     private String defaultCurrency;
     private String synchronizationCron;
+    private String rescheduleWhenSynchronizationFailedCron;
+    private String cleanRescheduleCron;
 
 }

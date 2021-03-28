@@ -7,11 +7,14 @@ app:
       url: /api
     database:
       name: expenses-manager-finance
+    scheduled-thread-pool-size: 100
   currency:
     default: app.currency.provider.nbp # path to default provider property
     default-provider: ${${app.currency.default}.name}
     default-currency: ${${app.currency.default}.details.default-currency}
-    synchronization-cron: ${${app.currency.default}.details.synchronization-cron}
+    synchronization-cron: "0 * * * * *" # every 1 hour
+    reschedule-when-synchronization-failed-cron: "*/15 * * * * *" # every 15 minutes
+    clean-reschedule-cron: "*/5 * * * * *" # every 5 minutes
     provider:
       nbp:
         name: nbp
@@ -23,7 +26,6 @@ app:
           history-from-year: 2002
           max-months-to-fetch: 3
           max-days-to-fetch: 88
-          synchronization-cron: 0 0 13 ? * * #everyday at 13:00
 
 server:
   port: ${app.configuration.port}

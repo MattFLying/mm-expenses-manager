@@ -25,7 +25,6 @@ public abstract class ProviderConfig {
         private int historyFromYear;
         private int maxMonthsToFetch;
         private int maxDaysToFetch;
-        private String synchronizationCron;
 
     }
 
