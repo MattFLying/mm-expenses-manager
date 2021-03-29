@@ -54,7 +54,7 @@ public class ExchangeRateService {
     }
 
     private Set<CurrencyCode> getAllRequiredCurrenciesCode() {
-        return Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.UNDEFINED) || !code.equals(CurrencyCode.valueOf(config.getDefaultCurrency()))).collect(Collectors.toSet());
+        return Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.UNDEFINED) || !code.equals(config.getDefaultCurrency())).collect(Collectors.toSet());
     }
 
 }

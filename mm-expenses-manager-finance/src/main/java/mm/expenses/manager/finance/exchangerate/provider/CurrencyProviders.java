@@ -4,6 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ApiInternalErrorException;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -19,48 +20,51 @@ public class CurrencyProviders {
 
     private final Map<String, CurrencyRateProvider<? extends CurrencyRate>> providers;
     private final CurrencyRatesConfig config;
+    private CurrencyRateProvider<? extends CurrencyRate> provider;
 
     CurrencyProviders(final Collection<CurrencyRateProvider<? extends CurrencyRate>> providers, final CurrencyRatesConfig config) {
         this.providers = providers.stream().collect(Collectors.toMap(DefaultCurrencyProvider::getName, Function.identity()));
         this.config = config;
     }
 
-    /**
-     * Get default currency provider name.
-     */
-    public String getDefaultProvider() {
-        return config.getDefaultProvider();
+    @PostConstruct
+    private void initializeDefaultProvider() {
+        this.provider = findDefaultProviderOrAny();
     }
 
     /**
-     * Get default currency type.
+     * Get currently used currency provider name.
      */
-    public CurrencyCode getDefaultCurrency() {
-        return CurrencyCode.valueOf(config.getDefaultCurrency());
+    public CurrencyRateProvider<? extends CurrencyRate> getProvider() {
+        return provider;
     }
 
     /**
-     * Get configuration for currencies.
+     * Get currently used currency provider name.
      */
-    public CurrencyRatesConfig getConfig() {
+    public String getProviderName() {
+        return getProviderConfig().getName();
+    }
+
+    /**
+     * Get currently used currency type.
+     */
+    public CurrencyCode getCurrency() {
+        return getProviderConfig().getCurrency();
+    }
+
+    /**
+     * Get configuration for currently used currencies.
+     */
+    public ProviderConfig getProviderConfig() {
+        return provider.getProviderConfig();
+    }
+
+    /**
+     * Get global configuration for currencies.
+     */
+    public CurrencyRatesConfig getGlobalConfig() {
         return config;
-    }
-
-    /**
-     * Check if any provider is currently available or not.
-     */
-    public boolean isAnyProviderAvailable() {
-        return !providers.isEmpty();
-    }
-
-    /**
-     * Retrieve default provider if available or any.
-     */
-    public CurrencyRateProvider<? extends CurrencyRate> findDefaultProviderOrAny() {
-        return providers.getOrDefault(
-                config.getDefaultProvider(),
-                providers.values().stream().findAny().orElseThrow(this::apiInternalErrorExceptionForNoProvider)
-        );
     }
 
     /**
@@ -77,8 +81,28 @@ public class CurrencyProviders {
         providers.values().stream().filter(filterProviders).forEach(operationToExecuteOnProvider);
     }
 
-    public ApiInternalErrorException apiInternalErrorExceptionForNoProvider() {
+    /**
+     * Check if any provider is currently available or not.
+     */
+    private boolean isAnyProviderAvailable() {
+        return !providers.isEmpty();
+    }
+
+    private ApiInternalErrorException apiInternalErrorExceptionForNoProvider() {
         return new ApiInternalErrorException("exchange-rate-provider", "Cannot find proper exchange rate provider.");
+    }
+
+    /**
+     * Retrieve default provider if available or any.
+     */
+    private CurrencyRateProvider<? extends CurrencyRate> findDefaultProviderOrAny() {
+        if (!isAnyProviderAvailable()) {
+            throw apiInternalErrorExceptionForNoProvider();
+        }
+        return providers.getOrDefault(
+                getGlobalConfig().getDefaultProvider(),
+                providers.values().stream().findAny().orElseThrow(this::apiInternalErrorExceptionForNoProvider)
+        );
     }
 
 }

@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
 import lombok.Data;
+import mm.expenses.manager.common.i18n.CurrencyCode;
 
 @Data
 public abstract class ProviderConfig {
@@ -13,15 +14,15 @@ public abstract class ProviderConfig {
         return details.getDataFormat();
     }
 
-    public String getDefaultCurrency() {
-        return details.getDefaultCurrency();
+    public CurrencyCode getCurrency() {
+        return details.getCurrency();
     }
 
     @Data
     public static class Details {
 
         private String dataFormat;
-        private String defaultCurrency;
+        private CurrencyCode currency;
         private int historyFromYear;
         private int maxMonthsToFetch;
         private int maxDaysToFetch;

@@ -10,8 +10,8 @@ public interface DefaultCurrencyProvider<T extends CurrencyRate> {
         return getProviderConfig().getName();
     }
 
-    default CurrencyCode getDefaultCurrency() {
-        return CurrencyCode.getCurrencyFromString(getProviderConfig().getDefaultCurrency());
+    default CurrencyCode getCurrencyCode() {
+        return getProviderConfig().getCurrency();
     }
 
 }

@@ -33,7 +33,7 @@ class ExchangeRateSynchronizer {
     @Scheduled(cron = "${app.currency.synchronization-cron}")
     void scheduleUpdateLatestExchangeRates() {
         log.info("Currencies synchronization in progress.");
-        final var provider = providers.findDefaultProviderOrAny();
+        final var provider = providers.getProvider();
         try {
             final var allCurrent = provider.getCurrentCurrencyRates();
             if (allCurrent.isEmpty()) {
@@ -90,7 +90,7 @@ class ExchangeRateSynchronizer {
         if (!jobs.containsKey(providerName) && !rescheduledJobsSuccessfully.containsKey(providerName)) {
             final var scheduleFailedJob = scheduler.schedule(
                     new RescheduleFailedProvider(provider, service, rescheduledJobsSuccessfully),
-                    new CronTrigger(providers.getConfig().getRescheduleWhenSynchronizationFailedCron())
+                    new CronTrigger(providers.getGlobalConfig().getRescheduleWhenSynchronizationFailedCron())
             );
             if (Objects.nonNull(scheduleFailedJob)) {
                 jobs.put(providerName, scheduleFailedJob);
@@ -98,7 +98,7 @@ class ExchangeRateSynchronizer {
         }
 
         providers.executeOnAllProviders(
-                otherProvider -> !otherProvider.getName().equalsIgnoreCase(providers.getDefaultProvider()),
+                otherProvider -> !otherProvider.getName().equalsIgnoreCase(providers.getProviderName()),
                 otherProvider -> {
                     try {
                         service.createOrUpdate(otherProvider.getCurrentCurrencyRates());
@@ -129,7 +129,8 @@ class ExchangeRateSynchronizer {
 
         @Override
         public void run() {
-            log.info("Retrying fetch current currencies for provider: {}", failedProvider.getName());
+            final var failedProviderName = failedProvider.getName();
+            log.info("Retrying fetch current currencies for provider: {}", failedProviderName);
             if (service.findLatest().isEmpty()) {
                 try {
                     final var allCurrent = failedProvider.getCurrentCurrencyRates();
@@ -138,7 +139,7 @@ class ExchangeRateSynchronizer {
                         markProviderAsDone();
                     }
                 } catch (final CurrencyProviderException exception) {
-                    log.warn("Cannot fetch currency rates for failed provider: {}", failedProvider.getName(), exception);
+                    log.warn("Cannot fetch currency rates for failed provider: {}", failedProviderName, exception);
                 }
             } else {
                 markProviderAsDone();
@@ -149,9 +150,10 @@ class ExchangeRateSynchronizer {
          * If reschedule job has finished completely then mark this jbo as finished.
          */
         private void markProviderAsDone() {
-            if (!rescheduledJobsSuccessfully.containsKey(failedProvider.getName())) {
-                rescheduledJobsSuccessfully.put(failedProvider.getName(), true);
-                log.info("Retrying fetch current currencies for provider: {} has completed.", failedProvider.getName());
+            final var failedProviderName = failedProvider.getName();
+            if (!rescheduledJobsSuccessfully.containsKey(failedProviderName)) {
+                rescheduledJobsSuccessfully.put(failedProviderName, true);
+                log.info("Retrying fetch current currencies for provider: {} has completed.", failedProviderName);
             }
         }
 

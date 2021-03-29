@@ -109,8 +109,8 @@ class ExchangeRateCommand {
      * @return saved or updated exchange rate object or empty optional if there is no provider to be added
      */
     private <T extends CurrencyRate> Optional<ExchangeRate> createOrUpdate(final Map<LocalDate, ExchangeRate> existedByDate, final T currencyRate) {
-        final var providerName = providers.getDefaultProvider();
-        final var targetCurrency = providers.getDefaultCurrency();
+        final var providerName = providers.getProviderName();
+        final var targetCurrency = providers.getCurrency();
         final var existedOpt = Optional.ofNullable(existedByDate.get(currencyRate.getDate()));
         if (existedOpt.isPresent()) {
             final var existed = existedOpt.get();

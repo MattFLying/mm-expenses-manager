@@ -10,7 +10,9 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Data
@@ -36,18 +38,24 @@ class ExchangeRate {
 
     private final Instant modifiedAt;
 
-    private final Map<String, Rate> ratesByProvider;
+    private Map<String, Rate> ratesByProvider;
 
-    private final Map<String, Map<String, Object>> detailsByProvider;
+    private Map<String, Map<String, Object>> detailsByProvider;
 
     @Version
     private final Long version;
 
     void addRateForProvider(final String providerName, final Rate rate) {
+        if (Objects.isNull(ratesByProvider)) {
+            ratesByProvider = new HashMap<>();
+        }
         ratesByProvider.put(providerName, rate);
     }
 
     void addDetailsForProvider(final String providerName, final Map<String, Object> details) {
+        if (Objects.isNull(detailsByProvider)) {
+            detailsByProvider = new HashMap<>();
+        }
         detailsByProvider.put(providerName, details);
     }
 
@@ -56,6 +64,9 @@ class ExchangeRate {
     }
 
     Rate getRateByProvider(final String providerName, final boolean findAnyIfNotExist) {
+        if (Objects.isNull(ratesByProvider)) {
+            ratesByProvider = new HashMap<>();
+        }
         if (!findAnyIfNotExist) {
             return ratesByProvider.getOrDefault(providerName, Rate.empty());
         }
@@ -67,6 +78,12 @@ class ExchangeRate {
     }
 
     boolean hasProvider(final String providerName) {
+        if (Objects.isNull(ratesByProvider)) {
+            ratesByProvider = new HashMap<>();
+        }
+        if (Objects.isNull(detailsByProvider)) {
+            detailsByProvider = new HashMap<>();
+        }
         return ratesByProvider.containsKey(providerName) && detailsByProvider.containsKey(providerName);
     }
 

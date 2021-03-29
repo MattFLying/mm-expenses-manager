@@ -11,7 +11,7 @@ app:
   currency:
     default: app.currency.provider.nbp # path to default provider property
     default-provider: ${${app.currency.default}.name}
-    default-currency: ${${app.currency.default}.details.default-currency}
+    default-currency: ${${app.currency.default}.details.currency}
     synchronization-cron: "0 * * * * *" # every 1 hour
     reschedule-when-synchronization-failed-cron: "*/15 * * * * *" # every 15 minutes
     clean-reschedule-cron: "*/5 * * * * *" # every 5 minutes
@@ -22,7 +22,7 @@ app:
         url: http://api.nbp.pl/api/exchangerates
         details:
           data-format: json
-          default-currency: PLN
+          currency: PLN
           history-from-year: 2002
           max-months-to-fetch: 3
           max-days-to-fetch: 88
