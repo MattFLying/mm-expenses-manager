@@ -29,19 +29,20 @@ class ExchangeRateQuery {
                                 .map(result -> (Page<ExchangeRate>) new PageImpl<>(result, page, page.getPageSize()))
                                 .orElse(Page.empty(page));
                     } else if (Objects.nonNull(from) && Objects.nonNull(to)) {
-                        return repository.findByDateBetween(instantOf(from), instantOf(to), page);
+                        return repository.findByCurrencyAndDateBetween(code, instantOf(from), instantOf(to), page);
                     } else {
                         return repository.findByCurrency(code, page);
                     }
-                });
+                })
+                .filter(Objects::nonNull);
     }
 
     Stream<Page<ExchangeRate>> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate from, final LocalDate to, final Pageable pageable) {
         final var page = pageRequest(pageable);
         if (Objects.nonNull(from) && Objects.nonNull(to)) {
-            return Stream.of(repository.findByCurrencyAndDateBetween(currency, instantOf(from), instantOf(to), page));
+            return Stream.of(repository.findByCurrencyAndDateBetween(currency, instantOf(from), instantOf(to), page)).filter(Objects::nonNull);
         } else {
-            return Stream.of(repository.findByCurrency(currency, page));
+            return Stream.of(repository.findByCurrency(currency, page)).filter(Objects::nonNull);
         }
     }
 

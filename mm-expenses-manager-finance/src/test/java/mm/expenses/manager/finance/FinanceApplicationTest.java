@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FinanceApplication.class)
 public class FinanceApplicationTest extends BaseInitTest {
 
+    protected static final String PROVIDER_NAME = "nbp";
+
     @ClassRule
     protected static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
 

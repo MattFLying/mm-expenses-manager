@@ -7,7 +7,7 @@ import feign.codec.ErrorDecoder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.exception.ApiFeignClientException;
+import mm.expenses.manager.exception.api.ApiFeignClientException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 

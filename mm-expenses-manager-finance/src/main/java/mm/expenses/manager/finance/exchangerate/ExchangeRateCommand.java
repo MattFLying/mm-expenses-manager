@@ -3,6 +3,7 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.exception.InvalidDateException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -144,11 +146,11 @@ class ExchangeRateCommand {
      * Find maximum date to.
      *
      * @param currencyRates currency rate data objects
-     * @param <T>
+     * @param <T>           specific type of CurrencyRate depends of current provider
      * @return maximum date to
      */
     private <T extends CurrencyRate> LocalDate findDateTo(final Collection<T> currencyRates) {
-        return currencyRates.stream().max(Comparator.comparing(CurrencyRate::getDate)).map(CurrencyRate::getDate).orElseThrow(() -> new IllegalArgumentException("Invalid data, could not find date from"));
+        return findDateOrThrowException(() -> currencyRates.stream().max(Comparator.comparing(CurrencyRate::getDate)), "Invalid data, could not find date from.");
     }
 
     /**
@@ -159,7 +161,16 @@ class ExchangeRateCommand {
      * @return minimum date from
      */
     private <T extends CurrencyRate> LocalDate findDateFrom(final Collection<T> currencyRates) {
-        return currencyRates.stream().min(Comparator.comparing(CurrencyRate::getDate)).map(CurrencyRate::getDate).orElseThrow(() -> new IllegalArgumentException("Invalid data, could not find date to"));
+        return findDateOrThrowException(() -> currencyRates.stream().min(Comparator.comparing(CurrencyRate::getDate)), "Invalid data, could not find date to.");
+    }
+
+    private <T extends CurrencyRate> LocalDate findDateOrThrowException(final Supplier<Optional<T>> dateExtractor, final String exceptionMessage) {
+        try {
+            return dateExtractor.get().map(CurrencyRate::getDate).orElseThrow(() -> new InvalidDateException(exceptionMessage));
+        } catch (final Exception exception) {
+            log.warn("Cannot find date in collection: {}", dateExtractor, exception);
+            throw new InvalidDateException(exceptionMessage);
+        }
     }
 
 }

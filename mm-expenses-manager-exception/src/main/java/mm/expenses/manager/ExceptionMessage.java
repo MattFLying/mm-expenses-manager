@@ -2,7 +2,7 @@ package mm.expenses.manager;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.exception.ApiException;
+import mm.expenses.manager.exception.api.ApiException;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;

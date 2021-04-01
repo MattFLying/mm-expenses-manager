@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.exception.ApiFeignClientException;
+import mm.expenses.manager.exception.api.ApiFeignClientException;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;

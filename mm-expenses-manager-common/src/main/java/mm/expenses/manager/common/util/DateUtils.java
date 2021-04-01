@@ -17,6 +17,10 @@ public class DateUtils {
         return LocalDate.ofInstant(date, ZONE_UTC);
     }
 
+    public static Instant localDateToInstant(final LocalDate date) {
+        return Instant.from(date.atStartOfDay(ZONE_UTC));
+    }
+
     public static LocalDate beginningOfTheYear(final int year) {
         return LocalDate.of(year, 1, 1);
     }

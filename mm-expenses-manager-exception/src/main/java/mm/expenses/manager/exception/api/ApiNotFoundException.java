@@ -1,4 +1,4 @@
-package mm.expenses.manager.exception;
+package mm.expenses.manager.exception.api;
 
 import org.springframework.http.HttpStatus;
 
