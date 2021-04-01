@@ -20,12 +20,11 @@ enum TableType {
     private final Set<CurrencyCode> currencies;
 
     static TableType parse(final Object value) {
-        return parse(value.toString());
-    }
-
-    static TableType parse(final String value) {
         try {
-            return valueOf(value.toUpperCase());
+            if (value instanceof String) {
+                return valueOf(((String) value).toUpperCase());
+            }
+            return parse(value.toString());
         } catch (final Exception exception) {
             log.error("Cannot parse nbp table type: {}", value, exception);
             return UNKNOWN;
@@ -33,11 +32,16 @@ enum TableType {
     }
 
     static TableType findTableForCurrency(final CurrencyCode currencyCode) {
-        if (TableType.A.getCurrencies().contains(currencyCode)) {
-            return TableType.A;
+        try {
+            if (TableType.A.getCurrencies().contains(currencyCode)) {
+                return TableType.A;
+            }
+            log.error("Cannot find table type for currency: {}", currencyCode);
+            return TableType.UNKNOWN;
+        } catch (final Exception exception) {
+            log.error("Cannot find table type for currency: {}", currencyCode, exception);
+            return UNKNOWN;
         }
-        log.error("Cannot find table type for currency: {}", currencyCode);
-        return TableType.UNKNOWN;
     }
 
 }

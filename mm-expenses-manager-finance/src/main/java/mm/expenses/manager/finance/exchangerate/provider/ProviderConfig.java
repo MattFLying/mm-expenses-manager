@@ -1,9 +1,11 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
 import lombok.Data;
+import lombok.Generated;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 
 @Data
+@Generated
 public abstract class ProviderConfig {
 
     private String name;

@@ -36,12 +36,7 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
      * @return collection of built dates
      */
     protected Collection<DateRange> findDates(final Instant today, final int startYear, final int maxMothsToFetch, final int maxDaysToFetch) {
-        if (Objects.isNull(today)) {
-            log.warn("Today date is incorrect because it cannot be null.");
-            return Collections.emptyList();
-        }
         final var result = new ArrayList<DateRange>();
-
         final var finalDateTo = DateUtils.instantToLocalDateUTC(today);
         var dateFrom = DateUtils.beginningOfTheYear(startYear);
 
@@ -59,7 +54,7 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
                 dateTo = dateTo.minusDays(daysBetween - maxDaysToFetch);
             }
             if (dateTo.isAfter(finalDateTo)) {
-                dateTo = finalDateTo;
+                dateTo = finalDateTo.minusDays(1);
             }
 
             final var dateRange = DateRange.builder()
@@ -86,11 +81,6 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
      * @return set of all dates that are missing in fetched currency rates
      */
     protected Set<LocalDate> findMissingDates(final Collection<T> rates, final LocalDate dateFrom, final Instant today) {
-        if (Objects.isNull(rates) || Objects.isNull(dateFrom) || Objects.isNull(today)) {
-            log.warn("Rates collection or date from or today date is incorrect: rates - {}, date from - {}, today date - {}", rates, dateFrom, today);
-            return Collections.emptySet();
-        }
-
         final var presentDates = rates.stream()
                 .map(CurrencyRate::getDate)
                 .collect(Collectors.toSet());
@@ -99,8 +89,9 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
         final var missingDates = Stream.iterate(
                 dateFrom,
                 date -> date.isBefore(dateTo),
-                date -> date.plusDays(1)).collect(Collectors.toCollection(TreeSet::new)
-        );
+                date -> date.plusDays(1)
+        ).collect(Collectors.toCollection(TreeSet::new));
+
         missingDates.removeAll(presentDates);
 
         return missingDates;

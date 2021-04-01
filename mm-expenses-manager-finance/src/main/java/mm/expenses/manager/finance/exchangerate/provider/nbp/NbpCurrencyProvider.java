@@ -35,8 +35,8 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
     @Override
     public Optional<NbpCurrencyRate> getCurrentCurrencyRate(final CurrencyCode currency) throws CurrencyProviderException {
-        final var table = TableType.findTableForCurrency(currency);
         try {
+            final var table = TableType.findTableForCurrency(currency);
             return client.fetchCurrentExchangeRateForCurrencyFromTableType(table.name(), currency.getCode(), getDataFormat())
                     .flatMap(dto -> dto.getRates()
                             .stream()
@@ -52,8 +52,8 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
     @Override
     public Optional<NbpCurrencyRate> getCurrencyRateForDate(final CurrencyCode currency, final LocalDate date) throws CurrencyProviderException {
-        final var table = TableType.findTableForCurrency(currency);
         try {
+            final var table = TableType.findTableForCurrency(currency);
             return client.fetchExchangeRateForCurrencyFromTableTypeAndDate(table.name(), currency.getCode(), date, getDataFormat())
                     .flatMap(dto -> dto.getRates()
                             .stream()
@@ -69,8 +69,8 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
     @Override
     public Collection<NbpCurrencyRate> getCurrencyRateForDateRange(final CurrencyCode currency, final LocalDate from, final LocalDate to) throws CurrencyProviderException {
-        final var table = TableType.findTableForCurrency(currency);
         try {
+            final var table = TableType.findTableForCurrency(currency);
             return client.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(table.name(), currency.getCode(), from, to, getDataFormat())
                     .<Collection<NbpCurrencyRate>>map(dto -> dto.getRates()
                             .stream()
@@ -87,7 +87,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     @Override
     public Collection<NbpCurrencyRate> getCurrentCurrencyRates() throws CurrencyProviderException {
         try {
-            return client.fetchCurrentAllExchangeRatesForTableType(getAvailableTableType(), getDataFormat())
+            return client.fetchCurrentAllExchangeRatesForTableType(client.getAvailableTableType(), getDataFormat())
                     .stream()
                     .map(this::map)
                     .flatMap(Collection::stream)
@@ -102,7 +102,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     @Override
     public Collection<NbpCurrencyRate> getCurrencyRatesForDate(final LocalDate date) throws CurrencyProviderException {
         try {
-            return client.fetchAllExchangeRatesForTableTypeAndDate(getAvailableTableType(), date, getDataFormat())
+            return client.fetchAllExchangeRatesForTableTypeAndDate(client.getAvailableTableType(), date, getDataFormat())
                     .stream()
                     .map(this::map)
                     .flatMap(Collection::stream)
@@ -117,7 +117,7 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
     @Override
     public Collection<NbpCurrencyRate> getCurrencyRatesForDateRange(final LocalDate from, final LocalDate to) throws CurrencyProviderException {
         try {
-            return client.fetchAllExchangeRatesForTableTypeAndDateRange(getAvailableTableType(), from, to, getDataFormat())
+            return client.fetchAllExchangeRatesForTableTypeAndDateRange(client.getAvailableTableType(), from, to, getDataFormat())
                     .stream()
                     .map(this::map)
                     .flatMap(Collection::stream)
@@ -148,10 +148,6 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
 
     private Predicate<? super NbpClient.TableRateDto> filterAvailableCurrenciesOnly(Set<String> currenciesAsStrings) {
         return dto -> currenciesAsStrings.stream().anyMatch(currency -> currency.equalsIgnoreCase(dto.getCode()));
-    }
-
-    private String getAvailableTableType() {
-        return TableType.A.name();
     }
 
 }

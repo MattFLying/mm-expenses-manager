@@ -2,8 +2,10 @@ package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 import mm.expenses.manager.exception.ApiFeignClientException;
+import mm.expenses.manager.finance.exchangerate.provider.ProviderException;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Generated
 @FeignClient(name = "${app.currency.provider.nbp.client}", url = "${app.currency.provider.nbp.url}")
 interface NbpClient {
 
@@ -51,6 +56,7 @@ interface NbpClient {
                                                                                     @RequestParam(value = "format") final String format) throws ApiFeignClientException;
 
     @Data
+    @Generated
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     class TableRateDto {
@@ -59,6 +65,7 @@ interface NbpClient {
     }
 
     @Data
+    @Generated
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     class TableExchangeRatesDto {
@@ -69,6 +76,7 @@ interface NbpClient {
     }
 
     @Data
+    @Generated
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     class RateDto {
@@ -78,12 +86,21 @@ interface NbpClient {
     }
 
     @Data
+    @Generated
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     class ExchangeRateDto {
         private String table;
         private String code;
         private Collection<RateDto> rates;
+    }
+
+    default String getAvailableTableType() throws ProviderException {
+        final var unsupportedTypes = Stream.of(TableType.values()).filter(type -> !type.equals(TableType.A) && !type.equals(TableType.UNKNOWN)).collect(Collectors.toSet());
+        if (!unsupportedTypes.isEmpty()) {
+            throw new ProviderException("There is more table types for NBP provider that are not handled.");
+        }
+        return TableType.A.name();
     }
 
 }
