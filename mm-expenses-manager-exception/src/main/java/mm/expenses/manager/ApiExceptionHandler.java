@@ -1,7 +1,10 @@
 package mm.expenses.manager;
 
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.exception.*;
+import mm.expenses.manager.exception.api.ApiBadRequestException;
+import mm.expenses.manager.exception.api.ApiException;
+import mm.expenses.manager.exception.api.ApiInternalErrorException;
+import mm.expenses.manager.exception.api.ApiNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

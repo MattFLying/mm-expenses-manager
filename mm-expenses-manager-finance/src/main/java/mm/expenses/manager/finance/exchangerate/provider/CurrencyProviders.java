@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.exception.ApiInternalErrorException;
+import mm.expenses.manager.exception.api.ApiInternalErrorException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.exchangerate.exception;
 
-import mm.expenses.manager.exception.ApiFeignClientException;
+import mm.expenses.manager.exception.api.ApiFeignClientException;
 import org.springframework.http.HttpStatus;
 
 import java.util.Objects;

@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.SneakyThrows;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.exception.ApiFeignClientException;
+import mm.expenses.manager.exception.api.ApiFeignClientException;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exchangerate.provider.ProviderException;
@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 class NbpCurrencyProviderTest extends FinanceApplicationTest {
 
     private static final String DATA_FORMAT = MediaType.APPLICATION_JSON.getSubtype();
-    private static final String PROVIDER_NAME = "nbp";
-    private static final TableType TABLE_TYPE = TableType.A;
 
     @MockBean
     private NbpClient client;
@@ -47,7 +45,7 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
     protected void setupBeforeEachTest() {
         when(config.getDataFormat()).thenReturn(DATA_FORMAT);
         when(config.getName()).thenReturn(PROVIDER_NAME);
-        when(config.getCurrency()).thenReturn(CurrencyCode.PLN);
+        when(config.getCurrency()).thenReturn(DEFAULT_CURRENCY);
 
         when(client.getAvailableTableType()).thenReturn(TABLE_TYPE.name());
     }
@@ -67,7 +65,7 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         assertThat(config).isNotNull().isInstanceOf(NbpApiConfig.class);
         assertThat(config.getDataFormat()).isEqualTo(DATA_FORMAT);
         assertThat(config.getName()).isEqualTo(PROVIDER_NAME);
-        assertThat(config.getCurrency()).isEqualTo(CurrencyCode.PLN);
+        assertThat(config.getCurrency()).isEqualTo(DEFAULT_CURRENCY);
     }
 
     @Test

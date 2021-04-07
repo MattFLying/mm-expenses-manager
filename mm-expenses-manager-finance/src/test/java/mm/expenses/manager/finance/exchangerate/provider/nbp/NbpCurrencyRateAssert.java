@@ -15,13 +15,13 @@ public class NbpCurrencyRateAssert extends AbstractAssert<NbpCurrencyRateAssert,
         super(actual, NbpCurrencyRateAssert.class);
     }
 
-    public static NbpCurrencyRateAssert assertNbpCurrencyRate(final NbpCurrencyRate actual) {
-        return new NbpCurrencyRateAssert(actual);
-    }
-
     public static NbpCurrencyRateAssert assertNbpCurrencyRate(final Optional<NbpCurrencyRate> actual) {
         assertThat(actual).isNotEmpty();
-        return new NbpCurrencyRateAssert(actual.get());
+        return assertNbpCurrencyRate(actual.get());
+    }
+
+    public static NbpCurrencyRateAssert assertNbpCurrencyRate(final NbpCurrencyRate actual) {
+        return new NbpCurrencyRateAssert(actual);
     }
 
     public NbpCurrencyRateAssert hasDate(final LocalDate date) {

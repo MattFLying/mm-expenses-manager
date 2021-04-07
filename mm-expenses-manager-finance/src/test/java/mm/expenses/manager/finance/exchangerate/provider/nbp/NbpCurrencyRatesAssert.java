@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyRateAssert.assertNbpCurrencyRate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NbpCurrencyRatesAssert extends AbstractAssert<NbpCurrencyRatesAssert, Collection<NbpCurrencyRate>> {
@@ -61,9 +62,9 @@ public class NbpCurrencyRatesAssert extends AbstractAssert<NbpCurrencyRatesAsser
 
     public NbpCurrencyRatesAssert allForCurrencySameAsWithoutDate(final CurrencyCode currency, final NbpCurrencyRate expected) {
         actual.stream().filter(rate -> rate.getCurrency().equals(currency)).forEach(rate -> {
-            assertThat(rate.getCurrency()).isEqualTo(expected.getCurrency());
-            assertThat(rate.getRate()).isEqualTo(expected.getRate());
-            assertThat(rate.getDetails()).isEqualTo(expected.getDetails());
+            assertNbpCurrencyRate(rate)
+                    .isOfCurrency(expected.getCurrency())
+                    .hasDetails(expected.getDetails());
             assertThat(rate.getTableType()).isEqualTo(expected.getTableType());
             assertThat(rate.getTableNumber()).isEqualTo(expected.getTableNumber());
         });

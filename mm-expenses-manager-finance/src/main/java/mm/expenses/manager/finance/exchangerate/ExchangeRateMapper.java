@@ -53,11 +53,11 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     }
 
     protected Map<String, Map<String, Object>> map(final String providerName, final CurrencyRate domain) {
-        return Map.of(providerName, domain.getDetails());
+        return new HashMap<>(Map.of(providerName, domain.getDetails()));
     }
 
     protected Map<String, Rate> map(final CurrencyRate domain, final String providerName) {
-        return Map.of(providerName, map(domain.getCurrency(), providers.getCurrency(), domain.getRate()));
+        return new HashMap<>(Map.of(providerName, map(domain.getCurrency(), providers.getCurrency(), domain.getRate())));
     }
 
     protected Rate map(final CurrencyCode currencyFrom, final CurrencyCode currencyTo, final Double currencyValueTo) {

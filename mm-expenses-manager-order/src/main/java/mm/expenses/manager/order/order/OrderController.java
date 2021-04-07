@@ -1,8 +1,8 @@
 package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.exception.ApiBadRequestException;
-import mm.expenses.manager.exception.ApiNotFoundException;
+import mm.expenses.manager.exception.api.ApiBadRequestException;
+import mm.expenses.manager.exception.api.ApiNotFoundException;
 import mm.expenses.manager.order.order.exception.OrderCreationException;
 import mm.expenses.manager.order.order.exception.OrderExceptionCode;
 import mm.expenses.manager.order.order.exception.OrderNotFoundException;

@@ -1,12 +1,17 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 public class NbpCurrencyHelper {
+
+    public static final TableType TABLE_TYPE = TableType.A;
+    public static final String PROVIDER_NAME = "nbp";
+    public static final CurrencyCode DEFAULT_CURRENCY = CurrencyCode.PLN;
 
     public static NbpClient.RateDto createRateDto(final String tableNumber, final Double rate, final LocalDate date) {
         final var rateDto = new NbpClient.RateDto();
@@ -48,6 +53,10 @@ public class NbpCurrencyHelper {
     }
 
     public static NbpCurrencyRate createNbpCurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final TableType tableType, final String tableNumber) {
+        return new NbpCurrencyRate(currency, date, rate, tableType, tableNumber);
+    }
+
+    public static CurrencyRate createCurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final TableType tableType, final String tableNumber) {
         return new NbpCurrencyRate(currency, date, rate, tableType, tableNumber);
     }
 
