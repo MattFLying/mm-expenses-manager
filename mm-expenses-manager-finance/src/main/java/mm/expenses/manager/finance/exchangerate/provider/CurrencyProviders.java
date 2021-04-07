@@ -22,7 +22,7 @@ public class CurrencyProviders {
     private final CurrencyRatesConfig config;
     private CurrencyRateProvider<? extends CurrencyRate> provider;
 
-    CurrencyProviders(final Collection<CurrencyRateProvider<? extends CurrencyRate>> providers, final CurrencyRatesConfig config) {
+    public CurrencyProviders(final Collection<CurrencyRateProvider<? extends CurrencyRate>> providers, final CurrencyRatesConfig config) {
         this.providers = providers.stream().collect(Collectors.toMap(DefaultCurrencyProvider::getName, Function.identity()));
         this.config = config;
     }
@@ -30,6 +30,13 @@ public class CurrencyProviders {
     @PostConstruct
     private void initializeDefaultProvider() {
         this.provider = findDefaultProviderOrAny();
+    }
+
+    /**
+     * Get all available providers.
+     */
+    public Map<String, CurrencyRateProvider<? extends CurrencyRate>> getProviders() {
+        return providers;
     }
 
     /**
@@ -71,21 +78,21 @@ public class CurrencyProviders {
      * Process any action on all available providers.
      */
     public void executeOnAllProviders(final Consumer<CurrencyRateProvider<? extends CurrencyRate>> operationToExecuteOnProvider) {
-        providers.values().forEach(operationToExecuteOnProvider);
+        getProviders().values().forEach(operationToExecuteOnProvider);
     }
 
     /**
      * Process any action on all available providers with specific filters.
      */
     public void executeOnAllProviders(final Predicate<CurrencyRateProvider<? extends CurrencyRate>> filterProviders, final Consumer<CurrencyRateProvider<? extends CurrencyRate>> operationToExecuteOnProvider) {
-        providers.values().stream().filter(filterProviders).forEach(operationToExecuteOnProvider);
+        getProviders().values().stream().filter(filterProviders).forEach(operationToExecuteOnProvider);
     }
 
     /**
      * Check if any provider is currently available or not.
      */
     private boolean isAnyProviderAvailable() {
-        return !providers.isEmpty();
+        return !getProviders().isEmpty();
     }
 
     private ApiInternalErrorException apiInternalErrorExceptionForNoProvider() {
@@ -99,9 +106,9 @@ public class CurrencyProviders {
         if (!isAnyProviderAvailable()) {
             throw apiInternalErrorExceptionForNoProvider();
         }
-        return providers.getOrDefault(
+        return getProviders().getOrDefault(
                 getGlobalConfig().getDefaultProvider(),
-                providers.values().stream().findAny().orElseThrow(this::apiInternalErrorExceptionForNoProvider)
+                getProviders().values().stream().findAny().orElseThrow(this::apiInternalErrorExceptionForNoProvider)
         );
     }
 
