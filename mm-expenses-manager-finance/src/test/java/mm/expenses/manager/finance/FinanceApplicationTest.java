@@ -3,8 +3,6 @@ package mm.expenses.manager.finance;
 import junitparams.JUnitParamsRunner;
 import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,16 +26,5 @@ public class FinanceApplicationTest extends BaseInitTest {
 
     @Autowired
     protected MockMvc mockMvc;
-
-
-    @BeforeEach
-    protected void beforeEachTest() {
-        setupBeforeEachTest();
-    }
-
-    @AfterEach
-    protected void afterEachTest() {
-        setupAfterEachTest();
-    }
 
 }

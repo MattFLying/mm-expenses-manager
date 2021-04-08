@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.exchangerate.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
@@ -18,6 +19,7 @@ public class ExchangeRatesDto {
 
     private final Collection<ExchangeRateDto> rates;
 
+    @Generated
     public ExchangeRatesDto(final CurrencyCode currency, final Collection<ExchangeRateDto> rates) {
         this.currency = currency;
         this.rates = Objects.nonNull(rates) ? rates : new ArrayList<>();

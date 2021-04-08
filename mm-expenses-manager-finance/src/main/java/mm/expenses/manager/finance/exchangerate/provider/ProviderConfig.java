@@ -21,7 +21,6 @@ public abstract class ProviderConfig {
     }
 
     @Data
-    @Generated
     public static class Details {
 
         private String dataFormat;

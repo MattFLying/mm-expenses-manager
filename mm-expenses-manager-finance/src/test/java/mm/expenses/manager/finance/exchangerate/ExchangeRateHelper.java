@@ -66,4 +66,8 @@ public class ExchangeRateHelper {
         );
     }
 
+    public static ExchangeRate createNewExchangeRate(final CurrencyCode currency, final LocalDate date) {
+        return createNewExchangeRate(currency, DateUtils.localDateToInstant(date));
+    }
+
 }

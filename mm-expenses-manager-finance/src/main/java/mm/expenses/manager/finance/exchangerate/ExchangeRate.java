@@ -1,7 +1,6 @@
 package mm.expenses.manager.finance.exchangerate;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
@@ -15,9 +14,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-@Data
+@Getter
 @Builder(toBuilder = true)
+@AllArgsConstructor
+@RequiredArgsConstructor
 @Document(collection = "exchange-rates")
+@EqualsAndHashCode
 @CompoundIndexes({
         @CompoundIndex(name = "date_idx", def = "{'date': 1}"),
         @CompoundIndex(name = "currency_idx", def = "{'currency': 1}"),
@@ -91,7 +93,9 @@ class ExchangeRate {
         return modified.toBuilder().modifiedAt(modifiedDate).build();
     }
 
-    @Data
+    @Getter
+    @EqualsAndHashCode
+    @RequiredArgsConstructor
     @Builder(toBuilder = true)
     static class Rate {
 
@@ -114,7 +118,9 @@ class ExchangeRate {
 
     }
 
-    @Data
+    @Getter
+    @EqualsAndHashCode
+    @RequiredArgsConstructor
     @Builder(toBuilder = true)
     static class CurrencyValue {
 

@@ -1,6 +1,8 @@
 package mm.expenses.manager.finance;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
@@ -24,6 +26,16 @@ public abstract class BaseInitTest {
      */
     protected void setupAfterEachTest() {
 
+    }
+
+    @BeforeEach
+    protected void beforeEachTest() {
+        setupBeforeEachTest();
+    }
+
+    @AfterEach
+    protected void afterEachTest() {
+        setupAfterEachTest();
     }
 
     public static class CurrencyCodeArgument implements ArgumentsProvider {
