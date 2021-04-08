@@ -67,7 +67,7 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         final var expected_2 = createNbpCurrencyRate(CurrencyCode.JPY, dateOfFirstAvailableRate, rate_2, TABLE_TYPE, tableNumber);
         final var expected_3 = createNbpCurrencyRate(CurrencyCode.NZD, dateOfFirstAvailableRate, rate_3, TABLE_TYPE, tableNumber);
 
-        final var dateTo = LocalDate.now();
+        final var dateTo = LocalDate.of(2021, 4, 8);
         final var expectedCountOfPreparedRatesPerCurrency = DateUtils.daysBetween(dateOfFirstAvailableRate, dateTo);
 
         // when

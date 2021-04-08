@@ -3,8 +3,10 @@ package mm.expenses.manager.finance.exchangerate;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -53,6 +55,14 @@ public class ExchangeRateHelper {
                 ID, domain.getCurrency(), Objects.nonNull(domain.getDate()) ? DateUtils.localDateToInstant(domain.getDate()) : null, now,
                 new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(domain.getCurrency(), DEFAULT_CURRENCY, domain.getRate()))),
                 new HashMap<>(Map.of(PROVIDER_NAME, domain.getDetails()))
+        );
+    }
+
+    public static ExchangeRate createNewExchangeRate(final CurrencyCode currency, final Instant date) {
+        final var createdModified = DateUtils.localDateToInstant(LocalDate.now());
+        return createNewExchangeRate(ID, currency, date, createdModified,
+                new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(currency, DEFAULT_CURRENCY, new RandomDataGenerator().nextUniform(1, 10)))),
+                Map.of()
         );
     }
 
