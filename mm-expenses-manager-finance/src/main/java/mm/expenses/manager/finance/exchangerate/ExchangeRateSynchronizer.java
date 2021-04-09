@@ -1,11 +1,11 @@
 package mm.expenses.manager.finance.exchangerate;
 
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
@@ -106,12 +106,11 @@ class ExchangeRateSynchronizer {
                         log.warn("Cannot fetch currency rates for provider: {}", otherProvider.getName(), exception);
                         if (exception.isHttpError()) {
                             exception.getClientStatus()
-                                    .filter(HttpStatus::is5xxServerError)
-                                    .ifPresent(status -> {
-                                        log.warn("Server error for provider: {} with error: {}", otherProvider.getName(), exception.getClientMessage().orElse(exception.getMessage()));
-                                        rescheduleProviderAndCallAnother(otherProvider);
-                                    });
+                                    .ifPresent(status -> log.warn("Server error for provider: {} with error: {}", otherProvider.getName(), exception.getClientMessage().orElse(exception.getMessage()), exception));
+                        } else {
+                            log.warn("Unknown error for provider: {} with error: {}", otherProvider.getName(), exception.getMessage(), exception);
                         }
+                        rescheduleProviderAndCallAnother(otherProvider);
                     }
                 }
         );
@@ -120,8 +119,9 @@ class ExchangeRateSynchronizer {
     /**
      * Reschedule fetching latest exchange rates if failed at the first time.
      */
+    @Generated
     @RequiredArgsConstructor
-    private static class RescheduleFailedProvider implements Runnable {
+    static class RescheduleFailedProvider implements Runnable {
 
         private final CurrencyRateProvider<?> failedProvider;
         private final ExchangeRateService service;

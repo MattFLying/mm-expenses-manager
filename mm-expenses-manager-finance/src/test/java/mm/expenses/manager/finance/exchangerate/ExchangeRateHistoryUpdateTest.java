@@ -1,10 +1,7 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.SneakyThrows;
-import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.FinanceApplicationTest;
-import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
-import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
 import mm.expenses.manager.finance.exchangerate.provider.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -12,7 +9,6 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -80,95 +76,6 @@ class ExchangeRateHistoryUpdateTest extends FinanceApplicationTest {
         verify(providers).executeOnAllProviders(providerConsumerCaptor.capture());
         final var providerConsumer = providerConsumerCaptor.getValue();
         providerConsumer.accept(provider_1);
-    }
-
-    private static class TestRate extends CurrencyRate {
-
-        TestRate(final CurrencyCode currency, final LocalDate date, final Double rate, final Map<String, Object> details) {
-            super(currency, date, rate, details);
-        }
-    }
-
-    private static class TestHistoryUpdater extends HistoricCurrencies<TestRate> {
-
-        private final boolean shouldThrowHistoricalCurrencyException;
-
-        TestHistoryUpdater(final TestProvider provider, final boolean shouldThrowHistoricalCurrencyException) {
-            super(provider);
-            this.shouldThrowHistoricalCurrencyException = shouldThrowHistoricalCurrencyException;
-        }
-
-        @Override
-        public Collection<TestRate> fetchHistoricalCurrencies() throws HistoricalCurrencyException {
-            if (shouldThrowHistoricalCurrencyException) {
-                throw new HistoricalCurrencyException("");
-            }
-            return List.of();
-        }
-
-    }
-
-    private static class TestProvider implements CurrencyRateProvider<TestRate> {
-
-        private final String name;
-        private final boolean shouldThrowHistoricalCurrencyException;
-
-        private TestProvider(final String name, final boolean shouldThrowHistoricalCurrencyException) {
-            this.name = name;
-            this.shouldThrowHistoricalCurrencyException = shouldThrowHistoricalCurrencyException;
-        }
-
-        private TestProvider() {
-            this(null, false);
-        }
-
-        @Override
-        public Optional<TestRate> getCurrencyRateForDate(CurrencyCode currencyCode, LocalDate date) throws CurrencyProviderException {
-            return Optional.empty();
-        }
-
-        @Override
-        public Collection<TestRate> getCurrencyRateForDateRange(CurrencyCode currencyCode, LocalDate from, LocalDate to) throws CurrencyProviderException {
-            return null;
-        }
-
-        @Override
-        public Collection<TestRate> getCurrencyRatesForDate(LocalDate date) throws CurrencyProviderException {
-            return null;
-        }
-
-        @Override
-        public Collection<TestRate> getCurrencyRatesForDateRange(LocalDate from, LocalDate to) throws CurrencyProviderException {
-            return null;
-        }
-
-        @Override
-        public HistoricCurrencies<TestRate> getHistoricCurrencies() {
-            return new TestHistoryUpdater(this, shouldThrowHistoricalCurrencyException);
-        }
-
-        @Override
-        public Optional<TestRate> getCurrentCurrencyRate(CurrencyCode currencyCode) throws CurrencyProviderException {
-            return Optional.empty();
-        }
-
-        @Override
-        public Collection<TestRate> getCurrentCurrencyRates() throws CurrencyProviderException {
-            return null;
-        }
-
-        @Override
-        public ProviderConfig getProviderConfig() {
-            final var config = new TestConfig();
-            config.setName(name);
-
-            return config;
-        }
-
-    }
-
-    private static class TestConfig extends ProviderConfig {
-
     }
 
 }

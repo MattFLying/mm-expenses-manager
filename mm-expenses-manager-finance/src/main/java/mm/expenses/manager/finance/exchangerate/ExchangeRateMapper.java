@@ -9,7 +9,6 @@ import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRat
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage.ExchangeRatePage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
-import mm.expenses.manager.finance.exchangerate.provider.DefaultCurrencyProvider;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, implementationName = "ExchangeRateMapperImpl")
 abstract class ExchangeRateMapper extends AbstractMapper {
 
     @Autowired
@@ -47,10 +46,6 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     abstract ExchangeRatesDto map(final ExchangeRate entity);
 
     abstract RateDto map(final Rate rate);
-
-    protected DefaultCurrencyProvider<?> getProvider() {
-        return providers.getProvider();
-    }
 
     protected Map<String, Map<String, Object>> map(final String providerName, final CurrencyRate domain) {
         return new HashMap<>(Map.of(providerName, domain.getDetails()));

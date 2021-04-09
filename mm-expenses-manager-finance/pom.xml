@@ -121,6 +121,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>mm/expenses/manager/finance/exchangerate/ExchangeRateMapperImpl.class</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
         </plugins>
