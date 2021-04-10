@@ -12,68 +12,67 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static mm.expenses.manager.finance.exchangerate.TestProvider.TEST_PROVIDER_NAME_1;
+import static mm.expenses.manager.finance.exchangerate.TestProvider.TEST_PROVIDER_NAME_2;
 import static org.mockito.Mockito.*;
 
 class ExchangeRateHistoryUpdateTest extends FinanceApplicationTest {
 
-    private static final String TEST_PROVIDER_NAME = "test-provider-1";
-    private static final String TEST_PROVIDER_NAME_2 = "test-provider-2";
+    @MockBean
+    private ExchangeRateRepository exchangeRateRepository;
 
     @MockBean
-    private ExchangeRateRepository repository;
-
-    @MockBean
-    private CurrencyProviders providers;
+    private CurrencyProviders currencyProviders;
 
     @Autowired
-    private ExchangeRateHistoryUpdate historyUpdate;
+    private ExchangeRateHistoryUpdate exchangeRateHistoryUpdate;
 
     @Captor
     private ArgumentCaptor<Consumer<CurrencyRateProvider<? extends CurrencyRate>>> providerConsumerCaptor;
 
-    private final TestProvider provider_1 = new TestProvider(TEST_PROVIDER_NAME, false);
+    private final TestProvider provider_1 = new TestProvider(TEST_PROVIDER_NAME_1, false);
     private final TestProvider provider_2 = new TestProvider(TEST_PROVIDER_NAME_2, true);
 
     @SneakyThrows
     @Override
     protected void setupBeforeEachTest() {
         doReturn(Map.of(
-                TEST_PROVIDER_NAME, provider_1,
+                TEST_PROVIDER_NAME_1, provider_1,
                 TEST_PROVIDER_NAME_2, provider_2
-        )).when(providers).getProviders();
-        doReturn(TEST_PROVIDER_NAME).when(providers).getProviderName();
+        )).when(currencyProviders).getProviders();
+        doReturn(TEST_PROVIDER_NAME_1).when(currencyProviders).getProviderName();
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(repository);
-        reset(providers);
+        reset(exchangeRateRepository);
+        reset(currencyProviders);
     }
 
 
     @Test
     void historyUpdate() {
         // given
-        doReturn(provider_1).when(providers).getProvider();
+        doReturn(provider_1).when(currencyProviders).getProvider();
 
         // when
-        historyUpdate.update();
+        exchangeRateHistoryUpdate.update();
 
         // then
-        verify(repository).findAll();
-        verify(repository).saveAll(anyCollection());
+        verify(exchangeRateRepository).findAll();
+        verify(exchangeRateRepository).saveAll(anyCollection());
     }
 
     @Test
     void shouldFetchHistoricalRatesForAlternativeProvider_whenSomethingWentWrongInDefaultProvider() {
         // given
-        doReturn(provider_2).when(providers).getProvider();
+        doReturn(provider_2).when(currencyProviders).getProvider();
 
         // when
-        historyUpdate.update();
+        exchangeRateHistoryUpdate.update();
 
         // then
-        verify(providers).executeOnAllProviders(providerConsumerCaptor.capture());
+        verify(currencyProviders).executeOnAllProviders(providerConsumerCaptor.capture());
         final var providerConsumer = providerConsumerCaptor.getValue();
         providerConsumer.accept(provider_1);
     }

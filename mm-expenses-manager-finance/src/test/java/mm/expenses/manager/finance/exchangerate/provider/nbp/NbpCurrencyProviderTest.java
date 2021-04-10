@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,41 +28,39 @@ import static org.mockito.Mockito.when;
 
 class NbpCurrencyProviderTest extends FinanceApplicationTest {
 
-    private static final String DATA_FORMAT = MediaType.APPLICATION_JSON.getSubtype();
+    @MockBean
+    private NbpClient nbpClient;
 
     @MockBean
-    private NbpClient client;
-
-    @MockBean
-    private NbpApiConfig config;
+    private NbpApiConfig nbpApiConfig;
 
     @Autowired
-    private NbpCurrencyProvider provider;
+    private NbpCurrencyProvider nbpCurrencyProvider;
 
     @SneakyThrows
     @Override
     protected void setupBeforeEachTest() {
-        when(config.getDataFormat()).thenReturn(DATA_FORMAT);
-        when(config.getName()).thenReturn(PROVIDER_NAME);
-        when(config.getCurrency()).thenReturn(DEFAULT_CURRENCY);
+        when(nbpApiConfig.getDataFormat()).thenReturn(DATA_FORMAT_JSON_NAME);
+        when(nbpApiConfig.getName()).thenReturn(PROVIDER_NAME);
+        when(nbpApiConfig.getCurrency()).thenReturn(DEFAULT_CURRENCY);
 
-        when(client.getAvailableTableType()).thenReturn(TABLE_TYPE.name());
+        when(nbpClient.getAvailableTableType()).thenReturn(TABLE_TYPE.name());
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(client);
-        reset(config);
+        reset(nbpClient);
+        reset(nbpApiConfig);
     }
 
     @Test
     void shouldGetCorrectConfig() {
         // given && when
-        final var config = provider.getProviderConfig();
+        final var config = nbpCurrencyProvider.getProviderConfig();
 
         // then
         assertThat(config).isNotNull().isInstanceOf(NbpApiConfig.class);
-        assertThat(config.getDataFormat()).isEqualTo(DATA_FORMAT);
+        assertThat(config.getDataFormat()).isEqualTo(DATA_FORMAT_JSON_NAME);
         assertThat(config.getName()).isEqualTo(PROVIDER_NAME);
         assertThat(config.getCurrency()).isEqualTo(DEFAULT_CURRENCY);
     }
@@ -71,7 +68,7 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
     @Test
     void shouldGetHistoricCurrencies() {
         // given && when
-        final var historicComponent = provider.getHistoricCurrencies();
+        final var historicComponent = nbpCurrencyProvider.getHistoricCurrencies();
 
         // then
         assertThat(historicComponent).isNotNull().isInstanceOf(NbpHistoryUpdater.class);
@@ -92,9 +89,9 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             final var exchangeRateDto = createExchangeRateDto(TABLE_TYPE, currency, rateDto);
 
             // when
-            when(client.fetchCurrentExchangeRateForCurrencyFromTableType(TABLE_TYPE.name(), currency.getCode(), DATA_FORMAT)).thenReturn(Optional.of(exchangeRateDto));
+            when(nbpClient.fetchCurrentExchangeRateForCurrencyFromTableType(TABLE_TYPE.name(), currency.getCode(), DATA_FORMAT_JSON_NAME)).thenReturn(Optional.of(exchangeRateDto));
 
-            final var result = provider.getCurrentCurrencyRate(currency);
+            final var result = nbpCurrencyProvider.getCurrentCurrencyRate(currency);
 
             // then
             assertNbpCurrencyRate(result).isOfCurrency(currency).hasDate(date).hasRate(rate).hasDetails(createNbpDetails(TABLE_TYPE, tableNumber));
@@ -104,17 +101,17 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldThrowCurrencyProviderException_whenApiFeignExceptionIsThrown(final CurrencyCode currency) throws ApiFeignClientException {
             // given && when
-            when(client.fetchCurrentExchangeRateForCurrencyFromTableType(TABLE_TYPE.name(), currency.getCode(), DATA_FORMAT)).thenThrow(ApiFeignClientException.class);
+            when(nbpClient.fetchCurrentExchangeRateForCurrencyFromTableType(TABLE_TYPE.name(), currency.getCode(), DATA_FORMAT_JSON_NAME)).thenThrow(ApiFeignClientException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrentCurrencyRate(currency))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRate(currency))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Cannot fetch current currency rate for currency: %s. Client provider error.", currency));
         }
 
         @Test
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() {
-            assertThatThrownBy(() -> provider.getCurrentCurrencyRate(null))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRate(null))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Something went wrong during fetch current currency rate for currency: %s.", null));
         }
@@ -136,9 +133,9 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             final var exchangeRateDto = createExchangeRateDto(TABLE_TYPE, currency, rateDto);
 
             // when
-            when(client.fetchExchangeRateForCurrencyFromTableTypeAndDate(TABLE_TYPE.name(), currency.getCode(), date, DATA_FORMAT)).thenReturn(Optional.of(exchangeRateDto));
+            when(nbpClient.fetchExchangeRateForCurrencyFromTableTypeAndDate(TABLE_TYPE.name(), currency.getCode(), date, DATA_FORMAT_JSON_NAME)).thenReturn(Optional.of(exchangeRateDto));
 
-            final var result = provider.getCurrencyRateForDate(currency, date);
+            final var result = nbpCurrencyProvider.getCurrencyRateForDate(currency, date);
 
             // then
             assertNbpCurrencyRate(result).isOfCurrency(currency).hasDate(date).hasRate(rate).hasDetails(createNbpDetails(TABLE_TYPE, tableNumber));
@@ -149,17 +146,17 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         void shouldThrowCurrencyProviderException_whenApiFeignExceptionIsThrown(final CurrencyCode currency) throws ApiFeignClientException {
             // given && when
             final var date = LocalDate.now().minusDays(5);
-            when(client.fetchExchangeRateForCurrencyFromTableTypeAndDate(TABLE_TYPE.name(), currency.getCode(), date, DATA_FORMAT)).thenThrow(ApiFeignClientException.class);
+            when(nbpClient.fetchExchangeRateForCurrencyFromTableTypeAndDate(TABLE_TYPE.name(), currency.getCode(), date, DATA_FORMAT_JSON_NAME)).thenThrow(ApiFeignClientException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrencyRateForDate(currency, date))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDate(currency, date))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Cannot fetch currency rate for currency: %s and date: %s. Client provider error.", currency, date));
         }
 
         @Test
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() {
-            assertThatThrownBy(() -> provider.getCurrencyRateForDate(null, null))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDate(null, null))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Something went wrong during fetch currency rate for currency: %s and date: %s.", null, null));
         }
@@ -195,9 +192,9 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             );
 
             // when
-            when(client.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(TABLE_TYPE.name(), currency.getCode(), dateFrom, dateTo, DATA_FORMAT)).thenReturn(Optional.of(exchangeRateDto));
+            when(nbpClient.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(TABLE_TYPE.name(), currency.getCode(), dateFrom, dateTo, DATA_FORMAT_JSON_NAME)).thenReturn(Optional.of(exchangeRateDto));
 
-            final var result = provider.getCurrencyRateForDateRange(currency, dateFrom, dateTo);
+            final var result = nbpCurrencyProvider.getCurrencyRateForDateRange(currency, dateFrom, dateTo);
 
             // then
             assertNbpCurrencyRates(result).areOfCurrency(currency).containsExactlyTheSameObjectsAs(expected).hasDetails();
@@ -209,17 +206,17 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // given && when
             final var dateTo = LocalDate.now();
             final var dateFrom = LocalDate.now().minusDays(3);
-            when(client.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(TABLE_TYPE.name(), currency.getCode(), dateFrom, dateTo, DATA_FORMAT)).thenThrow(ApiFeignClientException.class);
+            when(nbpClient.fetchExchangeRateForCurrencyFromTableTypeAndDateRange(TABLE_TYPE.name(), currency.getCode(), dateFrom, dateTo, DATA_FORMAT_JSON_NAME)).thenThrow(ApiFeignClientException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrencyRateForDateRange(currency, dateFrom, dateTo))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDateRange(currency, dateFrom, dateTo))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Cannot fetch currency rate for currency: %s and date between: %s - %s. Client provider error.", currency, dateFrom, dateTo));
         }
 
         @Test
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() {
-            assertThatThrownBy(() -> provider.getCurrencyRateForDateRange(null, null, null))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDateRange(null, null, null))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Something went wrong during fetch currency rate for currency: %s and date between: %s - %s.", null, null, null));
         }
@@ -248,9 +245,9 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             );
 
             // when
-            when(client.fetchCurrentAllExchangeRatesForTableType(TABLE_TYPE.name(), DATA_FORMAT)).thenReturn(List.of(tableExchangeRatesDto));
+            when(nbpClient.fetchCurrentAllExchangeRatesForTableType(TABLE_TYPE.name(), DATA_FORMAT_JSON_NAME)).thenReturn(List.of(tableExchangeRatesDto));
 
-            final var result = provider.getCurrentCurrencyRates();
+            final var result = nbpCurrencyProvider.getCurrentCurrencyRates();
 
             // then
             assertNbpCurrencyRates(result).containsExactlyTheSameObjectsAs(expected).hasDetails();
@@ -259,10 +256,10 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         @Test
         void shouldThrowCurrencyProviderException_whenApiFeignExceptionIsThrown() throws ApiFeignClientException {
             // given && when
-            when(client.fetchCurrentAllExchangeRatesForTableType(TABLE_TYPE.name(), DATA_FORMAT)).thenThrow(ApiFeignClientException.class);
+            when(nbpClient.fetchCurrentAllExchangeRatesForTableType(TABLE_TYPE.name(), DATA_FORMAT_JSON_NAME)).thenThrow(ApiFeignClientException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrentCurrencyRates())
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRates())
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage("Cannot fetch current currency rates. Client provider error.");
         }
@@ -270,10 +267,10 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         @Test
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws ProviderException {
             // given && when
-            when(client.getAvailableTableType()).thenThrow(ProviderException.class);
+            when(nbpClient.getAvailableTableType()).thenThrow(ProviderException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrentCurrencyRates())
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRates())
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage("Something went wrong during fetch current currency rates.");
         }
@@ -305,9 +302,9 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             final var notExpected = createNbpCurrencyRate(CurrencyCode.UNDEFINED, date, rate_3, TABLE_TYPE, tableNumber);
 
             // when
-            when(client.fetchAllExchangeRatesForTableTypeAndDate(TABLE_TYPE.name(), date, DATA_FORMAT)).thenReturn(List.of(tableExchangeRatesDto));
+            when(nbpClient.fetchAllExchangeRatesForTableTypeAndDate(TABLE_TYPE.name(), date, DATA_FORMAT_JSON_NAME)).thenReturn(List.of(tableExchangeRatesDto));
 
-            final var result = provider.getCurrencyRatesForDate(date);
+            final var result = nbpCurrencyProvider.getCurrencyRatesForDate(date);
 
             // then
             assertNbpCurrencyRates(result).containsExactlyTheSameObjectsAs(expected).doesNotContainAnyOf(notExpected).hasDetails();
@@ -317,10 +314,10 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         void shouldThrowCurrencyProviderException_whenApiFeignExceptionIsThrown() throws ApiFeignClientException {
             // given && when
             final var date = LocalDate.now().minusDays(1);
-            when(client.fetchAllExchangeRatesForTableTypeAndDate(TABLE_TYPE.name(), date, DATA_FORMAT)).thenThrow(ApiFeignClientException.class);
+            when(nbpClient.fetchAllExchangeRatesForTableTypeAndDate(TABLE_TYPE.name(), date, DATA_FORMAT_JSON_NAME)).thenThrow(ApiFeignClientException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrencyRatesForDate(date))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDate(date))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Cannot fetch currency rates for date: %s. Client provider error.", date));
         }
@@ -329,10 +326,10 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws ProviderException {
             // given && when
             final var date = LocalDate.now().minusDays(1);
-            when(client.getAvailableTableType()).thenThrow(ProviderException.class);
+            when(nbpClient.getAvailableTableType()).thenThrow(ProviderException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrencyRatesForDate(date))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDate(date))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Something went wrong during fetch currency rates for date: %s.", date));
         }
@@ -370,9 +367,9 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             );
 
             // when
-            when(client.fetchAllExchangeRatesForTableTypeAndDateRange(TABLE_TYPE.name(), dateFrom, dateTo, DATA_FORMAT)).thenReturn(List.of(tableExchangeRatesDto_1, tableExchangeRatesDto_2));
+            when(nbpClient.fetchAllExchangeRatesForTableTypeAndDateRange(TABLE_TYPE.name(), dateFrom, dateTo, DATA_FORMAT_JSON_NAME)).thenReturn(List.of(tableExchangeRatesDto_1, tableExchangeRatesDto_2));
 
-            final var result = provider.getCurrencyRatesForDateRange(dateFrom, dateTo);
+            final var result = nbpCurrencyProvider.getCurrencyRatesForDateRange(dateFrom, dateTo);
 
             // then
             assertNbpCurrencyRates(result).containsExactlyTheSameObjectsAs(expected).hasDetails();
@@ -383,10 +380,10 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // given && when
             final var dateTo = LocalDate.now();
             final var dateFrom = LocalDate.now().minusDays(1);
-            when(client.fetchAllExchangeRatesForTableTypeAndDateRange(TABLE_TYPE.name(), dateFrom, dateTo, DATA_FORMAT)).thenThrow(ApiFeignClientException.class);
+            when(nbpClient.fetchAllExchangeRatesForTableTypeAndDateRange(TABLE_TYPE.name(), dateFrom, dateTo, DATA_FORMAT_JSON_NAME)).thenThrow(ApiFeignClientException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrencyRatesForDateRange(dateFrom, dateTo))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDateRange(dateFrom, dateTo))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Cannot fetch currency rates for date range between: %s - %s. Client provider error.", dateFrom, dateTo));
         }
@@ -396,10 +393,10 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // given && when
             final var dateTo = LocalDate.now();
             final var dateFrom = LocalDate.now().minusDays(1);
-            when(client.getAvailableTableType()).thenThrow(ProviderException.class);
+            when(nbpClient.getAvailableTableType()).thenThrow(ProviderException.class);
 
             // then
-            assertThatThrownBy(() -> provider.getCurrencyRatesForDateRange(dateFrom, dateTo))
+            assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDateRange(dateFrom, dateTo))
                     .isInstanceOf(CurrencyProviderException.class)
                     .hasMessage(format("Something went wrong during fetch currency rates for date range between: %s - %s.", dateFrom, dateTo));
         }

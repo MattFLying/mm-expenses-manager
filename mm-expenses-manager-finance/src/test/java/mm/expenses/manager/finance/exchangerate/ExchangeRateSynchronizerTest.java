@@ -16,27 +16,26 @@ import org.springframework.scheduling.support.CronTrigger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static mm.expenses.manager.finance.exchangerate.TestProvider.TEST_PROVIDER_NAME_1;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doReturn;
 
 class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
 
-    private static final String TEST_PROVIDER_NAME = "test-provider";
+    @MockBean
+    private CurrencyProviders currencyProviders;
 
     @MockBean
-    private CurrencyProviders providers;
+    private ExchangeRateService exchangeRateService;
 
     @MockBean
-    private ExchangeRateService service;
+    private TaskScheduler taskScheduler;
 
     @MockBean
-    private TaskScheduler scheduler;
-
-    @MockBean
-    private CurrencyRatesConfig config;
+    private CurrencyRatesConfig currencyRatesConfig;
 
     @Autowired
-    private ExchangeRateSynchronizer synchronizer;
+    private ExchangeRateSynchronizer exchangeRateSynchronizer;
 
     @Captor
     private ArgumentCaptor<Consumer<CurrencyRateProvider<? extends CurrencyRate>>> providerConsumerCaptor;
@@ -49,23 +48,23 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
 
     @Override
     protected void setupBeforeEachTest() {
-        this.provider = new TestProvider(TEST_PROVIDER_NAME, false);
+        this.provider = new TestProvider(TEST_PROVIDER_NAME_1, false);
 
-        doReturn(provider).when(providers).getProvider();
-        doReturn(TEST_PROVIDER_NAME).when(providers).getProviderName();
+        doReturn(provider).when(currencyProviders).getProvider();
+        doReturn(TEST_PROVIDER_NAME_1).when(currencyProviders).getProviderName();
 
         final var globalConfig = new CurrencyRatesConfig();
         globalConfig.setRescheduleWhenSynchronizationFailedCron("*/15 * * * * *");
 
-        doReturn(globalConfig).when(providers).getGlobalConfig();
+        doReturn(globalConfig).when(currencyProviders).getGlobalConfig();
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(providers);
-        reset(service);
-        reset(scheduler);
-        reset(config);
+        reset(currencyProviders);
+        reset(exchangeRateService);
+        reset(taskScheduler);
+        reset(currencyRatesConfig);
     }
 
 
@@ -75,14 +74,14 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
         provider.setShouldReturnEmptyCurrentCurrencies(true);
 
         // when
-        synchronizer.scheduleUpdateLatestExchangeRates();
+        exchangeRateSynchronizer.scheduleUpdateLatestExchangeRates();
 
         // then
-        verify(providers).getProvider();
-        verify(scheduler).schedule(any(ExchangeRateSynchronizer.RescheduleFailedProvider.class), any(CronTrigger.class));
-        verify(providers).executeOnAllProviders(any(), any());
+        verify(currencyProviders).getProvider();
+        verify(taskScheduler).schedule(any(ExchangeRateSynchronizer.RescheduleFailedProvider.class), any(CronTrigger.class));
+        verify(currencyProviders).executeOnAllProviders(any(), any());
 
-        verify(providers).executeOnAllProviders(providerPredicateCaptor.capture(), providerConsumerCaptor.capture());
+        verify(currencyProviders).executeOnAllProviders(providerPredicateCaptor.capture(), providerConsumerCaptor.capture());
         final var providerConsumer = providerConsumerCaptor.getValue();
         final var providerPredicate = providerPredicateCaptor.getValue();
         providerConsumer.accept(provider);
@@ -96,18 +95,18 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
         provider.setShouldThrowCurrencyProviderExceptionInCurrentCurrencyRatesWithHttpStatus(true);
 
         // when
-        synchronizer.scheduleUpdateLatestExchangeRates();
+        exchangeRateSynchronizer.scheduleUpdateLatestExchangeRates();
 
         // then
-        verify(providers).getProvider();
-        verify(scheduler).schedule(any(ExchangeRateSynchronizer.RescheduleFailedProvider.class), any(CronTrigger.class));
+        verify(currencyProviders).getProvider();
+        verify(taskScheduler).schedule(any(ExchangeRateSynchronizer.RescheduleFailedProvider.class), any(CronTrigger.class));
 
-        verify(providers).executeOnAllProviders(providerPredicateCaptor.capture(), providerConsumerCaptor.capture());
+        verify(currencyProviders).executeOnAllProviders(providerPredicateCaptor.capture(), providerConsumerCaptor.capture());
         final var providerConsumer = providerConsumerCaptor.getValue();
         final var providerPredicate = providerPredicateCaptor.getValue();
         providerConsumer.accept(provider);
         providerPredicate.test(provider);
-        verify(providers, times(2)).executeOnAllProviders(any(), any());
+        verify(currencyProviders, times(2)).executeOnAllProviders(any(), any());
     }
 
     @Test
@@ -117,18 +116,18 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
         provider.setShouldThrowCurrencyProviderExceptionInCurrentCurrencyRates(true);
 
         // when
-        synchronizer.scheduleUpdateLatestExchangeRates();
+        exchangeRateSynchronizer.scheduleUpdateLatestExchangeRates();
 
         // then
-        verify(providers).getProvider();
-        verify(scheduler).schedule(any(ExchangeRateSynchronizer.RescheduleFailedProvider.class), any(CronTrigger.class));
+        verify(currencyProviders).getProvider();
+        verify(taskScheduler).schedule(any(ExchangeRateSynchronizer.RescheduleFailedProvider.class), any(CronTrigger.class));
 
-        verify(providers).executeOnAllProviders(providerPredicateCaptor.capture(), providerConsumerCaptor.capture());
+        verify(currencyProviders).executeOnAllProviders(providerPredicateCaptor.capture(), providerConsumerCaptor.capture());
         final var providerConsumer = providerConsumerCaptor.getValue();
         final var providerPredicate = providerPredicateCaptor.getValue();
         providerConsumer.accept(provider);
         providerPredicate.test(provider);
-        verify(providers, times(2)).executeOnAllProviders(any(), any());
+        verify(currencyProviders, times(2)).executeOnAllProviders(any(), any());
     }
 
     @Test
@@ -137,11 +136,11 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
         provider.setShouldReturnEmptyCurrentCurrencies(false);
 
         // when
-        synchronizer.scheduleUpdateLatestExchangeRates();
+        exchangeRateSynchronizer.scheduleUpdateLatestExchangeRates();
 
         // then
-        verify(providers).getProvider();
-        verify(service).createOrUpdate(anyCollection());
+        verify(currencyProviders).getProvider();
+        verify(exchangeRateService).createOrUpdate(anyCollection());
     }
 
 }

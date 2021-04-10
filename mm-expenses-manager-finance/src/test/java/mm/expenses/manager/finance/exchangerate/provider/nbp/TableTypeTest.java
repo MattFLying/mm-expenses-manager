@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.BaseInitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TableTypeTest {
+class TableTypeTest extends BaseInitTest {
 
     @Test
     void shouldReturnUnknownTableType_whenUndefinedWasPassed() {

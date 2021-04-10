@@ -13,7 +13,7 @@
 
     <name>Expenses Manager Finance Service</name>
     <artifactId>mm-expenses-manager-finance</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
@@ -101,6 +101,9 @@
                 <configuration>
                     <reuseForks>false</reuseForks>
                     <forkCount>1</forkCount>
+                    <excludes>
+                        <exclude>mm/expenses/manager/finance/exchangerate/ExchangeRateMapperImpl.class</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -125,6 +128,16 @@
                     <excludes>
                         <exclude>mm/expenses/manager/finance/exchangerate/ExchangeRateMapperImpl.class</exclude>
                     </excludes>
+                    <rules>
+                        <rule>
+                            <limits>
+                                <limit>
+                                    <counter>INSTRUCTION</counter>
+                                    <minimum>80.0%</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
                 </configuration>
             </plugin>
 

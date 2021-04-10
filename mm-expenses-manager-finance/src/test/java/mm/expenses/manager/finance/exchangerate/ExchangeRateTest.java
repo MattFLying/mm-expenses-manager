@@ -49,7 +49,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
-        final var rate = createNewRateToPLN(CurrencyCode.JPY, 5.6);
+        final var rate = createNewRandomRateToPLN(CurrencyCode.JPY);
 
         // when
         exchangeRate.addRateForProvider(PROVIDER_NAME, rate);
@@ -69,7 +69,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
-        final var rate = createNewRateToPLN(CurrencyCode.CHF, 3.2);
+        final var rate = createNewRandomRateToPLN(CurrencyCode.CHF);
         exchangeRate.addRateForProvider(providerName, rate);
 
         // when

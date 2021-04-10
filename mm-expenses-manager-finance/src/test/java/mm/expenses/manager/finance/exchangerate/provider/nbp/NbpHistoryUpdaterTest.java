@@ -12,7 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.time.LocalDate;
 import java.util.List;
 
-import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.createNbpCurrencyRate;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.*;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyRatesAssert.assertNbpCurrencyRates;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,18 +21,13 @@ import static org.mockito.Mockito.when;
 
 class NbpHistoryUpdaterTest extends FinanceApplicationTest {
 
-    private static final TableType TABLE_TYPE = TableType.A;
-    private static final int MAX_MONTHS_TO_FETCH = 1;
-    private static final int MAX_DAYS_TO_FETCH = 30;
-    private static final int HISTORY_FROM_YEAR = 2021;
+    @MockBean
+    private NbpApiConfig nbpApiConfig;
 
     @MockBean
-    private NbpApiConfig config;
+    private NbpCurrencyProvider nbpCurrencyProvider;
 
-    @MockBean
-    private NbpCurrencyProvider provider;
-
-    private NbpHistoryUpdater updater;
+    private NbpHistoryUpdater nbpHistoryUpdater;
 
     @Override
     protected void setupBeforeEachTest() {
@@ -40,17 +35,17 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         details.setMaxMonthsToFetch(MAX_MONTHS_TO_FETCH);
         details.setMaxDaysToFetch(MAX_DAYS_TO_FETCH);
         details.setHistoryFromYear(HISTORY_FROM_YEAR);
-        when(config.getDetails()).thenReturn(details);
 
-        when(provider.getProviderConfig()).thenReturn(config);
+        when(nbpApiConfig.getDetails()).thenReturn(details);
+        when(nbpCurrencyProvider.getProviderConfig()).thenReturn(nbpApiConfig);
 
-        this.updater = new NbpHistoryUpdater(provider);
+        this.nbpHistoryUpdater = new NbpHistoryUpdater(nbpCurrencyProvider);
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(config);
-        reset(provider);
+        reset(nbpApiConfig);
+        reset(nbpCurrencyProvider);
     }
 
     @Test
@@ -67,15 +62,15 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         final var expected_2 = createNbpCurrencyRate(CurrencyCode.JPY, dateOfFirstAvailableRate, rate_2, TABLE_TYPE, tableNumber);
         final var expected_3 = createNbpCurrencyRate(CurrencyCode.NZD, dateOfFirstAvailableRate, rate_3, TABLE_TYPE, tableNumber);
 
-        final var dateTo = LocalDate.of(2021, 4, 9);
+        final var dateTo = LocalDate.of(2021, 4, 10);
         final var expectedCountOfPreparedRatesPerCurrency = DateUtils.daysBetween(dateOfFirstAvailableRate, dateTo);
 
         // when
-        when(provider.getCurrencyRatesForDateRange(dateOfFirstAvailableRate.withDayOfMonth(1), dateOfFirstAvailableRate.withDayOfMonth(dateOfFirstAvailableRate.lengthOfMonth())))
+        when(nbpCurrencyProvider.getCurrencyRatesForDateRange(dateOfFirstAvailableRate.withDayOfMonth(1), dateOfFirstAvailableRate.withDayOfMonth(dateOfFirstAvailableRate.lengthOfMonth())))
                 .thenReturn(List.of(expected_1, expected_2, expected_3));
 
 
-        final var result = updater.fetchHistoricalCurrencies();
+        final var result = nbpHistoryUpdater.fetchHistoricalCurrencies();
 
         // then
         assertNbpCurrencyRates(result)
@@ -95,9 +90,9 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
     @Test
     void shouldRetrieveEmptyList_whenCurrencyProviderExceptionHasThrown() throws HistoricalCurrencyException, CurrencyProviderException {
         // given && when
-        when(provider.getCurrencyRatesForDateRange(any(LocalDate.class), any(LocalDate.class))).thenThrow(CurrencyProviderException.class);
+        when(nbpCurrencyProvider.getCurrencyRatesForDateRange(any(LocalDate.class), any(LocalDate.class))).thenThrow(CurrencyProviderException.class);
 
-        final var result = updater.fetchHistoricalCurrencies();
+        final var result = nbpHistoryUpdater.fetchHistoricalCurrencies();
 
         // then
         assertNbpCurrencyRates(result).isEmpty();
@@ -106,10 +101,10 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
     @Test
     void shouldThrowHistoricalCurrencyException_whenOtherExceptionIsThrown() {
         // given && when
-        when(provider.getProviderConfig()).thenReturn(null);
+        when(nbpCurrencyProvider.getProviderConfig()).thenReturn(null);
 
         // then
-        assertThatThrownBy(() -> updater.fetchHistoricalCurrencies())
+        assertThatThrownBy(() -> nbpHistoryUpdater.fetchHistoricalCurrencies())
                 .isInstanceOf(HistoricalCurrencyException.class)
                 .hasMessage("Something went wrong during fetching historical currencies.");
     }

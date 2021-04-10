@@ -14,6 +14,8 @@ import java.util.stream.Stream;
  */
 public abstract class BaseInitTest {
 
+    public static final CurrencyCode DEFAULT_CURRENCY = CurrencyCode.PLN;
+
     /**
      * Prepare setup steps for each test before execution or nothing will happen when it won't be overriden
      */
@@ -41,7 +43,7 @@ public abstract class BaseInitTest {
     public static class CurrencyCodeArgument implements ArgumentsProvider {
         @Override
         public Stream<Arguments> provideArguments(final ExtensionContext context) {
-            return Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.PLN) && !code.equals(CurrencyCode.UNDEFINED)).map(Arguments::of);
+            return Stream.of(CurrencyCode.values()).filter(code -> !code.equals(DEFAULT_CURRENCY) && !code.equals(CurrencyCode.UNDEFINED)).map(Arguments::of);
         }
     }
 

@@ -11,7 +11,10 @@ public class NbpCurrencyHelper {
 
     public static final TableType TABLE_TYPE = TableType.A;
     public static final String PROVIDER_NAME = "nbp";
-    public static final CurrencyCode DEFAULT_CURRENCY = CurrencyCode.PLN;
+
+    public static final int MAX_MONTHS_TO_FETCH = 1;
+    public static final int MAX_DAYS_TO_FETCH = 30;
+    public static final int HISTORY_FROM_YEAR = 2021;
 
     public static NbpClient.RateDto createRateDto(final String tableNumber, final Double rate, final LocalDate date) {
         final var rateDto = new NbpClient.RateDto();

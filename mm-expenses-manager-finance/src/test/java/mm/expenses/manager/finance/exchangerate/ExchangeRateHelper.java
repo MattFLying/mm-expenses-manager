@@ -12,13 +12,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.DEFAULT_CURRENCY;
+import static mm.expenses.manager.finance.FinanceApplicationTest.DEFAULT_CURRENCY;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 
 public class ExchangeRateHelper {
 
     public static final Long INITIAL_VERSION = 0L;
     public static final String ID = UUID.randomUUID().toString();
+    private static final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
 
     public static ExchangeRate createNewExchangeRate(final String id, final CurrencyCode currency, final Instant date, final Instant createdAt,
                                                      final Instant modifiedAt, final Map<String, ExchangeRate.Rate> ratesByProvider, final Map<String, Map<String, Object>> detailsByProvider) {
@@ -46,8 +47,8 @@ public class ExchangeRateHelper {
                 .build();
     }
 
-    public static ExchangeRate.Rate createNewRateToPLN(final CurrencyCode currencyFrom, final Double valueTo) {
-        return createNewRate(currencyFrom, 1.0, DEFAULT_CURRENCY, valueTo);
+    public static ExchangeRate.Rate createNewRandomRateToPLN(final CurrencyCode currencyFrom) {
+        return createNewRate(currencyFrom, 1.0, DEFAULT_CURRENCY, getRandomCurrencyValue());
     }
 
     public static ExchangeRate currencyRateToExchangeRate(final CurrencyRate domain, final Instant now) {
@@ -61,13 +62,17 @@ public class ExchangeRateHelper {
     public static ExchangeRate createNewExchangeRate(final CurrencyCode currency, final Instant date) {
         final var createdModified = DateUtils.localDateToInstant(LocalDate.now());
         return createNewExchangeRate(ID, currency, date, createdModified,
-                new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(currency, DEFAULT_CURRENCY, new RandomDataGenerator().nextUniform(1, 10)))),
+                new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(currency, DEFAULT_CURRENCY, getRandomCurrencyValue()))),
                 Map.of()
         );
     }
 
     public static ExchangeRate createNewExchangeRate(final CurrencyCode currency, final LocalDate date) {
         return createNewExchangeRate(currency, DateUtils.localDateToInstant(date));
+    }
+
+    private static double getRandomCurrencyValue() {
+        return randomDataGenerator.nextUniform(1, 10);
     }
 
 }

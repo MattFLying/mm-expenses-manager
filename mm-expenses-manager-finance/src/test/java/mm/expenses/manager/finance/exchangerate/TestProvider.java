@@ -16,6 +16,9 @@ import java.util.*;
 
 class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
 
+    public static final String TEST_PROVIDER_NAME_1 = "test-provider-1";
+    public static final String TEST_PROVIDER_NAME_2 = "test-provider-2";
+
     private final String name;
     private final boolean shouldThrowHistoricalCurrencyException;
 

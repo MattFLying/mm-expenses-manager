@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
@@ -62,7 +62,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(BASE_URL))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.currencies", is(expectedPagesSize)))
                     .andExpect(jsonPath("$.exchangeRates", is(expectedContentSize)))
@@ -108,7 +108,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(BASE_URL + "?pageNumber=" + 0 + "&pageSize=" + 1))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.currencies", is(expectedContentPerPage)))
                     .andExpect(jsonPath("$.exchangeRates", is(expectedTotalContentSize)))
@@ -136,14 +136,14 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         @Test
         void shouldReturnBadRequest_whenPageSizeIsMissed() throws Exception {
             mockMvc.perform(get(BASE_URL + "?pageNumber=" + 0))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         void shouldReturnBadRequest_whenPageNumberIsMissed() throws Exception {
             mockMvc.perform(get(BASE_URL + "?pageSize=" + 0))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -151,7 +151,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenDateAndDateRangeArePassed() throws Exception {
             final var date = LocalDate.now();
             mockMvc.perform(get(BASE_URL + "?date=" + date + "&from=" + date + "&to=" + date))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -159,7 +159,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenDateAndDateFromArePassed() throws Exception {
             final var date = LocalDate.now();
             mockMvc.perform(get(BASE_URL + "?date=" + date + "&from=" + date))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -167,7 +167,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenDateAndDateToArePassed() throws Exception {
             final var date = LocalDate.now();
             mockMvc.perform(get(BASE_URL + "?date=" + date + "&to=" + date))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -198,7 +198,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(latestUrl()))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.currencies", is(expectedPagesSize)))
 
@@ -245,7 +245,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(forCurrencyUrl(currency)))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.currencies", is(expectedPagesSize)))
                     .andExpect(jsonPath("$.exchangeRates", is(expectedContentSize)))
@@ -293,7 +293,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(forCurrencyUrl(currency) + "?from=" + dateFrom + "&to=" + dateTo))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.currencies", is(expectedPagesSize)))
                     .andExpect(jsonPath("$.exchangeRates", is(expectedContentSize)))
@@ -323,7 +323,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenDateToIsMissed(final CurrencyCode currency) throws Exception {
             final var date = LocalDate.now().minusDays(3);
             mockMvc.perform(get(forCurrencyUrl(currency) + "?from=" + date))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -332,7 +332,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenDateFromIsMissed(final CurrencyCode currency) throws Exception {
             final var date = LocalDate.now().minusDays(3);
             mockMvc.perform(get(forCurrencyUrl(currency) + "?to=" + date))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -358,7 +358,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(latestForCurrencyUrl(currency)))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isOk())
 
                     .andExpect(jsonPath("$.currency", is(currency.toString())))
@@ -373,7 +373,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         @Test
         void shouldReturnBadRequest_whenUnknownCurrencyWasPassed() throws Exception {
             mockMvc.perform(get(latestForCurrencyUrl(CurrencyCode.UNDEFINED)))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -385,7 +385,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(latestForCurrencyUrl(currency)))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isNotFound());
         }
 
@@ -411,7 +411,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(forCurrencyAndDateUrl(currency, date)))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isOk())
 
                     .andExpect(jsonPath("$.currency", is(currency.toString())))
@@ -427,7 +427,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenUnknownCurrencyWasPassed() throws Exception {
             final var date = LocalDate.now().minusDays(3);
             mockMvc.perform(get(forCurrencyAndDateUrl(CurrencyCode.UNDEFINED, date)))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -440,7 +440,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
             // then
             mockMvc.perform(get(forCurrencyAndDateUrl(currency, date)))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isNotFound());
         }
 
