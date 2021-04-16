@@ -1,6 +1,5 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,45 +28,32 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
     /**
      * Find and build collection of date range objects according to specific provider details of fetching data limitation.
      *
-     * @param today           today date
-     * @param startYear       year of the data beginning in provider
-     * @param maxMothsToFetch max months to fetch data
-     * @param maxDaysToFetch  max days to fetch data
+     * @param endDate        the last date
+     * @param startYear      year of the data beginning in provider
+     * @param maxDaysToFetch max days to fetch data
      * @return collection of built dates
      */
-    protected Collection<DateRange> findDates(final Instant today, final int startYear, final int maxMothsToFetch, final int maxDaysToFetch) {
-        final var result = new ArrayList<DateRange>();
-        final var finalDateTo = DateUtils.instantToLocalDateUTC(today);
-        var dateFrom = DateUtils.beginningOfTheYear(startYear);
+    protected Collection<DateRange> findDates(final Instant endDate, final int startYear, final int maxDaysToFetch) {
+        final var result = new LinkedList<DateRange>();
 
-        while (dateFrom.isBefore(finalDateTo)) {
-            LocalDate dateTo;
-            if (dateFrom.getYear() == finalDateTo.getYear() && dateFrom.getMonthValue() == finalDateTo.getMonthValue()) {
-                dateTo = finalDateTo;
-            } else {
-                dateTo = dateFrom.plusMonths(maxMothsToFetch).minusDays(1);
-            }
+        final var dateFrom = DateUtils.beginningOfTheYear(startYear);
+        final var dateTo = DateUtils.instantToLocalDateUTC(endDate);
 
-            final var daysBetween = DateUtils.daysBetween(dateFrom, dateTo);
-            final var moreThanMaxDaysDaysToFetch = daysBetween > maxDaysToFetch;
-            if (moreThanMaxDaysDaysToFetch) {
-                dateTo = dateTo.minusDays(daysBetween - maxDaysToFetch);
-            }
-            if (dateTo.isAfter(finalDateTo)) {
-                dateTo = finalDateTo.minusDays(1);
-            }
+        if (DateUtils.daysBetween(dateFrom, dateTo) > maxDaysToFetch) {
+            var from = LocalDate.from(dateFrom);
+            var to = from.plusDays(maxDaysToFetch);
 
-            final var dateRange = DateRange.builder()
-                    .from(dateFrom)
-                    .to(dateTo)
-                    .build();
-            result.add(dateRange);
+            while (from.isBefore(dateTo)) {
+                to = from.plusDays(maxDaysToFetch);
+                if (to.isAfter(dateTo)) {
+                    to = LocalDate.from(dateTo);
+                }
 
-            if (moreThanMaxDaysDaysToFetch) {
-                dateFrom = dateFrom.plusMonths(maxMothsToFetch).minusDays(daysBetween - maxDaysToFetch);
-            } else {
-                dateFrom = dateFrom.plusMonths(maxMothsToFetch);
+                result.add(new DateRange(from, to));
+                from = prepareNewDateFrom(result);
             }
+        } else {
+            result.add(new DateRange(dateFrom, dateTo));
         }
         return result;
     }
@@ -97,8 +83,16 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
         return missingDates;
     }
 
+    /**
+     * Prepare the new start date of new date range object. It takes last date range object from collection
+     * and use its dateTo as the new value of dateFrom and add 1 extra day to avoid overlapping dates.
+     */
+    private LocalDate prepareNewDateFrom(final LinkedList<DateRange> list) {
+        return list.getLast().getTo().plusDays(1);
+    }
+
     @Getter
-    @Builder
+    @RequiredArgsConstructor
     protected static class DateRange {
         private final LocalDate from;
         private final LocalDate to;

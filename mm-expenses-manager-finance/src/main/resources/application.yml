@@ -24,8 +24,7 @@ app:
           data-format: json
           currency: PLN
           history-from-year: 2002
-          max-months-to-fetch: 3
-          max-days-to-fetch: 88
+          max-days-to-fetch: 90
 
 server:
   port: ${app.configuration.port}

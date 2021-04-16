@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.time.LocalDate;
 import java.util.List;
 
+import static mm.expenses.manager.common.util.DateUtils.ZONE_UTC;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.*;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyRatesAssert.assertNbpCurrencyRates;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,7 +33,6 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
     @Override
     protected void setupBeforeEachTest() {
         final var details = new ProviderConfig.Details();
-        details.setMaxMonthsToFetch(MAX_MONTHS_TO_FETCH);
         details.setMaxDaysToFetch(MAX_DAYS_TO_FETCH);
         details.setHistoryFromYear(HISTORY_FROM_YEAR);
 
@@ -62,14 +62,11 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         final var expected_2 = createNbpCurrencyRate(CurrencyCode.JPY, dateOfFirstAvailableRate, rate_2, TABLE_TYPE, tableNumber);
         final var expected_3 = createNbpCurrencyRate(CurrencyCode.NZD, dateOfFirstAvailableRate, rate_3, TABLE_TYPE, tableNumber);
 
-        final var dateTo = LocalDate.of(2021, 4, 10);
+        final var dateTo = LocalDate.now(ZONE_UTC);
         final var expectedCountOfPreparedRatesPerCurrency = DateUtils.daysBetween(dateOfFirstAvailableRate, dateTo);
 
         // when
-        when(nbpCurrencyProvider.getCurrencyRatesForDateRange(dateOfFirstAvailableRate.withDayOfMonth(1), dateOfFirstAvailableRate.withDayOfMonth(dateOfFirstAvailableRate.lengthOfMonth())))
-                .thenReturn(List.of(expected_1, expected_2, expected_3));
-
-
+        when(nbpCurrencyProvider.getCurrencyRatesForDateRange(any(LocalDate.class), any(LocalDate.class))).thenReturn(List.of(expected_1, expected_2, expected_3));
         final var result = nbpHistoryUpdater.fetchHistoricalCurrencies();
 
         // then

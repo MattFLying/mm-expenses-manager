@@ -14,10 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-@Getter
+@Data
 @Builder(toBuilder = true)
-@AllArgsConstructor
-@RequiredArgsConstructor
 @Document(collection = "exchange-rates")
 @EqualsAndHashCode
 @CompoundIndexes({

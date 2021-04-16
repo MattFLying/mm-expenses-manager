@@ -26,7 +26,6 @@ public abstract class ProviderConfig {
         private String dataFormat;
         private CurrencyCode currency;
         private int historyFromYear;
-        private int maxMonthsToFetch;
         private int maxDaysToFetch;
 
     }

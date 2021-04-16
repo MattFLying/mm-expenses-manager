@@ -26,12 +26,11 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
     public Collection<NbpCurrencyRate> fetchHistoricalCurrencies() throws HistoricalCurrencyException {
         try {
             final var config = provider.getProviderConfig();
-            final var maxMothsToFetch = config.getDetails().getMaxMonthsToFetch();
             final var maxDaysToFetch = config.getDetails().getMaxDaysToFetch();
             final var startYear = config.getDetails().getHistoryFromYear();
             final var today = DateUtils.now();
             final var dateFrom = DateUtils.beginningOfTheYear(startYear);
-            final var dates = findDates(today, startYear, maxMothsToFetch, maxDaysToFetch);
+            final var dates = findDates(today, startYear, maxDaysToFetch);
 
             final var fetchedRates = dates.stream()
                     .map(dateRange -> {

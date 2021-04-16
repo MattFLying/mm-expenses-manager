@@ -48,7 +48,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
         final var createdModifiedAt = Instant.now();
 
-        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
+        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
         final var rate = createNewRandomRateToPLN(CurrencyCode.JPY);
 
         // when
@@ -68,7 +68,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
         final var createdModifiedAt = Instant.now();
 
-        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
+        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
         final var rate = createNewRandomRateToPLN(CurrencyCode.CHF);
         exchangeRate.addRateForProvider(providerName, rate);
 
@@ -88,7 +88,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
         final var createdModifiedAt = Instant.now();
 
-        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
+        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
 
         // when
         exchangeRate.getRateByProvider(PROVIDER_NAME, true);
@@ -104,7 +104,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
-        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
+        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
 
         // when
         exchangeRate.addDetailsForProvider(PROVIDER_NAME, Map.of());
@@ -120,7 +120,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
-        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
+        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
 
         // when
         final var result = exchangeRate.hasProvider(PROVIDER_NAME);
@@ -138,7 +138,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
-        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
+        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
         exchangeRate.addRateForProvider(PROVIDER_NAME, ExchangeRate.Rate.empty());
 
         // when
@@ -157,7 +157,7 @@ class ExchangeRateTest extends BaseInitTest {
         final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
-        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, INITIAL_VERSION);
+        final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
         exchangeRate.addDetailsForProvider(PROVIDER_NAME, Map.of());
 
         // when

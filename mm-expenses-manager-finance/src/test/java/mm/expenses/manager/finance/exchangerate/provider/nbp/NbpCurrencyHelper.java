@@ -12,7 +12,6 @@ public class NbpCurrencyHelper {
     public static final TableType TABLE_TYPE = TableType.A;
     public static final String PROVIDER_NAME = "nbp";
 
-    public static final int MAX_MONTHS_TO_FETCH = 1;
     public static final int MAX_DAYS_TO_FETCH = 30;
     public static final int HISTORY_FROM_YEAR = 2021;
 
