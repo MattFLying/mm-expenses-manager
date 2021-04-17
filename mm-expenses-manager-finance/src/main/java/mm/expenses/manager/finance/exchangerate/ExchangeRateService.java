@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
+import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -29,8 +30,12 @@ public class ExchangeRateService {
         CompletableFuture.runAsync(historyUpdate::update);
     }
 
+    <T extends CurrencyRate> Collection<ExchangeRate> synchronize(final Collection<T> exchangeRates) {
+        return command.createOrUpdate(exchangeRates, TrailOperation.LATEST_EXCHANGE_RATES_SYNCHRONIZATION);
+    }
+
     <T extends CurrencyRate> Collection<ExchangeRate> createOrUpdate(final Collection<T> exchangeRates) {
-        return command.createOrUpdate(exchangeRates);
+        return command.createOrUpdate(exchangeRates, TrailOperation.CREATE_OR_UPDATE);
     }
 
     Stream<Page<ExchangeRate>> findAll(final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {

@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.SneakyThrows;
 import mm.expenses.manager.finance.FinanceApplicationTest;
+import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exchangerate.provider.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -14,6 +15,7 @@ import java.util.function.Consumer;
 
 import static mm.expenses.manager.finance.exchangerate.TestProvider.TEST_PROVIDER_NAME_1;
 import static mm.expenses.manager.finance.exchangerate.TestProvider.TEST_PROVIDER_NAME_2;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class ExchangeRateHistoryUpdateTest extends FinanceApplicationTest {
@@ -75,6 +77,18 @@ class ExchangeRateHistoryUpdateTest extends FinanceApplicationTest {
         verify(currencyProviders).executeOnAllProviders(providerConsumerCaptor.capture());
         final var providerConsumer = providerConsumerCaptor.getValue();
         providerConsumer.accept(provider_1);
+    }
+
+    @Test
+    void shouldThrowExchangeRateException_whenSomethingWentWrong() {
+        // given
+        doReturn(provider_1).when(currencyProviders).getProvider();
+        when(exchangeRateRepository.findAll()).thenThrow(RuntimeException.class);
+
+        // when && then
+        assertThatThrownBy(() -> exchangeRateHistoryUpdate.update())
+                .isInstanceOf(ExchangeRateException.class)
+                .hasMessage("Cannot save historical currency rates.");
     }
 
 }

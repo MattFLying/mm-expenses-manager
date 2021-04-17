@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.provider;
+package mm.expenses.manager.finance.exchangerate.exception;
 
 public class ProviderException extends Exception {
 

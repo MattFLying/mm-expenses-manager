@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.Generated;
 import lombok.NoArgsConstructor;
 import mm.expenses.manager.exception.api.ApiFeignClientException;
-import mm.expenses.manager.finance.exchangerate.provider.ProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.ProviderException;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;

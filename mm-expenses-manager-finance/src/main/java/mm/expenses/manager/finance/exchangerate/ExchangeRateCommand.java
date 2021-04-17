@@ -4,8 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.InvalidDateException;
+import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
+import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailService;
+import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
+import mm.expenses.manager.finance.exchangerate.trail.TrailOperation.State;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
@@ -26,6 +30,7 @@ class ExchangeRateCommand {
     private final ExchangeRateRepository repository;
     private final ExchangeRateMapper mapper;
     private final CurrencyProviders providers;
+    private final ExchangeRateTrailService trails;
 
     /**
      * Save or update historical exchange rates.
@@ -34,39 +39,61 @@ class ExchangeRateCommand {
      * @param <T>          specific type of CurrencyRate depends of current provider
      */
     <T extends CurrencyRate> void saveHistory(final Collection<T> historicData) {
-        final var historicalByCurrency = historicData.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
-        final var existedByCurrency = repository.findAll().stream().collect(Collectors.groupingBy(ExchangeRate::getCurrency, toList()));
+        final List<ExchangeRate> savedHistory = new ArrayList<>();
+        var savedHistoryCount = 0;
+        var duplicatesCount = 0;
+        var status = State.ERROR;
+        try {
+            final var historicalByCurrency = historicData.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
+            final var existedByCurrency = repository.findAll().stream().collect(Collectors.groupingBy(ExchangeRate::getCurrency, toList()));
 
-        final var toBeSaved = createOrUpdate(historicalByCurrency, existedByCurrency);
-        final var savedHistoryCount = repository.saveAll(toBeSaved).size();
-        final var duplicatesCount = historicData.size() - savedHistoryCount;
-
-        log.info("{} historical currencies saved, {} duplicates skipped.", savedHistoryCount, duplicatesCount);
+            final var toBeSaved = createOrUpdate(historicalByCurrency, existedByCurrency);
+            savedHistory.addAll(repository.saveAll(toBeSaved));
+            savedHistoryCount = savedHistory.size();
+            duplicatesCount = historicData.size() - savedHistoryCount;
+            status = State.SUCCESS;
+        } catch (final Exception exception) {
+            throw new ExchangeRateException("Cannot save historical currency rates.", exception);
+        } finally {
+            trails.saveLog(TrailOperation.EXCHANGE_RATES_HISTORY_UPDATE.withStatus(status), savedHistory.stream().map(ExchangeRate::getId).collect(toList()), savedHistoryCount, duplicatesCount);
+        }
     }
 
     /**
      * Save or update exchange rates from passed collected data.
      *
      * @param exchangeRates data that should be saved or updated
+     * @param operation     type of operation executed via this method
      * @param <T>           specific type of CurrencyRate depends of current provider
      * @return collection of saved or updated exchange rate objects
      */
-    <T extends CurrencyRate> Collection<ExchangeRate> createOrUpdate(final Collection<T> exchangeRates) {
-        final var currencies = exchangeRates.stream().map(CurrencyRate::getCurrency).collect(Collectors.toSet());
-        final var toSaveByCurrency = exchangeRates.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
+    <T extends CurrencyRate> Collection<ExchangeRate> createOrUpdate(final Collection<T> exchangeRates, final TrailOperation operation) {
+        final List<ExchangeRate> savedHistory = new ArrayList<>();
+        var savedHistoryCount = 0;
+        var duplicatesCount = 0;
+        var status = State.ERROR;
+        try {
+            final var currencies = exchangeRates.stream().map(CurrencyRate::getCurrency).collect(Collectors.toSet());
+            final var toSaveByCurrency = exchangeRates.stream().collect(Collectors.groupingBy(CurrencyRate::getCurrency, toList()));
 
-        final var fromDate = findDateFrom(exchangeRates);
-        final var toDate = findDateTo(exchangeRates);
-        final var existedByCurrency = findByCurrenciesAndDateOrDateRange(currencies, fromDate, toDate).collect(
-                Collectors.groupingBy(ExchangeRate::getCurrency, toList())
-        );
+            final var fromDate = findDateFrom(exchangeRates);
+            final var toDate = findDateTo(exchangeRates);
+            final var existedByCurrency = findByCurrenciesAndDateOrDateRange(currencies, fromDate, toDate).collect(
+                    Collectors.groupingBy(ExchangeRate::getCurrency, toList())
+            );
 
-        final var toBeSaved = createOrUpdate(toSaveByCurrency, existedByCurrency);
-        final var savedHistory = repository.saveAll(toBeSaved);
-        final var savedHistoryCount = savedHistory.size();
-        final var duplicatesCount = exchangeRates.size() - savedHistoryCount;
-
-        log.info("{} currencies saved, {} duplicates skipped.", savedHistoryCount, duplicatesCount);
+            final var toBeSaved = createOrUpdate(toSaveByCurrency, existedByCurrency);
+            savedHistory.addAll(repository.saveAll(toBeSaved));
+            savedHistoryCount = savedHistory.size();
+            duplicatesCount = exchangeRates.size() - savedHistoryCount;
+            status = State.SUCCESS;
+        } catch (final InvalidDateException exception) {
+            throw new ExchangeRateException(exception.getMessage(), exception);
+        } catch (final Exception exception) {
+            throw new ExchangeRateException("Cannot save or update currency rates.", exception);
+        } finally {
+            trails.saveLog(operation.withStatus(status), savedHistory.stream().map(ExchangeRate::getId).collect(toList()), savedHistoryCount, duplicatesCount);
+        }
         return savedHistory;
     }
 

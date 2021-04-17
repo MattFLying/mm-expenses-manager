@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -44,6 +45,15 @@ public abstract class BaseInitTest {
         @Override
         public Stream<Arguments> provideArguments(final ExtensionContext context) {
             return Stream.of(CurrencyCode.values()).filter(code -> !code.equals(DEFAULT_CURRENCY) && !code.equals(CurrencyCode.UNDEFINED)).map(Arguments::of);
+        }
+    }
+
+    public static class TrailOperationArgument implements ArgumentsProvider {
+        @Override
+        public Stream<Arguments> provideArguments(final ExtensionContext context) {
+            var success = Stream.of(TrailOperation.values()).map(operation -> operation.withStatus(TrailOperation.State.SUCCESS)).map(Arguments::of);
+            var failed = Stream.of(TrailOperation.values()).map(operation -> operation.withStatus(TrailOperation.State.ERROR)).map(Arguments::of);
+            return Stream.concat(success, failed);
         }
     }
 

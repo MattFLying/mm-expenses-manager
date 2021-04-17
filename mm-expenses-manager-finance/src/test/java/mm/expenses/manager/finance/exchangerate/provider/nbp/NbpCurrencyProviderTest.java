@@ -5,7 +5,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.api.ApiFeignClientException;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
-import mm.expenses.manager.finance.exchangerate.provider.ProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.ProviderException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

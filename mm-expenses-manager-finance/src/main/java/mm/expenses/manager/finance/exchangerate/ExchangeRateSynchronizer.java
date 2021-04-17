@@ -39,7 +39,7 @@ class ExchangeRateSynchronizer {
             if (allCurrent.isEmpty()) {
                 rescheduleProviderAndCallAnother(provider);
             } else {
-                service.createOrUpdate(allCurrent);
+                service.synchronize(allCurrent);
             }
         } catch (final CurrencyProviderException exception) {
             log.warn("Cannot fetch current currency rates for provider: {}", provider.getName(), exception);
@@ -101,7 +101,7 @@ class ExchangeRateSynchronizer {
                 otherProvider -> !otherProvider.getName().equalsIgnoreCase(providers.getProviderName()),
                 otherProvider -> {
                     try {
-                        service.createOrUpdate(otherProvider.getCurrentCurrencyRates());
+                        service.synchronize(otherProvider.getCurrentCurrencyRates());
                     } catch (final CurrencyProviderException exception) {
                         log.warn("Cannot fetch currency rates for provider: {}", otherProvider.getName(), exception);
                         if (exception.isHttpError()) {
@@ -135,7 +135,7 @@ class ExchangeRateSynchronizer {
                 try {
                     final var allCurrent = failedProvider.getCurrentCurrencyRates();
                     if (!allCurrent.isEmpty()) {
-                        service.createOrUpdate(allCurrent);
+                        service.synchronize(allCurrent);
                         markProviderAsDone();
                     }
                 } catch (final CurrencyProviderException exception) {

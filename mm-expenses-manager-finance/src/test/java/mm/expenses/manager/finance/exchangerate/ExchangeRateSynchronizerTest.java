@@ -140,7 +140,7 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
 
         // then
         verify(currencyProviders).getProvider();
-        verify(exchangeRateService).createOrUpdate(anyCollection());
+        verify(exchangeRateService).synchronize(anyCollection());
     }
 
 }

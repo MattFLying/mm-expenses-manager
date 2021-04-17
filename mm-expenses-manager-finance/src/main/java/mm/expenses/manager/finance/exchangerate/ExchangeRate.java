@@ -15,9 +15,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Data
+@EqualsAndHashCode
 @Builder(toBuilder = true)
 @Document(collection = "exchange-rates")
-@EqualsAndHashCode
 @CompoundIndexes({
         @CompoundIndex(name = "date_idx", def = "{'date': 1}"),
         @CompoundIndex(name = "currency_idx", def = "{'currency': 1}"),

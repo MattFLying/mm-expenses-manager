@@ -3,7 +3,7 @@ package mm.expenses.manager.finance.exchangerate;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
-import mm.expenses.manager.exception.InvalidDateException;
+import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -643,7 +643,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
         @ParameterizedTest
         @ArgumentsSource(CurrencyCodeArgument.class)
-        void shouldThrowInvalidDateException_whenDatesAreIncorrect(final CurrencyCode currency) {
+        void shouldThrowExchangeRateException_whenDatesAreIncorrect(final CurrencyCode currency) {
             // given
             final var rate = 5.8d;
             final var tableNumber = "test/table/number/02";
@@ -652,8 +652,97 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
             // when && then
             assertThatThrownBy(() -> exchangeRateService.createOrUpdate(List.of(currencyRateToSave)))
-                    .isInstanceOf(InvalidDateException.class)
+                    .isInstanceOf(ExchangeRateException.class)
                     .hasMessage("Invalid data, could not find date to.");
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyCodeArgument.class)
+        void shouldThrowExchangeRateException_whenSomethingWentWrong(final CurrencyCode currency) {
+            // given
+            final var date = LocalDate.now().minusDays(5);
+            final var rate = 5.8d;
+            final var tableNumber = "test/table/number/02";
+
+            final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
+
+            when(exchangeRateRepository.findByCurrencyInAndDate(anySet(), any(Instant.class))).thenThrow(RuntimeException.class);
+
+            // when && then
+            assertThatThrownBy(() -> exchangeRateService.createOrUpdate(List.of(currencyRateToSave)))
+                    .isInstanceOf(ExchangeRateException.class)
+                    .hasMessage("Cannot save or update currency rates.");
+        }
+
+    }
+
+    @Nested
+    class Synchronize {
+
+        @Test
+        void shouldSynchronizeExchangeRate() {
+            // given
+            final var dateNow = Instant.now();
+
+            final var currency = CurrencyCode.GBP;
+            final var date = LocalDate.now().minusDays(4);
+            final var rate = 3.3d;
+            final var tableNumber = "test/table/number/05";
+
+            final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
+            final var currencyRatesSaved = currencyRateToExchangeRate(currencyRateToSave, dateNow);
+
+            // when
+            when(exchangeRateRepository.saveAll(anyCollection())).thenReturn(List.of(currencyRatesSaved));
+
+            final var resultCollection = exchangeRateService.synchronize(List.of(currencyRateToSave));
+
+            // then
+            assertThat(resultCollection).isNotNull().hasSize(1);
+            assertThat(resultCollection.stream().findAny()).isNotEmpty();
+            final var result = resultCollection.stream().findAny().get();
+            assertExchangeRate(result)
+                    .hasId(ExchangeRateHelper.ID)
+                    .isOfCurrency(currency)
+                    .isOfDate(DateUtils.localDateToInstant(date))
+                    .createdAt(dateNow)
+                    .modifiedAt(dateNow)
+                    .hasRates(currencyRatesSaved.getRatesByProvider())
+                    .hasDetails(currencyRatesSaved.getDetailsByProvider())
+                    .hasVersion(ExchangeRateHelper.INITIAL_VERSION);
+        }
+
+        @Test
+        void shouldThrowExchangeRateException_whenDatesAreIncorrect() {
+            // given
+            final var currency = CurrencyCode.AUD;
+            final var rate = 2.8d;
+            final var tableNumber = "test/table/number/07";
+
+            final var currencyRateToSave = createCurrencyRate(currency, null, rate, TABLE_TYPE, tableNumber);
+
+            // when && then
+            assertThatThrownBy(() -> exchangeRateService.synchronize(List.of(currencyRateToSave)))
+                    .isInstanceOf(ExchangeRateException.class)
+                    .hasMessage("Invalid data, could not find date to.");
+        }
+
+        @Test
+        void shouldThrowExchangeRateException_whenSomethingWentWrong() {
+            // given
+            final var currency = CurrencyCode.SEK;
+            final var date = LocalDate.now().minusDays(7);
+            final var rate = 4.3d;
+            final var tableNumber = "test/table/number/08";
+
+            final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
+
+            when(exchangeRateRepository.findByCurrencyInAndDate(anySet(), any(Instant.class))).thenThrow(RuntimeException.class);
+
+            // when && then
+            assertThatThrownBy(() -> exchangeRateService.synchronize(List.of(currencyRateToSave)))
+                    .isInstanceOf(ExchangeRateException.class)
+                    .hasMessage("Cannot save or update currency rates.");
         }
 
     }
