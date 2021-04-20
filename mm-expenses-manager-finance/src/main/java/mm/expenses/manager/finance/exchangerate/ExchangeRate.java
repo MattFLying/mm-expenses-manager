@@ -4,10 +4,12 @@ import lombok.*;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +25,10 @@ import java.util.Optional;
         @CompoundIndex(name = "currency_idx", def = "{'currency': 1}"),
         @CompoundIndex(name = "currency_date_idx", def = "{'currency' : 1, 'date': 1}", unique = true)
 })
-class ExchangeRate {
+public class ExchangeRate implements Serializable {
 
     static final String DEFAULT_SORT_BY = "date";
+    static final Order DEFAULT_SORT_ORDER = Order.desc(DEFAULT_SORT_BY);
 
     @Id
     private final String id;
@@ -95,7 +98,7 @@ class ExchangeRate {
     @EqualsAndHashCode
     @RequiredArgsConstructor
     @Builder(toBuilder = true)
-    static class Rate {
+    public static class Rate implements Serializable {
 
         private final CurrencyValue from;
         private final CurrencyValue to;
@@ -120,7 +123,7 @@ class ExchangeRate {
     @EqualsAndHashCode
     @RequiredArgsConstructor
     @Builder(toBuilder = true)
-    static class CurrencyValue {
+    public static class CurrencyValue implements Serializable {
 
         private static final Double UNKNOWN_CURRENCY_VALUE = 0.0;
         private static final Double INITIAL_CURRENCY_VALUE = 1.0;

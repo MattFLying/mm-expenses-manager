@@ -3,10 +3,12 @@ package mm.expenses.manager.finance.exchangerate;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
+import mm.expenses.manager.finance.exchangerate.latest.LatestCacheTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,9 +35,13 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
     @MockBean
     private ExchangeRateRepository repository;
 
+    @Autowired
+    private LatestCacheTest latestCacheTest;
+
     @Override
     protected void setupAfterEachTest() {
         reset(repository);
+        latestCacheTest.reset();
     }
 
     @Nested
@@ -194,7 +200,8 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var rate_2 = expected_2.getRateByProvider(PROVIDER_NAME);
 
             // when
-            when(repository.findByDate(any(Instant.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expected_1, expected_2)));
+            latestCacheTest.saveInMemory(currency_1, expected_1);
+            latestCacheTest.saveInMemory(currency_2, expected_2);
 
             // then
             mockMvc.perform(get(latestUrl()))
@@ -354,7 +361,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
 
             // when
-            when(repository.findByCurrencyAndDate(eq(currency), any(Instant.class))).thenReturn(Optional.of(expected_1));
+            latestCacheTest.saveInMemory(currency, expected_1);
 
             // then
             mockMvc.perform(get(latestForCurrencyUrl(currency)))
@@ -380,10 +387,6 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         @ParameterizedTest
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldReturnNotFound_whenLatestExchangeRateDoesNotExistsForCurrency(final CurrencyCode currency) throws Exception {
-            // given && when
-            when(repository.findByCurrencyAndDate(eq(currency), any(Instant.class))).thenReturn(Optional.empty());
-
-            // then
             mockMvc.perform(get(latestForCurrencyUrl(currency)))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isNotFound());

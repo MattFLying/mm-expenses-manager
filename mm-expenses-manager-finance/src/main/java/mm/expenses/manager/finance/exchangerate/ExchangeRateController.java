@@ -15,6 +15,7 @@ import mm.expenses.manager.exception.api.ApiNotFoundException;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
+import mm.expenses.manager.finance.exchangerate.latest.LatestRatesCache;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ import java.util.Objects;
 class ExchangeRateController {
 
     private final ExchangeRateService service;
+    private final LatestRatesCache latest;
     private final ExchangeRateMapper mapper;
 
     @Operation(
@@ -84,7 +86,7 @@ class ExchangeRateController {
     )
     @GetMapping(value = "/latest", produces = MediaType.APPLICATION_JSON_VALUE)
     ExchangeRatesPage findLatest() {
-        return new ExchangeRatesPage(mapper.groupAndSortResult(service.findLatest().stream()));
+        return new ExchangeRatesPage(mapper.groupAndSortResult(latest.getLatest().stream()));
     }
 
     @Operation(
@@ -147,7 +149,7 @@ class ExchangeRateController {
         if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
             throw new ApiBadRequestException("exchange-rates-invalid-currency", "Currency is not allowed");
         }
-        return service.findLatestForCurrency(currencyCode)
+        return latest.getLatest(currencyCode)
                 .map(mapper::map)
                 .orElseThrow(() -> new ApiNotFoundException("exchange-rates-latest-not-found", "Latest currency for: " + currencyCode.getCode() + " not found."));
     }

@@ -13,7 +13,7 @@
 
     <name>Expenses Manager Finance Service</name>
     <artifactId>mm-expenses-manager-finance</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
@@ -23,9 +23,12 @@
 
         <!-- Other dependency versions -->
         <spring-data-mongodb-version>3.0.2.RELEASE</spring-data-mongodb-version>
+        <spring-data-redis-version>2.4.5</spring-data-redis-version>
         <mongodb-driver-version>4.1.0</mongodb-driver-version>
         <javax-money-version>1.1</javax-money-version>
         <org-javamoney-moneta-version>1.4.2</org-javamoney-moneta-version>
+        <apache-commons-pool-version>2.9.0</apache-commons-pool-version>
+        <redis-client-jedis-version>3.5.2</redis-client-jedis-version>
 
         <jacoco-version>0.8.6</jacoco-version>
         <maven-surefire-version>2.22.2</maven-surefire-version>
@@ -72,6 +75,23 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
             <version>${spring-data-mongodb-version}</version>
+        </dependency>
+
+        <!-- Redis dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>${spring-data-redis-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>${apache-commons-pool-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${redis-client-jedis-version}</version>
         </dependency>
 
         <!-- Money dependencies -->

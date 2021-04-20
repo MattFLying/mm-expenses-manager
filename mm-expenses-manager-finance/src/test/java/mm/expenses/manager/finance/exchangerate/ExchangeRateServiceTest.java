@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateAssert.assertExchangeRate;
@@ -44,9 +46,11 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
     @Autowired
     private ExchangeRateService exchangeRateService;
 
+
     @Override
     protected void setupBeforeEachTest() {
         when(currencyRatesConfig.getDefaultCurrency()).thenReturn(DEFAULT_CURRENCY);
+        when(currencyRatesConfig.getAllRequiredCurrenciesCode()).thenCallRealMethod();
     }
 
     @Override
@@ -56,59 +60,38 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         reset(exchangeRateHistoryUpdate);
     }
 
-    @Nested
-    class FindLatestForCurrency {
 
-        @ParameterizedTest
-        @ArgumentsSource(CurrencyCodeArgument.class)
-        void shouldFindLatestForCurrency(final CurrencyCode currency) {
-            // given
-            final var id = UUID.randomUUID().toString();
-            final var today = DateUtils.localDateToInstant(LocalDate.now());
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
-            final var rate = ExchangeRateHelper.createNewRandomRateToPLN(currency);
-            final Map<String, Object> details = Map.of();
+    @Test
+    void shouldGetPageRequest() {
+        // given
+        final var pageNumber = 0;
+        final var pageSize = 5;
 
-            final var expected = createNewExchangeRate(id, currency, today, createdModified, Map.of(PROVIDER_NAME, rate), Map.of(PROVIDER_NAME, details));
+        // when
+        final var result = exchangeRateService.pageRequest(pageNumber, pageSize);
 
-            // when
-            when(exchangeRateRepository.findByCurrencyAndDate(currency, today)).thenReturn(Optional.of(expected));
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getPageNumber()).isEqualTo(pageNumber);
+        assertThat(result.getPageSize()).isEqualTo(pageSize);
+        assertThat(result.getSort().isSorted()).isTrue();
+        assertThat(result.getSort()).hasToString(ExchangeRate.DEFAULT_SORT_BY + ": " + ExchangeRate.DEFAULT_SORT_ORDER.getDirection());
+    }
 
-            final var result = exchangeRateService.findLatestForCurrency(currency);
+    @Test
+    void shouldRetrieveAllCurrencyCodesWithoutUndefinedAndDefaultCurrentlyUsed() {
+        // given && when
+        final var result = currencyRatesConfig.getAllRequiredCurrenciesCode();
 
-            // then
-            assertExchangeRate(result)
-                    .hasId(id)
-                    .isOfCurrency(currency)
-                    .isOfDate(today)
-                    .createdAt(createdModified)
-                    .modifiedAt(createdModified)
-                    .hasRateForProvider(PROVIDER_NAME, rate)
-                    .hasDetailsForProvider(PROVIDER_NAME, details)
-                    .hasVersion(ExchangeRateHelper.INITIAL_VERSION);
-        }
-
-        @ParameterizedTest
-        @ArgumentsSource(CurrencyCodeArgument.class)
-        void shouldReturnEmpty_whenDoesNotExists(final CurrencyCode currency) {
-            // given
-            final var today = DateUtils.localDateToInstant(LocalDate.now());
-            when(exchangeRateRepository.findByCurrencyAndDate(currency, today)).thenReturn(Optional.empty());
-
-            // when
-            final var result = exchangeRateService.findLatestForCurrency(currency);
-
-            // then
-            assertThat(result).isEmpty();
-        }
-
+        // then
+        assertThat(result).isNotNull().containsExactlyInAnyOrderElementsOf(Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.UNDEFINED) || !code.equals(DEFAULT_CURRENCY)).collect(Collectors.toSet()));
     }
 
     @Nested
-    class FindLatest {
+    class FindToday {
 
         @Test
-        void shouldFindLatest() {
+        void shouldFindTodayRates() {
             // given
             final var today = DateUtils.localDateToInstant(LocalDate.now());
             final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
@@ -130,7 +113,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when
             when(exchangeRateRepository.findByDate(eq(today), any(Pageable.class))).thenReturn(new PageImpl<>(expectedList));
 
-            final var result = exchangeRateService.findLatest();
+            final var result = exchangeRateService.findToday();
 
             // then
             assertExchangeRates(result)
@@ -185,6 +168,32 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
             // then
             assertThat(result).isEmpty();
+        }
+
+    }
+
+    @Nested
+    class FindByDate {
+
+        @Test
+        void shouldFindByDate() {
+            // given
+            final var id = UUID.randomUUID().toString();
+            final var date = DateUtils.localDateToInstant(LocalDate.of(2011, 5, 20));
+            final var currency = CurrencyCode.SEK;
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusMonths(6));
+            final var rate = ExchangeRateHelper.createNewRandomRateToPLN(currency);
+            final Map<String, Object> details = Map.of();
+
+            final var expected = createNewExchangeRate(id, currency, date, createdModified, Map.of(PROVIDER_NAME, rate), Map.of(PROVIDER_NAME, details));
+
+            // when
+            when(exchangeRateRepository.findByDate(eq(date), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expected)));
+
+            final var result = exchangeRateService.findByDate(PageHelper.getPageRequest(0, 1), DateUtils.instantToLocalDateUTC(date));
+
+            // then
+            assertExchangeRates(result).forCurrencyHasExactlyTheSameAs(currency, List.of(expected));
         }
 
     }

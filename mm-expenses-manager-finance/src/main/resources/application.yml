@@ -8,6 +8,7 @@ app:
     database:
       name: expenses-manager-finance
     scheduled-thread-pool-size: 100
+    cache: map # 'map' or 'redis'
   currency:
     default: app.currency.provider.nbp # path to default provider property
     default-provider: ${${app.currency.default}.name}
@@ -30,6 +31,11 @@ server:
   port: ${app.configuration.port}
 
 spring:
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
   data:
     mongodb:
       uri: mongodb://localhost:27017/${app.configuration.database.name}

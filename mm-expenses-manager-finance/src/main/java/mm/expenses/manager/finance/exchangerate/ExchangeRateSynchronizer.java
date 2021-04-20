@@ -131,7 +131,7 @@ class ExchangeRateSynchronizer {
         public void run() {
             final var failedProviderName = failedProvider.getName();
             log.info("Retrying fetch current currencies for provider: {}", failedProviderName);
-            if (service.findLatest().isEmpty()) {
+            if (service.findToday().isEmpty()) {
                 try {
                     final var allCurrent = failedProvider.getCurrentCurrencyRates();
                     if (!allCurrent.isEmpty()) {

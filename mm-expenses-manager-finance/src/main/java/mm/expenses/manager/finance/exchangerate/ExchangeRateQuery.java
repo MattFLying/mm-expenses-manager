@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static mm.expenses.manager.finance.exchangerate.ExchangeRate.DEFAULT_SORT_BY;
+import static mm.expenses.manager.finance.exchangerate.ExchangeRate.DEFAULT_SORT_ORDER;
 
 @Component
 @RequiredArgsConstructor
@@ -46,13 +46,14 @@ class ExchangeRateQuery {
         }
     }
 
-    Page<ExchangeRate> findAllLatest(final Pageable pageable) {
+    Page<ExchangeRate> findAllTodayRates(final Pageable pageable) {
         final var page = pageRequest(pageable);
         return repository.findByDate(mapper.fromLocalDateToInstant(LocalDate.now()), page);
     }
 
-    Optional<ExchangeRate> findLatestForCurrency(final CurrencyCode currency) {
-        return findByCurrencyAndDate(currency, LocalDate.now());
+    Page<ExchangeRate> findByDate(final Pageable pageable, final Instant date) {
+        final var page = pageRequest(pageable);
+        return repository.findByDate(date, page);
     }
 
     Optional<ExchangeRate> findByCurrencyAndDate(final CurrencyCode currency, final LocalDate date) {
@@ -60,10 +61,10 @@ class ExchangeRateQuery {
     }
 
     PageRequest pageRequest(final Integer pageNumber, final Integer pageSize) {
-        return PageHelper.getPageRequest(pageNumber, pageSize, Sort.by(DEFAULT_SORT_BY).descending());
+        return PageHelper.getPageRequest(pageNumber, pageSize, Sort.by(DEFAULT_SORT_ORDER));
     }
 
-    private PageRequest pageRequest(final Pageable pageable) {
+    PageRequest pageRequest(final Pageable pageable) {
         return pageRequest(pageable.getPageNumber(), pageable.getPageSize());
     }
 
