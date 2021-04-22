@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.common.util.MergeUtils;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
@@ -37,10 +38,7 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
                         try {
                             return provider.getCurrencyRatesForDateRange(dateRange.getFrom(), dateRange.getTo());
                         } catch (final CurrencyProviderException exception) {
-                            log.error("Cannot fetch historical currency rates for dates between: {} - {} because of: {}",
-                                    dateRange.getFrom(), dateRange.getTo(), exception.getClientMessage().orElse(exception.getMessage()),
-                                    exception
-                            );
+                            log.warn("Cannot fetch historical currency rates for dates between: {} - {}.", dateRange.getFrom(), dateRange.getTo(), exception);
                             return null;
                         }
                     })
@@ -81,8 +79,7 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
 
             return fetchedRates.stream().collect(Collectors.toCollection(() -> new TreeSet<>(currencyRateComparator())));
         } catch (final Exception exception) {
-            log.error("Cannot fetch historical currencies.", exception);
-            throw new HistoricalCurrencyException("Something went wrong during fetching historical currencies.", exception);
+            throw new HistoricalCurrencyException(FinanceExceptionMessage.SAVE_HISTORIC_EXCHANGE_RATES_UNKNOWN_ERROR, exception);
         }
     }
 

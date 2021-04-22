@@ -36,10 +36,10 @@ enum TableType {
             if (TableType.A.getCurrencies().contains(currencyCode)) {
                 return TableType.A;
             }
-            log.error("Cannot find table type for currency: {}", currencyCode);
+            log.warn("Cannot find table type for currency: {}", currencyCode);
             return TableType.UNKNOWN;
         } catch (final Exception exception) {
-            log.error("Cannot find table type for currency: {}", currencyCode, exception);
+            log.warn("Cannot find table type for currency: {}", currencyCode, exception);
             return UNKNOWN;
         }
     }

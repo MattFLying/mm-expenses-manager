@@ -53,14 +53,14 @@ public class ExchangeRateHelper {
 
     public static ExchangeRate currencyRateToExchangeRate(final CurrencyRate domain, final Instant now) {
         return createNewExchangeRate(
-                ID, domain.getCurrency(), Objects.nonNull(domain.getDate()) ? DateUtils.localDateToInstant(domain.getDate()) : null, now,
+                ID, domain.getCurrency(), Objects.nonNull(domain.getDate()) ? DateUtils.localDateToInstantUTC(domain.getDate()) : null, now,
                 new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(domain.getCurrency(), DEFAULT_CURRENCY, domain.getRate()))),
                 new HashMap<>(Map.of(PROVIDER_NAME, domain.getDetails()))
         );
     }
 
     public static ExchangeRate createNewExchangeRate(final CurrencyCode currency, final Instant date) {
-        final var createdModified = DateUtils.localDateToInstant(LocalDate.now());
+        final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now());
         return createNewExchangeRate(ID, currency, date, createdModified,
                 new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(currency, DEFAULT_CURRENCY, getRandomCurrencyValue()))),
                 Map.of()
@@ -68,7 +68,7 @@ public class ExchangeRateHelper {
     }
 
     public static ExchangeRate createNewExchangeRate(final CurrencyCode currency, final LocalDate date) {
-        return createNewExchangeRate(currency, DateUtils.localDateToInstant(date));
+        return createNewExchangeRate(currency, DateUtils.localDateToInstantUTC(date));
     }
 
     private static double getRandomCurrencyValue() {

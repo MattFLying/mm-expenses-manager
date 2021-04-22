@@ -70,8 +70,8 @@ class LatestCacheRedisTest extends FinanceApplicationTest {
         @Test
         void shouldSaveInMemory() {
             // given
-            final var today = DateUtils.localDateToInstant(LocalDate.now());
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstantUTC(LocalDate.now());
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.AUD;
@@ -119,8 +119,8 @@ class LatestCacheRedisTest extends FinanceApplicationTest {
         @Test
         void shouldGetAllLatest() {
             // given
-            final var today = DateUtils.localDateToInstant(LocalDate.now());
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstantUTC(LocalDate.now());
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.AUD;
@@ -156,8 +156,8 @@ class LatestCacheRedisTest extends FinanceApplicationTest {
         void shouldGetLatestForCurrency(final CurrencyCode currency) {
             // given
             final var id = UUID.randomUUID().toString();
-            final var today = DateUtils.localDateToInstant(LocalDate.now());
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstantUTC(LocalDate.now());
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
             final var rate = ExchangeRateHelper.createNewRandomRateToPLN(currency);
             final Map<String, Object> details = Map.of();
 

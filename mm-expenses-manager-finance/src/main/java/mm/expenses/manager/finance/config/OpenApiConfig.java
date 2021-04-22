@@ -10,14 +10,14 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 class OpenApiConfig {
 
-    private final AppConfig appConfig;
+    private final AppConfigProperty appConfigProperty;
 
     @Bean
     OpenAPI openApi() {
         return new OpenAPI().info(
                 new Info()
-                        .title(appConfig.getName())
-                        .version(appConfig.getVersion())
+                        .title(appConfigProperty.getName())
+                        .version(appConfigProperty.getVersion())
         );
     }
 

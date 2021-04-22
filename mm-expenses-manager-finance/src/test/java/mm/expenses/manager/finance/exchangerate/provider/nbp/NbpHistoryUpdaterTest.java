@@ -4,6 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
 import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
 import org.junit.jupiter.api.Test;
@@ -87,7 +88,7 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
     @Test
     void shouldRetrieveEmptyList_whenCurrencyProviderExceptionHasThrown() throws HistoricalCurrencyException, CurrencyProviderException {
         // given && when
-        when(nbpCurrencyProvider.getCurrencyRatesForDateRange(any(LocalDate.class), any(LocalDate.class))).thenThrow(CurrencyProviderException.class);
+        when(nbpCurrencyProvider.getCurrencyRatesForDateRange(any(LocalDate.class), any(LocalDate.class))).thenThrow(new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE_RANGE.withParameters("", "")));
 
         final var result = nbpHistoryUpdater.fetchHistoricalCurrencies();
 
@@ -103,7 +104,7 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         // then
         assertThatThrownBy(() -> nbpHistoryUpdater.fetchHistoricalCurrencies())
                 .isInstanceOf(HistoricalCurrencyException.class)
-                .hasMessage("Something went wrong during fetching historical currencies.");
+                .hasMessage(FinanceExceptionMessage.SAVE_HISTORIC_EXCHANGE_RATES_UNKNOWN_ERROR.getMessage());
     }
 
 }

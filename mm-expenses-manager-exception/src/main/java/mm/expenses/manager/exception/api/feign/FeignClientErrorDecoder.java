@@ -1,4 +1,4 @@
-package mm.expenses.manager;
+package mm.expenses.manager.exception.api.feign;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,7 +7,7 @@ import feign.codec.ErrorDecoder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.exception.api.ApiFeignClientException;
+import mm.expenses.manager.exception.ExceptionMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 

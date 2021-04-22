@@ -7,11 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.ExceptionMessage;
+import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesTrailsPage;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailService;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation.State;
@@ -71,7 +72,7 @@ class ManagementController {
                                           @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
                                           @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
-            throw new ApiBadRequestException("exchange-rates-trails-invalid-page-parameters", "Both page number and page size must be filled");
+            throw new ApiBadRequestException(FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
         final var pageable = PageHelper.getPageable(pageNumber, pageSize);
         return new ExchangeRatesTrailsPage(exchangeRateTrailService.findTrails(date, operation, state, pageable));

@@ -3,6 +3,7 @@ package mm.expenses.manager;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import mm.expenses.manager.exception.api.feign.FeignClientErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,8 +14,8 @@ public class ErrorHandlingConfig {
     private final ObjectMapper objectMapper;
 
     @Bean
-    ApiExceptionHandler apiExceptionHandler() {
-        return new ApiExceptionHandler();
+    AppExceptionHandler apiExceptionHandler() {
+        return new AppExceptionHandler();
     }
 
     @Bean

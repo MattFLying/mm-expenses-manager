@@ -11,7 +11,8 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
+    <name>Expenses Manager Common Service</name>
     <artifactId>mm-expenses-manager-common</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
 </project>

@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Generated;
 import lombok.NoArgsConstructor;
-import mm.expenses.manager.exception.api.ApiFeignClientException;
-import mm.expenses.manager.finance.exchangerate.exception.ProviderException;
+import mm.expenses.manager.exception.api.feign.ApiFeignClientException;
+import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,10 +96,10 @@ interface NbpClient {
         private Collection<RateDto> rates;
     }
 
-    default String getAvailableTableType() throws ProviderException {
+    default String getAvailableTableType() throws CurrencyProviderException {
         final var unsupportedTypes = Stream.of(TableType.values()).filter(type -> !type.equals(TableType.A) && !type.equals(TableType.UNKNOWN)).collect(Collectors.toSet());
         if (!unsupportedTypes.isEmpty()) {
-            throw new ProviderException("There is more table types for NBP provider that are not handled.");
+            throw new CurrencyProviderException(FinanceExceptionMessage.NBP_CURRENCY_PROVIDER_UNKNOWN_TABLE);
         }
         return TableType.A.name();
     }

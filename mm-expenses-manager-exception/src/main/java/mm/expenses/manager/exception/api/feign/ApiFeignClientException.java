@@ -1,9 +1,9 @@
-package mm.expenses.manager.exception.api;
+package mm.expenses.manager.exception.api.feign;
 
 import com.netflix.hystrix.exception.ExceptionNotWrappedByHystrix;
 import lombok.Builder;
 import lombok.Data;
-import mm.expenses.manager.ExceptionMessage;
+import mm.expenses.manager.exception.ExceptionMessage;
 import org.springframework.http.HttpStatus;
 
 import java.util.Collection;

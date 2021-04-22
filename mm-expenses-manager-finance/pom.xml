@@ -17,9 +17,9 @@
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.1.0-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-validator-version>0.1.0-SNAPSHOT</mm-expenses-manager-validator-version>
-        <mm-expenses-manager-exception-version>0.1.0-SNAPSHOT</mm-expenses-manager-exception-version>
+        <mm-expenses-manager-common-version>0.2.0-SNAPSHOT</mm-expenses-manager-common-version>
+        <mm-expenses-manager-validator-version>0.2.0-SNAPSHOT</mm-expenses-manager-validator-version>
+        <mm-expenses-manager-exception-version>0.2.0-SNAPSHOT</mm-expenses-manager-exception-version>
 
         <!-- Other dependency versions -->
         <spring-data-mongodb-version>3.0.2.RELEASE</spring-data-mongodb-version>

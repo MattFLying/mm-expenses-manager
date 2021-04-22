@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.management;
 
 import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailService;
@@ -12,12 +13,13 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
+import static mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED;
 import static mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailHelper.createNewExchangeRateTrail;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -342,14 +344,24 @@ class ManagementControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenPageSizeIsMissed() throws Exception {
             mockMvc.perform(get(trails() + "?pageNumber=" + 0))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getCode())))
+                    .andExpect(jsonPath("$.message", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @Test
         void shouldReturnBadRequest_whenPageNumberIsMissed() throws Exception {
             mockMvc.perform(get(trails() + "?pageSize=" + 1))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getCode())))
+                    .andExpect(jsonPath("$.message", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
     }

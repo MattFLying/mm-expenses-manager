@@ -34,13 +34,15 @@ class ProductRequestFilter {
         }
         if (isOnlyPriceLess()) {
             if (isPriceNotRestrictedToBeLessOrGreater()) {
-                throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_PRICE_LESS_AND_GREATER.getCode(), "Price must be less or greater");
+                //throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_PRICE_LESS_AND_GREATER.getCode(), "Price must be less or greater");
+                throw new ApiBadRequestException(null);
             }
             return ProductFilter.BY_PRICE_LESS_THAN;
         }
         if (isOnlyPriceGreater()) {
             if (isPriceNotRestrictedToBeLessOrGreater()) {
-                throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_PRICE_LESS_AND_GREATER.getCode(), "Price must be less or greater");
+                //throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_PRICE_LESS_AND_GREATER.getCode(), "Price must be less or greater");
+                throw new ApiBadRequestException(null);
             }
             return ProductFilter.BY_PRICE_GREATER_THAN;
         }

@@ -1,31 +1,26 @@
 package mm.expenses.manager.exception.api;
 
+import mm.expenses.manager.exception.EmUncheckedException;
+import mm.expenses.manager.exception.ExceptionType;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 
-public abstract class ApiException extends RuntimeException {
+public abstract class ApiException extends EmUncheckedException {
 
-    private final String code;
     private final Instant occurred;
 
-    public ApiException(final String code, final String message) {
-        super(message);
-        this.code = code;
+    protected ApiException(final ExceptionType exceptionType) {
+        super(exceptionType);
         this.occurred = timeNow();
     }
 
-    public ApiException(final String code, final String message, final Throwable cause) {
-        super(message, cause);
-        this.code = code;
+    protected ApiException(final ExceptionType exceptionType, final Throwable cause) {
+        super(exceptionType, cause);
         this.occurred = timeNow();
     }
 
     public abstract HttpStatus httpStatus();
-
-    public String code() {
-        return code;
-    }
 
     /**
      * UTC

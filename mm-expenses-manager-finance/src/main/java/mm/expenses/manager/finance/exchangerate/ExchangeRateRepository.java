@@ -18,8 +18,6 @@ interface ExchangeRateRepository extends MongoRepository<ExchangeRate, String> {
 
     Page<ExchangeRate> findByDate(final Instant date, final Pageable pageable);
 
-    Page<ExchangeRate> findByDateBetween(final Instant from, final Instant to, final Pageable pageable);
-
     Page<ExchangeRate> findByCurrency(final CurrencyCode currency, final Pageable pageable);
 
     Page<ExchangeRate> findByCurrencyAndDateBetween(final CurrencyCode currency, final Instant from, final Instant to, final Pageable pageable);

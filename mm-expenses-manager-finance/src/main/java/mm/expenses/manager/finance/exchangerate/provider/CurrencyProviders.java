@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.exchangerate.provider;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.api.ApiInternalErrorException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -96,7 +97,7 @@ public class CurrencyProviders {
     }
 
     private ApiInternalErrorException apiInternalErrorExceptionForNoProvider() {
-        return new ApiInternalErrorException("exchange-rate-provider", "Cannot find proper exchange rate provider.");
+        return new ApiInternalErrorException(FinanceExceptionMessage.CURRENCY_PROVIDER_NOT_FOUND);
     }
 
     /**

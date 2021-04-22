@@ -75,8 +75,8 @@ public class ExchangeRateTrailService {
     }
 
     private FindType findType(final TrailOperation operation, final State state, final LocalDate date) {
+        final var joiner = new StringJoiner("_");
         try {
-            final var joiner = new StringJoiner("_");
             if (Objects.nonNull(operation)) {
                 joiner.add("operation");
             }
@@ -88,6 +88,7 @@ public class ExchangeRateTrailService {
             }
             return FindType.valueOf(joiner.toString().toUpperCase());
         } catch (final IllegalArgumentException exception) {
+            log.debug("Invalid operation has been created: {}", joiner, exception);
             return FindType.ALL;
         }
     }

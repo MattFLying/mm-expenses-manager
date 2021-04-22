@@ -59,7 +59,8 @@ class ProductController {
                 result = service.findAll(pageable);
                 break;
             default:
-                throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_FILTERS_INCORRECT.getCode(), "Incorrect filters");
+                //throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_FILTERS_INCORRECT.getCode(), "Incorrect filters");
+                throw new ApiBadRequestException(null);
         }
         return new PageImpl<>(result.stream().map(mapper::mapToDto).collect(Collectors.toList()), pageable, result.getTotalElements());
     }
@@ -69,7 +70,8 @@ class ProductController {
         return service.findById(id)
                 .map(mapper::mapToDto)
                 .map(product -> ResponseEntity.ok().body(product))
-                .orElseThrow(() -> new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), "Product of id: " + id + " does not exists."));
+                .orElseThrow();
+                //.orElseThrow(() -> new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), "Product of id: " + id + " does not exists."));
     }
 
     @PostMapping
@@ -78,9 +80,11 @@ class ProductController {
             return service.create(newProduct)
                     .map(mapper::mapToDto)
                     .map(created -> ResponseEntity.status(HttpStatus.CREATED).body(created))
-                    .orElseThrow(() -> new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), "Product could not be created."));
+                    .orElseThrow();
+                    //.orElseThrow(() -> new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), "Product could not be created."));
         } catch (final ProductCreationException exception) {
-            throw new ApiBadRequestException(ProductExceptionCode.NEW_PRODUCT_VALIDATION.getCode(), exception.getMessage());
+            //throw new ApiBadRequestException(ProductExceptionCode.NEW_PRODUCT_VALIDATION.getCode(), exception.getMessage());
+            throw new ApiBadRequestException(null);
         }
     }
 
@@ -90,11 +94,13 @@ class ProductController {
             return service.update(id, product)
                     .map(mapper::mapToDto)
                     .map(updated -> ResponseEntity.status(HttpStatus.CREATED).body(updated))
-                    .orElseThrow(() -> new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), "Product could not be updated."));
+                    .orElseThrow();
+                    //.orElseThrow(() -> new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), "Product could not be updated."));
         } catch (final ProductNotFoundException exception) {
             throw notFoundException(exception);
         } catch (final ProductUpdateException exception) {
-            throw new ApiBadRequestException(ProductExceptionCode.UPDATE_PRODUCT_VALIDATION.getCode(), exception.getMessage());
+            //throw new ApiBadRequestException(ProductExceptionCode.UPDATE_PRODUCT_VALIDATION.getCode(), exception.getMessage());
+            throw new ApiBadRequestException(null);
         }
     }
 
@@ -119,7 +125,8 @@ class ProductController {
     }
 
     private ApiNotFoundException notFoundException(final ProductNotFoundException exception) {
-        return new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), exception.getMessage());
+        //return new ApiNotFoundException(ProductExceptionCode.NOT_FOUND.getCode(), exception.getMessage());
+        return new ApiNotFoundException(null);
     }
 
 }

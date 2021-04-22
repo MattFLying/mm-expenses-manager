@@ -45,7 +45,7 @@ class ExchangeRateTest extends BaseInitTest {
     void shouldCreateNewRatesMapWhenAddNewRateAndMapIsNull() {
         // given
         final var currency = CurrencyCode.CAD;
-        final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+        final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
@@ -65,7 +65,7 @@ class ExchangeRateTest extends BaseInitTest {
         // given
         final var providerName = "test-provider";
         final var currency = CurrencyCode.GBP;
-        final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+        final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
@@ -85,7 +85,7 @@ class ExchangeRateTest extends BaseInitTest {
     void shouldReturnEmptyRateIfDoesNotExistsForProviderAndIsNotRequiredToReturnAnyInThisCase() {
         // given
         final var currency = CurrencyCode.CAD;
-        final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+        final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
@@ -101,7 +101,7 @@ class ExchangeRateTest extends BaseInitTest {
     void shouldCreateNewDetailsMapWhenAddNewDetailsAndMapIsNull() {
         // given
         final var currency = CurrencyCode.CHF;
-        final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
+        final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
@@ -117,7 +117,7 @@ class ExchangeRateTest extends BaseInitTest {
     void shouldCreateEmptyMapsForDetailsAndRatesWhenAreNullDuringCheckingProvider() {
         // given
         final var currency = CurrencyCode.CHF;
-        final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
+        final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
@@ -135,7 +135,7 @@ class ExchangeRateTest extends BaseInitTest {
     void shouldReturnThereIsNoProviderIfThereIsOnlyRatesForThisProvider() {
         // given
         final var currency = CurrencyCode.CHF;
-        final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
+        final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);
@@ -154,7 +154,7 @@ class ExchangeRateTest extends BaseInitTest {
     void shouldReturnThereIsNoProviderIfThereIsOnlyDetailsForThisProvider() {
         // given
         final var currency = CurrencyCode.CHF;
-        final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(2));
+        final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(2));
         final var createdModifiedAt = Instant.now();
 
         final var exchangeRate = new ExchangeRate(ID, currency, date, createdModifiedAt, createdModifiedAt, null, null, INITIAL_VERSION);

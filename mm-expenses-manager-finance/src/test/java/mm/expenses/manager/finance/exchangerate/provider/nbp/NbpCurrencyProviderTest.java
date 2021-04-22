@@ -2,10 +2,10 @@ package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.SneakyThrows;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.exception.api.ApiFeignClientException;
+import mm.expenses.manager.exception.api.feign.ApiFeignClientException;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
-import mm.expenses.manager.finance.exchangerate.exception.ProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.String.format;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.*;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyRateAssert.assertNbpCurrencyRate;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyRatesAssert.assertNbpCurrencyRates;
@@ -106,14 +105,14 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRate(currency))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Cannot fetch current currency rate for currency: %s. Client provider error.", currency));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY.withParameters(currency).getMessage());
         }
 
         @Test
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() {
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRate(null))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Something went wrong during fetch current currency rate for currency: %s.", null));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY.withParameters("null").getMessage());
         }
 
     }
@@ -151,14 +150,14 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDate(currency, date))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Cannot fetch currency rate for currency: %s and date: %s. Client provider error.", currency, date));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY_AND_DATE.withParameters(currency, date).getMessage());
         }
 
         @Test
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() {
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDate(null, null))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Something went wrong during fetch currency rate for currency: %s and date: %s.", null, null));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY_AND_DATE.withParameters(null, null, null).getMessage());
         }
 
     }
@@ -211,14 +210,14 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDateRange(currency, dateFrom, dateTo))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Cannot fetch currency rate for currency: %s and date between: %s - %s. Client provider error.", currency, dateFrom, dateTo));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY_AND_DATE_RANGE.withParameters(currency, dateFrom, dateTo).getMessage());
         }
 
         @Test
         void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() {
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRateForDateRange(null, null, null))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Something went wrong during fetch currency rate for currency: %s and date between: %s - %s.", null, null, null));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY_AND_DATE_RANGE.withParameters(null, null, null).getMessage());
         }
 
     }
@@ -261,18 +260,18 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRates())
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage("Cannot fetch current currency rates. Client provider error.");
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES.getMessage());
         }
 
         @Test
-        void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws ProviderException {
+        void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws CurrencyProviderException {
             // given && when
-            when(nbpClient.getAvailableTableType()).thenThrow(ProviderException.class);
+            when(nbpClient.getAvailableTableType()).thenThrow(new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES));
 
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrentCurrencyRates())
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage("Something went wrong during fetch current currency rates.");
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES.getMessage());
         }
 
     }
@@ -319,19 +318,19 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDate(date))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Cannot fetch currency rates for date: %s. Client provider error.", date));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES_AND_DATE.withParameters(date).getMessage());
         }
 
         @Test
-        void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws ProviderException {
+        void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws CurrencyProviderException {
             // given && when
             final var date = LocalDate.now().minusDays(1);
-            when(nbpClient.getAvailableTableType()).thenThrow(ProviderException.class);
+            when(nbpClient.getAvailableTableType()).thenThrow(new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE));
 
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDate(date))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Something went wrong during fetch currency rates for date: %s.", date));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE.withParameters(date).getMessage());
         }
 
     }
@@ -385,20 +384,20 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDateRange(dateFrom, dateTo))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Cannot fetch currency rates for date range between: %s - %s. Client provider error.", dateFrom, dateTo));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES_AND_DATE_RANGE.withParameters(dateFrom, dateTo).getMessage());
         }
 
         @Test
-        void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws ProviderException {
+        void shouldThrowCurrencyProviderException_whenOtherExceptionIsThrown() throws CurrencyProviderException {
             // given && when
             final var dateTo = LocalDate.now();
             final var dateFrom = LocalDate.now().minusDays(1);
-            when(nbpClient.getAvailableTableType()).thenThrow(ProviderException.class);
+            when(nbpClient.getAvailableTableType()).thenThrow(new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE_RANGE));
 
             // then
             assertThatThrownBy(() -> nbpCurrencyProvider.getCurrencyRatesForDateRange(dateFrom, dateTo))
                     .isInstanceOf(CurrencyProviderException.class)
-                    .hasMessage(format("Something went wrong during fetch currency rates for date range between: %s - %s.", dateFrom, dateTo));
+                    .hasMessage(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE_RANGE.withParameters(dateFrom, dateTo).getMessage());
         }
 
     }

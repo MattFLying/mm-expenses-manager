@@ -43,7 +43,8 @@ class OrderController {
         return service.findById(id)
                 .map(mapper::mapToDto)
                 .map(product -> ResponseEntity.ok().body(product))
-                .orElseThrow(() -> new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), "Order of id: " + id + " does not exists."));
+                .orElseThrow();
+                //.orElseThrow(() -> new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), "Order of id: " + id + " does not exists."));
     }
 
     @PostMapping
@@ -52,9 +53,11 @@ class OrderController {
             return service.create(newProduct)
                     .map(mapper::mapToDto)
                     .map(created -> ResponseEntity.status(HttpStatus.CREATED).body(created))
-                    .orElseThrow(() -> new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), "Something went wrong with creating the new order"));
+                    .orElseThrow();
+                    //.orElseThrow(() -> new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), "Something went wrong with creating the new order"));
         } catch (final OrderCreationException exception) {
-            throw new ApiBadRequestException(OrderExceptionCode.NEW_ORDER_VALIDATION.getCode(), exception.getMessage());
+            //throw new ApiBadRequestException(OrderExceptionCode.NEW_ORDER_VALIDATION.getCode(), exception.getMessage());
+            throw new ApiBadRequestException(null);
         }
     }
 
@@ -64,11 +67,13 @@ class OrderController {
             return service.update(id, product)
                     .map(mapper::mapToDto)
                     .map(updated -> ResponseEntity.status(HttpStatus.CREATED).body(updated))
-                    .orElseThrow(() -> new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), "Something went wrong with updating the order"));
+                    .orElseThrow();
+                    //.orElseThrow(() -> new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), "Something went wrong with updating the order"));
         } catch (final OrderNotFoundException exception) {
             throw notFoundException(exception);
         } catch (final OrderUpdateException exception) {
-            throw new ApiBadRequestException(OrderExceptionCode.UPDATE_ORDER_VALIDATION.getCode(), exception.getMessage());
+            //throw new ApiBadRequestException(OrderExceptionCode.UPDATE_ORDER_VALIDATION.getCode(), exception.getMessage());
+            throw new ApiBadRequestException(null);
         }
     }
 
@@ -93,7 +98,8 @@ class OrderController {
     }
 
     private ApiNotFoundException notFoundException(final OrderNotFoundException exception) {
-        return new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), exception.getMessage());
+        //return new ApiNotFoundException(OrderExceptionCode.NOT_FOUND.getCode(), exception.getMessage());
+        return new ApiNotFoundException(null);
     }
 
 }

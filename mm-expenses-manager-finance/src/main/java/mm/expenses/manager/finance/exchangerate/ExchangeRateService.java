@@ -35,7 +35,7 @@ public class ExchangeRateService {
     }
 
     public Page<ExchangeRate> findByDate(final Pageable pageable, final LocalDate date) {
-        return query.findByDate(pageable, DateUtils.localDateToInstant(date));
+        return query.findByDate(pageable, DateUtils.localDateToInstantUTC(date));
     }
 
     public Stream<Page<ExchangeRate>> findAll(final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {

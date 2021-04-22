@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.exchangerate;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.latest.LatestCacheTest;
 import org.junit.jupiter.api.Nested;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
+import static mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage.*;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -55,7 +58,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 1;
 
             final var date = LocalDate.now().minusDays(5);
-            final var dateAsInstant = DateUtils.localDateToInstant(date);
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -101,7 +104,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedTotalContentSize = 2;
 
             final var date = LocalDate.now().minusDays(5);
-            final var dateAsInstant = DateUtils.localDateToInstant(date);
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -143,14 +146,24 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenPageSizeIsMissed() throws Exception {
             mockMvc.perform(get(BASE_URL + "?pageNumber=" + 0))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getCode())))
+                    .andExpect(jsonPath("$.message", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @Test
         void shouldReturnBadRequest_whenPageNumberIsMissed() throws Exception {
             mockMvc.perform(get(BASE_URL + "?pageSize=" + 0))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getCode())))
+                    .andExpect(jsonPath("$.message", is(PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @Test
@@ -158,7 +171,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var date = LocalDate.now();
             mockMvc.perform(get(BASE_URL + "?date=" + date + "&from=" + date + "&to=" + date))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @Test
@@ -166,7 +184,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var date = LocalDate.now();
             mockMvc.perform(get(BASE_URL + "?date=" + date + "&from=" + date))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @Test
@@ -174,7 +197,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var date = LocalDate.now();
             mockMvc.perform(get(BASE_URL + "?date=" + date + "&to=" + date))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
     }
@@ -189,7 +217,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 2;
 
             final var date = LocalDate.now().minusDays(5);
-            final var dateAsInstant = DateUtils.localDateToInstant(date);
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
 
             final var currency_1 = CurrencyCode.CHF;
             final var expected_1 = createNewExchangeRate(currency_1, dateAsInstant);
@@ -239,7 +267,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 1;
 
             final var date = LocalDate.now().minusDays(3);
-            final var dateAsInstant = DateUtils.localDateToInstant(date);
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -285,7 +313,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 1;
 
             final var date = LocalDate.now().minusDays(3);
-            final var dateAsInstant = DateUtils.localDateToInstant(date);
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
             final var dateFrom = date.minusDays(2);
             final var dateTo = date.plusDays(1);
 
@@ -331,7 +359,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var date = LocalDate.now().minusDays(3);
             mockMvc.perform(get(forCurrencyUrl(currency) + "?from=" + date))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_FILTER_BY_DATE_RANGE.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_FILTER_BY_DATE_RANGE.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @ParameterizedTest
@@ -340,7 +373,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var date = LocalDate.now().minusDays(3);
             mockMvc.perform(get(forCurrencyUrl(currency) + "?to=" + date))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_FILTER_BY_DATE_RANGE.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_FILTER_BY_DATE_RANGE.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
     }
@@ -355,7 +393,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedContentSize = 1;
 
             final var date = LocalDate.now();
-            final var dateAsInstant = DateUtils.localDateToInstant(date);
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -381,7 +419,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnBadRequest_whenUnknownCurrencyWasPassed() throws Exception {
             mockMvc.perform(get(latestForCurrencyUrl(CurrencyCode.UNDEFINED)))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_NOT_ALLOWED.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @ParameterizedTest
@@ -389,7 +432,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
         void shouldReturnNotFound_whenLatestExchangeRateDoesNotExistsForCurrency(final CurrencyCode currency) throws Exception {
             mockMvc.perform(get(latestForCurrencyUrl(currency)))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isNotFound());
+                    .andExpect(status().isNotFound())
+
+                    .andExpect(jsonPath("$.code", is(LATEST_CURRENCY_FOR_CODE_NOT_FOUND.getCode())))
+                    .andExpect(jsonPath("$.message", is(LATEST_CURRENCY_FOR_CODE_NOT_FOUND.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.NOT_FOUND))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
     }
@@ -404,7 +452,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedContentSize = 1;
 
             final var date = LocalDate.now().minusDays(8);
-            final var dateAsInstant = DateUtils.localDateToInstant(date);
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -431,7 +479,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var date = LocalDate.now().minusDays(3);
             mockMvc.perform(get(forCurrencyAndDateUrl(CurrencyCode.UNDEFINED, date)))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_NOT_ALLOWED.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
         @ParameterizedTest
@@ -444,7 +497,12 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             // then
             mockMvc.perform(get(forCurrencyAndDateUrl(currency, date)))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(status().isNotFound());
+                    .andExpect(status().isNotFound())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_FOR_CODE_AND_DATE_NOT_FOUND.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_FOR_CODE_AND_DATE_NOT_FOUND.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.NOT_FOUND))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
     }

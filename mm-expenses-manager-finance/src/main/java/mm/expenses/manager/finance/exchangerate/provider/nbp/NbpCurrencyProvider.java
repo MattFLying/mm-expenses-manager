@@ -2,8 +2,9 @@ package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.exception.api.ApiFeignClientException;
+import mm.expenses.manager.exception.api.feign.ApiFeignClientException;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
 import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
@@ -13,8 +14,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 @Component("${app.currency.provider.nbp.name}")
 @RequiredArgsConstructor
@@ -44,9 +43,9 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                             .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
                     );
         } catch (final ApiFeignClientException exception) {
-            throw new CurrencyProviderException(format("Cannot fetch current currency rate for currency: %s. Client provider error.", currency), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY.withParameters(currency), exception);
         } catch (final Exception exception) {
-            throw new CurrencyProviderException(format("Something went wrong during fetch current currency rate for currency: %s.", currency), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY.withParameters(currency), exception);
         }
     }
 
@@ -61,9 +60,9 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                             .map(rateDto -> NbpCurrencyRate.of(currency, table, rateDto))
                     );
         } catch (final ApiFeignClientException exception) {
-            throw new CurrencyProviderException(format("Cannot fetch currency rate for currency: %s and date: %s. Client provider error.", currency, date), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY_AND_DATE.withParameters(currency, date), exception);
         } catch (final Exception exception) {
-            throw new CurrencyProviderException(format("Something went wrong during fetch currency rate for currency: %s and date: %s.", currency, date), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY_AND_DATE.withParameters(currency, date), exception);
         }
     }
 
@@ -78,9 +77,9 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                             .collect(Collectors.toList())
                     ).orElse(Collections.emptyList());
         } catch (final ApiFeignClientException exception) {
-            throw new CurrencyProviderException(format("Cannot fetch currency rate for currency: %s and date between: %s - %s. Client provider error.", currency, from, to), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY_AND_DATE_RANGE.withParameters(currency, from, to), exception);
         } catch (final Exception exception) {
-            throw new CurrencyProviderException(format("Something went wrong during fetch currency rate for currency: %s and date between: %s - %s.", currency, from, to), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY_AND_DATE_RANGE.withParameters(currency, from, to), exception);
         }
     }
 
@@ -93,9 +92,9 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         } catch (final ApiFeignClientException exception) {
-            throw new CurrencyProviderException("Cannot fetch current currency rates. Client provider error.", exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES, exception);
         } catch (final Exception exception) {
-            throw new CurrencyProviderException("Something went wrong during fetch current currency rates.", exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES, exception);
         }
     }
 
@@ -108,9 +107,9 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         } catch (final ApiFeignClientException exception) {
-            throw new CurrencyProviderException(format("Cannot fetch currency rates for date: %s. Client provider error.", date), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES_AND_DATE.withParameters(date), exception);
         } catch (final Exception exception) {
-            throw new CurrencyProviderException(format("Something went wrong during fetch currency rates for date: %s.", date), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE.withParameters(date), exception);
         }
     }
 
@@ -123,9 +122,9 @@ class NbpCurrencyProvider implements CurrencyRateProvider<NbpCurrencyRate> {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         } catch (final ApiFeignClientException exception) {
-            throw new CurrencyProviderException(format("Cannot fetch currency rates for date range between: %s - %s. Client provider error.", from, to), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES_AND_DATE_RANGE.withParameters(from, to), exception);
         } catch (final Exception exception) {
-            throw new CurrencyProviderException(format("Something went wrong during fetch currency rates for date range between: %s - %s.", from, to), exception);
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE_RANGE.withParameters(from, to), exception);
         }
     }
 

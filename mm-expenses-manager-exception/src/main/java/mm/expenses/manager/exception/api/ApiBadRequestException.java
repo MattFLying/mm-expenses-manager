@@ -1,11 +1,12 @@
 package mm.expenses.manager.exception.api;
 
+import mm.expenses.manager.exception.ExceptionType;
 import org.springframework.http.HttpStatus;
 
 public class ApiBadRequestException extends ApiException {
 
-    public ApiBadRequestException(final String code, final String message) {
-        super(code, message);
+    public ApiBadRequestException(final ExceptionType exceptionType) {
+        super(exceptionType);
     }
 
     @Override

@@ -2,8 +2,9 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.Setter;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.exception.api.ApiFeignClientException;
+import mm.expenses.manager.exception.api.feign.ApiFeignClientException;
 import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
@@ -74,10 +75,10 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
     @Override
     public Collection<TestProvider.TestRate> getCurrentCurrencyRates() throws CurrencyProviderException {
         if (shouldThrowCurrencyProviderExceptionInCurrentCurrencyRatesWithHttpStatus) {
-            throw new CurrencyProviderException("", ApiFeignClientException.builder().status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES, ApiFeignClientException.builder().status(HttpStatus.INTERNAL_SERVER_ERROR).build());
         }
         if (shouldThrowCurrencyProviderExceptionInCurrentCurrencyRates) {
-            throw new CurrencyProviderException("", new Exception());
+            throw new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES, new Exception());
         }
         if (shouldReturnEmptyCurrentCurrencies) {
             return Collections.emptyList();
@@ -116,7 +117,7 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
         @Override
         public Collection<TestProvider.TestRate> fetchHistoricalCurrencies() throws HistoricalCurrencyException {
             if (shouldThrowHistoricalCurrencyException) {
-                throw new HistoricalCurrencyException("");
+                throw new HistoricalCurrencyException(FinanceExceptionMessage.SAVE_HISTORIC_EXCHANGE_RATES);
             }
             return List.of();
         }

@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.ExceptionMessage;
+import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
@@ -15,6 +15,7 @@ import mm.expenses.manager.exception.api.ApiNotFoundException;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.latest.LatestRatesCache;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -58,10 +59,10 @@ class ExchangeRateController {
                                                      @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
                                                      @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         if (Objects.nonNull(date) && (Objects.nonNull(from) || Objects.nonNull(to))) {
-            throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currencies can be filtered by date or by date from and date to at once");
+            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY);
         }
         if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
-            throw new ApiBadRequestException("exchange-rates-invalid-page-parameters", "Both page number and page size must be filled");
+            throw new ApiBadRequestException(FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
         final var pageable = PageHelper.getPageable(pageNumber, pageSize);
         return new ExchangeRatesAccumulatePage(mapper.groupAndSortPagedResult(service.findAll(date, from, to, pageable)));
@@ -113,8 +114,11 @@ class ExchangeRateController {
                                                    @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
                                                    @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
+        if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
+            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
+        }
         if ((Objects.isNull(from) && Objects.nonNull(to)) || (Objects.nonNull(from) && Objects.isNull(to))) {
-            throw new ApiBadRequestException("exchange-rates-invalid-parameters", "Currency can be filtered by date range or without any date range.");
+            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_FILTER_BY_DATE_RANGE);
         }
         final var pageable = PageHelper.getPageable(pageNumber, pageSize);
         return new ExchangeRatesAccumulatePage(mapper.groupAndSortPagedResult(service.findAllForCurrency(currencyCode, from, to, pageable)));
@@ -147,11 +151,11 @@ class ExchangeRateController {
     ExchangeRatesDto findLatestForCurrency(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
         if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
-            throw new ApiBadRequestException("exchange-rates-invalid-currency", "Currency is not allowed");
+            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
         }
         return latest.getLatest(currencyCode)
                 .map(mapper::map)
-                .orElseThrow(() -> new ApiNotFoundException("exchange-rates-latest-not-found", "Latest currency for: " + currencyCode.getCode() + " not found."));
+                .orElseThrow(() -> new ApiNotFoundException(FinanceExceptionMessage.LATEST_CURRENCY_FOR_CODE_NOT_FOUND.withParameters(currencyCode.getCode())));
     }
 
     @Operation(
@@ -182,11 +186,11 @@ class ExchangeRateController {
                                             @Parameter(description = "Date of needed exchange rates.", required = true) @PathVariable(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
         if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
-            throw new ApiBadRequestException("exchange-rates-invalid-currency", "Currency is not allowed");
+            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
         }
         return service.findForCurrencyAndSpecificDate(currencyCode, date)
                 .map(mapper::map)
-                .orElseThrow(() -> new ApiNotFoundException("exchange-rates-not-found", "Currency for: " + currencyCode.getCode() + " and date: " + date + " not found."));
+                .orElseThrow(() -> new ApiNotFoundException(FinanceExceptionMessage.CURRENCY_FOR_CODE_AND_DATE_NOT_FOUND.withParameters(currencyCode.getCode(), date)));
     }
 
 }

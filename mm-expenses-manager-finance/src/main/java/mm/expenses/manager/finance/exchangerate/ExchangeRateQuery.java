@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static mm.expenses.manager.common.util.DateUtils.localDateToInstantUTC;
 import static mm.expenses.manager.finance.exchangerate.ExchangeRate.DEFAULT_SORT_ORDER;
 
 @Component
@@ -18,18 +19,17 @@ import static mm.expenses.manager.finance.exchangerate.ExchangeRate.DEFAULT_SORT
 class ExchangeRateQuery {
 
     private final ExchangeRateRepository repository;
-    private final ExchangeRateMapper mapper;
 
     Stream<Page<ExchangeRate>> findAllCurrenciesRates(final Set<CurrencyCode> currencies, final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
         final var page = pageRequest(pageable);
         return currencies.stream()
                 .map(code -> {
                     if (Objects.nonNull(date)) {
-                        return repository.findByCurrencyAndDate(code, instantOf(date)).map(List::of)
+                        return repository.findByCurrencyAndDate(code, localDateToInstantUTC(date)).map(List::of)
                                 .map(result -> (Page<ExchangeRate>) new PageImpl<>(result, page, page.getPageSize()))
                                 .orElse(Page.empty(page));
                     } else if (Objects.nonNull(from) && Objects.nonNull(to)) {
-                        return repository.findByCurrencyAndDateBetween(code, instantOf(from), instantOf(to), page);
+                        return repository.findByCurrencyAndDateBetween(code, localDateToInstantUTC(from), localDateToInstantUTC(to), page);
                     } else {
                         return repository.findByCurrency(code, page);
                     }
@@ -40,7 +40,7 @@ class ExchangeRateQuery {
     Stream<Page<ExchangeRate>> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate from, final LocalDate to, final Pageable pageable) {
         final var page = pageRequest(pageable);
         if (Objects.nonNull(from) && Objects.nonNull(to)) {
-            return Stream.of(repository.findByCurrencyAndDateBetween(currency, instantOf(from), instantOf(to), page)).filter(Objects::nonNull);
+            return Stream.of(repository.findByCurrencyAndDateBetween(currency, localDateToInstantUTC(from), localDateToInstantUTC(to), page)).filter(Objects::nonNull);
         } else {
             return Stream.of(repository.findByCurrency(currency, page)).filter(Objects::nonNull);
         }
@@ -48,7 +48,7 @@ class ExchangeRateQuery {
 
     Page<ExchangeRate> findAllTodayRates(final Pageable pageable) {
         final var page = pageRequest(pageable);
-        return repository.findByDate(mapper.fromLocalDateToInstant(LocalDate.now()), page);
+        return repository.findByDate(localDateToInstantUTC(LocalDate.now()), page);
     }
 
     Page<ExchangeRate> findByDate(final Pageable pageable, final Instant date) {
@@ -57,7 +57,7 @@ class ExchangeRateQuery {
     }
 
     Optional<ExchangeRate> findByCurrencyAndDate(final CurrencyCode currency, final LocalDate date) {
-        return repository.findByCurrencyAndDate(currency, instantOf(date));
+        return repository.findByCurrencyAndDate(currency, localDateToInstantUTC(date));
     }
 
     PageRequest pageRequest(final Integer pageNumber, final Integer pageSize) {
@@ -66,10 +66,6 @@ class ExchangeRateQuery {
 
     PageRequest pageRequest(final Pageable pageable) {
         return pageRequest(pageable.getPageNumber(), pageable.getPageSize());
-    }
-
-    private Instant instantOf(final LocalDate date) {
-        return mapper.fromLocalDateToInstant(date);
     }
 
 }

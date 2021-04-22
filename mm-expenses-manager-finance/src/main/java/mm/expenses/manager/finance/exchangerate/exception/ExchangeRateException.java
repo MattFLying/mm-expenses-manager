@@ -1,9 +1,15 @@
 package mm.expenses.manager.finance.exchangerate.exception;
 
-public class ExchangeRateException extends RuntimeException {
+import mm.expenses.manager.exception.EmUncheckedException;
+import mm.expenses.manager.exception.ExceptionType;
 
-    public ExchangeRateException(final String message, final Throwable exception) {
-        super(message, exception);
+/**
+ * Default exception for any cases of exchange rates.
+ */
+public class ExchangeRateException extends EmUncheckedException {
+
+    public ExchangeRateException(final ExceptionType exceptionMessage, final Throwable exception) {
+        super(exceptionMessage, exception);
     }
 
 }

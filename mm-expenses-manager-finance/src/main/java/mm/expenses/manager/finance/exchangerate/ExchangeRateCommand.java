@@ -1,9 +1,9 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.exception.InvalidDateException;
+import mm.expenses.manager.exception.common.InvalidDateException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
@@ -22,7 +22,6 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 class ExchangeRateCommand {
@@ -53,7 +52,7 @@ class ExchangeRateCommand {
             duplicatesCount = historicData.size() - savedHistoryCount;
             status = State.SUCCESS;
         } catch (final Exception exception) {
-            throw new ExchangeRateException("Cannot save historical currency rates.", exception);
+            throw new ExchangeRateException(FinanceExceptionMessage.SAVE_HISTORIC_EXCHANGE_RATES, exception);
         } finally {
             trails.saveLog(TrailOperation.EXCHANGE_RATES_HISTORY_UPDATE.withStatus(status), savedHistory.stream().map(ExchangeRate::getId).collect(toList()), savedHistoryCount, duplicatesCount);
         }
@@ -88,9 +87,9 @@ class ExchangeRateCommand {
             duplicatesCount = exchangeRates.size() - savedHistoryCount;
             status = State.SUCCESS;
         } catch (final InvalidDateException exception) {
-            throw new ExchangeRateException(exception.getMessage(), exception);
+            throw new ExchangeRateException(exception.getType(), exception);
         } catch (final Exception exception) {
-            throw new ExchangeRateException("Cannot save or update currency rates.", exception);
+            throw new ExchangeRateException(FinanceExceptionMessage.SAVE_OR_UPDATE_EXCHANGE_RATES, exception);
         } finally {
             trails.saveLog(operation.withStatus(status), savedHistory.stream().map(ExchangeRate::getId).collect(toList()), savedHistoryCount, duplicatesCount);
         }
@@ -177,7 +176,7 @@ class ExchangeRateCommand {
      * @return maximum date to
      */
     private <T extends CurrencyRate> LocalDate findDateTo(final Collection<T> currencyRates) {
-        return findDateOrThrowException(() -> currencyRates.stream().max(Comparator.comparing(CurrencyRate::getDate)), "Invalid data, could not find date from.");
+        return findDateOrThrowException(() -> currencyRates.stream().max(Comparator.comparing(CurrencyRate::getDate)), FinanceExceptionMessage.EXCHANGE_RATES_INVALID_DATE_FROM);
     }
 
     /**
@@ -188,14 +187,13 @@ class ExchangeRateCommand {
      * @return minimum date from
      */
     private <T extends CurrencyRate> LocalDate findDateFrom(final Collection<T> currencyRates) {
-        return findDateOrThrowException(() -> currencyRates.stream().min(Comparator.comparing(CurrencyRate::getDate)), "Invalid data, could not find date to.");
+        return findDateOrThrowException(() -> currencyRates.stream().min(Comparator.comparing(CurrencyRate::getDate)), FinanceExceptionMessage.EXCHANGE_RATES_INVALID_DATE_TO);
     }
 
-    private <T extends CurrencyRate> LocalDate findDateOrThrowException(final Supplier<Optional<T>> dateExtractor, final String exceptionMessage) {
+    private <T extends CurrencyRate> LocalDate findDateOrThrowException(final Supplier<Optional<T>> dateExtractor, final FinanceExceptionMessage exceptionMessage) {
         try {
             return dateExtractor.get().map(CurrencyRate::getDate).orElseThrow(() -> new InvalidDateException(exceptionMessage));
         } catch (final Exception exception) {
-            log.warn("Cannot find date in collection: {}", dateExtractor, exception);
             throw new InvalidDateException(exceptionMessage);
         }
     }

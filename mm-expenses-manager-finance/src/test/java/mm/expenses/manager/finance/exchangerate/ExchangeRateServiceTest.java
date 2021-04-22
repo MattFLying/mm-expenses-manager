@@ -5,6 +5,7 @@ import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
+import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -93,8 +94,8 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @Test
         void shouldFindTodayRates() {
             // given
-            final var today = DateUtils.localDateToInstant(LocalDate.now());
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstantUTC(LocalDate.now());
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.AUD;
@@ -132,8 +133,8 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         void shouldFindForCurrencyAndSpecificDate(final CurrencyCode currency) {
             // given
             final var id = UUID.randomUUID().toString();
-            final var date = DateUtils.localDateToInstant(LocalDate.of(2011, 5, 20));
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusMonths(6));
+            final var date = DateUtils.localDateToInstantUTC(LocalDate.of(2011, 5, 20));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusMonths(6));
             final var rate = ExchangeRateHelper.createNewRandomRateToPLN(currency);
             final Map<String, Object> details = Map.of();
 
@@ -160,7 +161,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldReturnEmpty_whenDoesNotExists(final CurrencyCode currency) {
             // given
-            final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+            final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
             when(exchangeRateRepository.findByCurrencyAndDate(currency, date)).thenReturn(Optional.empty());
 
             // when
@@ -179,9 +180,9 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         void shouldFindByDate() {
             // given
             final var id = UUID.randomUUID().toString();
-            final var date = DateUtils.localDateToInstant(LocalDate.of(2011, 5, 20));
+            final var date = DateUtils.localDateToInstantUTC(LocalDate.of(2011, 5, 20));
             final var currency = CurrencyCode.SEK;
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusMonths(6));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusMonths(6));
             final var rate = ExchangeRateHelper.createNewRandomRateToPLN(currency);
             final Map<String, Object> details = Map.of();
 
@@ -205,14 +206,14 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldFindAllForCurrency_whenDatesWereNotPassed(final CurrencyCode currency) {
             // given
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(7));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(7));
             final Map<String, Object> details = Map.of();
 
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(17));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(17));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(20));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(20));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
@@ -236,14 +237,14 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldFindAllForCurrency_whenDatesWerePassed(final CurrencyCode currency) {
             // given
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(11));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(11));
             final Map<String, Object> details = Map.of();
 
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(15));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(15));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(10));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(10));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
@@ -267,14 +268,14 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldFindAllForCurrency_whenDateFromWasNotPassed(final CurrencyCode currency) {
             // given
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(11));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(11));
             final Map<String, Object> details = Map.of();
 
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(15));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(15));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(10));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(10));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
@@ -298,14 +299,14 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldFindAllForCurrency_whenDateToWasNotPassed(final CurrencyCode currency) {
             // given
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(11));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(11));
             final Map<String, Object> details = Map.of();
 
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(15));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(15));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(10));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(10));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency);
 
@@ -333,16 +334,16 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @Test
         void shouldFindAll_whenNoDatesWerePassed() {
             // given
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.CAD;
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(7));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(7));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency_1);
 
             final var currency_2 = CurrencyCode.NZD;
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(10));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(10));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency_2);
 
@@ -367,16 +368,16 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @Test
         void shouldFindAll_whenDateFromWasNotPassed() {
             // given
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.GBP;
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(7));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(7));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency_1);
 
             final var currency_2 = CurrencyCode.JPY;
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(10));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(10));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency_2);
 
@@ -401,16 +402,16 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @Test
         void shouldFindAll_whenDateToWasNotPassed() {
             // given
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.CHF;
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(7));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(7));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency_1);
 
             final var currency_2 = CurrencyCode.AUD;
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(10));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(10));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency_2);
 
@@ -435,8 +436,8 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @Test
         void shouldFindAll_whenDateWasPassed() {
             // given
-            final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+            final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.CAD;
@@ -468,17 +469,17 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @Test
         void shouldFindAll_whenDatesRangeWasPassed() {
             // given
-            final var date = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
-            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(3));
+            final var date = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(3));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.SEK;
-            final var date_1 = DateUtils.localDateToInstant(LocalDate.now().minusDays(7));
+            final var date_1 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(7));
             final var id_1 = UUID.randomUUID().toString();
             final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency_1);
 
             final var currency_2 = CurrencyCode.AUD;
-            final var date_2 = DateUtils.localDateToInstant(LocalDate.now().minusDays(10));
+            final var date_2 = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(10));
             final var id_2 = UUID.randomUUID().toString();
             final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency_2);
 
@@ -530,7 +531,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             assertExchangeRate(result)
                     .hasId(ExchangeRateHelper.ID)
                     .isOfCurrency(currency)
-                    .isOfDate(DateUtils.localDateToInstant(date))
+                    .isOfDate(DateUtils.localDateToInstantUTC(date))
                     .createdAt(dateNow)
                     .modifiedAt(dateNow)
                     .hasRates(currencyRatesSaved.getRatesByProvider())
@@ -564,7 +565,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             assertExchangeRate(result)
                     .hasId(ExchangeRateHelper.ID)
                     .isOfCurrency(currency)
-                    .isOfDate(DateUtils.localDateToInstant(date))
+                    .isOfDate(DateUtils.localDateToInstantUTC(date))
                     .createdAt(dateNow)
                     .modifiedAt(dateNow)
                     .hasRates(currencyRatesSaved.getRatesByProvider())
@@ -599,7 +600,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             assertExchangeRate(result)
                     .hasId(ExchangeRateHelper.ID)
                     .isOfCurrency(currency)
-                    .isOfDate(DateUtils.localDateToInstant(date))
+                    .isOfDate(DateUtils.localDateToInstantUTC(date))
                     .createdAt(dateNow)
                     .modifiedAt(dateNow)
                     .hasRates(currencyRatesSaved.getRatesByProvider())
@@ -662,7 +663,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when && then
             assertThatThrownBy(() -> exchangeRateService.createOrUpdate(List.of(currencyRateToSave)))
                     .isInstanceOf(ExchangeRateException.class)
-                    .hasMessage("Invalid data, could not find date to.");
+                    .hasMessage(FinanceExceptionMessage.EXCHANGE_RATES_INVALID_DATE_TO.getMessage());
         }
 
         @ParameterizedTest
@@ -680,7 +681,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when && then
             assertThatThrownBy(() -> exchangeRateService.createOrUpdate(List.of(currencyRateToSave)))
                     .isInstanceOf(ExchangeRateException.class)
-                    .hasMessage("Cannot save or update currency rates.");
+                    .hasMessage(FinanceExceptionMessage.SAVE_OR_UPDATE_EXCHANGE_RATES.getMessage());
         }
 
     }
@@ -713,7 +714,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             assertExchangeRate(result)
                     .hasId(ExchangeRateHelper.ID)
                     .isOfCurrency(currency)
-                    .isOfDate(DateUtils.localDateToInstant(date))
+                    .isOfDate(DateUtils.localDateToInstantUTC(date))
                     .createdAt(dateNow)
                     .modifiedAt(dateNow)
                     .hasRates(currencyRatesSaved.getRatesByProvider())
@@ -733,7 +734,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when && then
             assertThatThrownBy(() -> exchangeRateService.synchronize(List.of(currencyRateToSave)))
                     .isInstanceOf(ExchangeRateException.class)
-                    .hasMessage("Invalid data, could not find date to.");
+                    .hasMessage(FinanceExceptionMessage.EXCHANGE_RATES_INVALID_DATE_TO.getMessage());
         }
 
         @Test
@@ -751,7 +752,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when && then
             assertThatThrownBy(() -> exchangeRateService.synchronize(List.of(currencyRateToSave)))
                     .isInstanceOf(ExchangeRateException.class)
-                    .hasMessage("Cannot save or update currency rates.");
+                    .hasMessage(FinanceExceptionMessage.SAVE_OR_UPDATE_EXCHANGE_RATES.getMessage());
         }
 
     }

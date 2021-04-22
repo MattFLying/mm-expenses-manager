@@ -37,12 +37,13 @@ class ExchangeRateSynchronizer {
         try {
             final var allCurrent = provider.getCurrentCurrencyRates();
             if (allCurrent.isEmpty()) {
+                log.debug("For provider: {} there are no current currency rates. Rescheduling and call another provider in progress...", provider.getName());
                 rescheduleProviderAndCallAnother(provider);
             } else {
                 service.synchronize(allCurrent);
             }
         } catch (final CurrencyProviderException exception) {
-            log.warn("Cannot fetch current currency rates for provider: {}", provider.getName(), exception);
+            log.warn("Cannot fetch current currency rates for provider: {}. Rescheduling and call another provider in progress...", provider.getName(), exception);
             rescheduleProviderAndCallAnother(provider);
         }
         log.info("Currencies synchronization has been done.");
@@ -59,7 +60,7 @@ class ExchangeRateSynchronizer {
                     .filter(provider -> rescheduledJobsSuccessfully.containsKey(provider.getKey()))
                     .forEach(provider -> cancelCompletedRescheduledJob(provider.getKey(), provider.getValue()));
         } catch (final Exception exception) {
-            log.warn("Cannot clean up rescheduled jobs", exception);
+            log.error("Cannot clean up rescheduled jobs.", exception);
         }
     }
 
@@ -75,7 +76,7 @@ class ExchangeRateSynchronizer {
             jobs.remove(providerName);
             rescheduledJobsSuccessfully.remove(providerName);
         } catch (final Exception exception) {
-            log.warn("Cannot cancel rescheduled job for provider: {}", providerName, exception);
+            log.error("Cannot cancel rescheduled job for provider: {}", providerName, exception);
         }
     }
 

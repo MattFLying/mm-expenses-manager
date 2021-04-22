@@ -1,28 +1,42 @@
 package mm.expenses.manager.finance.exchangerate.exception;
 
-import mm.expenses.manager.exception.api.ApiFeignClientException;
+import mm.expenses.manager.exception.EmCheckedException;
+import mm.expenses.manager.exception.ExceptionType;
+import mm.expenses.manager.exception.api.feign.ApiFeignClientException;
 import org.springframework.http.HttpStatus;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class CurrencyProviderException extends Exception {
+/**
+ * Exception thrown when something went wrong with external/internal currency providers.
+ */
+public class CurrencyProviderException extends EmCheckedException {
 
     private final HttpStatus status;
     private final String clientMessage;
 
-    public CurrencyProviderException(final String message, final ApiFeignClientException clientException) {
-        super(message, clientException);
-        this.status = clientException.getStatus();
-        this.clientMessage = clientException.getMessage();
-    }
-
-    public CurrencyProviderException(final String message, final Throwable exception) {
-        super(message, exception);
+    public CurrencyProviderException(final ExceptionType exceptionMessage) {
+        super(exceptionMessage);
         this.status = null;
         this.clientMessage = null;
     }
 
+    public CurrencyProviderException(final ExceptionType exceptionMessage, final Throwable exception) {
+        super(exceptionMessage, exception);
+        this.status = null;
+        this.clientMessage = null;
+    }
+
+    public CurrencyProviderException(final ExceptionType exceptionMessage, final ApiFeignClientException clientException) {
+        super(exceptionMessage, clientException);
+        this.status = clientException.getStatus();
+        this.clientMessage = clientException.getMessage();
+    }
+
+    /**
+     * Checks if exception has been thrown because of failed external provider
+     */
     public boolean isHttpError() {
         return Objects.nonNull(status);
     }

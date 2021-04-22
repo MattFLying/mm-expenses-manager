@@ -13,19 +13,19 @@
         <relativePath/>
     </parent>
 
-    <modules>
-        <module>mm-expenses-manager-common</module>
-        <module>mm-expenses-manager-exception</module>
-        <module>mm-expenses-manager-validator</module>
-
-        <module>mm-expenses-manager-order</module>
-
-        <module>mm-expenses-manager-finance</module>
-    </modules>
-
+    <name>Expenses Manager Parent</name>
     <groupId>mm-expenses-manager</groupId>
     <artifactId>mm-expenses-manager-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>mm-expenses-manager-common</module>
+        <module>mm-expenses-manager-exception</module>
+        <module>mm-expenses-manager-finance</module>
+
+        <module>mm-expenses-manager-validator</module>
+        <module>mm-expenses-manager-order</module>
+    </modules>
 
     <properties>
         <java-version>11</java-version>
@@ -314,17 +314,6 @@
             <version>3.6.1</version>
         </dependency>
 
-        <!-- Swagger dependencies -->
-        <!--<dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${swagger-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${swagger-version}</version>
-        </dependency>-->
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>

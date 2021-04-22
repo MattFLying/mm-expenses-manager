@@ -2,7 +2,6 @@ package mm.expenses.manager.finance.exchangerate.provider;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
 
@@ -17,7 +16,6 @@ import java.util.stream.Stream;
  *
  * @param <T> custom currency rate implementation represents single currency rate
  */
-@Slf4j
 @RequiredArgsConstructor
 public abstract class HistoricCurrencies<T extends CurrencyRate> {
 

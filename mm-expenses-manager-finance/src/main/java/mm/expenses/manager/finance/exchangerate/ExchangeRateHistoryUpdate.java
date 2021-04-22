@@ -38,11 +38,10 @@ class ExchangeRateHistoryUpdate {
      * Update historical exchange rates process.
      */
     private void executeHistoryUpdate() {
+        log.info("Currencies history update in progress.");
         try {
             final var provider = providers.getProvider();
-            log.info("Currencies history update in progress.");
             command.saveHistory(provider.getAllHistoricalCurrencies());
-            log.info("Currencies history update has been done.");
         } catch (final HistoricalCurrencyException unknownException) {
             log.warn("Error occurred during currencies history update process.", unknownException);
             providers.executeOnAllProviders(provider -> {
@@ -53,9 +52,10 @@ class ExchangeRateHistoryUpdate {
                 } catch (final HistoricalCurrencyException unknownExceptionForOtherProvider) {
                     log.warn("Something went wrong during update process for provider: {}", providerName);
                 }
-                log.info("Currencies history update retried for another provider: {}  has been done.", providerName);
+                log.info("Currencies history update retried for another provider: {} has been done.", providerName);
             });
         }
+        log.info("Currencies history update has been done.");
     }
 
     /**

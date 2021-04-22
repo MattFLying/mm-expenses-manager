@@ -7,8 +7,10 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
+import mm.expenses.manager.ErrorHandlingConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -17,11 +19,12 @@ import java.util.Objects;
 @Generated
 @Configuration
 @RequiredArgsConstructor
-class Config {
+@Import({ErrorHandlingConfig.class})
+class FinanceApplicationConfig {
 
     private static final int INITIAL_POOL_SIZE = 100;
 
-    private final AppConfig config;
+    private final AppConfigProperty config;
 
     @Bean
     ObjectMapper objectMapper() {
