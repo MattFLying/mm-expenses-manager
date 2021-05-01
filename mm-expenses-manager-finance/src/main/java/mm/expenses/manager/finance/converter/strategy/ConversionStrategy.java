@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.converter.strategy;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.finance.converter.CurrencyConversion;
+import mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ public interface ConversionStrategy {
      * @param value value to be converted
      * @return converted currency
      */
-    CurrencyConversion.CurrencyRate convert(final CurrencyCode from, final CurrencyCode to, final BigDecimal value);
+    CurrencyRate convert(final CurrencyCode from, final CurrencyCode to, final BigDecimal value);
 
     /**
      * Convert currency for specific date
@@ -35,6 +35,6 @@ public interface ConversionStrategy {
      * @param date  date for which the exchange rate should be taken
      * @return converted currency
      */
-    CurrencyConversion.CurrencyRate convert(final CurrencyCode from, final CurrencyCode to, final BigDecimal value, final LocalDate date);
+    CurrencyRate convert(final CurrencyCode from, final CurrencyCode to, final BigDecimal value, final LocalDate date);
 
 }

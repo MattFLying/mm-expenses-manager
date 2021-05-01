@@ -103,7 +103,7 @@ public class CurrencyProviders {
     /**
      * Retrieve default provider if available or any.
      */
-    private CurrencyRateProvider<? extends CurrencyRate> findDefaultProviderOrAny() {
+    CurrencyRateProvider<? extends CurrencyRate> findDefaultProviderOrAny() {
         if (!isAnyProviderAvailable()) {
             throw apiInternalErrorExceptionForNoProvider();
         }

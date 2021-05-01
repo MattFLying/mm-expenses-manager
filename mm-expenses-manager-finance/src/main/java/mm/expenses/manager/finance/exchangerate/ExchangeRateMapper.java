@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.exchangerate;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.finance.config.MapperImplNaming;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate.Rate;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRateDto;
@@ -20,7 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, implementationName = "ExchangeRateMapperImpl")
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, implementationName = MapperImplNaming.EXCHANGE_RATE_MAPPER)
 abstract class ExchangeRateMapper extends AbstractMapper {
 
     @Autowired

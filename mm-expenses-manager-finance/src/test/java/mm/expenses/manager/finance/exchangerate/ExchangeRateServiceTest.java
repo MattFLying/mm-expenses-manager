@@ -30,6 +30,7 @@ import static mm.expenses.manager.finance.exchangerate.ExchangeRatesAssert.asser
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -792,7 +793,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             exchangeRateService.historyUpdate();
 
             // then
-            verify(exchangeRateHistoryUpdate).update();
+            await().untilAsserted(() -> verify(exchangeRateHistoryUpdate).update());
         }
 
     }

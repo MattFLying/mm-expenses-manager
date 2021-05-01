@@ -31,10 +31,6 @@ public abstract class CurrencyRate {
         return Optional.ofNullable(details.get(key));
     }
 
-    public void addDetails(final String key, final Object value) {
-        details.put(key, value);
-    }
-
     public static <T extends CurrencyRate> Comparator<T> currencyRateComparator() {
         return Comparator.comparing(T::getCurrency).thenComparing(T::getDate);
     }
