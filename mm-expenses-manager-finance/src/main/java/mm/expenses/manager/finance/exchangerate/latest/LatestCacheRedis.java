@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +37,13 @@ class LatestCacheRedis extends LatestCacheInit {
         final var pageRequest = service.pageRequest(0, currencyCodes.size());
         final var latest = CollectionUtils.emptyIfNull(redisTemplate.opsForValue().multiGet(currencyCodes)).stream().filter(Objects::nonNull).collect(Collectors.toList());
         return new PageImpl<>(latest, pageRequest, latest.size());
+    }
+
+    @Override
+    public Map<CurrencyCode, ExchangeRate> getLatest(final Set<CurrencyCode> currencyCodes) {
+        return CollectionUtils.emptyIfNull(redisTemplate.opsForValue().multiGet(currencyCodes)).stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(ExchangeRate::getCurrency, Function.identity()));
     }
 
     @Override

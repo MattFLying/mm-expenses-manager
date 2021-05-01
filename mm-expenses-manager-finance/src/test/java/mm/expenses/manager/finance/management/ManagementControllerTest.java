@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
-import static mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED;
+import static mm.expenses.manager.finance.exception.FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED;
 import static mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailHelper.createNewExchangeRateTrail;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;

@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.exception;
+package mm.expenses.manager.finance.exception;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.exception.ExceptionType;
@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static mm.expenses.manager.finance.exchangerate.exception.ExceptionConstant.EXTERNAL_CURRENCY_PROVIDER_ERROR;
-import static mm.expenses.manager.finance.exchangerate.exception.ExceptionConstant.EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR;
+import static mm.expenses.manager.finance.exception.ExceptionConstant.EXTERNAL_CURRENCY_PROVIDER_ERROR;
+import static mm.expenses.manager.finance.exception.ExceptionConstant.EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR;
 
 /**
  * Provides all available exceptions codes and messages.
@@ -57,7 +57,10 @@ public enum FinanceExceptionMessage implements ExceptionType {
     CURRENCY_FILTER_BY_DATE_OR_DATE_RANGE_ONLY("currency-filtering-by-date-or-date-range-error", "Currencies can be filtered by date or by date from and date to at once"),
     CURRENCY_FILTER_BY_DATE_RANGE("currency-filtering-by-date-range-error", "Currency can be filtered by date range or without any date range."),
     CURRENCY_FOR_CODE_AND_DATE_NOT_FOUND("currency-for-code-and-date-not-found-error", "Currency for: %s and date: %s not found."),
-    LATEST_CURRENCY_FOR_CODE_NOT_FOUND("latest-currency-for-code-not-found-error", "Latest currency for: %s not found.");
+    LATEST_CURRENCY_FOR_CODE_NOT_FOUND("latest-currency-for-code-not-found-error", "Latest currency for: %s not found."),
+
+    // conversion
+    CURRENCY_CONVERSION_VALUE_MUST_BE_GREATER_THAN_ZERO("converted-currency-value-must-be-grater-than-zero", "Passed value for currency conversion must be greater than 0.");
 
     private final String code;
     private final String message;

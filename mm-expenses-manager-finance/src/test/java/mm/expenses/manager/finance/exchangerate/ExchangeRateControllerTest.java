@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
-import static mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage.*;
+import static mm.expenses.manager.finance.exception.FinanceExceptionMessage.*;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

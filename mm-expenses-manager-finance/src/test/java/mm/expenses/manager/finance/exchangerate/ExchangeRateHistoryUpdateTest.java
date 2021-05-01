@@ -2,8 +2,8 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.SneakyThrows;
 import mm.expenses.manager.finance.FinanceApplicationTest;
-import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
-import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
+import mm.expenses.manager.finance.exception.ExchangeRateException;
+import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.provider.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

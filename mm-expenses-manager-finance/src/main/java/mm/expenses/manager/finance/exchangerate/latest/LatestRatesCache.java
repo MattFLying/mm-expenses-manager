@@ -6,7 +6,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Cache for current exchange rates.
@@ -23,6 +25,12 @@ public interface LatestRatesCache {
      * @return The latest available exchange rate for given currency.
      */
     Optional<ExchangeRate> getLatest(final CurrencyCode currency);
+
+    /**
+     * @param currencyCodes set of currency codes
+     * @return latest exchange rates as map for set of curreny codes
+     */
+    Map<CurrencyCode, ExchangeRate> getLatest(final Set<CurrencyCode> currencyCodes);
 
     /**
      * Save the latest currency rates into memory cache. Method is called during {@link ContextRefreshedEvent} execution

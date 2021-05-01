@@ -62,11 +62,11 @@ public class ExchangeRate implements Serializable {
         detailsByProvider.put(providerName, details);
     }
 
-    Rate getRateByProvider(final String providerName) {
+    public Rate getRateByProvider(final String providerName) {
         return getRateByProvider(providerName, false);
     }
 
-    Rate getRateByProvider(final String providerName, final boolean findAnyIfNotExist) {
+    public Rate getRateByProvider(final String providerName, final boolean findAnyIfNotExist) {
         if (Objects.isNull(ratesByProvider)) {
             ratesByProvider = new HashMap<>();
         }
@@ -103,7 +103,7 @@ public class ExchangeRate implements Serializable {
         private final CurrencyValue from;
         private final CurrencyValue to;
 
-        static Rate empty() {
+        public static Rate empty() {
             return ExchangeRate.Rate.builder()
                     .from(ExchangeRate.CurrencyValue.empty())
                     .to(ExchangeRate.CurrencyValue.empty())

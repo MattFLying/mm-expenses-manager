@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
-import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
+import mm.expenses.manager.finance.exception.HistoricalCurrencyException;
 
 import java.util.Collection;
 

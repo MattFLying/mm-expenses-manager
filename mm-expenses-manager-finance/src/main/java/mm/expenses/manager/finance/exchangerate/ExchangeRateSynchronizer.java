@@ -3,7 +3,7 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.finance.exchangerate.exception.CurrencyProviderException;
+import mm.expenses.manager.finance.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import org.springframework.scheduling.TaskScheduler;

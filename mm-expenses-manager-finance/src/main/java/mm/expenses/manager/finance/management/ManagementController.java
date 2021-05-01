@@ -12,7 +12,7 @@ import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesTrailsPage;
-import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
+import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailService;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation.State;

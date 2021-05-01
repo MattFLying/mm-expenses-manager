@@ -10,10 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -29,6 +27,14 @@ public class LatestCacheTest extends LatestCacheInit {
     @Override
     public Page<ExchangeRate> getLatest() {
         return new PageImpl<>(new ArrayList<>(map.values()));
+    }
+
+    @Override
+    public Map<CurrencyCode, ExchangeRate> getLatest(final Set<CurrencyCode> currencyCodes) {
+        return map.entrySet()
+                .stream()
+                .filter(latestRate -> currencyCodes.contains(latestRate.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override

@@ -15,7 +15,7 @@ import mm.expenses.manager.exception.api.ApiNotFoundException;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
-import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
+import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.latest.LatestRatesCache;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;

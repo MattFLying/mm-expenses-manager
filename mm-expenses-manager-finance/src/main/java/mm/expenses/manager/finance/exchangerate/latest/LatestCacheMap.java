@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Default cache mechanism based on simple map. If there is no another cache mechanism defined and marked as working
@@ -32,6 +33,14 @@ class LatestCacheMap extends LatestCacheInit {
     public Page<ExchangeRate> getLatest() {
         final var pageRequest = service.pageRequest(0, getAllRequiredCurrenciesCode().size());
         return new PageImpl<>(new ArrayList<>(latest.values()), pageRequest, latest.size());
+    }
+
+    @Override
+    public Map<CurrencyCode, ExchangeRate> getLatest(final Set<CurrencyCode> currencyCodes) {
+        return latest.entrySet()
+                .stream()
+                .filter(latestRate -> currencyCodes.contains(latestRate.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override

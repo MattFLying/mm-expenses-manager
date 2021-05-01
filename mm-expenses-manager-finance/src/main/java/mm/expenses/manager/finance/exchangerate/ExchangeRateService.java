@@ -42,6 +42,14 @@ public class ExchangeRateService {
         return query.findAllCurrenciesRates(config.getAllRequiredCurrenciesCode(), date, from, to, pageable);
     }
 
+    public Optional<ExchangeRate> findForCurrencyAndSpecificDate(final CurrencyCode currency, final LocalDate date) {
+        return query.findByCurrencyAndDate(currency, date);
+    }
+
+    public Stream<Page<ExchangeRate>> findForCurrencyCodesAndSpecificDate(final Set<CurrencyCode> currencyCodes, final LocalDate date, final Pageable pageable) {
+        return query.findAllCurrenciesRates(currencyCodes, date, null, null, pageable);
+    }
+
     <T extends CurrencyRate> Collection<ExchangeRate> synchronize(final Collection<T> exchangeRates) {
         final var result = command.createOrUpdate(exchangeRates, TrailOperation.LATEST_EXCHANGE_RATES_SYNCHRONIZATION);
         eventPublisher.publishEvent(new UpdateLatestInMemoryEvent(this));
@@ -58,10 +66,6 @@ public class ExchangeRateService {
 
     Page<ExchangeRate> findToday() {
         return query.findAllTodayRates(query.pageRequest(0, config.getAllRequiredCurrenciesCode().size()));
-    }
-
-    Optional<ExchangeRate> findForCurrencyAndSpecificDate(final CurrencyCode currency, final LocalDate date) {
-        return query.findByCurrencyAndDate(currency, date);
     }
 
 }

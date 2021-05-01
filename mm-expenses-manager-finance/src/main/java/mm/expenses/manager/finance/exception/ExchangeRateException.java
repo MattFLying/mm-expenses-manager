@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.exception;
+package mm.expenses.manager.finance.exception;
 
 import mm.expenses.manager.exception.EmUncheckedException;
 import mm.expenses.manager.exception.ExceptionType;

@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.exception;
+package mm.expenses.manager.finance.exception;
 
 import lombok.AccessLevel;
 import lombok.Generated;

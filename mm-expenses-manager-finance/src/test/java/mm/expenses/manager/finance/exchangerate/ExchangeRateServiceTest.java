@@ -4,8 +4,8 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
-import mm.expenses.manager.finance.exchangerate.exception.ExchangeRateException;
-import mm.expenses.manager.finance.exchangerate.exception.FinanceExceptionMessage;
+import mm.expenses.manager.finance.exception.ExchangeRateException;
+import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -169,6 +169,32 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
             // then
             assertThat(result).isEmpty();
+        }
+
+    }
+
+    @Nested
+    class FindForCurrencyCodesAndSpecificDate {
+
+        @Test
+        void shouldFindForCurrencyCodesAndSpecificDate() {
+            // given
+            final var id = UUID.randomUUID().toString();
+            final var currency = CurrencyCode.SEK;
+            final var date = DateUtils.localDateToInstantUTC(LocalDate.of(2011, 5, 20));
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusMonths(6));
+            final var rate = ExchangeRateHelper.createNewRandomRateToPLN(currency);
+            final Map<String, Object> details = Map.of();
+
+            final var expected = createNewExchangeRate(id, currency, date, createdModified, Map.of(PROVIDER_NAME, rate), Map.of(PROVIDER_NAME, details));
+
+            // when
+            when(exchangeRateRepository.findByCurrencyAndDate(currency, date)).thenReturn(Optional.of(expected));
+
+            final var result = exchangeRateService.findForCurrencyCodesAndSpecificDate(Set.of(currency), DateUtils.instantToLocalDateUTC(date), PageHelper.getPageRequest(0, 10));
+
+            // then
+            assertExchangeRates(result).forCurrencyHasExactlyTheSameAs(currency, List.of(expected));
         }
 
     }

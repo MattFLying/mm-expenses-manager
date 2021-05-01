@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.finance.exchangerate.exception.HistoricalCurrencyException;
+import mm.expenses.manager.finance.exception.HistoricalCurrencyException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.springframework.stereotype.Component;
 

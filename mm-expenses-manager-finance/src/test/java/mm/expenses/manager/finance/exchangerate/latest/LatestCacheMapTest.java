@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -26,6 +27,7 @@ import static mm.expenses.manager.finance.exchangerate.ExchangeRateAssert.assert
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.ExchangeRatesAssert.assertExchangeRates;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -169,6 +171,42 @@ class LatestCacheMapTest extends FinanceApplicationTest {
                     .hasRateForProvider(PROVIDER_NAME, rate)
                     .hasDetailsForProvider(PROVIDER_NAME, details)
                     .hasVersion(ExchangeRateHelper.INITIAL_VERSION);
+        }
+
+        @Test
+        void shouldGetLatest() {
+            // given
+            final var today = DateUtils.localDateToInstantUTC(LocalDate.now());
+            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final Map<String, Object> details = Map.of();
+
+            final var currency_1 = CurrencyCode.AUD;
+            final var id_1 = UUID.randomUUID().toString();
+            final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(currency_1);
+
+            final var currency_2 = CurrencyCode.JPY;
+            final var id_2 = UUID.randomUUID().toString();
+            final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(currency_1);
+
+            final var expected_1 = createNewExchangeRate(id_1, currency_1, today, createdModified, Map.of(PROVIDER_NAME, rate_1), Map.of(PROVIDER_NAME, details));
+            final var expected_2 = createNewExchangeRate(id_2, currency_2, today, createdModified, Map.of(PROVIDER_NAME, rate_2), Map.of(PROVIDER_NAME, details));
+
+            final var expectedList = List.of(expected_1, expected_2);
+
+            // when
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(PageHelper.getPageRequest(0, 2));
+            when(exchangeRateService.findByDate(any(Pageable.class), any(LocalDate.class))).thenReturn(Page.empty());
+            when(exchangeRateService.findAll(eq(null), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(expectedList)));
+            latestCacheMap.saveInMemory();
+
+            final var result = latestCacheMap.getLatest(Set.of(currency_1, currency_2));
+
+            // then
+            assertThat(result).hasSize(2);
+            assertExchangeRates(result.values())
+                    .containsExactlyTheSameObjectsAs(expectedList)
+                    .forCurrencyHasExactlyTheSameAs(currency_1, expected_1)
+                    .forCurrencyHasExactlyTheSameAs(currency_2, expected_2);
         }
 
     }
