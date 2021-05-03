@@ -12,11 +12,12 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
 import mm.expenses.manager.exception.api.ApiNotFoundException;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheMapper;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
-import mm.expenses.manager.finance.exchangerate.latest.LatestRatesCache;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCache;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,7 @@ class ExchangeRateController {
     private final ExchangeRateService service;
     private final LatestRatesCache latest;
     private final ExchangeRateMapper mapper;
+    private final ExchangeRateCacheMapper cacheMapper;
 
     @Operation(
             summary = "Finds all available exchange rates.",
@@ -87,7 +89,7 @@ class ExchangeRateController {
     )
     @GetMapping(value = "/latest", produces = MediaType.APPLICATION_JSON_VALUE)
     ExchangeRatesPage findLatest() {
-        return new ExchangeRatesPage(mapper.groupAndSortResult(latest.getLatest().stream()));
+        return new ExchangeRatesPage(cacheMapper.groupAndSortResultCache(latest.getLatest().stream()));
     }
 
     @Operation(
@@ -154,7 +156,7 @@ class ExchangeRateController {
             throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
         }
         return latest.getLatest(currencyCode)
-                .map(mapper::map)
+                .map(cacheMapper::mapCache)
                 .orElseThrow(() -> new ApiNotFoundException(FinanceExceptionMessage.LATEST_CURRENCY_FOR_CODE_NOT_FOUND.withParameters(currencyCode.getCode())));
     }
 

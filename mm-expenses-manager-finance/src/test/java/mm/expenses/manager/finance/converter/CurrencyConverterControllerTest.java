@@ -5,10 +5,12 @@ import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.converter.strategy.ConversionStrategyType;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.exchangerate.latest.LatestCacheTest;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheTest;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Nested;
@@ -50,6 +52,9 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
     private ExchangeRateService exchangeRateService;
 
     @MockBean
+    private ExchangeRateCacheService exchangeRateCacheService;
+
+    @MockBean
     private CurrencyRatesConfig currencyRatesConfig;
 
     @Autowired
@@ -65,6 +70,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
     @Override
     protected void setupAfterEachTest() {
         reset(exchangeRateService);
+        reset(exchangeRateCacheService);
         reset(currencyRatesConfig);
         latestCacheTest.reset();
     }
@@ -117,7 +123,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             final var expectedConversionValue = convertForStrategy(ConversionStrategyType.TO_DEFAULT, null, rate.getTo().getValue());
 
             // when
-            when(exchangeRateService.findForCurrencyAndSpecificDate(currency, date)).thenReturn(Optional.of(expected));
+            when(exchangeRateCacheService.findForCurrencyAndSpecificDate(currency, date)).thenReturn(Optional.of(ExchangeRateCache.of(expected, true, PROVIDER_NAME)));
 
             // then
             mockMvc.perform(get(fromDifferentToDefaultWithDate(currency, 1, date)))
@@ -227,7 +233,49 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
 
         @ParameterizedTest
         @ArgumentsSource(CurrencyCodeCombinationsArgument.class)
-        void shouldConvertFromDifferentToDifferentWithDateAndId(final Pair<CurrencyCode, CurrencyCode> currencyPair) throws Exception {
+        void shouldConvertFromDifferentToDifferentWithDateAndIdFromCache(final Pair<CurrencyCode, CurrencyCode> currencyPair) throws Exception {
+            // given
+            final var from = currencyPair.getLeft();
+            final var to = currencyPair.getRight();
+
+            final var date = LocalDate.now().minusDays(2);
+            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final Map<String, Object> details = Map.of();
+
+            final var id_1 = UUID.randomUUID().toString();
+            final var rate_1 = ExchangeRateHelper.createNewRandomRateToPLN(from);
+            final var expected_1 = createNewExchangeRate(id_1, from, dateAsInstant, createdModified, Map.of(PROVIDER_NAME, rate_1), Map.of(PROVIDER_NAME, details));
+
+            final var id_2 = UUID.randomUUID().toString();
+            final var rate_2 = ExchangeRateHelper.createNewRandomRateToPLN(to);
+            final var expected_2 = createNewExchangeRate(id_2, to, dateAsInstant, createdModified, Map.of(PROVIDER_NAME, rate_2), Map.of(PROVIDER_NAME, details));
+
+            final var expectedConversionValue = convertForStrategy(ConversionStrategyType.DIFFERENT, rate_1.getTo().getValue(), rate_2.getTo().getValue());
+            final var idOfResult = UUID.randomUUID().toString();
+
+            // when
+            when(exchangeRateCacheService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date))).thenReturn(List.of(
+                    ExchangeRateCache.of(expected_1, true, PROVIDER_NAME), ExchangeRateCache.of(expected_2, true, PROVIDER_NAME)
+            ));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(PageHelper.getPageRequest(0, CurrencyCode.values().length - 2));
+            when(exchangeRateService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(List.of(expected_1, expected_2))));
+
+            // then
+            mockMvc.perform(get(fromDifferentToDifferentWithDateAndId(from, to, 1, date, idOfResult)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.date", is(date.toString())))
+                    .andExpect(jsonPath("$.id", is(idOfResult)))
+                    .andExpect(jsonPath("$.from.value", is(1.0)))
+                    .andExpect(jsonPath("$.from.code", is(from.toString())))
+                    .andExpect(jsonPath("$.to.value", is(convert(expectedConversionValue))))
+                    .andExpect(jsonPath("$.to.code", is(to.toString())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyCodeCombinationsArgument.class)
+        void shouldConvertFromDifferentToDifferentWithDateAndIdWhenCacheNoExist(final Pair<CurrencyCode, CurrencyCode> currencyPair) throws Exception {
             // given
             final var from = currencyPair.getLeft();
             final var to = currencyPair.getRight();

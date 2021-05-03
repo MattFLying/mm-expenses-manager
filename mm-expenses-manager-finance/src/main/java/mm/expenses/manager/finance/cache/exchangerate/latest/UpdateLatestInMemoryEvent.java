@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.latest;
+package mm.expenses.manager.finance.cache.exchangerate.latest;
 
 import org.springframework.context.ApplicationEvent;
 

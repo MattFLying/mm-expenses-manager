@@ -23,6 +23,7 @@ public enum CurrencyCode {
     CHF("Swiss Franc", 756, Set.of(CountryCode.CH, CountryCode.LI)),
     SEK("Swedish Krona", 752, Set.of(CountryCode.SE)),
     NZD("New Zealand Dollar", 554, Set.of(CountryCode.CK, CountryCode.NU, CountryCode.NZ, CountryCode.PN, CountryCode.TK)),
+    USD("US Dollar", 840, Set.of(CountryCode.AS, CountryCode.BQ, CountryCode.EC, CountryCode.FM, CountryCode.GU, CountryCode.HT, CountryCode.IO, CountryCode.MH, CountryCode.MP, CountryCode.PA, CountryCode.PR, CountryCode.PW, CountryCode.SV, CountryCode.TC, CountryCode.TL, CountryCode.UM, CountryCode.US, CountryCode.VG, CountryCode.VI)),
     PLN("Zloty", 985, Set.of(CountryCode.PL));
 
     private final String name;

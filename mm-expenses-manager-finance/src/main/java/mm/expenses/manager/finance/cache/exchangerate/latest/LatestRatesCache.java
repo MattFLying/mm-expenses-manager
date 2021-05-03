@@ -1,11 +1,11 @@
-package mm.expenses.manager.finance.exchangerate.latest;
+package mm.expenses.manager.finance.cache.exchangerate.latest;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.finance.exchangerate.ExchangeRate;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.Page;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -18,19 +18,19 @@ public interface LatestRatesCache {
     /**
      * @return Paged the latest available exchange rates.
      */
-    Page<ExchangeRate> getLatest();
+    Collection<ExchangeRateCache> getLatest();
 
     /**
      * @param currency currency code
      * @return The latest available exchange rate for given currency.
      */
-    Optional<ExchangeRate> getLatest(final CurrencyCode currency);
+    Optional<ExchangeRateCache> getLatest(final CurrencyCode currency);
 
     /**
      * @param currencyCodes set of currency codes
      * @return latest exchange rates as map for set of curreny codes
      */
-    Map<CurrencyCode, ExchangeRate> getLatest(final Set<CurrencyCode> currencyCodes);
+    Map<CurrencyCode, ExchangeRateCache> getLatest(final Set<CurrencyCode> currencyCodes);
 
     /**
      * Save the latest currency rates into memory cache. Method is called during {@link ContextRefreshedEvent} execution

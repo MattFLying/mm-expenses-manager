@@ -13,7 +13,7 @@
 
     <name>Expenses Manager Finance Service</name>
     <artifactId>mm-expenses-manager-finance</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.4.5-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
@@ -105,8 +105,10 @@
                 <version>${maven-surefire-version}</version>
                 <configuration>
                     <reuseForks>true</reuseForks>
+                    <forkCount>2</forkCount>
                     <excludes>
                         <exclude>mm/expenses/manager/finance/exchangerate/ExchangeRateMapperImpl.class</exclude>
+                        <exclude>mm/expenses/manager/finance/cache/exchangerate/ExchangeRateCacheMapperImpl.class</exclude>
                         <exclude>mm/expenses/manager/finance/converter/CurrencyConverterMapperImpl.class</exclude>
                     </excludes>
                 </configuration>
@@ -132,6 +134,7 @@
                 <configuration>
                     <excludes>
                         <exclude>mm/expenses/manager/finance/exchangerate/ExchangeRateMapperImpl.class</exclude>
+                        <exclude>mm/expenses/manager/finance/cache/exchangerate/ExchangeRateCacheMapperImpl.class</exclude>
                         <exclude>mm/expenses/manager/finance/converter/CurrencyConverterMapperImpl.class</exclude>
                     </excludes>
                     <rules>

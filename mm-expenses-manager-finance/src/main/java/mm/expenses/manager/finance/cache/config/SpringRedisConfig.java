@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.latest.config;
+package mm.expenses.manager.finance.cache.config;
 
 import lombok.Data;
 import lombok.Generated;

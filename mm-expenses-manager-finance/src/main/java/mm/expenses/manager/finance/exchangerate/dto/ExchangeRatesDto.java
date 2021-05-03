@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.exchangerate.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Builder;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class ExchangeRatesDto {
         private final RateDto rate;
 
         @Getter
+        @Builder
         @RequiredArgsConstructor
         @JsonPropertyOrder({"from", "to"})
         public static class RateDto {
@@ -45,6 +47,7 @@ public class ExchangeRatesDto {
         }
 
         @Getter
+        @Builder
         @RequiredArgsConstructor
         @JsonPropertyOrder({"currency", "value"})
         public static class CurrencyValueDto {

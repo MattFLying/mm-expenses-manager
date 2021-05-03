@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.exchangerate.latest;
+package mm.expenses.manager.finance.cache.exchangerate.latest;
 
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import org.junit.jupiter.api.Test;

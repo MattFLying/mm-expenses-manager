@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public final class MapperImplNaming {
 
     public static final String EXCHANGE_RATE_MAPPER = "ExchangeRateMapperImpl";
+    public static final String EXCHANGE_RATE_CACHE_MAPPER = "ExchangeRateCacheMapperImpl";
     public static final String CURRENCY_CONVERTER_MAPPER = "CurrencyConverterMapperImpl";
 
 }

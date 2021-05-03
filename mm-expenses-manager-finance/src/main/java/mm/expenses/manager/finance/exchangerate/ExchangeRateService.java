@@ -3,7 +3,7 @@ package mm.expenses.manager.finance.exchangerate;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
-import mm.expenses.manager.finance.exchangerate.latest.UpdateLatestInMemoryEvent;
+import mm.expenses.manager.finance.cache.exchangerate.latest.UpdateLatestInMemoryEvent;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;

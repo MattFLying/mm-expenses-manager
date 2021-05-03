@@ -14,7 +14,7 @@ enum TableType {
     UNKNOWN(Set.of()),
     A(Set.of(
             CurrencyCode.AUD, CurrencyCode.CAD, CurrencyCode.NZD, CurrencyCode.EUR, CurrencyCode.CHF,
-            CurrencyCode.GBP, CurrencyCode.JPY, CurrencyCode.SEK
+            CurrencyCode.GBP, CurrencyCode.JPY, CurrencyCode.SEK, CurrencyCode.USD
     ));
 
     private final Set<CurrencyCode> currencies;

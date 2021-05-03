@@ -4,7 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
-import mm.expenses.manager.finance.exchangerate.latest.LatestCacheTest;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -2,11 +2,12 @@ package mm.expenses.manager.finance.converter.strategy;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache.RateCache;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
-import mm.expenses.manager.finance.exchangerate.ExchangeRate.CurrencyValue;
-import mm.expenses.manager.finance.exchangerate.ExchangeRate.Rate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.exchangerate.latest.LatestRatesCache;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCache;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Slice;
@@ -14,10 +15,8 @@ import org.springframework.data.domain.Slice;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static mm.expenses.manager.common.util.DateUtils.instantToLocalDateUTC;
@@ -34,6 +33,7 @@ abstract class BaseConversion implements ConversionStrategy {
     protected static final MathContext DECIMAL_DIGITS = MathContext.DECIMAL32;
 
     protected final ExchangeRateService exchangeRateService;
+    protected final ExchangeRateCacheService exchangeRateCacheService;
     protected final LatestRatesCache latestRatesCache;
     protected final CurrencyRatesConfig config;
 
@@ -47,36 +47,50 @@ abstract class BaseConversion implements ConversionStrategy {
      */
     protected abstract BigDecimal calculate(final BigDecimal from, final BigDecimal to, final BigDecimal value);
 
-    protected Pair<LocalDate, Rate> getRateLatest(final CurrencyCode code) {
-        return latestRatesCache.getLatest(code).map(rate -> Pair.of(
-                instantToLocalDateUTC(rate.getDate()), getRate(rate)
-        )).orElse(Pair.of(LocalDate.now(), Rate.empty()));
+    protected Pair<LocalDate, ExchangeRateCache> getRateLatest(final CurrencyCode code) {
+        return latestRatesCache.getLatest(code).map(rate -> Pair.of(rate.getDate(), rate)).orElse(Pair.of(LocalDate.now(), ExchangeRateCache.empty(code)));
     }
 
-    protected Map<CurrencyCode, Pair<LocalDate, Rate>> getRatesLatest(final Set<CurrencyCode> codes) {
+    protected Map<CurrencyCode, Pair<LocalDate, ExchangeRateCache>> getRatesLatest(final Set<CurrencyCode> codes) {
         return latestRatesCache.getLatest(codes).entrySet()
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        rateEntry -> Pair.of(instantToLocalDateUTC(rateEntry.getValue().getDate()), getRate(rateEntry.getValue()))
+                        rateEntry -> Pair.of(rateEntry.getValue().getDate(), rateEntry.getValue())
                 ));
     }
 
-    protected Pair<LocalDate, Rate> getRateForDate(final CurrencyCode code, final LocalDate date) {
-        return exchangeRateService.findForCurrencyAndSpecificDate(code, date).map(rate -> Pair.of(
-                instantToLocalDateUTC(rate.getDate()), getRate(rate)
-        )).orElse(Pair.of(date, Rate.empty()));
+    protected Pair<LocalDate, ExchangeRateCache> getRateForDate(final CurrencyCode code, final LocalDate date) {
+        final var fromCache = exchangeRateCacheService.findForCurrencyAndSpecificDate(code, date);
+        if (fromCache.isPresent()) {
+            return Pair.of(date, fromCache.get());
+        }
+
+        final var fresh = exchangeRateService.findForCurrencyAndSpecificDate(code, date);
+        fresh.ifPresent(exchangeRate -> CompletableFuture.runAsync(() -> exchangeRateCacheService.saveFresh(List.of(exchangeRate), false)));
+
+        return fresh.map(rate -> Pair.of(instantToLocalDateUTC(rate.getDate()), ExchangeRateCache.of(rate, config.getDefaultProvider()))).orElse(Pair.of(date, ExchangeRateCache.empty(code)));
     }
 
-    protected Map<CurrencyCode, Pair<LocalDate, Rate>> getRatesForDate(final Set<CurrencyCode> codes, final LocalDate date) {
+    protected Map<CurrencyCode, Pair<LocalDate, ExchangeRateCache>> getRatesForDate(final Set<CurrencyCode> codes, final LocalDate date) {
         final var pageSize = config.getAllRequiredCurrenciesCode().size();
-        return exchangeRateService.findForCurrencyCodesAndSpecificDate(codes, date, exchangeRateService.pageRequest(0, pageSize))
+
+        final var fromCache = exchangeRateCacheService.findForCurrencyCodesAndSpecificDate(codes, date);
+        if (!fromCache.isEmpty() && fromCache.size() == codes.size()) {
+            return fromCache.stream().collect(Collectors.toMap(ExchangeRateCache::getCurrency, rateCache -> Pair.of(rateCache.getDate(), rateCache)));
+        }
+
+        final var fresh = exchangeRateService.findForCurrencyCodesAndSpecificDate(codes, date, exchangeRateService.pageRequest(0, pageSize))
                 .filter(Objects::nonNull)
                 .map(Slice::getContent)
                 .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        CompletableFuture.runAsync(() -> exchangeRateCacheService.saveFresh(fresh, false));
+
+        return fresh.stream()
                 .collect(Collectors.toMap(
                         ExchangeRate::getCurrency,
-                        rateEntry -> Pair.of(instantToLocalDateUTC(rateEntry.getDate()), getRate(rateEntry))
+                        rateEntry -> Pair.of(instantToLocalDateUTC(rateEntry.getDate()), ExchangeRateCache.of(rateEntry, config.getDefaultProvider()))
                 ));
     }
 
@@ -84,12 +98,8 @@ abstract class BaseConversion implements ConversionStrategy {
         return BigDecimal.valueOf(value);
     }
 
-    protected BigDecimal valueOf(final CurrencyValue value) {
-        return valueOf(value.getValue());
-    }
-
-    private Rate getRate(final ExchangeRate rate) {
-        return rate.getRateByProvider(config.getDefaultProvider(), true);
+    protected BigDecimal valueOf(final RateCache value) {
+        return valueOf(value.getRate());
     }
 
 }

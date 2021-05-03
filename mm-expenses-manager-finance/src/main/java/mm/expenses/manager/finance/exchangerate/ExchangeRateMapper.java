@@ -27,9 +27,9 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     @Autowired
     protected CurrencyProviders providers;
 
-    @Mapping(target = "date", expression = "java(fromInstantToLocalDate(entity.getDate()))")
-    @Mapping(target = "rate", expression = "java(map(entity.getRateByProvider(providers.getProviderName(), true)))")
-    abstract ExchangeRateDto mapToDto(final ExchangeRate entity);
+    @Mapping(target = "date", expression = "java(fromInstantToLocalDate(exchangeRate.getDate()))")
+    @Mapping(target = "rate", expression = "java(map(exchangeRate.getRateByProvider(providers.getProviderName(), true)))")
+    abstract ExchangeRateDto mapToDto(final ExchangeRate exchangeRate);
 
     @Mapping(target = "date", expression = "java(fromLocalDateToInstant(domain.getDate()))")
     @Mapping(target = "ratesByProvider", expression = "java(map(domain, providers.getProviderName()))")
@@ -39,12 +39,12 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     abstract ExchangeRate map(final CurrencyRate domain, final Instant now);
 
     @Mapping(target = "currency", source = "currency")
-    @Mapping(target = "rates", expression = "java(entities.stream().map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
-    abstract ExchangeRatesDto map(final CurrencyCode currency, final Collection<ExchangeRate> entities);
+    @Mapping(target = "rates", expression = "java(exchangeRates.stream().map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
+    abstract ExchangeRatesDto map(final CurrencyCode currency, final Collection<ExchangeRate> exchangeRates);
 
-    @Mapping(target = "currency", expression = "java(entity.getCurrency())")
-    @Mapping(target = "rates", expression = "java(java.util.stream.Stream.of(entity).map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
-    abstract ExchangeRatesDto map(final ExchangeRate entity);
+    @Mapping(target = "currency", expression = "java(exchangeRate.getCurrency())")
+    @Mapping(target = "rates", expression = "java(java.util.stream.Stream.of(exchangeRate).map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
+    abstract ExchangeRatesDto map(final ExchangeRate exchangeRate);
 
     abstract RateDto map(final Rate rate);
 
@@ -60,19 +60,6 @@ abstract class ExchangeRateMapper extends AbstractMapper {
         return Rate.of(currencyFrom, currencyTo, currencyValueTo);
     }
 
-    protected List<ExchangeRatesDto> groupAndSortResult(final Stream<ExchangeRate> result) {
-        return result
-                .collect(Collectors.groupingBy(
-                        ExchangeRate::getCurrency,
-                        () -> new TreeMap<>(Comparator.comparing(CurrencyCode::getCode)),
-                        Collectors.toList()
-                ))
-                .entrySet()
-                .stream()
-                .map(entry -> map(entry.getKey(), sortByDateByTheNewest(entry.getValue())))
-                .collect(Collectors.toList());
-    }
-
     protected Collection<ExchangeRatePage> groupAndSortPagedResult(final Stream<Page<ExchangeRate>> result) {
         return result
                 .map(page -> new ExchangeRatePage(map(getCurrencyForPage(page), sortByDateByTheNewest(page.getContent())), page))
@@ -85,8 +72,8 @@ abstract class ExchangeRateMapper extends AbstractMapper {
         return page.getContent().stream().findFirst().map(ExchangeRate::getCurrency).orElse(CurrencyCode.UNDEFINED);
     }
 
-    private Collection<ExchangeRate> sortByDateByTheNewest(final Collection<ExchangeRate> entities) {
-        return entities.stream().sorted(Comparator.comparing(ExchangeRate::getDate).reversed()).collect(Collectors.toList());
+    private Collection<ExchangeRate> sortByDateByTheNewest(final Collection<ExchangeRate> exchangeRates) {
+        return exchangeRates.stream().sorted(Comparator.comparing(ExchangeRate::getDate).reversed()).collect(Collectors.toList());
     }
 
 }

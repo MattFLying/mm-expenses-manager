@@ -1,18 +1,19 @@
 app:
-    configuration:
-        cache: test
-    currency:
-        synchronization-cron: "* * * * * *"
-        reschedule-when-synchronization-failed-cron: "* * * * * *"
-        clean-reschedule-cron: "* * * * * *"
-        provider:
-            nbp:
-                name: nbp
-                client: npb-client
-                url: test
-                details:
-                    data-format: json
-                    currency: PLN
-                    history-from-year: 2002
-                    max-days-to-fetch: 90
-
+  configuration:
+    cache:
+      type: test
+      clear-cron: "* * * * * *"
+  currency:
+    synchronization-cron: "* * * * * *"
+    reschedule-when-synchronization-failed-cron: "* * * * * *"
+    clean-reschedule-cron: "* * * * * *"
+    provider:
+      nbp:
+        name: nbp
+        client: npb-client
+        url: test
+        details:
+          data-format: json
+          currency: PLN
+          history-from-year: 2002
+          max-days-to-fetch: 90
