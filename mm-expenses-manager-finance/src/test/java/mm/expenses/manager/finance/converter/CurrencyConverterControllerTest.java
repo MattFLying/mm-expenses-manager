@@ -10,7 +10,7 @@ import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.converter.strategy.ConversionStrategyType;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheTest;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheServiceTest;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Nested;
@@ -58,7 +58,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
     private CurrencyRatesConfig currencyRatesConfig;
 
     @Autowired
-    private LatestCacheTest latestCacheTest;
+    private LatestCacheServiceTest latestCacheTest;
 
     @Override
     protected void setupBeforeEachTest() {

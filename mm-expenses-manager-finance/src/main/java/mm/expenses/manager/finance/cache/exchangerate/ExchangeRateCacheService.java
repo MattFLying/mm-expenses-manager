@@ -3,6 +3,7 @@ package mm.expenses.manager.finance.cache.exchangerate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheRepository.CacheType;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -52,6 +53,10 @@ public class ExchangeRateCacheService {
 
     public void saveFresh(final Collection<ExchangeRate> freshRates, final boolean isLatest) {
         repository.saveAll(freshRates.stream().map(exchangeRate -> ExchangeRateCache.of(exchangeRate, isLatest, config.getDefaultProvider())).collect(Collectors.toList()));
+    }
+
+    public CacheType getCacheType() {
+        return repository.getCacheType();
     }
 
     void clearCache() {

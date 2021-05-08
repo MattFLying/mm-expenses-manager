@@ -4,7 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCache;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCacheService;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +14,8 @@ import java.time.LocalDate;
 @Component
 class ConvertFromDefault extends BaseConversion {
 
-    ConvertFromDefault(final ExchangeRateService exchangeRateService, final ExchangeRateCacheService exchangeRateCacheService, final LatestRatesCache latestRatesCache, final CurrencyRatesConfig config) {
-        super(exchangeRateService, exchangeRateCacheService, latestRatesCache, config);
+    ConvertFromDefault(final ExchangeRateService exchangeRateService, final ExchangeRateCacheService exchangeRateCacheService, final LatestRatesCacheService latestRatesCacheService, final CurrencyRatesConfig config) {
+        super(exchangeRateService, exchangeRateCacheService, latestRatesCacheService, config);
     }
 
     @Override

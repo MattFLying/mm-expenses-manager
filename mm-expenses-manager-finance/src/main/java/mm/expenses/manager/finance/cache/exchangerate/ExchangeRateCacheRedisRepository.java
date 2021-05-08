@@ -1,5 +1,6 @@
 package mm.expenses.manager.finance.cache.exchangerate;
 
+import lombok.Generated;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.repository.CrudRepository;
 
@@ -14,5 +15,11 @@ interface ExchangeRateCacheRedisRepository extends CrudRepository<ExchangeRateCa
 
     @Override
     void deleteAll();
+
+    @Generated
+    @Override
+    default CacheType getCacheType() {
+        return CacheType.REDIS;
+    }
 
 }

@@ -8,21 +8,21 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import static org.mockito.Mockito.*;
 
-class LatestRatesCacheTest extends FinanceApplicationTest {
+class LatestRatesCacheServiceEventTest extends FinanceApplicationTest {
 
     @MockBean
-    private LatestRatesCache latestRatesCache;
+    private LatestRatesCacheService latestRatesCacheService;
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
     @Test
     void shouldCallSaveInMemoryAfterContextRefreshedEventAndUpdateLatestInMemoryEvent() {
-        verify(latestRatesCache).saveInMemory(); // verify after ContextRefreshedEvent
-        reset(latestRatesCache);
+        verify(latestRatesCacheService).saveInMemory(); // verify after ContextRefreshedEvent
+        reset(latestRatesCacheService);
 
         eventPublisher.publishEvent(new UpdateLatestInMemoryEvent(this));
-        verify(latestRatesCache).saveInMemory(); // verify after UpdateLatestInMemoryEvent
+        verify(latestRatesCacheService).saveInMemory(); // verify after UpdateLatestInMemoryEvent
     }
 
 }

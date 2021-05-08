@@ -8,6 +8,7 @@ import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -17,12 +18,13 @@ import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyH
 
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "app.configuration.cache", name = "type", havingValue = "test", matchIfMissing = true)
-public class LatestCacheTest extends LatestCacheInit {
+@Profile("test")
+@ConditionalOnProperty(prefix = "app.configuration.cache", name = "type", havingValue = "map", matchIfMissing = true)
+public class LatestCacheServiceTest extends LatestRatesCacheService {
 
     final Map<CurrencyCode, ExchangeRateCache> map = new HashMap<>();
 
-    LatestCacheTest(final CurrencyRatesConfig config, final ExchangeRateService service, final ExchangeRateCacheService exchangeRateCacheService) {
+    LatestCacheServiceTest(final CurrencyRatesConfig config, final ExchangeRateService service, final ExchangeRateCacheService exchangeRateCacheService) {
         super(config, service, exchangeRateCacheService);
     }
 
@@ -42,11 +44,6 @@ public class LatestCacheTest extends LatestCacheInit {
     @Override
     public Optional<ExchangeRateCache> getLatest(final CurrencyCode currency) {
         return Optional.ofNullable(map.get(currency));
-    }
-
-    @Override
-    protected CacheType cacheType() {
-        return CacheType.MAP;
     }
 
     @Override

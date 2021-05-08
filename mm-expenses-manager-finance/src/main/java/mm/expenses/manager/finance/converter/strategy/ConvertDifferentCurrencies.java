@@ -4,7 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCache;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCacheService;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +15,8 @@ import java.util.Set;
 @Component
 class ConvertDifferentCurrencies extends BaseConversion {
 
-    ConvertDifferentCurrencies(final ExchangeRateService exchangeRateService, final ExchangeRateCacheService exchangeRateCacheService, final LatestRatesCache latestRatesCache, final CurrencyRatesConfig config) {
-        super(exchangeRateService, exchangeRateCacheService, latestRatesCache, config);
+    ConvertDifferentCurrencies(final ExchangeRateService exchangeRateService, final ExchangeRateCacheService exchangeRateCacheService, final LatestRatesCacheService latestRatesCacheService, final CurrencyRatesConfig config) {
+        super(exchangeRateService, exchangeRateCacheService, latestRatesCacheService, config);
     }
 
     @Override

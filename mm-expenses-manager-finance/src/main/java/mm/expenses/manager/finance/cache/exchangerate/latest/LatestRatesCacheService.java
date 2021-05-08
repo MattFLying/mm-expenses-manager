@@ -10,8 +10,12 @@ import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -20,20 +24,47 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Component
+@Profile("!test")
 @RequiredArgsConstructor
-abstract class LatestCacheInit implements LatestRatesCache {
+public class LatestRatesCacheService {
 
     private static final long DAYS_TO_FIND_IN_PAST = 10L;
 
-    protected final CurrencyRatesConfig config;
-    protected final ExchangeRateService service;
-    protected final ExchangeRateCacheService exchangeRateCacheService;
+    private final CurrencyRatesConfig currencyRatesConfig;
+    private final ExchangeRateService exchangeRateService;
+    private final ExchangeRateCacheService exchangeRateCacheService;
 
-    protected abstract CacheType cacheType();
+    /**
+     * @return Paged the latest available exchange rates.
+     */
+    public Collection<ExchangeRateCache> getLatest() {
+        return exchangeRateCacheService.findAllLatest();
+    }
 
-    @Override
+    /**
+     * @param currencyCodes set of currency codes
+     * @return latest exchange rates as map for set of curreny codes
+     */
+    public Map<CurrencyCode, ExchangeRateCache> getLatest(final Set<CurrencyCode> currencyCodes) {
+        return exchangeRateCacheService.findAllLatestOfCurrencies(currencyCodes).stream().collect(Collectors.toMap(ExchangeRateCache::getCurrency, Function.identity()));
+    }
+
+    /**
+     * @param currency currency code
+     * @return The latest available exchange rate for given currency.
+     */
+    public Optional<ExchangeRateCache> getLatest(final CurrencyCode currency) {
+        return exchangeRateCacheService.findLatestForCurrency(currency);
+    }
+
+    /**
+     * Save the latest currency rates into memory cache. Method is called during {@link ContextRefreshedEvent} execution
+     * and when synchronization process successfully saved current rates {@link UpdateLatestInMemoryEvent}
+     */
+    @EventListener({ContextRefreshedEvent.class, UpdateLatestInMemoryEvent.class})
     public void saveInMemory() {
-        log.info("Latest exchange rates saving into memory {}.", cacheType());
+        log.info("Latest exchange rates saving into memory of {}.", exchangeRateCacheService.getCacheType());
         final var freshLatest = findLatestAvailableByDate().lastEntry().getValue().stream().collect(Collectors.toMap(ExchangeRate::getId, Function.identity()));
         final var latestInCache = getLatest().stream().collect(Collectors.toMap(ExchangeRateCache::getId, Function.identity()));
 
@@ -49,12 +80,12 @@ abstract class LatestCacheInit implements LatestRatesCache {
     }
 
     protected Set<CurrencyCode> getAllRequiredCurrenciesCode() {
-        return config.getAllRequiredCurrenciesCode();
+        return currencyRatesConfig.getAllRequiredCurrenciesCode();
     }
 
     protected NavigableMap<Instant, List<ExchangeRate>> findLatestAvailableByDate() {
         final var requiredCurrencies = getAllRequiredCurrenciesCode();
-        final var pageRequest = service.pageRequest(0, requiredCurrencies.size());
+        final var pageRequest = exchangeRateService.pageRequest(0, requiredCurrencies.size());
         NavigableMap<Instant, List<ExchangeRate>> allLatest = findAllLatest(pageRequest);
 
         final var now = DateUtils.instantToLocalDateUTC(DateUtils.now());
@@ -78,20 +109,16 @@ abstract class LatestCacheInit implements LatestRatesCache {
     }
 
     private TreeMap<Instant, List<ExchangeRate>> findAll(final PageRequest pageRequest, final LocalDate from, final LocalDate to, final long minusDays) {
-        return service.findAll(null, from.minusDays(minusDays), to.minusDays(minusDays), pageRequest)
+        return exchangeRateService.findAll(null, from.minusDays(minusDays), to.minusDays(minusDays), pageRequest)
                 .map(Slice::getContent)
                 .flatMap(Collection::stream)
                 .collect(Collectors.groupingBy(ExchangeRate::getDate, TreeMap::new, Collectors.toList()));
     }
 
     private TreeMap<Instant, List<ExchangeRate>> findAllLatest(final PageRequest pageRequest) {
-        return service.findByDate(pageRequest, DateUtils.instantToLocalDateUTC(Instant.now()))
+        return exchangeRateService.findByDate(pageRequest, DateUtils.instantToLocalDateUTC(Instant.now()))
                 .stream()
                 .collect(Collectors.groupingBy(ExchangeRate::getDate, TreeMap::new, Collectors.toList()));
-    }
-
-    enum CacheType {
-        MAP, REDIS;
     }
 
 }

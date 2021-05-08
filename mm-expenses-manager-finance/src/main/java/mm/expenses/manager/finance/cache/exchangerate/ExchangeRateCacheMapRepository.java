@@ -12,7 +12,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-@Generated
 @ConditionalOnProperty(prefix = "app.configuration.cache", name = "type", havingValue = "map", matchIfMissing = true)
 class ExchangeRateCacheMapRepository extends HashMap<String, ExchangeRateCache> implements ExchangeRateCacheRepository {
 
@@ -62,11 +61,6 @@ class ExchangeRateCacheMapRepository extends HashMap<String, ExchangeRateCache> 
     }
 
     @Override
-    public Collection<ExchangeRateCache> findAll() {
-        return values();
-    }
-
-    @Override
     public <S extends ExchangeRateCache> Iterable<S> saveAll(final Iterable<S> toSave) {
         final var toBeSaved = IterableUtils.toList(toSave);
         putAll(toBeSaved.stream().collect(Collectors.toMap(ExchangeRateCache::getId, Function.identity())));
@@ -81,6 +75,12 @@ class ExchangeRateCacheMapRepository extends HashMap<String, ExchangeRateCache> 
     @Override
     public void deleteAll() {
         values().clear();
+    }
+
+    @Generated
+    @Override
+    public CacheType getCacheType() {
+        return CacheType.MAP;
     }
 
 }

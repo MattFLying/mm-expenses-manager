@@ -24,12 +24,16 @@ interface ExchangeRateCacheRepository {
 
     Collection<ExchangeRateCache> findByIsLatestFalse();
 
-    Collection<ExchangeRateCache> findAll();
-
     <S extends ExchangeRateCache> Iterable<S> saveAll(final Iterable<S> toSave);
 
     void deleteAll(final Iterable<? extends ExchangeRateCache> toRemove);
 
     void deleteAll();
+
+    CacheType getCacheType();
+
+    enum CacheType {
+        REDIS, MAP;
+    }
 
 }

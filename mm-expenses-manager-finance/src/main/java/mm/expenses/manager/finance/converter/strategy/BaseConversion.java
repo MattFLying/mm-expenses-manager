@@ -7,7 +7,7 @@ import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache.RateCach
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCache;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCacheService;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Slice;
@@ -34,7 +34,7 @@ abstract class BaseConversion implements ConversionStrategy {
 
     protected final ExchangeRateService exchangeRateService;
     protected final ExchangeRateCacheService exchangeRateCacheService;
-    protected final LatestRatesCache latestRatesCache;
+    protected final LatestRatesCacheService latestRatesCacheService;
     protected final CurrencyRatesConfig config;
 
     /**
@@ -48,11 +48,11 @@ abstract class BaseConversion implements ConversionStrategy {
     protected abstract BigDecimal calculate(final BigDecimal from, final BigDecimal to, final BigDecimal value);
 
     protected Pair<LocalDate, ExchangeRateCache> getRateLatest(final CurrencyCode code) {
-        return latestRatesCache.getLatest(code).map(rate -> Pair.of(rate.getDate(), rate)).orElse(Pair.of(LocalDate.now(), ExchangeRateCache.empty(code)));
+        return latestRatesCacheService.getLatest(code).map(rate -> Pair.of(rate.getDate(), rate)).orElse(Pair.of(LocalDate.now(), ExchangeRateCache.empty(code)));
     }
 
     protected Map<CurrencyCode, Pair<LocalDate, ExchangeRateCache>> getRatesLatest(final Set<CurrencyCode> codes) {
-        return latestRatesCache.getLatest(codes).entrySet()
+        return latestRatesCacheService.getLatest(codes).entrySet()
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,

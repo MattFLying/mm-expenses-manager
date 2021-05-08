@@ -17,7 +17,7 @@ import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
-import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCache;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCacheService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +33,7 @@ import java.util.Objects;
 class ExchangeRateController {
 
     private final ExchangeRateService service;
-    private final LatestRatesCache latest;
+    private final LatestRatesCacheService latest;
     private final ExchangeRateMapper mapper;
     private final ExchangeRateCacheMapper cacheMapper;
 

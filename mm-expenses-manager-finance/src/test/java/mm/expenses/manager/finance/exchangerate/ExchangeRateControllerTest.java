@@ -4,7 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
-import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheTest;
+import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheServiceTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,7 +39,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
     private ExchangeRateRepository repository;
 
     @Autowired
-    private LatestCacheTest latestCacheTest;
+    private LatestCacheServiceTest latestCacheTest;
 
     @Override
     protected void setupAfterEachTest() {

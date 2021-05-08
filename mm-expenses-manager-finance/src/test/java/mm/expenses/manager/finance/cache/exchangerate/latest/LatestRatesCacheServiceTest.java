@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class LatestCacheMapTest extends FinanceApplicationTest {
+class LatestRatesCacheServiceTest extends FinanceApplicationTest {
 
     @MockBean
     private CurrencyRatesConfig currencyRatesConfig;
@@ -41,13 +41,13 @@ class LatestCacheMapTest extends FinanceApplicationTest {
     @MockBean
     private ExchangeRateCacheService exchangeRateCacheService;
 
-    private LatestCacheMap latestCacheMap;
+    private LatestRatesCacheService latestCacheMap;
 
     @Override
     protected void setupBeforeEachTest() {
         when(currencyRatesConfig.getDefaultCurrency()).thenReturn(DEFAULT_CURRENCY);
         when(currencyRatesConfig.getAllRequiredCurrenciesCode()).thenCallRealMethod();
-        this.latestCacheMap = new LatestCacheMap(currencyRatesConfig, exchangeRateService, exchangeRateCacheService);
+        this.latestCacheMap = new LatestRatesCacheService(currencyRatesConfig, exchangeRateService, exchangeRateCacheService);
     }
 
     @Override
@@ -57,11 +57,6 @@ class LatestCacheMapTest extends FinanceApplicationTest {
         reset(exchangeRateCacheService);
     }
 
-
-    @Test
-    void shouldRetrieveRedisCacheType() {
-        assertThat(latestCacheMap.cacheType()).isEqualTo(LatestCacheInit.CacheType.MAP);
-    }
 
     @Nested
     class SaveInMemory {

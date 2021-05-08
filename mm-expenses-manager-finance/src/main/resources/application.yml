@@ -41,6 +41,8 @@ server:
 spring:
   application:
     name: ${app.configuration.name}
+  profiles:
+    active: dev
   cache:
     type: redis
   redis:
