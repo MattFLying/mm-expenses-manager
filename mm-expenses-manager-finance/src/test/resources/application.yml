@@ -1,5 +1,12 @@
 app:
   configuration:
+    name: test
+    version: test
+    description: test
+    contact:
+      name: test
+      email: test
+      role: test
     cache:
       type: map
       clear-cron: "0 * * * * *"
