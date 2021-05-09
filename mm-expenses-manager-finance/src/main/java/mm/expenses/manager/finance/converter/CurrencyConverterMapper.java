@@ -16,6 +16,7 @@ abstract class CurrencyConverterMapper extends AbstractMapper {
     @Mapping(target = "to", expression = "java(map(currencyConversion.getTo()))")
     abstract CurrencyConversionDto map(final CurrencyConversion currencyConversion);
 
+    @Mapping(target = "code", expression = "java(currencyConversion.getCode().getCode())")
     abstract CurrencyConversionValueDto map(final CurrencyRate currencyConversion);
 
 }

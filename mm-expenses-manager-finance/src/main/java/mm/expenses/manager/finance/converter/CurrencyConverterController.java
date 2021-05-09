@@ -23,35 +23,35 @@ import java.util.Objects;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("calculations")
-@Tag(name = "currency-converter", description = "API of currency conversion.")
+@Tag(name = "Calculations", description = "Provide API to currencies conversion.")
 class CurrencyConverterController {
 
     private final CurrencyConverterService currencyConverterService;
     private final CurrencyConverterMapper mapper;
 
     @Operation(
-            summary = "Convert single currency.",
-            description = "Convert single currency with latest exchange rate or with given date.",
+            summary = "Convert single currency with latest exchange rate or with given date.",
+            description = "Allow to calculate exchange rate for specific currency code with additional parameters.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = CurrencyConversionDto.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     )
             }
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    CurrencyConversionDto convertRate(@Parameter(description = "Currency from which will be made conversion.") @RequestParam(value = "from") final String from,
-                                      @Parameter(description = "Currency to which will be made conversion.") @RequestParam(value = "to") final String to,
+    CurrencyConversionDto convertRate(@Parameter(description = "Currency code from which will be made conversion.") @RequestParam(value = "from") final String from,
+                                      @Parameter(description = "Currency code to which will be made conversion.") @RequestParam(value = "to") final String to,
                                       @Parameter(description = "Value of currency from which will be made conversion.") @RequestParam(value = "value") final BigDecimal value,
-                                      @Parameter(description = "Date of needed exchange rate.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
-                                      @Parameter(description = "Id must be passed by client to recognize result by its id or it will be null.") @RequestParam(value = "id", required = false) final String id) {
+                                      @Parameter(description = "Specific date of exchange rate.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
+                                      @Parameter(description = "Id to be used for calculated result and retrieved with it. Just for recognition purposes, id won't be processed.") @RequestParam(value = "id", required = false) final String id) {
         final var currencyCodeFrom = CurrencyCode.getCurrencyFromString(from, false);
         final var currencyCodeTo = CurrencyCode.getCurrencyFromString(to, false);
         if (currencyCodeFrom.equals(CurrencyCode.UNDEFINED) || currencyCodeTo.equals(CurrencyCode.UNDEFINED)) {

@@ -29,15 +29,15 @@ import java.util.Objects;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("management")
-@Tag(name = "management", description = "API for management of finance.")
+@Tag(name = "Management", description = "Provide API for service management.")
 class ManagementController {
 
     private final ExchangeRateService exchangeRateService;
     private final ExchangeRateTrailService exchangeRateTrailService;
 
     @Operation(
-            summary = "Fetch and save historical exchange rates.",
-            description = "Fetching all historical exchange rates for all available currencies and saving.",
+            summary = "Update historical exchange rates.",
+            description = "Update historical exchange rates for all available currency codes.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "OK", content = @Content)
             }
@@ -49,26 +49,26 @@ class ManagementController {
     }
 
     @Operation(
-            summary = "Finds exchange rates trails.",
-            description = "Finds operations logs of operations on exchange rates.",
+            summary = "Finds trails of exchange rates operations.",
+            description = "Check logs for all available operations on exchange rates in service.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExchangeRatesTrailsPage.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     )
             }
     )
     @GetMapping(value = "/exchange-rates/trails", produces = MediaType.APPLICATION_JSON_VALUE)
-    ExchangeRatesTrailsPage findAllTrails(@Parameter(description = "Date of needed exchange rates trail.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
+    ExchangeRatesTrailsPage findAllTrails(@Parameter(description = "Specific date to be found.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
                                           @Parameter(description = "Type of exchange rate operation.") @RequestParam(value = "operation", required = false) final TrailOperation operation,
-                                          @Parameter(description = "State of exchange rate operation.") @RequestParam(value = "state", required = false) final State state,
+                                          @Parameter(description = "Status of exchange rate operation.") @RequestParam(value = "state", required = false) final State state,
                                           @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
                                           @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {

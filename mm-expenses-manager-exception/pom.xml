@@ -12,6 +12,8 @@
     </parent>
 
     <name>Expenses Manager Exception Service</name>
+    <description>Expenses Manager library that provide exceptions functionalities.</description>
+
     <artifactId>mm-expenses-manager-exception</artifactId>
     <version>0.2.0-SNAPSHOT</version>
 

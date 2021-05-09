@@ -2,6 +2,11 @@ app:
   configuration:
     name: @project.name@
     version: @project.version@
+    description: @project.description@
+    contact:
+      name: @developer-name@
+      email: @developer-email@
+      role: @developer-role@
     port: 8185
     api:
       url: /api
@@ -60,11 +65,10 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: ${app.configuration.kafka.brokers}
+          brokers: ${app.kafka.brokers}
       binders:
         kafka:
-          type: ${app.configuration.kafka.type}
-      bindings:
+          type: ${app.kafka.type}
 
 springdoc:
   swagger-ui:

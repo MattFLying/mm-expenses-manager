@@ -38,11 +38,11 @@ abstract class ExchangeRateMapper extends AbstractMapper {
     @Mapping(target = "modifiedAt", source = "now")
     abstract ExchangeRate map(final CurrencyRate domain, final Instant now);
 
-    @Mapping(target = "currency", source = "currency")
+    @Mapping(target = "currency", expression = "java(currency.getCode())")
     @Mapping(target = "rates", expression = "java(exchangeRates.stream().map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
     abstract ExchangeRatesDto map(final CurrencyCode currency, final Collection<ExchangeRate> exchangeRates);
 
-    @Mapping(target = "currency", expression = "java(exchangeRate.getCurrency())")
+    @Mapping(target = "currency", expression = "java(exchangeRate.getCurrency().getCode())")
     @Mapping(target = "rates", expression = "java(java.util.stream.Stream.of(exchangeRate).map(this::mapToDto).collect(java.util.stream.Collectors.toList()))")
     abstract ExchangeRatesDto map(final ExchangeRate exchangeRate);
 

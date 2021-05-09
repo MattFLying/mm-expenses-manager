@@ -21,18 +21,18 @@ public abstract class ExchangeRateCacheMapper extends AbstractMapper {
     @Mapping(target = "rate", expression = "java(mapLatestRateCache(exchangeRateCache))")
     abstract ExchangeRateDto mapToDtoCache(final ExchangeRateCache exchangeRateCache);
 
-    @Mapping(target = "currency", source = "currency")
+    @Mapping(target = "currency", expression = "java(currency.getCode())")
     @Mapping(target = "rates", expression = "java(exchangeRateCaches.stream().map(this::mapToDtoCache).collect(java.util.stream.Collectors.toList()))")
     abstract ExchangeRatesDto mapCache(final CurrencyCode currency, final Collection<ExchangeRateCache> exchangeRateCaches);
 
-    @Mapping(target = "currency", expression = "java(exchangeRateCache.getCurrency())")
+    @Mapping(target = "currency", expression = "java(exchangeRateCache.getCurrency().getCode())")
     @Mapping(target = "rates", expression = "java(java.util.stream.Stream.of(exchangeRateCache).map(this::mapToDtoCache).collect(java.util.stream.Collectors.toList()))")
     public abstract ExchangeRatesDto mapCache(final ExchangeRateCache exchangeRateCache);
 
     protected RateDto mapLatestRateCache(final ExchangeRateCache rate) {
         return RateDto.builder()
-                .from(ExchangeRateDto.CurrencyValueDto.builder().currency(rate.getFrom().getCurrency()).value(rate.getFrom().getRate()).build())
-                .to(ExchangeRateDto.CurrencyValueDto.builder().currency(rate.getTo().getCurrency()).value(rate.getTo().getRate()).build())
+                .from(ExchangeRateDto.CurrencyValueDto.builder().currency(rate.getFrom().getCurrency().getCode()).value(rate.getFrom().getRate()).build())
+                .to(ExchangeRateDto.CurrencyValueDto.builder().currency(rate.getTo().getCurrency().getCode()).value(rate.getTo().getRate()).build())
                 .build();
     }
 

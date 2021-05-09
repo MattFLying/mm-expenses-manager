@@ -10,7 +10,28 @@ import org.springframework.context.annotation.Configuration;
 class AppConfigProperty {
 
     private String name;
+    private String description;
     private String version;
+
+    private Contact contact;
+
     private Integer scheduledThreadPoolSize;
+
+    String getDeveloperNameWithRole() {
+        return String.format("%s - %s", contact.getName(), contact.getRole());
+    }
+
+    String getDeveloperEmail() {
+        return contact.getEmail();
+    }
+
+    @Data
+    static class Contact {
+
+        private String name;
+        private String email;
+        private String role;
+
+    }
 
 }

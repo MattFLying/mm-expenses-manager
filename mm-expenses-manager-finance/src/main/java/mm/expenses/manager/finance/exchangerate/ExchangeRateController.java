@@ -29,7 +29,7 @@ import java.util.Objects;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("exchange-rates")
-@Tag(name = "exchange-rates", description = "API of exchange rates for currencies.")
+@Tag(name = "Exchange Rates", description = "Provide API to check exchange rates for different currencies.")
 class ExchangeRateController {
 
     private final ExchangeRateService service;
@@ -38,26 +38,26 @@ class ExchangeRateController {
     private final ExchangeRateCacheMapper cacheMapper;
 
     @Operation(
-            summary = "Finds all available exchange rates.",
-            description = "Finds all available exchange rates or all according to passed options.",
+            summary = "Finds exchange rates for all available currency codes.",
+            description = "Check exchange rate for all available currency codes. Can be parametrized to specify result.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExchangeRatesAccumulatePage.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     )
             }
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    ExchangeRatesAccumulatePage findAllExchangeRates(@Parameter(description = "Date of needed exchange rates.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
-                                                     @Parameter(description = "Date from of needed exchange rates.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
-                                                     @Parameter(description = "Date to of needed exchange rates.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to,
+    ExchangeRatesAccumulatePage findAllExchangeRates(@Parameter(description = "Specific date to be found.") @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
+                                                     @Parameter(description = "Specific start date to be found.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
+                                                     @Parameter(description = "Specific end date to be found.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to,
                                                      @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
                                                      @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         if (Objects.nonNull(date) && (Objects.nonNull(from) || Objects.nonNull(to))) {
@@ -71,17 +71,17 @@ class ExchangeRateController {
     }
 
     @Operation(
-            summary = "Finds latest exchange rates.",
-            description = "Finds all latest exchange rates.",
+            summary = "Finds latest exchange rate for all available currency codes.",
+            description = "Check latest exchange rate for all available currency codes. Always retrieve the latest available exchange rates.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExchangeRatesPage.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     )
@@ -93,17 +93,17 @@ class ExchangeRateController {
     }
 
     @Operation(
-            summary = "Finds all available exchange rates for specific currency code.",
-            description = "Finds all available exchange rates or all according to passed options for specific currency code.",
+            summary = "Finds exchange rates for specific currency code.",
+            description = "Check exchange rate for specific currency code. Can be parametrized to specify result.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExchangeRatesAccumulatePage.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     )
@@ -111,8 +111,8 @@ class ExchangeRateController {
     )
     @GetMapping(value = "/{currency}", produces = MediaType.APPLICATION_JSON_VALUE)
     ExchangeRatesAccumulatePage findAllForCurrency(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
-                                                   @Parameter(description = "Date from of needed exchange rates.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
-                                                   @Parameter(description = "Date to of needed exchange rates.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to,
+                                                   @Parameter(description = "Specific start date to be found.") @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate from,
+                                                   @Parameter(description = "Specific end date to be found.") @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate to,
                                                    @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
                                                    @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
@@ -128,22 +128,22 @@ class ExchangeRateController {
 
     @Operation(
             summary = "Finds latest exchange rate for specific currency code.",
-            description = "Finds latest exchange rate for specific currency code.",
+            description = "Check latest exchange rate for specific currency code. Always retrieve the latest available exchange rate.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExchangeRatesDto.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     ),
                     @ApiResponse(responseCode = "404", description = "Not Found",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     )
@@ -162,22 +162,22 @@ class ExchangeRateController {
 
     @Operation(
             summary = "Finds exchange rate for specific currency code and date.",
-            description = "Finds exchange rate for specific currency code and specific date.",
+            description = "Check exchange rate for specific currency code and date. Always retrieve exchange rate for given date.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExchangeRatesDto.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     ),
                     @ApiResponse(responseCode = "404", description = "Not Found",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ExceptionMessage.class)
                             )
                     )
@@ -185,7 +185,7 @@ class ExchangeRateController {
     )
     @GetMapping(value = "/{currency}/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
     ExchangeRatesDto findForCurrencyAndDate(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
-                                            @Parameter(description = "Date of needed exchange rates.", required = true) @PathVariable(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
+                                            @Parameter(description = "Specific date to be found.", required = true) @PathVariable(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
         if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
             throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
