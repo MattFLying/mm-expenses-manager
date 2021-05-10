@@ -15,12 +15,11 @@
     <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
 
     <artifactId>mm-expenses-manager-finance</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-version>0.2.0-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-validator-version>0.2.0-SNAPSHOT</mm-expenses-manager-validator-version>
         <mm-expenses-manager-exception-version>0.2.0-SNAPSHOT</mm-expenses-manager-exception-version>
 
         <!-- Other dependency versions -->
@@ -42,12 +41,6 @@
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-common</artifactId>
             <version>${mm-expenses-manager-common-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>mm-expenses-manager-validator</artifactId>
-            <version>${mm-expenses-manager-validator-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
