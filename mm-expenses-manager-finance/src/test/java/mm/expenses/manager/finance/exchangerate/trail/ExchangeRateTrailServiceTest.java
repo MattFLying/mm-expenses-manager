@@ -20,7 +20,6 @@ import java.util.List;
 import static mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailAssert.assertExchangeRateTrail;
 import static mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailHelper.createNewExchangeRateTrail;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class ExchangeRateTrailServiceTest extends FinanceApplicationTest {

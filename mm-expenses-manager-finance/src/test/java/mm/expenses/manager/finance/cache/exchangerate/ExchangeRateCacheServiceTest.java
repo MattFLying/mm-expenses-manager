@@ -4,7 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
 
     @MockBean
-    private CurrencyRatesConfig currencyRatesConfig;
+    private CurrencyProviders currencyProviders;
 
     @Autowired
     private ExchangeRateCacheService exchangeRateCacheService;
@@ -33,14 +33,12 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
 
     @Override
     protected void setupBeforeEachTest() {
-        when(currencyRatesConfig.getDefaultCurrency()).thenReturn(DEFAULT_CURRENCY);
-        when(currencyRatesConfig.getDefaultProvider()).thenReturn(PROVIDER_NAME);
-        when(currencyRatesConfig.getAllRequiredCurrenciesCode()).thenCallRealMethod();
+        when(currencyProviders.getProviderName()).thenReturn(PROVIDER_NAME);
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(currencyRatesConfig);
+        reset(currencyProviders);
         exchangeRateCacheService.clearCache();
     }
 

@@ -8,10 +8,10 @@ import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.converter.strategy.ConversionStrategyType;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheServiceTest;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 import static mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate.ROUND_CURRENCY_VALUE_DIGITS;
 import static mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate.ROUND_CURRENCY_VALUE_MODE;
 import static mm.expenses.manager.finance.exception.FinanceExceptionMessage.*;
-import static mm.expenses.manager.finance.exception.FinanceExceptionMessage.CURRENCY_NOT_ALLOWED;
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.hamcrest.Matchers.is;
@@ -42,7 +41,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 class CurrencyConverterControllerTest extends FinanceApplicationTest {
 
@@ -55,23 +53,22 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
     private ExchangeRateCacheService exchangeRateCacheService;
 
     @MockBean
-    private CurrencyRatesConfig currencyRatesConfig;
+    private CurrenciesService currenciesService;
 
     @Autowired
     private LatestCacheServiceTest latestCacheTest;
 
     @Override
     protected void setupBeforeEachTest() {
-        when(currencyRatesConfig.getDefaultCurrency()).thenReturn(DEFAULT_CURRENCY);
-        when(currencyRatesConfig.getDefaultProvider()).thenReturn(PROVIDER_NAME);
-        when(currencyRatesConfig.getAllRequiredCurrenciesCode()).thenCallRealMethod();
+        when(currenciesService.getCurrentCurrency()).thenReturn(DEFAULT_CURRENCY);
+        when(currenciesService.getAllAvailableCurrenciesWithoutDefault()).thenCallRealMethod();
     }
 
     @Override
     protected void setupAfterEachTest() {
         reset(exchangeRateService);
         reset(exchangeRateCacheService);
-        reset(currencyRatesConfig);
+        reset(currenciesService);
         latestCacheTest.reset();
     }
 

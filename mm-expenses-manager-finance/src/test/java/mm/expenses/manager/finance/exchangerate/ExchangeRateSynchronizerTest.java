@@ -4,7 +4,7 @@ import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
+import mm.expenses.manager.finance.currency.CurrencyRatesConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -18,7 +18,6 @@ import java.util.function.Predicate;
 
 import static mm.expenses.manager.finance.exchangerate.TestProvider.TEST_PROVIDER_NAME_1;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doReturn;
 
 class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
 
@@ -30,9 +29,6 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
 
     @MockBean
     private TaskScheduler taskScheduler;
-
-    @MockBean
-    private CurrencyRatesConfig currencyRatesConfig;
 
     @Autowired
     private ExchangeRateSynchronizer exchangeRateSynchronizer;
@@ -64,7 +60,6 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
         reset(currencyProviders);
         reset(exchangeRateService);
         reset(taskScheduler);
-        reset(currencyRatesConfig);
     }
 
 

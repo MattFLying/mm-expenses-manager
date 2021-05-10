@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.exchangerate.provider;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.api.ApiInternalErrorException;
+import mm.expenses.manager.finance.currency.CurrencyRatesConfig;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +30,7 @@ public class CurrencyProviders {
     }
 
     @PostConstruct
-    private void initializeDefaultProvider() {
+    void initializeDefaultProvider() {
         this.provider = findDefaultProviderOrAny();
     }
 
@@ -58,7 +59,7 @@ public class CurrencyProviders {
      * Get currently used currency type.
      */
     public CurrencyCode getCurrency() {
-        return getProviderConfig().getCurrency();
+        return getGlobalConfig().getDefaultCurrency();
     }
 
     /**

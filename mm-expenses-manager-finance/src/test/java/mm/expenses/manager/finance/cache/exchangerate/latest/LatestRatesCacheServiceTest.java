@@ -6,9 +6,9 @@ import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,13 +27,12 @@ import static mm.expenses.manager.finance.cache.exchangerate.ExchangeRatesCacheA
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class LatestRatesCacheServiceTest extends FinanceApplicationTest {
 
     @MockBean
-    private CurrencyRatesConfig currencyRatesConfig;
+    private CurrenciesService currenciesService;
 
     @MockBean
     private ExchangeRateService exchangeRateService;
@@ -45,14 +44,14 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
 
     @Override
     protected void setupBeforeEachTest() {
-        when(currencyRatesConfig.getDefaultCurrency()).thenReturn(DEFAULT_CURRENCY);
-        when(currencyRatesConfig.getAllRequiredCurrenciesCode()).thenCallRealMethod();
-        this.latestCacheMap = new LatestRatesCacheService(currencyRatesConfig, exchangeRateService, exchangeRateCacheService);
+        when(currenciesService.getCurrentCurrency()).thenReturn(DEFAULT_CURRENCY);
+        when(currenciesService.getAllAvailableCurrenciesWithoutDefault()).thenCallRealMethod();
+        this.latestCacheMap = new LatestRatesCacheService(currenciesService, exchangeRateService, exchangeRateCacheService);
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(currencyRatesConfig);
+        reset(currenciesService);
         reset(exchangeRateService);
         reset(exchangeRateCacheService);
     }

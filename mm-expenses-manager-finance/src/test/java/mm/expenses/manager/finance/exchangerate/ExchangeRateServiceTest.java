@@ -4,9 +4,9 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,13 +31,12 @@ import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyH
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class ExchangeRateServiceTest extends FinanceApplicationTest {
 
     @MockBean
-    private CurrencyRatesConfig currencyRatesConfig;
+    private CurrenciesService currenciesService;
 
     @MockBean
     private ExchangeRateRepository exchangeRateRepository;
@@ -51,13 +50,13 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
     @Override
     protected void setupBeforeEachTest() {
-        when(currencyRatesConfig.getDefaultCurrency()).thenReturn(DEFAULT_CURRENCY);
-        when(currencyRatesConfig.getAllRequiredCurrenciesCode()).thenCallRealMethod();
+        when(currenciesService.getCurrentCurrency()).thenReturn(DEFAULT_CURRENCY);
+        when(currenciesService.getAllAvailableCurrenciesWithoutDefault()).thenCallRealMethod();
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(currencyRatesConfig);
+        reset(currenciesService);
         reset(exchangeRateRepository);
         reset(exchangeRateHistoryUpdate);
     }
@@ -83,10 +82,10 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
     @Test
     void shouldRetrieveAllCurrencyCodesWithoutUndefinedAndDefaultCurrentlyUsed() {
         // given && when
-        final var result = currencyRatesConfig.getAllRequiredCurrenciesCode();
+        final var result = currenciesService.getAllAvailableCurrenciesWithoutDefault();
 
         // then
-        assertThat(result).isNotNull().containsExactlyInAnyOrderElementsOf(Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.UNDEFINED) || !code.equals(DEFAULT_CURRENCY)).collect(Collectors.toSet()));
+        assertThat(result).isNotNull().containsExactlyInAnyOrderElementsOf(Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.UNDEFINED) && !code.equals(DEFAULT_CURRENCY)).collect(Collectors.toSet()));
     }
 
     @Nested
@@ -114,6 +113,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
             // when
             when(exchangeRateRepository.findByDate(eq(today), any(Pageable.class))).thenReturn(new PageImpl<>(expectedList));
+            when(currenciesService.getAllAvailableCurrenciesCount()).thenReturn(expectedList.size());
 
             final var result = exchangeRateService.findToday();
 

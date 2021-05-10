@@ -20,7 +20,7 @@ class ExchangeRateQuery {
 
     private final ExchangeRateRepository repository;
 
-    Stream<Page<ExchangeRate>> findAllCurrenciesRates(final Set<CurrencyCode> currencies, final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
+    Stream<Page<ExchangeRate>> findAllCurrenciesRates(final Collection<CurrencyCode> currencies, final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
         final var page = pageRequest(pageable);
         return currencies.stream()
                 .map(code -> {

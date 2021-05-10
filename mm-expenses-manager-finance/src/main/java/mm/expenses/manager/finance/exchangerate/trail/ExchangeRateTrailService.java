@@ -21,7 +21,7 @@ public class ExchangeRateTrailService {
     private final ExchangeRateTrailRepository repository;
 
     /**
-     * Save details of executed operation on exchange rates
+     * Save details of executed operation on exchange rates.
      *
      * @param exchangeRatesOperation operation type
      * @param affectedIds            ids of exchange rates that were affected and should be saved

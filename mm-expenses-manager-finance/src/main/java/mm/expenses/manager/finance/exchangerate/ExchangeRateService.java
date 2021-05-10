@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.cache.exchangerate.latest.UpdateLatestInMemoryEvent;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ExchangeRateService {
 
-    private final CurrencyRatesConfig config;
+    private final CurrenciesService currenciesService;
     private final ExchangeRateCommand command;
     private final ExchangeRateQuery query;
     private final ExchangeRateHistoryUpdate historyUpdate;
@@ -39,7 +39,7 @@ public class ExchangeRateService {
     }
 
     public Stream<Page<ExchangeRate>> findAll(final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
-        return query.findAllCurrenciesRates(config.getAllRequiredCurrenciesCode(), date, from, to, pageable);
+        return query.findAllCurrenciesRates(currenciesService.getAllAvailableCurrenciesWithoutDefault(), date, from, to, pageable);
     }
 
     public Optional<ExchangeRate> findForCurrencyAndSpecificDate(final CurrencyCode currency, final LocalDate date) {
@@ -65,7 +65,7 @@ public class ExchangeRateService {
     }
 
     Page<ExchangeRate> findToday() {
-        return query.findAllTodayRates(query.pageRequest(0, config.getAllRequiredCurrenciesCode().size()));
+        return query.findAllTodayRates(query.pageRequest(0, currenciesService.getAllAvailableCurrenciesCount()));
     }
 
 }

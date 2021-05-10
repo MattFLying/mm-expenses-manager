@@ -33,7 +33,7 @@ interface ExchangeRateCacheRepository {
     CacheType getCacheType();
 
     enum CacheType {
-        REDIS, MAP;
+        REDIS, MAP
     }
 
 }

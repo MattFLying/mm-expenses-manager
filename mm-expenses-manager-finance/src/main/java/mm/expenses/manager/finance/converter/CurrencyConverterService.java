@@ -4,7 +4,7 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate;
 import mm.expenses.manager.finance.converter.strategy.ConversionStrategy;
 import mm.expenses.manager.finance.converter.strategy.ConversionStrategyType;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 @Component
 class CurrencyConverterService {
 
-    private final CurrencyRatesConfig config;
+    private final CurrenciesService currenciesService;
     private final Map<ConversionStrategyType, ConversionStrategy> strategies;
 
-    CurrencyConverterService(final CurrencyRatesConfig config, final List<ConversionStrategy> strategies) {
-        this.config = config;
+    CurrencyConverterService(final CurrenciesService currenciesService, final List<ConversionStrategy> strategies) {
+        this.currenciesService = currenciesService;
         this.strategies = strategies.stream().collect(Collectors.toMap(ConversionStrategy::getStrategy, Function.identity()));
     }
 
@@ -36,7 +36,7 @@ class CurrencyConverterService {
     }
 
     private ConversionStrategy findConversionStrategy(final CurrencyCode from, final CurrencyCode to) {
-        final var defaultCurrency = config.getDefaultCurrency();
+        final var defaultCurrency = currenciesService.getCurrentCurrency();
         return strategies.get(ConversionStrategyType.findConversionStrategy(defaultCurrency, from, to));
     }
 

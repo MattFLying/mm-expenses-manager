@@ -6,9 +6,9 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -31,7 +31,7 @@ public class LatestRatesCacheService {
 
     private static final long DAYS_TO_FIND_IN_PAST = 10L;
 
-    private final CurrencyRatesConfig currencyRatesConfig;
+    private final CurrenciesService currenciesService;
     private final ExchangeRateService exchangeRateService;
     private final ExchangeRateCacheService exchangeRateCacheService;
 
@@ -79,13 +79,8 @@ public class LatestRatesCacheService {
         exchangeRateCacheService.saveFresh(freshLatest.values());
     }
 
-    protected Set<CurrencyCode> getAllRequiredCurrenciesCode() {
-        return currencyRatesConfig.getAllRequiredCurrenciesCode();
-    }
-
     protected NavigableMap<Instant, List<ExchangeRate>> findLatestAvailableByDate() {
-        final var requiredCurrencies = getAllRequiredCurrenciesCode();
-        final var pageRequest = exchangeRateService.pageRequest(0, requiredCurrencies.size());
+        final var pageRequest = exchangeRateService.pageRequest(0, currenciesService.getAllAvailableCurrenciesCount());
         NavigableMap<Instant, List<ExchangeRate>> allLatest = findAllLatest(pageRequest);
 
         final var now = DateUtils.instantToLocalDateUTC(DateUtils.now());

@@ -5,10 +5,11 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache.RateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCacheService;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Slice;
 
@@ -35,7 +36,9 @@ abstract class BaseConversion implements ConversionStrategy {
     protected final ExchangeRateService exchangeRateService;
     protected final ExchangeRateCacheService exchangeRateCacheService;
     protected final LatestRatesCacheService latestRatesCacheService;
-    protected final CurrencyRatesConfig config;
+
+    private final CurrenciesService currenciesService;
+    private final CurrencyProviders currencyProviders;
 
     /**
      * Defines the way how currency should be converted in specific conversion type
@@ -69,18 +72,16 @@ abstract class BaseConversion implements ConversionStrategy {
         final var fresh = exchangeRateService.findForCurrencyAndSpecificDate(code, date);
         fresh.ifPresent(exchangeRate -> CompletableFuture.runAsync(() -> exchangeRateCacheService.saveFresh(List.of(exchangeRate), false)));
 
-        return fresh.map(rate -> Pair.of(instantToLocalDateUTC(rate.getDate()), ExchangeRateCache.of(rate, config.getDefaultProvider()))).orElse(Pair.of(date, ExchangeRateCache.empty(code)));
+        return fresh.map(rate -> Pair.of(instantToLocalDateUTC(rate.getDate()), ExchangeRateCache.of(rate, currencyProviders.getProviderName()))).orElse(Pair.of(date, ExchangeRateCache.empty(code)));
     }
 
     protected Map<CurrencyCode, Pair<LocalDate, ExchangeRateCache>> getRatesForDate(final Set<CurrencyCode> codes, final LocalDate date) {
-        final var pageSize = config.getAllRequiredCurrenciesCode().size();
-
         final var fromCache = exchangeRateCacheService.findForCurrencyCodesAndSpecificDate(codes, date);
         if (!fromCache.isEmpty() && fromCache.size() == codes.size()) {
             return fromCache.stream().collect(Collectors.toMap(ExchangeRateCache::getCurrency, rateCache -> Pair.of(rateCache.getDate(), rateCache)));
         }
 
-        final var fresh = exchangeRateService.findForCurrencyCodesAndSpecificDate(codes, date, exchangeRateService.pageRequest(0, pageSize))
+        final var fresh = exchangeRateService.findForCurrencyCodesAndSpecificDate(codes, date, exchangeRateService.pageRequest(0, currenciesService.getAllAvailableCurrenciesCount()))
                 .filter(Objects::nonNull)
                 .map(Slice::getContent)
                 .flatMap(Collection::stream)
@@ -90,7 +91,7 @@ abstract class BaseConversion implements ConversionStrategy {
         return fresh.stream()
                 .collect(Collectors.toMap(
                         ExchangeRate::getCurrency,
-                        rateEntry -> Pair.of(instantToLocalDateUTC(rateEntry.getDate()), ExchangeRateCache.of(rateEntry, config.getDefaultProvider()))
+                        rateEntry -> Pair.of(instantToLocalDateUTC(rateEntry.getDate()), ExchangeRateCache.of(rateEntry, currencyProviders.getProviderName()))
                 ));
     }
 

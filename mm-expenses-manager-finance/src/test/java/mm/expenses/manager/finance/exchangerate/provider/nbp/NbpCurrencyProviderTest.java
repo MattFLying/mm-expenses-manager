@@ -41,7 +41,6 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
     protected void setupBeforeEachTest() {
         when(nbpApiConfig.getDataFormat()).thenReturn(DATA_FORMAT_JSON_NAME);
         when(nbpApiConfig.getName()).thenReturn(PROVIDER_NAME);
-        when(nbpApiConfig.getCurrency()).thenReturn(DEFAULT_CURRENCY);
 
         when(nbpClient.getAvailableTableType()).thenReturn(TABLE_TYPE.name());
     }
@@ -61,7 +60,6 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
         assertThat(config).isNotNull().isInstanceOf(NbpApiConfig.class);
         assertThat(config.getDataFormat()).isEqualTo(DATA_FORMAT_JSON_NAME);
         assertThat(config.getName()).isEqualTo(PROVIDER_NAME);
-        assertThat(config.getCurrency()).isEqualTo(DEFAULT_CURRENCY);
     }
 
     @Test

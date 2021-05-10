@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.exchangerate.provider.CurrencyRatesConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -24,8 +24,8 @@ public class LatestCacheServiceTest extends LatestRatesCacheService {
 
     final Map<CurrencyCode, ExchangeRateCache> map = new HashMap<>();
 
-    LatestCacheServiceTest(final CurrencyRatesConfig config, final ExchangeRateService service, final ExchangeRateCacheService exchangeRateCacheService) {
-        super(config, service, exchangeRateCacheService);
+    LatestCacheServiceTest(final CurrenciesService currenciesService, final ExchangeRateService service, final ExchangeRateCacheService exchangeRateCacheService) {
+        super(currenciesService, service, exchangeRateCacheService);
     }
 
     @Override
