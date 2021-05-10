@@ -1,6 +1,10 @@
 package mm.expenses.manager.finance.exchangerate;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;

@@ -10,7 +10,11 @@ import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

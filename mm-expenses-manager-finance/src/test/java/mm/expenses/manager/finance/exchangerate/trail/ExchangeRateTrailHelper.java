@@ -1,7 +1,8 @@
 package mm.expenses.manager.finance.exchangerate.trail;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.UUID;
 
 public class ExchangeRateTrailHelper {
 

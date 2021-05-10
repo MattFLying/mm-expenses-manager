@@ -13,14 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheAssert.assertExchangeRateCache;
 import static mm.expenses.manager.finance.cache.exchangerate.ExchangeRatesCacheAssert.assertExchangeRatesCache;
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
 

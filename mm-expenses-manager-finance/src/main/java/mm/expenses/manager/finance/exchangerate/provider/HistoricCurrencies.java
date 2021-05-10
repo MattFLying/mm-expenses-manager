@@ -7,7 +7,10 @@ import mm.expenses.manager.finance.exception.HistoricalCurrencyException;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

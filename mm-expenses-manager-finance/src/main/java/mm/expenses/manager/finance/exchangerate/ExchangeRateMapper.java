@@ -4,10 +4,10 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.common.mapper.AbstractMapper;
 import mm.expenses.manager.finance.config.MapperImplNaming;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate.Rate;
+import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage.ExchangeRatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRateDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto.ExchangeRateDto.RateDto;
-import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage.ExchangeRatePage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import org.mapstruct.InjectionStrategy;
@@ -17,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

@@ -13,7 +13,11 @@ import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
 
@@ -48,7 +52,7 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
     }
 
     @Override
-    public Collection<TestProvider.TestRate> getCurrencyRateForDateRange(CurrencyCode currencyCode, LocalDate from, LocalDate to) throws CurrencyProviderException {
+    public Collection<TestRate> getCurrencyRateForDateRange(CurrencyCode currencyCode, LocalDate from, LocalDate to) throws CurrencyProviderException {
         return null;
     }
 

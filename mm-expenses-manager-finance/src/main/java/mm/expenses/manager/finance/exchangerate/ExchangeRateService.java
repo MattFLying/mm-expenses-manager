@@ -8,11 +8,15 @@ import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 

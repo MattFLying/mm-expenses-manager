@@ -4,7 +4,11 @@ import lombok.Data;
 import mm.expenses.manager.common.i18n.CurrencyCode;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Abstract representation of the currency rate with default properties described the currency rate

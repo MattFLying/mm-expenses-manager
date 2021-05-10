@@ -4,14 +4,16 @@ import lombok.SneakyThrows;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
-import mm.expenses.manager.finance.exchangerate.provider.*;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyRateProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.*;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static mm.expenses.manager.finance.exchangerate.TestProvider.TEST_PROVIDER_NAME_1;
