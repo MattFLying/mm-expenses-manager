@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
 
@@ -47,21 +46,6 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
     }
 
     @Override
-    public Optional<TestProvider.TestRate> getCurrencyRateForDate(CurrencyCode currencyCode, LocalDate date) throws CurrencyProviderException {
-        return Optional.empty();
-    }
-
-    @Override
-    public Collection<TestRate> getCurrencyRateForDateRange(CurrencyCode currencyCode, LocalDate from, LocalDate to) throws CurrencyProviderException {
-        return null;
-    }
-
-    @Override
-    public Collection<TestProvider.TestRate> getCurrencyRatesForDate(LocalDate date) throws CurrencyProviderException {
-        return null;
-    }
-
-    @Override
     public Collection<TestProvider.TestRate> getCurrencyRatesForDateRange(LocalDate from, LocalDate to) throws CurrencyProviderException {
         return null;
     }
@@ -69,11 +53,6 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
     @Override
     public HistoricCurrencies<TestProvider.TestRate> getHistoricCurrencies() {
         return new TestProvider.TestHistoryUpdater(this, shouldThrowHistoricalCurrencyException);
-    }
-
-    @Override
-    public Optional<TestProvider.TestRate> getCurrentCurrencyRate(CurrencyCode currencyCode) throws CurrencyProviderException {
-        return Optional.empty();
     }
 
     @Override
@@ -119,7 +98,7 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
         }
 
         @Override
-        public Collection<TestProvider.TestRate> fetchHistoricalCurrencies() throws HistoricalCurrencyException {
+        public Collection<TestProvider.TestRate> fetch() throws HistoricalCurrencyException {
             if (shouldThrowHistoricalCurrencyException) {
                 throw new HistoricalCurrencyException(FinanceExceptionMessage.SAVE_HISTORIC_EXCHANGE_RATES);
             }

@@ -1,7 +1,8 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
-import mm.expenses.manager.finance.exception.HistoricalCurrencyException;
+import mm.expenses.manager.finance.exception.CurrencyProviderException;
 
+import java.time.LocalDate;
 import java.util.Collection;
 
 /**
@@ -10,12 +11,14 @@ import java.util.Collection;
  *
  * @param <T> custom currency rate implementation represents single currency rate
  */
-public interface CurrencyRateProvider<T extends CurrencyRate> extends DefaultCurrencyProvider<T>, CurrentCurrencyProvider<T>, CurrencyProviderForDateRange<T> {
+public interface CurrencyRateProvider<T extends CurrencyRate> {
+
+    ProviderConfig getProviderConfig();
+
+    Collection<T> getCurrentCurrencyRates() throws CurrencyProviderException;
+
+    Collection<T> getCurrencyRatesForDateRange(final LocalDate from, final LocalDate to) throws CurrencyProviderException;
 
     HistoricCurrencies<T> getHistoricCurrencies();
-
-    default Collection<T> getAllHistoricalCurrencies() throws HistoricalCurrencyException {
-        return getHistoricCurrencies().fetchHistoricalCurrencies();
-    }
 
 }

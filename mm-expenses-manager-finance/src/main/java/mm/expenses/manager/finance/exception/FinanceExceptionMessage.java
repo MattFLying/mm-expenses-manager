@@ -25,18 +25,6 @@ public enum FinanceExceptionMessage implements ExceptionType {
     CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES(EXTERNAL_CURRENCY_PROVIDER_ERROR, "Unable to fetch current currency rates. Client provider error."),
     CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES(EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR, "Something went wrong during fetch current currency rates."),
 
-    CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY_AND_DATE(EXTERNAL_CURRENCY_PROVIDER_ERROR, "Unable to fetch currency rate for currency: %s and date: %s. Client provider error."),
-    CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY_AND_DATE(EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR, "Something went wrong during fetch currency rate for currency: %s and date: %s."),
-
-    CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY_AND_DATE_RANGE(EXTERNAL_CURRENCY_PROVIDER_ERROR, "Unable to fetch currency rate for currency: %s and date between: %s - %s. Client provider error."),
-    CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY_AND_DATE_RANGE(EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR, "Something went wrong during fetch currency rate for currency: %s and date between: %s - %s."),
-
-    CURRENCY_PROVIDER_FEIGN_SINGLE_CURRENCY(EXTERNAL_CURRENCY_PROVIDER_ERROR, "Unable to fetch current currency rate for currency: %s. Client provider error."),
-    CURRENCY_PROVIDER_UNKNOWN_SINGLE_CURRENCY(EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR, "Something went wrong during fetch current currency rate for currency: %s."),
-
-    CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES_AND_DATE(EXTERNAL_CURRENCY_PROVIDER_ERROR, "Unable to fetch currency rates for date: %s. Client provider error."),
-    CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE(EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR, "Something went wrong during fetch currency rates for date: %s."),
-
     CURRENCY_PROVIDER_FEIGN_ALL_CURRENCIES_AND_DATE_RANGE(EXTERNAL_CURRENCY_PROVIDER_ERROR, "Unable to fetch currency rates for date range between: %s - %s. Client provider error."),
     CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE_RANGE(EXTERNAL_CURRENCY_PROVIDER_INTERNAL_ERROR, "Something went wrong during fetch currency rates for date range between: %s - %s."),
 

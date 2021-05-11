@@ -24,7 +24,7 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
 
     protected final CurrencyRateProvider<T> provider;
 
-    public abstract Collection<T> fetchHistoricalCurrencies() throws HistoricalCurrencyException;
+    public abstract Collection<T> fetch() throws HistoricalCurrencyException;
 
     /**
      * Find and build collection of date range objects according to specific provider details of fetching data limitation.

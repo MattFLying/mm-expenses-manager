@@ -47,7 +47,7 @@ class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
         this.provider = new TestProvider(TEST_PROVIDER_NAME_1, false);
 
         doReturn(provider).when(currencyProviders).getProvider();
-        doReturn(TEST_PROVIDER_NAME_1).when(currencyProviders).getProviderName();
+        doReturn(TEST_PROVIDER_NAME_1).when(currencyProviders).getProviderName(this.provider);
 
         final var globalConfig = new CurrencyRatesConfig();
         globalConfig.setRescheduleWhenSynchronizationFailedCron("*/15 * * * * *");

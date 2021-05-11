@@ -6,7 +6,7 @@ import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exception.HistoricalCurrencyException;
-import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
+import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -14,7 +14,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static mm.expenses.manager.common.util.DateUtils.ZONE_UTC;
-import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.*;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.HISTORY_FROM_YEAR;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.MAX_DAYS_TO_FETCH;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.TABLE_TYPE;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.createNbpCurrencyRate;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyRatesAssert.assertNbpCurrencyRates;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,29 +27,35 @@ import static org.mockito.Mockito.when;
 
 class NbpHistoryUpdaterTest extends FinanceApplicationTest {
 
-    @MockBean
     private NbpApiConfig nbpApiConfig;
 
     @MockBean
     private NbpCurrencyProvider nbpCurrencyProvider;
 
+    @MockBean
+    private CurrencyProviders currencyProviders;
+
     private NbpHistoryUpdater nbpHistoryUpdater;
 
     @Override
     protected void setupBeforeEachTest() {
-        final var details = new ProviderConfig.Details();
+        nbpApiConfig = new NbpApiConfig();
+        nbpApiConfig.setName(PROVIDER_NAME);
+
+        final var details = new NbpApiConfig.Details();
         details.setMaxDaysToFetch(MAX_DAYS_TO_FETCH);
         details.setHistoryFromYear(HISTORY_FROM_YEAR);
 
-        when(nbpApiConfig.getDetails()).thenReturn(details);
+        nbpApiConfig.setDetails(details);
+
         when(nbpCurrencyProvider.getProviderConfig()).thenReturn(nbpApiConfig);
 
-        this.nbpHistoryUpdater = new NbpHistoryUpdater(nbpCurrencyProvider);
+        nbpHistoryUpdater = new NbpHistoryUpdater(nbpCurrencyProvider);
     }
 
     @Override
     protected void setupAfterEachTest() {
-        reset(nbpApiConfig);
+        reset(currencyProviders);
         reset(nbpCurrencyProvider);
     }
 
@@ -68,7 +78,7 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
 
         // when
         when(nbpCurrencyProvider.getCurrencyRatesForDateRange(any(LocalDate.class), any(LocalDate.class))).thenReturn(List.of(expected_1, expected_2, expected_3));
-        final var result = nbpHistoryUpdater.fetchHistoricalCurrencies();
+        final var result = nbpHistoryUpdater.fetch();
 
         // then
         assertNbpCurrencyRates(result)
@@ -90,7 +100,7 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         // given && when
         when(nbpCurrencyProvider.getCurrencyRatesForDateRange(any(LocalDate.class), any(LocalDate.class))).thenThrow(new CurrencyProviderException(FinanceExceptionMessage.CURRENCY_PROVIDER_UNKNOWN_ALL_CURRENCIES_AND_DATE_RANGE.withParameters("", "")));
 
-        final var result = nbpHistoryUpdater.fetchHistoricalCurrencies();
+        final var result = nbpHistoryUpdater.fetch();
 
         // then
         assertNbpCurrencyRates(result).isEmpty();
@@ -102,7 +112,7 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         when(nbpCurrencyProvider.getProviderConfig()).thenReturn(null);
 
         // then
-        assertThatThrownBy(() -> nbpHistoryUpdater.fetchHistoricalCurrencies())
+        assertThatThrownBy(() -> nbpHistoryUpdater.fetch())
                 .isInstanceOf(HistoricalCurrencyException.class)
                 .hasMessage(FinanceExceptionMessage.SAVE_HISTORIC_EXCHANGE_RATES_UNKNOWN_ERROR.getMessage());
     }

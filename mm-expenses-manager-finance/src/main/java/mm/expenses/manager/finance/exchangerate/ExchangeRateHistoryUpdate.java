@@ -41,14 +41,14 @@ class ExchangeRateHistoryUpdate {
         log.info("Currencies history update in progress.");
         try {
             final var provider = providers.getProvider();
-            command.saveHistory(provider.getAllHistoricalCurrencies());
+            command.saveHistory(provider.getHistoricCurrencies().fetch());
         } catch (final HistoricalCurrencyException unknownException) {
             log.warn("Error occurred during currencies history update process.", unknownException);
             providers.executeOnAllProviders(provider -> {
-                final var providerName = provider.getName();
+                final var providerName = providers.getProviderName(provider);
                 log.info("Currencies history update retrying for another provider: {} in progress.", providerName);
                 try {
-                    command.saveHistory(provider.getAllHistoricalCurrencies());
+                    command.saveHistory(provider.getHistoricCurrencies().fetch());
                 } catch (final HistoricalCurrencyException unknownExceptionForOtherProvider) {
                     log.warn("Something went wrong during update process for provider: {}", providerName);
                 }

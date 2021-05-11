@@ -25,7 +25,7 @@ public class CurrencyProviders {
     private CurrencyRateProvider<? extends CurrencyRate> provider;
 
     public CurrencyProviders(final Collection<CurrencyRateProvider<? extends CurrencyRate>> providers, final CurrencyRatesConfig config) {
-        this.providers = providers.stream().collect(Collectors.toMap(DefaultCurrencyProvider::getName, Function.identity()));
+        this.providers = providers.stream().collect(Collectors.toMap(singleProvider -> singleProvider.getProviderConfig().getName(), Function.identity()));
         this.config = config;
     }
 
@@ -53,6 +53,15 @@ public class CurrencyProviders {
      */
     public String getProviderName() {
         return getProviderConfig().getName();
+    }
+
+    /**
+     * Get the name of provider.
+     *
+     * @param provider some provider to check
+     */
+    public String getProviderName(final CurrencyRateProvider<? extends CurrencyRate> provider) {
+        return provider.getProviderConfig().getName();
     }
 
     /**

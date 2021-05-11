@@ -28,7 +28,7 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
     }
 
     @Override
-    public Collection<NbpCurrencyRate> fetchHistoricalCurrencies() throws HistoricalCurrencyException {
+    public Collection<NbpCurrencyRate> fetch() throws HistoricalCurrencyException {
         try {
             final var config = provider.getProviderConfig();
             final var maxDaysToFetch = config.getDetails().getMaxDaysToFetch();
