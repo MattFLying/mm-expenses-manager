@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
@@ -16,6 +15,7 @@ import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesTrailsPage;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailService;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation.State;
+import mm.expenses.manager.finance.pageable.PageFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,6 +38,7 @@ class ManagementController {
 
     private final ExchangeRateService exchangeRateService;
     private final ExchangeRateTrailService exchangeRateTrailService;
+    private final PageFactory pageFactory;
 
     @Operation(
             summary = "Update historical exchange rates.",
@@ -78,7 +79,7 @@ class ManagementController {
         if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
             throw new ApiBadRequestException(FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
-        final var pageable = PageHelper.getPageable(pageNumber, pageSize);
+        final var pageable = pageFactory.getPageable(pageNumber, pageSize);
         return new ExchangeRatesTrailsPage(exchangeRateTrailService.findTrails(date, operation, state, pageable));
     }
 

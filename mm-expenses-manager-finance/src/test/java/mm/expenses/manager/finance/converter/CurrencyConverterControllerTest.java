@@ -1,7 +1,6 @@
 package mm.expenses.manager.finance.converter;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
@@ -12,6 +11,7 @@ import mm.expenses.manager.finance.converter.strategy.ConversionStrategyType;
 import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
+import mm.expenses.manager.finance.pageable.PageFactory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,11 +41,15 @@ import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.create
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class CurrencyConverterControllerTest extends FinanceApplicationTest {
 
@@ -62,6 +66,9 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
 
     @Autowired
     private LatestCacheServiceTest latestCacheTest;
+
+    @Autowired
+    private PageFactory pageFactory;
 
     @Override
     protected void setupBeforeEachTest() {
@@ -260,7 +267,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             when(exchangeRateCacheService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date))).thenReturn(List.of(
                     ExchangeRateCache.of(expected_1, true, PROVIDER_NAME), ExchangeRateCache.of(expected_2, true, PROVIDER_NAME)
             ));
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(PageHelper.getPageRequest(0, CurrencyCode.values().length - 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, CurrencyCode.values().length - 2));
             when(exchangeRateService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(List.of(expected_1, expected_2))));
 
             // then
@@ -299,7 +306,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             final var idOfResult = UUID.randomUUID().toString();
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(PageHelper.getPageRequest(0, CurrencyCode.values().length - 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, CurrencyCode.values().length - 2));
             when(exchangeRateService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(List.of(expected_1, expected_2))));
 
             // then

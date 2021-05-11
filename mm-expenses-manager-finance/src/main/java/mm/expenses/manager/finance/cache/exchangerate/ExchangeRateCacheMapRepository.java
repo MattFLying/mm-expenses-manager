@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-@ConditionalOnProperty(prefix = "app.configuration.cache", name = "type", havingValue = "map", matchIfMissing = true)
-class ExchangeRateCacheMapRepository extends HashMap<String, ExchangeRateCache> implements ExchangeRateCacheRepository {
+@ConditionalOnProperty(prefix = "app.configuration.cache", name = "type", havingValue = "simple", matchIfMissing = true)
+class ExchangeRateCacheMapRepository extends ConcurrentHashMap<String, ExchangeRateCache> implements ExchangeRateCacheRepository {
 
     @Override
     public Optional<ExchangeRateCache> findByCurrencyAndIsLatestTrue(final CurrencyCode currency) {

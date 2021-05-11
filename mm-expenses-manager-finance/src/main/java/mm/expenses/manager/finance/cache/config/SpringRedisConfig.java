@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.cache.config;
 
 import lombok.Data;
 import lombok.Generated;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,7 +11,8 @@ import java.util.Objects;
 @Data
 @Generated
 @Configuration
-@ConfigurationProperties(prefix = "spring.redis")
+@ConfigurationProperties(prefix = "app.configuration.cache.redis")
+@ConditionalOnProperty(prefix = "app.configuration.cache", name = "type", havingValue = "redis")
 class SpringRedisConfig {
 
     private static final int DEFAULT_PORT = 6379;

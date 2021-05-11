@@ -1,5 +1,6 @@
 package mm.expenses.manager.finance.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,7 +25,7 @@ class FinanceApplicationConfig {
 
     private static final int INITIAL_POOL_SIZE = 100;
 
-    private final AppConfigProperty config;
+    private final AppConfig config;
 
     @Bean
     ObjectMapper objectMapper() {
@@ -32,7 +33,10 @@ class FinanceApplicationConfig {
 
         objectMapper.registerModule(new Jdk8Module());
         objectMapper.registerModule(new JavaTimeModule());
+
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         return objectMapper;

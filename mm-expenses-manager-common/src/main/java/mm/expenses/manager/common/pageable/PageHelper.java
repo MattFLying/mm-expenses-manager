@@ -9,39 +9,41 @@ import org.springframework.data.domain.Sort;
 import java.security.InvalidParameterException;
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PageHelper {
+public final class PageHelper {
 
-    public static Pageable getPageable(final Integer page, final Integer size) {
-        if ((Objects.nonNull(page)) && (Objects.nonNull(size)) && (size != 0)) {
+    public static Pageable getPageable(final Integer page, final Integer size, final Integer maxPageSize) {
+        if ((Objects.nonNull(page)) && (Objects.nonNull(size)) && (size > 0)) {
             return pageRequestOf(page, size);
         } else if ((Objects.isNull(page)) && (Objects.isNull(size))) {
-            return pageRequestOf(0, Integer.MAX_VALUE);
+            return pageRequestOf(0, maxPageSize);
         } else {
-            throw new InvalidParameterException("Page number or size is invalid. Both values must be passed or none and size must not be 0. Page number: " + page + ", size: " + size);
+            throw new InvalidParameterException(format("Incorrect page number: %s or/and page size: %s", page, size));
         }
     }
 
-    public static PageRequest getPageRequest(final Integer page, final Integer size) {
-        if ((Objects.nonNull(page)) && (Objects.nonNull(size)) && (size != 0)) {
+    public static PageRequest getPageRequest(final Integer page, final Integer size, final Integer maxPageSize) {
+        if ((Objects.nonNull(page)) && (Objects.nonNull(size)) && (size > 0)) {
             return pageRequestOf(page, size);
         } else if ((Objects.isNull(page)) && (Objects.isNull(size))) {
-            return pageRequestOf(0, Integer.MAX_VALUE);
+            return pageRequestOf(0, maxPageSize);
         } else {
-            throw new InvalidParameterException("Page number or size is invalid. Both values must be passed or none and size must not be 0. Page number: " + page + ", size: " + size);
+            throw new InvalidParameterException(format("Incorrect page number: %s or/and page size: %s", page, size));
         }
     }
 
-    public static PageRequest getPageRequest(final Integer page, final Integer size, final Sort sort) {
+    public static PageRequest getPageRequest(final Integer page, final Integer size, final Sort sort, final Integer maxPageSize) {
         if (Objects.isNull(sort)) {
-            return getPageRequest(page, size);
+            return getPageRequest(page, size, maxPageSize);
         }
-        if ((Objects.nonNull(page)) && (Objects.nonNull(size)) && (size != 0)) {
+        if ((Objects.nonNull(page)) && (Objects.nonNull(size)) && (size > 0)) {
             return PageRequest.of(page, size, sort);
         } else if ((Objects.isNull(page)) && (Objects.isNull(size))) {
-            return PageRequest.of(0, Integer.MAX_VALUE, sort);
+            return PageRequest.of(0, maxPageSize, sort);
         } else {
-            throw new InvalidParameterException("Page number or size or sort is invalid. All values must be passed or none and size must not be 0. Page number: " + page + ", size: " + size + ", sort: " + sort);
+            throw new InvalidParameterException(format("Incorrect page number: %s or/and page size: %s or/and sorting: %s", page, size, sort));
         }
     }
 

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
 import mm.expenses.manager.exception.api.ApiNotFoundException;
@@ -18,6 +17,7 @@ import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesPage;
+import mm.expenses.manager.finance.pageable.PageFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,6 +40,7 @@ class ExchangeRateController {
     private final LatestRatesCacheService latest;
     private final ExchangeRateMapper mapper;
     private final ExchangeRateCacheMapper cacheMapper;
+    private final PageFactory pageFactory;
 
     @Operation(
             summary = "Finds exchange rates for all available currency codes.",
@@ -70,7 +71,7 @@ class ExchangeRateController {
         if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
             throw new ApiBadRequestException(FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
-        final var pageable = PageHelper.getPageable(pageNumber, pageSize);
+        final var pageable = pageFactory.getPageable(pageNumber, pageSize);
         return new ExchangeRatesAccumulatePage(mapper.groupAndSortPagedResult(service.findAll(date, from, to, pageable)));
     }
 
@@ -126,7 +127,7 @@ class ExchangeRateController {
         if ((Objects.isNull(from) && Objects.nonNull(to)) || (Objects.nonNull(from) && Objects.isNull(to))) {
             throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_FILTER_BY_DATE_RANGE);
         }
-        final var pageable = PageHelper.getPageable(pageNumber, pageSize);
+        final var pageable = pageFactory.getPageable(pageNumber, pageSize);
         return new ExchangeRatesAccumulatePage(mapper.groupAndSortPagedResult(service.findAllForCurrency(currencyCode, from, to, pageable)));
     }
 

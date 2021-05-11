@@ -1,6 +1,5 @@
 package mm.expenses.manager.finance.converter.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -18,11 +17,9 @@ import java.time.LocalDate;
 public class CurrencyConversionDto {
 
     @Schema(description = "Id to be used for calculated result and retrieved with it. Just for recognition purposes, id won't be processed.")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String id;
 
     @Schema(description = "Specific date for which calculation has been made.")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final LocalDate date;
 
     @Schema(description = "Converted from.")

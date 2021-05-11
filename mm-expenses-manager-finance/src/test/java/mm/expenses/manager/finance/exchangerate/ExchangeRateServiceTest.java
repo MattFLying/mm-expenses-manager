@@ -1,12 +1,12 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
+import mm.expenses.manager.finance.pageable.PageFactory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,11 +32,19 @@ import static mm.expenses.manager.finance.exchangerate.ExchangeRateAssert.assert
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.currencyRateToExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.ExchangeRatesAssert.assertExchangeRates;
-import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.*;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.TABLE_TYPE;
+import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.createCurrencyRate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyCollection;
+import static org.mockito.Mockito.anySet;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ExchangeRateServiceTest extends FinanceApplicationTest {
 
@@ -51,6 +59,9 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
     @Autowired
     private ExchangeRateService exchangeRateService;
+
+    @Autowired
+    private PageFactory pageFactory;
 
 
     @Override
@@ -197,7 +208,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when
             when(exchangeRateRepository.findByCurrencyAndDate(currency, date)).thenReturn(Optional.of(expected));
 
-            final var result = exchangeRateService.findForCurrencyCodesAndSpecificDate(Set.of(currency), DateUtils.instantToLocalDateUTC(date), PageHelper.getPageRequest(0, 10));
+            final var result = exchangeRateService.findForCurrencyCodesAndSpecificDate(Set.of(currency), DateUtils.instantToLocalDateUTC(date), pageFactory.getPageRequest(0, 10));
 
             // then
             assertExchangeRates(result).forCurrencyHasExactlyTheSameAs(currency, List.of(expected));
@@ -223,7 +234,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when
             when(exchangeRateRepository.findByDate(eq(date), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expected)));
 
-            final var result = exchangeRateService.findByDate(PageHelper.getPageRequest(0, 1), DateUtils.instantToLocalDateUTC(date));
+            final var result = exchangeRateService.findByDate(pageFactory.getPageRequest(0, 1), DateUtils.instantToLocalDateUTC(date));
 
             // then
             assertExchangeRates(result).forCurrencyHasExactlyTheSameAs(currency, List.of(expected));

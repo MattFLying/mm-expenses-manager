@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app.configuration")
-class AppConfigProperty {
+class AppConfig {
 
     private String name;
     private String description;

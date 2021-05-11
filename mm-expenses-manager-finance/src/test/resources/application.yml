@@ -3,13 +3,22 @@ app:
     name: test
     version: test
     description: test
+    active-profile: test
     contact:
       name: test
       email: test
       role: test
     cache:
-      type: map
+      type: simple
       clear-cron: "0 * * * * *"
+      redis:
+        enabled: false
+        host:
+        port:
+    pageable:
+      min-page-number: 0
+      default-page-size: 10
+      max-page-size: 50
   currency:
     synchronization-cron: "0 * * * * *"
     reschedule-when-synchronization-failed-cron: "0 * * * * *"

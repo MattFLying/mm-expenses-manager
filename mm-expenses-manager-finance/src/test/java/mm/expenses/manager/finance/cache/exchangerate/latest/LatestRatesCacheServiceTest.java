@@ -1,7 +1,6 @@
 package mm.expenses.manager.finance.cache.exchangerate.latest;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.common.pageable.PageHelper;
 import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
@@ -9,10 +8,12 @@ import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
+import mm.expenses.manager.finance.pageable.PageFactory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,7 +33,15 @@ import static mm.expenses.manager.finance.cache.exchangerate.ExchangeRatesCacheA
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anySet;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class LatestRatesCacheServiceTest extends FinanceApplicationTest {
 
@@ -44,6 +53,9 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
 
     @MockBean
     private ExchangeRateCacheService exchangeRateCacheService;
+
+    @Autowired
+    private PageFactory pageFactory;
 
     private LatestRatesCacheService latestCacheMap;
 
@@ -87,7 +99,7 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
             final var expectedList = List.of(expected_1, expected_2);
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(PageHelper.getPageRequest(0, 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, 2));
             when(exchangeRateService.findByDate(any(Pageable.class), any(LocalDate.class))).thenReturn(Page.empty());
             when(exchangeRateService.findAll(eq(null), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(expectedList)));
             when(exchangeRateCacheService.findAllLatest()).thenReturn(Collections.emptyList());
@@ -131,7 +143,7 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
             final var expectedList = List.of(expected_1, expected_2);
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(PageHelper.getPageRequest(0, 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, 2));
             when(exchangeRateService.findByDate(any(Pageable.class), any(LocalDate.class))).thenReturn(Page.empty());
             when(exchangeRateService.findAll(eq(null), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(expectedList)));
             when(exchangeRateCacheService.findAllLatest()).thenReturn(List.of(ExchangeRateCache.of(expected_1, true, PROVIDER_NAME), ExchangeRateCache.of(expected_2, true, PROVIDER_NAME)));
@@ -175,7 +187,7 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
             final var expectedList = List.of(expected_1, expected_2);
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(PageHelper.getPageRequest(0, 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, 2));
             when(exchangeRateService.findByDate(any(Pageable.class), any(LocalDate.class))).thenReturn(Page.empty());
             when(exchangeRateService.findAll(eq(null), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(expectedList)));
             when(exchangeRateCacheService.findAllLatest()).thenReturn(List.of(ExchangeRateCache.of(expected_1, true, PROVIDER_NAME)));
