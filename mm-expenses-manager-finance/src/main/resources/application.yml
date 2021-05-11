@@ -61,7 +61,7 @@ spring:
   application:
     name: ${app.configuration.name}
   profiles:
-    active: ${app.configuration.active-profile}
+    active: dev
   cache:
     type: ${app.configuration.cache.type}
   redis:
