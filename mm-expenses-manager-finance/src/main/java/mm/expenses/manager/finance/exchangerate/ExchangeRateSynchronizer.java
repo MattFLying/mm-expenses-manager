@@ -60,6 +60,7 @@ class ExchangeRateSynchronizer {
                     .stream()
                     .filter(provider -> rescheduledJobsSuccessfully.containsKey(provider.getKey()))
                     .forEach(provider -> cancelCompletedRescheduledJob(provider.getKey(), provider.getValue()));
+            log.info("Rescheduled jobs cleaned up.");
         } catch (final Exception exception) {
             log.error("Cannot clean up rescheduled jobs.", exception);
         }

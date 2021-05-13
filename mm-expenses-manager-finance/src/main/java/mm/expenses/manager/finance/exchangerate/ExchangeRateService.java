@@ -43,7 +43,7 @@ public class ExchangeRateService {
     }
 
     public Stream<Page<ExchangeRate>> findAll(final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
-        return query.findAllCurrenciesRates(currenciesService.getAllAvailableCurrenciesWithoutDefault(), date, from, to, pageable);
+        return query.findAllCurrenciesRates(currenciesService.getAvailableCurrencies(), date, from, to, pageable);
     }
 
     public Optional<ExchangeRate> findForCurrencyAndSpecificDate(final CurrencyCode currency, final LocalDate date) {

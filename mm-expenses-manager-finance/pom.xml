@@ -15,7 +15,7 @@
     <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
 
     <artifactId>mm-expenses-manager-finance</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>2021.05</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->

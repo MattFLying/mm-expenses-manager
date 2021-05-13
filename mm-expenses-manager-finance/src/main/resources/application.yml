@@ -22,7 +22,7 @@ app:
         uri: mongodb://${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}
     cache:
       type: simple # 'simple' or 'redis'
-      clear-cron: "*/5 * * * * *" # every 1h
+      clear-cron: "0 0 * ? * *" # every 1h
       redis:
         enabled: "#{${app.configuration.cache.type} == `redis`} ? true : false"
         host: localhost
@@ -35,9 +35,9 @@ app:
     default: app.currency.provider.nbp # path to default provider property
     default-provider: ${${app.currency.default}.name}
     default-currency: PLN
-    synchronization-cron: "0 * * * * *" # every 1 hour
-    reschedule-when-synchronization-failed-cron: "*/15 * * * * *" # every 15 minutes
-    clean-reschedule-cron: "*/5 * * * * *" # every 5 minutes
+    synchronization-cron: "0 0 * ? * *" # every 1 hour
+    reschedule-when-synchronization-failed-cron: "0 */15 * ? * *" # every 15 minutes
+    clean-reschedule-cron: "0 */5 * ? * *" # every 5 minutes
     provider:
       nbp:
         name: nbp
@@ -89,5 +89,7 @@ springdoc:
   swagger-ui:
     path: ${app.configuration.api.ui-url}
     disable-swagger-default-url: ${app.configuration.api.disable-default-url}
+    tags-sorter: alpha
+    operations-sorter: alpha
   api-docs:
     path: ${app.configuration.api.url}

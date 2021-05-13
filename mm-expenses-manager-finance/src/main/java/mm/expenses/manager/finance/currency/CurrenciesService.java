@@ -39,12 +39,12 @@ public class CurrenciesService {
 
     @PostConstruct
     void initialize() {
-        this.allAvailableCurrencyCodes = getAllAvailableCurrenciesWithDefault().stream().map(CurrencyCode::getCode).sorted().collect(Collectors.toUnmodifiableList());
-        this.allAvailableCurrencies = getAllAvailableCurrenciesWithDefault().stream().sorted(Comparator.comparing(CurrencyCode::getCode)).collect(Collectors.toUnmodifiableList());
+        this.allAvailableCurrencyCodes = filterAllWithDefault().stream().map(CurrencyCode::getCode).sorted().collect(Collectors.toUnmodifiableList());
+        this.allAvailableCurrencies = filterAllWithDefault().stream().sorted(Comparator.comparing(CurrencyCode::getCode)).collect(Collectors.toUnmodifiableList());
         this.allAvailableCurrenciesCount = allAvailableCurrencyCodes.size();
 
-        this.availableCurrencyCodes = getAllAvailableCurrenciesWithoutDefault().stream().map(CurrencyCode::getCode).sorted().collect(Collectors.toUnmodifiableList());
-        this.availableCurrencies = getAllAvailableCurrenciesWithoutDefault().stream().sorted(Comparator.comparing(CurrencyCode::getCode)).collect(Collectors.toUnmodifiableList());
+        this.availableCurrencyCodes = filterAllWithoutDefault().stream().map(CurrencyCode::getCode).sorted().collect(Collectors.toUnmodifiableList());
+        this.availableCurrencies = filterAllWithoutDefault().stream().sorted(Comparator.comparing(CurrencyCode::getCode)).collect(Collectors.toUnmodifiableList());
         this.availableCurrenciesCount = availableCurrencyCodes.size();
     }
 
@@ -52,20 +52,9 @@ public class CurrenciesService {
         return currencyProviders.getCurrency();
     }
 
-    public Collection<CurrencyCode> getAllAvailableCurrenciesWithoutDefault() {
-        return Stream.of(CurrencyCode.values())
-                .filter(code -> !code.equals(CurrencyCode.UNDEFINED) && !code.equals(getCurrentCurrency()))
-                .collect(Collectors.toList());
-    }
-
-    public Collection<CurrencyCode> getAllAvailableCurrenciesWithDefault() {
-        return Stream.of(CurrencyCode.values())
-                .filter(code -> !code.equals(CurrencyCode.UNDEFINED))
-                .collect(Collectors.toList());
-    }
-
     /**
      * Validate if given currency code is different than unknown and currently used in system.
+     *
      * @param currencyCode currency to be validated
      */
     public void validateIfCurrencyIsCorrect(final CurrencyCode currencyCode) {
@@ -75,6 +64,18 @@ public class CurrenciesService {
         if (currencyCode.equals(getCurrentCurrency())) {
             throw new ApiBadRequestException(FinanceExceptionMessage.DEFAULT_CURRENCY_NOT_ALLOWED);
         }
+    }
+
+    private Collection<CurrencyCode> filterAllWithoutDefault() {
+        return Stream.of(CurrencyCode.values())
+                .filter(code -> !code.equals(CurrencyCode.UNDEFINED) && !code.equals(getCurrentCurrency()))
+                .collect(Collectors.toList());
+    }
+
+    private Collection<CurrencyCode> filterAllWithDefault() {
+        return Stream.of(CurrencyCode.values())
+                .filter(code -> !code.equals(CurrencyCode.UNDEFINED))
+                .collect(Collectors.toList());
     }
 
 }

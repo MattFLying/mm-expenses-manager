@@ -49,13 +49,13 @@ import static org.mockito.Mockito.when;
 class ExchangeRateServiceTest extends FinanceApplicationTest {
 
     @MockBean
-    private CurrenciesService currenciesService;
-
-    @MockBean
     private ExchangeRateRepository exchangeRateRepository;
 
     @MockBean
     private ExchangeRateHistoryUpdate exchangeRateHistoryUpdate;
+
+    @Autowired
+    private CurrenciesService currenciesService;
 
     @Autowired
     private ExchangeRateService exchangeRateService;
@@ -65,14 +65,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
 
     @Override
-    protected void setupBeforeEachTest() {
-        when(currenciesService.getCurrentCurrency()).thenReturn(DEFAULT_CURRENCY);
-        when(currenciesService.getAllAvailableCurrenciesWithoutDefault()).thenCallRealMethod();
-    }
-
-    @Override
     protected void setupAfterEachTest() {
-        reset(currenciesService);
         reset(exchangeRateRepository);
         reset(exchangeRateHistoryUpdate);
     }
@@ -98,7 +91,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
     @Test
     void shouldRetrieveAllCurrencyCodesWithoutUndefinedAndDefaultCurrentlyUsed() {
         // given && when
-        final var result = currenciesService.getAllAvailableCurrenciesWithoutDefault();
+        final var result = currenciesService.getAvailableCurrencies();
 
         // then
         assertThat(result).isNotNull().containsExactlyInAnyOrderElementsOf(Stream.of(CurrencyCode.values()).filter(code -> !code.equals(CurrencyCode.UNDEFINED) && !code.equals(DEFAULT_CURRENCY)).collect(Collectors.toSet()));
@@ -129,7 +122,6 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
             // when
             when(exchangeRateRepository.findByDate(eq(today), any(Pageable.class))).thenReturn(new PageImpl<>(expectedList));
-            when(currenciesService.getAllAvailableCurrenciesCount()).thenReturn(expectedList.size());
 
             final var result = exchangeRateService.findToday();
 

@@ -73,7 +73,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
     @Override
     protected void setupBeforeEachTest() {
         when(currenciesService.getCurrentCurrency()).thenReturn(DEFAULT_CURRENCY);
-        when(currenciesService.getAllAvailableCurrenciesWithoutDefault()).thenCallRealMethod();
+        when(currenciesService.getAvailableCurrencies()).thenCallRealMethod();
     }
 
     @Override
