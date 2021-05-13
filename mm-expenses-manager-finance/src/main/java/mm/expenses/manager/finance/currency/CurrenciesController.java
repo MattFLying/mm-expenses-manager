@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("currencies")
@@ -35,6 +37,22 @@ class CurrenciesController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     CurrencyDto findAllAvailableCurrencyCodes() {
         return new CurrencyDto(currenciesService.getAllAvailableCurrencyCodes());
+    }
+
+    @Operation(
+            summary = "Finds currently used currency code.",
+            description = "Check currently used currency code in system..",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = CurrencyDto.class)
+                            ))
+            }
+    )
+    @GetMapping(value = "/current", produces = MediaType.APPLICATION_JSON_VALUE)
+    CurrencyDto findCurrentCurrencyCode() {
+        return new CurrencyDto(List.of(currenciesService.getCurrentCurrency().getCode()));
     }
 
     @Operation(

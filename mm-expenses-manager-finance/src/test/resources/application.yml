@@ -23,6 +23,7 @@ app:
     synchronization-cron: "0 * * * * *"
     reschedule-when-synchronization-failed-cron: "0 * * * * *"
     clean-reschedule-cron: "0 * * * * *"
+    default-currency: PLN
     provider:
       nbp:
         name: nbp
@@ -30,7 +31,6 @@ app:
         url: test
         details:
           data-format: json
-          currency: PLN
           history-from-year: 2002
           max-days-to-fetch: 90
 

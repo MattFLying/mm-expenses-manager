@@ -18,6 +18,7 @@ import static mm.expenses.manager.finance.exception.ExceptionConstant.EXTERNAL_C
 public enum FinanceExceptionMessage implements ExceptionType {
     // currency
     CURRENCY_NOT_ALLOWED("currency-not-available-error", "Currency is not available."),
+    DEFAULT_CURRENCY_NOT_ALLOWED("currency-not-allowed-error", "Currency is default currency, cannot be used."),
 
     // currency external providers
     CURRENCY_PROVIDER_NOT_FOUND("currency-provider-not-found-error", "Unable to find exchange rate provider."),

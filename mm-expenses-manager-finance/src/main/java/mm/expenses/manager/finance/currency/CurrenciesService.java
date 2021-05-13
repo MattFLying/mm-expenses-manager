@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.exception.api.ApiBadRequestException;
+import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +62,19 @@ public class CurrenciesService {
         return Stream.of(CurrencyCode.values())
                 .filter(code -> !code.equals(CurrencyCode.UNDEFINED))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Validate if given currency code is different than unknown and currently used in system.
+     * @param currencyCode currency to be validated
+     */
+    public void validateIfCurrencyIsCorrect(final CurrencyCode currencyCode) {
+        if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
+            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
+        }
+        if (currencyCode.equals(getCurrentCurrency())) {
+            throw new ApiBadRequestException(FinanceExceptionMessage.DEFAULT_CURRENCY_NOT_ALLOWED);
+        }
     }
 
 }

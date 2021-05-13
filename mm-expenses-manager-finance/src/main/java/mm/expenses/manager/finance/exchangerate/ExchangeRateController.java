@@ -13,6 +13,7 @@ import mm.expenses.manager.exception.api.ApiBadRequestException;
 import mm.expenses.manager.exception.api.ApiNotFoundException;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheMapper;
 import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCacheService;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.exchangerate.dto.ExchangeRatesDto;
@@ -40,6 +41,7 @@ class ExchangeRateController {
     private final LatestRatesCacheService latest;
     private final ExchangeRateMapper mapper;
     private final ExchangeRateCacheMapper cacheMapper;
+    private final CurrenciesService currenciesService;
     private final PageFactory pageFactory;
 
     @Operation(
@@ -121,9 +123,7 @@ class ExchangeRateController {
                                                    @Parameter(description = "Page number.") @RequestParam(value = "pageNumber", required = false) @Min(0) final Integer pageNumber,
                                                    @Parameter(description = "Page size.") @RequestParam(value = "pageSize", required = false) @Min(1) final Integer pageSize) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
-        if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
-            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
-        }
+        currenciesService.validateIfCurrencyIsCorrect(currencyCode);
         if ((Objects.isNull(from) && Objects.nonNull(to)) || (Objects.nonNull(from) && Objects.isNull(to))) {
             throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_FILTER_BY_DATE_RANGE);
         }
@@ -157,9 +157,7 @@ class ExchangeRateController {
     @GetMapping(value = "/{currency}/latest", produces = MediaType.APPLICATION_JSON_VALUE)
     ExchangeRatesDto findLatestForCurrency(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
-        if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
-            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
-        }
+        currenciesService.validateIfCurrencyIsCorrect(currencyCode);
         return latest.getLatest(currencyCode)
                 .map(cacheMapper::mapCache)
                 .orElseThrow(() -> new ApiNotFoundException(FinanceExceptionMessage.LATEST_CURRENCY_FOR_CODE_NOT_FOUND.withParameters(currencyCode.getCode())));
@@ -192,9 +190,7 @@ class ExchangeRateController {
     ExchangeRatesDto findForCurrencyAndDate(@Parameter(description = "Currency code for expected exchange rates.", required = true) @PathVariable("currency") final String currency,
                                             @Parameter(description = "Specific date to be found.", required = true) @PathVariable(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
         final var currencyCode = CurrencyCode.getCurrencyFromString(currency, false);
-        if (currencyCode.equals(CurrencyCode.UNDEFINED)) {
-            throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_NOT_ALLOWED);
-        }
+        currenciesService.validateIfCurrencyIsCorrect(currencyCode);
         return service.findForCurrencyAndSpecificDate(currencyCode, date)
                 .map(mapper::map)
                 .orElseThrow(() -> new ApiNotFoundException(FinanceExceptionMessage.CURRENCY_FOR_CODE_AND_DATE_NOT_FOUND.withParameters(currencyCode.getCode(), date)));

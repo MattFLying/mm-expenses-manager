@@ -5,6 +5,7 @@ import mm.expenses.manager.common.util.DateUtils;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheServiceTest;
+import mm.expenses.manager.finance.currency.CurrenciesService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,6 +38,9 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
     @MockBean
     private ExchangeRateRepository repository;
+
+    @Autowired
+    private CurrenciesService currenciesService;
 
     @Autowired
     private LatestCacheServiceTest latestCacheTest;
@@ -381,6 +385,30 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
                     .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
 
+        @Test
+        void shouldReturnBadRequest_whenUnknownCurrencyWasPassed() throws Exception {
+            mockMvc.perform(get(forCurrencyUrl(CurrencyCode.UNDEFINED)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_NOT_ALLOWED.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @Test
+        void shouldReturnBadRequest_whenDefaultCurrencyWasPassed() throws Exception {
+            mockMvc.perform(get(forCurrencyUrl(DEFAULT_CURRENCY)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(DEFAULT_CURRENCY_NOT_ALLOWED.getCode())))
+                    .andExpect(jsonPath("$.message", is(DEFAULT_CURRENCY_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
     }
 
     @Nested
@@ -423,6 +451,18 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
                     .andExpect(jsonPath("$.code", is(CURRENCY_NOT_ALLOWED.getCode())))
                     .andExpect(jsonPath("$.message", is(CURRENCY_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @Test
+        void shouldReturnBadRequest_whenDefaultCurrencyWasPassed() throws Exception {
+            mockMvc.perform(get(latestForCurrencyUrl(DEFAULT_CURRENCY)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(DEFAULT_CURRENCY_NOT_ALLOWED.getCode())))
+                    .andExpect(jsonPath("$.message", is(DEFAULT_CURRENCY_NOT_ALLOWED.getMessage())))
                     .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }
@@ -483,6 +523,19 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
                     .andExpect(jsonPath("$.code", is(CURRENCY_NOT_ALLOWED.getCode())))
                     .andExpect(jsonPath("$.message", is(CURRENCY_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @Test
+        void shouldReturnBadRequest_whenDefaultCurrencyWasPassed() throws Exception {
+            final var date = LocalDate.now().minusDays(3);
+            mockMvc.perform(get(forCurrencyAndDateUrl(DEFAULT_CURRENCY, date)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(DEFAULT_CURRENCY_NOT_ALLOWED.getCode())))
+                    .andExpect(jsonPath("$.message", is(DEFAULT_CURRENCY_NOT_ALLOWED.getMessage())))
                     .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(jsonPath("$.occurredAt", notNullValue()));
         }

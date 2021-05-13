@@ -16,6 +16,7 @@ class CurrenciesControllerTest extends FinanceApplicationTest {
 
     private static final String BASE_URL = "/currencies";
     private static final String INFO_URL = BASE_URL + "/info";
+    private static final String CURRENT_URL = BASE_URL + "/current";
 
     @Autowired
     private CurrenciesService currenciesService;
@@ -39,6 +40,20 @@ class CurrenciesControllerTest extends FinanceApplicationTest {
                     .andExpect(jsonPath("$.codes[7]", is(CurrencyCode.PLN.getCode())))
                     .andExpect(jsonPath("$.codes[8]", is(CurrencyCode.SEK.getCode())))
                     .andExpect(jsonPath("$.codes[9]", is(CurrencyCode.USD.getCode())));
+        }
+
+    }
+
+    @Nested
+    class FindCurrentCurrencyCode {
+
+        @Test
+        void shouldRetrieveCurrentCurrencyCode() throws Exception {
+            mockMvc.perform(get(CURRENT_URL))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.currenciesCount", is(1)))
+                    .andExpect(jsonPath("$.codes[0]", is(CurrencyCode.PLN.getCode())));
         }
 
     }
