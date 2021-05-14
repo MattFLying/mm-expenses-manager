@@ -1,0 +1,65 @@
+app:
+  configuration:
+    name: @project.name@
+    version: @project.version@
+    description: @project.description@
+    active-profile: dev
+    port: 8190
+    contact:
+      name: @developer-name@
+      email: @developer-email@
+      role: @developer-role@
+    api:
+      url: /api
+      ui-url: ${app.configuration.api.url}/ui
+      disable-default-url: true
+    database:
+      mongodb:
+        name: expenses-manager-product
+        host: localhost
+        port: 27017
+        uri: mongodb://${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}
+    pageable:
+      min-page-number: 0
+      default-page-size: 10
+      max-page-size: 50
+  kafka:
+    enabled: true
+    brokers: localhost:9092
+    type: kafka
+    username: kafka
+    password: kafka
+
+server:
+  port: ${app.configuration.port}
+
+spring:
+  application:
+    name: ${app.configuration.name}
+  profiles:
+    active: dev
+  data:
+    mongodb:
+      uri: ${app.configuration.database.mongodb.uri}
+      auto-index-creation: true
+    web:
+      pageable:
+        default-page-size: ${app.configuration.pageable.default-page-size}
+        max-page-size: ${app.configuration.pageable.max-page-size}
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${app.kafka.brokers}
+      binders:
+        kafka:
+          type: ${app.kafka.type}
+
+springdoc:
+  swagger-ui:
+    path: ${app.configuration.api.ui-url}
+    disable-swagger-default-url: ${app.configuration.api.disable-default-url}
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: ${app.configuration.api.url}

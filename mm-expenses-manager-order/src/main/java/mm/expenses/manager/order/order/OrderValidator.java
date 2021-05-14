@@ -2,8 +2,8 @@ package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.order.order.model.*;
-import mm.expenses.manager.validator.DomainValidator.Validator;
-import mm.expenses.manager.validator.ValidatorMessage;
+import mm.expenses.manager.order.validator.DomainValidator.Validator;
+import mm.expenses.manager.order.validator.ValidatorMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
