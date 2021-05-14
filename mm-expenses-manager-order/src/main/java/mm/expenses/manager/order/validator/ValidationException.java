@@ -1,4 +1,4 @@
-package mm.expenses.manager.validator;
+package mm.expenses.manager.order.validator;
 
 import lombok.extern.slf4j.Slf4j;
 

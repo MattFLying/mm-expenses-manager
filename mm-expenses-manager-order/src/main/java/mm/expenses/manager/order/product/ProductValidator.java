@@ -6,8 +6,8 @@ import mm.expenses.manager.order.currency.PriceMapper;
 import mm.expenses.manager.order.product.model.CreateNewProduct;
 import mm.expenses.manager.order.product.model.Product;
 import mm.expenses.manager.order.product.model.UpdateProduct;
-import mm.expenses.manager.validator.DomainValidator.Validator;
-import mm.expenses.manager.validator.ValidatorMessage;
+import mm.expenses.manager.order.validator.DomainValidator.Validator;
+import mm.expenses.manager.order.validator.ValidatorMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 

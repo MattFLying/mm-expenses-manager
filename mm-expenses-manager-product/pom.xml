@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>mm-expenses-manager-parent</artifactId>
+        <groupId>mm-expenses-manager</groupId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <name>Expenses Manager Product Service</name>
+    <description>Product service responsible for products preparation and management.</description>
+
+    <artifactId>mm-expenses-manager-product</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+
+    <properties>
+        <!-- ExpensesManager dependency versions -->
+        <mm-expenses-manager-common-version>0.2.0-SNAPSHOT</mm-expenses-manager-common-version>
+        <mm-expenses-manager-exception-version>0.2.0-SNAPSHOT</mm-expenses-manager-exception-version>
+
+        <!-- Other dependency versions -->
+        <spring-data-mongodb-version>3.0.2.RELEASE</spring-data-mongodb-version>
+        <mongodb-driver-version>4.1.0</mongodb-driver-version>
+
+        <!-- Plugin versions -->
+        <jacoco-version>0.8.6</jacoco-version>
+        <maven-surefire-version>2.22.2</maven-surefire-version>
+        <maven-failsafe-version>2.22.2</maven-failsafe-version>
+    </properties>
+
+    <dependencies>
+        <!-- ExpensesManager dependencies -->
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>mm-expenses-manager-common</artifactId>
+            <version>${mm-expenses-manager-common-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>mm-expenses-manager-exception</artifactId>
+            <version>${mm-expenses-manager-exception-version}</version>
+        </dependency>
+
+        <!-- MongoDB dependencies -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>${mongodb-driver-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-core</artifactId>
+            <version>${mongodb-driver-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-reactivestreams</artifactId>
+            <version>${mongodb-driver-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+            <version>${spring-data-mongodb-version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Spring plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Maven plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-version}</version>
+                <configuration>
+                    <reuseForks>true</reuseForks>
+                    <forkCount>2</forkCount>
+                </configuration>
+            </plugin>
+
+            <!-- Jacoco report plugin -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <rules>
+                        <rule>
+                            <limits>
+                                <limit>
+                                    <counter>INSTRUCTION</counter>
+                                    <!--<minimum>80.0%</minimum>-->
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,7 +1,7 @@
 package mm.expenses.manager.order.order.exception;
 
 import lombok.Getter;
-import mm.expenses.manager.validator.ValidationException;
+import mm.expenses.manager.order.validator.ValidationException;
 
 @Getter
 public class OrderValidationException extends ValidationException {
