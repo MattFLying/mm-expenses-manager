@@ -3,7 +3,9 @@ package mm.expenses.manager.common.i18n;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
@@ -49,6 +51,13 @@ public enum CurrencyCode {
 
     public static CurrencyCode of(final CurrencyCode currencyCode) {
         return Objects.nonNull(currencyCode) ? currencyCode : CurrencyCode.UNDEFINED;
+    }
+
+    public static boolean exists(final String currencyCode) {
+        if (StringUtils.isBlank(currencyCode)) {
+            return false;
+        }
+        return Arrays.stream(values()).anyMatch(code -> currencyCode.equals(code.getCode()));
     }
 
 }

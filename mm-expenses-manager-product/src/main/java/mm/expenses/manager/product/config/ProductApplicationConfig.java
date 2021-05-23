@@ -9,9 +9,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.ErrorHandlingConfig;
+import mm.expenses.manager.product.config.converter.BigDecimalToDecimal128Converter;
+import mm.expenses.manager.product.config.converter.Decimal128ToBigDecimalConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+
+import java.util.Arrays;
 
 @Generated
 @Configuration
@@ -34,6 +39,14 @@ class ProductApplicationConfig {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         return objectMapper;
+    }
+
+    @Bean
+    MongoCustomConversions mongoCustomConversions() {
+        return new MongoCustomConversions(Arrays.asList(
+                new BigDecimalToDecimal128Converter(),
+                new Decimal128ToBigDecimalConverter()
+        ));
     }
 
 }

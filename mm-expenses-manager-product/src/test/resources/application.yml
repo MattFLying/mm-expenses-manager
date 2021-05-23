@@ -1,0 +1,19 @@
+app:
+  configuration:
+    name: test
+    version: test
+    description: test
+    active-profile: test
+    port: 8190
+    contact:
+      name: test
+      email: test
+      role: test
+    pageable:
+      min-page-number: 0
+      default-page-size: 10
+      max-page-size: 50
+
+spring:
+  profiles:
+    active: test

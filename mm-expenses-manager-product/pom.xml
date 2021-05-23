@@ -15,7 +15,7 @@
     <description>Product service responsible for products preparation and management.</description>
 
     <artifactId>mm-expenses-manager-product</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
@@ -86,6 +86,9 @@
                 <configuration>
                     <reuseForks>true</reuseForks>
                     <forkCount>2</forkCount>
+                    <excludes>
+                        <exclude>mm/expenses/manager/product/product/ProductMapperImpl.class</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
@@ -109,12 +112,15 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <excludes>
+                        <exclude>mm/expenses/manager/product/product/ProductMapperImpl.class</exclude>
+                    </excludes>
                     <rules>
                         <rule>
                             <limits>
                                 <limit>
                                     <counter>INSTRUCTION</counter>
-                                    <!--<minimum>80.0%</minimum>-->
+                                    <minimum>80.0%</minimum>
                                 </limit>
                             </limits>
                         </rule>
