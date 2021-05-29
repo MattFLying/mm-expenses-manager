@@ -1,7 +1,7 @@
-package mm.expenses.manager.product.product.validator;
+package mm.expenses.manager.product.price.validator;
 
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.product.product.dto.request.PriceRequest;
+import mm.expenses.manager.product.product.dto.request.CreatePriceRequest;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -11,10 +11,10 @@ import java.util.Objects;
 /**
  * Custom price validator for any requests.
  */
-class PriceValidator implements ConstraintValidator<ValidatePrice, PriceRequest> {
+public class PriceValidator implements ConstraintValidator<ValidatePrice, CreatePriceRequest> {
 
     @Override
-    public boolean isValid(final PriceRequest request, final ConstraintValidatorContext context) {
+    public boolean isValid(final CreatePriceRequest request, final ConstraintValidatorContext context) {
         final var isPriceValueValid = isPriceValueValid(request.getValue());
         final var isPriceCurrencyValid = isPriceCurrencyCodeValid(request.getCurrency());
 
@@ -30,12 +30,16 @@ class PriceValidator implements ConstraintValidator<ValidatePrice, PriceRequest>
         return isPriceValueValid && isPriceCurrencyValid;
     }
 
-    private boolean isPriceValueValid(final BigDecimal value) {
+    public static boolean isPriceValueValid(final BigDecimal value) {
         return Objects.nonNull(value) && value.compareTo(BigDecimal.ZERO) > 0;
     }
 
-    private boolean isPriceCurrencyCodeValid(final String currency) {
+    public static boolean isPriceCurrencyCodeValid(final String currency) {
         return Objects.nonNull(currency) && CurrencyCode.exists(currency) && !currency.equals(CurrencyCode.UNDEFINED.getCode());
+    }
+
+    public static boolean isPriceCurrencyCodeValid(final CurrencyCode currency) {
+        return Objects.nonNull(currency) && !currency.equals(CurrencyCode.UNDEFINED);
     }
 
 }

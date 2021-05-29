@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import mm.expenses.manager.product.product.validator.ValidatePrice;
+import mm.expenses.manager.product.price.validator.ValidatePrice;
 import mm.expenses.manager.product.product.validator.ValidateProduct;
 
 import java.util.Map;
@@ -20,14 +20,14 @@ import java.util.Map;
 @Builder(toBuilder = true)
 @JsonPropertyOrder({"name", "price", "details"})
 @Schema(name = "ProductRequest", description = "Product request data.")
-public class ProductRequest {
+public class CreateProductRequest {
 
     @Schema(description = "The name of the product.")
     private String name;
 
     @ValidatePrice
     @Schema(description = "The price of the product with currency.")
-    private PriceRequest price;
+    private CreatePriceRequest price;
 
     @Schema(description = "Additional data of the product.")
     private Map<String, Object> details;

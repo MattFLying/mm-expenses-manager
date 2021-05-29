@@ -5,6 +5,8 @@ import mm.expenses.manager.common.i18n.CurrencyCode;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.product.ProductApplicationTest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
+import mm.expenses.manager.product.product.dto.request.UpdatePriceRequest;
+import mm.expenses.manager.product.product.dto.request.UpdateProductRequest;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,12 +17,17 @@ import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import static mm.expenses.manager.product.product.ProductHelper.ID;
 import static mm.expenses.manager.product.product.ProductHelper.PRODUCT_NAME;
 import static mm.expenses.manager.product.product.ProductHelper.createProduct;
 import static mm.expenses.manager.product.product.ProductHelper.createProductFromProductRequest;
+import static mm.expenses.manager.product.product.ProductHelper.createProductFromUpdateProductRequest;
 import static mm.expenses.manager.product.product.ProductHelper.createProductRequest;
 import static mm.expenses.manager.product.product.ProductHelper.createProductRequestWithUnknownCurrency;
+import static mm.expenses.manager.product.product.ProductHelper.updateProductRequest;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -29,6 +36,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -291,6 +299,183 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(content().contentType(DATA_FORMAT_JSON))
                     .andExpect(status().isBadRequest());
+        }
+
+    }
+
+
+    @Nested
+    class UpdateProduct {
+
+        @Test
+        void shouldReturnBadRequest_whenEmptyNameIsPassed() throws Exception {
+            // given
+            final var emptyName = "";
+            final var existed = createProduct();
+            final var request = updateProductRequest(emptyName);
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+
+            // then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void shouldReturnBadRequest_whenPriceValueIsZero() throws Exception {
+            // given
+            final var existed = createProduct();
+            final var request = updateProductRequest(BigDecimal.ZERO, false);
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+
+            // when && then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void shouldReturnBadRequest_whenPriceCurrencyIsUndefined() throws Exception {
+            // given
+            final var existed = createProduct();
+            final var request = updateProductRequest(CurrencyCode.UNDEFINED, false);
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+
+            // then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void shouldReturnNotFound_whenProductDoesNotExists() throws Exception {
+            // given
+            final var request = UpdateProductRequest.builder().name(PRODUCT_NAME).build();
+
+            // when && then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void shouldReturnConflict_whenNoDataToUpdateWasPassed() throws Exception {
+            // given
+            final var request = UpdateProductRequest.builder().build();
+
+            // when && then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isConflict());
+        }
+
+        @Test
+        void shouldUpdateProduct() throws Exception {
+            // given
+            final var newName = "new name";
+            final var newPriceValue = BigDecimal.valueOf(5d);
+            final var newPriceCurrency = CurrencyCode.EUR;
+            final Map<String, Object> newDetails = Map.of("key1", "value1", "key2", 2);
+
+            final var existed = createProduct();
+            final var request = updateProductRequest(newName, newPriceValue, newPriceCurrency, newDetails);
+            final var expected = createProductFromUpdateProductRequest(request);
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+            when(productRepository.save(any())).thenReturn(expected);
+
+            // then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+
+                    .andExpect(jsonPath("$.id", is(ID)))
+                    .andExpect(jsonPath("$.name", is(newName)))
+                    .andExpect(jsonPath("$.price.value", is(newPriceValue.doubleValue())))
+                    .andExpect(jsonPath("$.price.currency", is(newPriceCurrency.getCode())))
+                    .andExpect(jsonPath("$.details", is(newDetails)));
+        }
+
+        @Test
+        void shouldUpdateProduct_whenOnlyNameIsPassed() throws Exception {
+            // given
+            final var newName = "new name";
+
+            final var existed = createProduct();
+            final var request = UpdateProductRequest.builder().name(newName).build();
+            final var expected = existed.toBuilder().name(newName).build();
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+            when(productRepository.save(any())).thenReturn(expected);
+
+            // then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+
+                    .andExpect(jsonPath("$.id", is(ID)))
+                    .andExpect(jsonPath("$.name", is(newName)))
+                    .andExpect(jsonPath("$.price.value", is(existed.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.price.currency", is(existed.getPrice().getCurrency().getCode())))
+                    .andExpect(jsonPath("$.details", is(existed.getDetails())));
+        }
+
+        @Test
+        void shouldUpdateProduct_whenOnlyPriceValueIsPassed() throws Exception {
+            // given
+            final var newPriceValue = BigDecimal.valueOf(5d);
+
+            final var existed = createProduct();
+            final var request = UpdateProductRequest.builder().price(UpdatePriceRequest.builder().value(newPriceValue).build()).build();
+            final var expected = existed.toBuilder().price(existed.getPrice().toBuilder().value(newPriceValue).build()).build();
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+            when(productRepository.save(any())).thenReturn(expected);
+
+            // then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+
+                    .andExpect(jsonPath("$.id", is(ID)))
+                    .andExpect(jsonPath("$.name", is(existed.getName())))
+                    .andExpect(jsonPath("$.price.value", is(newPriceValue.doubleValue())))
+                    .andExpect(jsonPath("$.price.currency", is(existed.getPrice().getCurrency().getCode())))
+                    .andExpect(jsonPath("$.details", is(existed.getDetails())));
+        }
+
+        @Test
+        void shouldUpdateProduct_whenOnlyPriceCurrencyIsPassed() throws Exception {
+            // given
+            final var newPriceCurrency = CurrencyCode.USD;
+
+            final var existed = createProduct();
+            final var request = UpdateProductRequest.builder().price(UpdatePriceRequest.builder().currency(newPriceCurrency.getCode()).build()).build();
+            final var expected = existed.toBuilder().price(existed.getPrice().toBuilder().currency(newPriceCurrency).build()).build();
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+            when(productRepository.save(any())).thenReturn(expected);
+
+            // then
+            mockMvc.perform(patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+
+                    .andExpect(jsonPath("$.id", is(ID)))
+                    .andExpect(jsonPath("$.name", is(existed.getName())))
+                    .andExpect(jsonPath("$.price.value", is(existed.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.price.currency", is(newPriceCurrency.getCode())))
+                    .andExpect(jsonPath("$.details", is(existed.getDetails())));
         }
 
     }

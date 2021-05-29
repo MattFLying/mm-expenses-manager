@@ -6,6 +6,7 @@ import mm.expenses.manager.exception.EmCheckedException;
 import mm.expenses.manager.exception.EmUncheckedException;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
+import mm.expenses.manager.exception.api.ApiConflictException;
 import mm.expenses.manager.exception.api.ApiException;
 import mm.expenses.manager.exception.api.ApiInternalErrorException;
 import mm.expenses.manager.exception.api.ApiNotFoundException;
@@ -44,6 +45,11 @@ public class AppExceptionHandler {
     @ExceptionHandler(ApiNotFoundException.class)
     ResponseEntity<ExceptionMessage> handleNotFoundException(final ApiNotFoundException notFound) {
         return messageApiException(notFound);
+    }
+
+    @ExceptionHandler(ApiConflictException.class)
+    ResponseEntity<ExceptionMessage> handleConflictException(final ApiConflictException conflict) {
+        return messageApiException(conflict);
     }
 
     @ExceptionHandler(EmCheckedException.class)

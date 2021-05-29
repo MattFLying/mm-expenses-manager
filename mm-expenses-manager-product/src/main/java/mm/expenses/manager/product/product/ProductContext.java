@@ -2,11 +2,11 @@ package mm.expenses.manager.product.product;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import mm.expenses.manager.common.util.DateUtils;
-import mm.expenses.manager.product.product.command.CreateProductCommand;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.Optional;
 
 import static mm.expenses.manager.product.repository.RepositoryRegistry.productRepository;
 
@@ -16,17 +16,12 @@ import static mm.expenses.manager.product.repository.RepositoryRegistry.productR
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductContext {
 
-    public static Product createNewProduct(final CreateProductCommand createProductCommand) {
-        final var now = DateUtils.now();
-        final var newProduct = Product.builder()
-                .name(createProductCommand.getName())
-                .price(createProductCommand.getPrice())
-                .details(createProductCommand.getDetails())
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .build();
+    public static Product saveProduct(final Product product) {
+        return productRepository().save(product);
+    }
 
-        return productRepository().save(newProduct);
+    public static Optional<Product> findProductById(final String id) {
+        return productRepository().findById(id);
     }
 
     public static Page<Product> findAll(final ProductQueryFilter queryFilter, final Pageable pageable) {

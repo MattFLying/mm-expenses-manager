@@ -5,11 +5,15 @@ import mm.expenses.manager.common.mapper.AbstractMapper;
 import mm.expenses.manager.product.config.MapperImplNaming;
 import mm.expenses.manager.product.price.Price;
 import mm.expenses.manager.product.product.command.CreateProductCommand;
-import mm.expenses.manager.product.product.dto.request.PriceRequest;
-import mm.expenses.manager.product.product.dto.request.ProductRequest;
+import mm.expenses.manager.product.product.command.UpdateProductCommand;
+import mm.expenses.manager.product.product.dto.request.CreateProductRequest;
+import mm.expenses.manager.product.product.dto.request.CreatePriceRequest;
+import mm.expenses.manager.product.product.dto.request.UpdatePriceRequest;
+import mm.expenses.manager.product.product.dto.request.UpdateProductRequest;
 import mm.expenses.manager.product.product.dto.response.PriceResponse;
 import mm.expenses.manager.product.product.dto.response.ProductPage;
 import mm.expenses.manager.product.product.dto.response.ProductResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,11 +31,18 @@ abstract class ProductMapper extends AbstractMapper {
     @Mapping(target = "price", expression = "java(map(product.getPrice()))")
     abstract ProductResponse map(final Product product);
 
-    @Mapping(target = "currency", expression = "java(getCurrency(priceRequest.getCurrency()))")
-    abstract Price map(final PriceRequest priceRequest);
+    @Mapping(target = "currency", expression = "java(getCurrency(createPriceRequest.getCurrency()))")
+    abstract Price map(final CreatePriceRequest createPriceRequest);
 
-    @Mapping(target = "price", expression = "java(map(productRequest.getPrice()))")
-    abstract CreateProductCommand map(final ProductRequest productRequest);
+    @Mapping(target = "currency", expression = "java(getCurrencyOrNull(updatePriceRequest.getCurrency()))")
+    abstract Price map(final UpdatePriceRequest updatePriceRequest);
+
+    @Mapping(target = "price", expression = "java(map(createProductRequest.getPrice()))")
+    abstract CreateProductCommand map(final CreateProductRequest createProductRequest);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "price", expression = "java(map(updateProductRequest.getPrice()))")
+    abstract UpdateProductCommand map(final String id, final UpdateProductRequest updateProductRequest);
 
     ProductPage map(final Page<Product> productPage) {
         final var content = productPage.getContent()
@@ -51,6 +62,10 @@ abstract class ProductMapper extends AbstractMapper {
 
     protected CurrencyCode getCurrency(final String currency) {
         return CurrencyCode.getCurrencyFromString(currency, true);
+    }
+
+    protected CurrencyCode getCurrencyOrNull(final String currency) {
+        return StringUtils.isBlank(currency) ? null : getCurrency(currency);
     }
 
 }

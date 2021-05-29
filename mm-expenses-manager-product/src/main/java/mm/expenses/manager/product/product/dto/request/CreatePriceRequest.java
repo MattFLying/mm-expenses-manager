@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import mm.expenses.manager.product.product.validator.ValidatePrice;
+import mm.expenses.manager.product.price.validator.ValidatePrice;
 
 import java.math.BigDecimal;
 
@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @Builder(toBuilder = true)
 @JsonPropertyOrder({"value", "currency"})
 @Schema(name = "PriceRequest", description = "Price request data.")
-public class PriceRequest {
+public class CreatePriceRequest {
 
     @Schema(description = "Currency code of the price.")
     private String currency;

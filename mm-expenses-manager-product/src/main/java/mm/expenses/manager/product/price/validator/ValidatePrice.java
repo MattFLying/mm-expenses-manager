@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.product.validator;
+package mm.expenses.manager.product.price.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

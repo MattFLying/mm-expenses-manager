@@ -9,8 +9,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.exception.api.ApiBadRequestException;
+import mm.expenses.manager.exception.api.ApiConflictException;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.product.dto.request.ProductRequest;
+import mm.expenses.manager.product.product.dto.request.CreateProductRequest;
+import mm.expenses.manager.product.product.dto.request.UpdateProductRequest;
 import mm.expenses.manager.product.product.dto.response.ProductPage;
 import mm.expenses.manager.product.product.dto.response.ProductResponse;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
@@ -18,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -120,9 +124,50 @@ class ProductController {
     )
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    ProductResponse create(@Parameter(description = "Product request data.") @Valid @RequestBody final ProductRequest productRequest) {
+    ProductResponse create(@Parameter(description = "Product request data.") @Valid @RequestBody final CreateProductRequest createProductRequest) {
         return mapper.map(
-                Product.create(mapper.map(productRequest))
+                Product.create(mapper.map(createProductRequest))
+        );
+    }
+
+    @Operation(
+            summary = "Update product.",
+            description = "Partially update product.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProductResponse.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Bad Request",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Not Found",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "409", description = "Conflict",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    )
+            }
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    ProductResponse update(@Parameter(description = "Product id.") @PathVariable("id") final String id,
+                           @Parameter(description = "Product request data.") @Valid @RequestBody final UpdateProductRequest updateProductRequest) {
+        if (!updateProductRequest.isAnyUpdate()) {
+            throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
+        }
+        return mapper.map(
+                Product.update(mapper.map(id, updateProductRequest))
         );
     }
 

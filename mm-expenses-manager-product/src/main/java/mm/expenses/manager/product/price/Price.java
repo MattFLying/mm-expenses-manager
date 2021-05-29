@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.product.price.validator.PriceValidator;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -27,8 +28,24 @@ public class Price {
         return Objects.nonNull(value) ? withScale(value) : withScale(BigDecimal.ZERO);
     }
 
+    public BigDecimal getOriginalValue() {
+        return value;
+    }
+
     public CurrencyCode getCurrency() {
         return Objects.nonNull(currency) ? currency : CurrencyCode.UNDEFINED;
+    }
+
+    public CurrencyCode getOriginalCurrency() {
+        return currency;
+    }
+
+    public boolean isValueValid() {
+        return PriceValidator.isPriceValueValid(value);
+    }
+
+    public boolean isCurrencyCodeValid() {
+        return PriceValidator.isPriceCurrencyCodeValid(currency);
     }
 
     private BigDecimal withScale(final BigDecimal value) {

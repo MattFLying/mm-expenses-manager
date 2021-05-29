@@ -1,6 +1,6 @@
 package mm.expenses.manager.product.product.validator;
 
-import mm.expenses.manager.product.product.dto.request.ProductRequest;
+import mm.expenses.manager.product.product.dto.request.CreateProductRequest;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintValidator;
@@ -11,10 +11,10 @@ import java.util.Objects;
 /**
  * Custom product validator for any requests.
  */
-class ProductValidator implements ConstraintValidator<ValidateProduct, ProductRequest> {
+public class ProductValidator implements ConstraintValidator<ValidateProduct, CreateProductRequest> {
 
     @Override
-    public boolean isValid(final ProductRequest request, final ConstraintValidatorContext context) {
+    public boolean isValid(final CreateProductRequest request, final ConstraintValidatorContext context) {
         final var isNameValid = isProductNameValid(request.getName());
         final var isDetailsValid = isProductDetailsValid(request.getDetails());
 
@@ -29,11 +29,11 @@ class ProductValidator implements ConstraintValidator<ValidateProduct, ProductRe
         return isNameValid && isDetailsValid;
     }
 
-    private boolean isProductNameValid(final String name) {
+    public static boolean isProductNameValid(final String name) {
         return StringUtils.isNotBlank(name);
     }
 
-    private boolean isProductDetailsValid(final Map<String, Object> details) {
+    public static boolean isProductDetailsValid(final Map<String, Object> details) {
         return Objects.nonNull(details);
     }
 

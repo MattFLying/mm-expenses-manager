@@ -19,6 +19,14 @@ public enum ProductExceptionMessage implements ExceptionType {
     PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE("product-price-less-or-greater-not-allowed-for-price-range-error", "Price range cannot be set as less or greater than."),
     PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED("product-price-max-and-price-min-must-be-passed-error", "Both price min and price max must be passed. Price min: {}, price max: {}"),
 
+    // product
+    PRODUCT_NOT_FOUND("product-not-found-error", "Product of id '%s' not found."),
+    PRODUCT_NAME_NOT_VALID("product-name-not-valid-error", "The name of product: '%s' is not valid."),
+    PRODUCT_PRICE_CURRENCY_NOT_VALID("product-price-currency-not-valid-error", "The price currency of product is not valid."),
+    PRODUCT_PRICE_VALUE_NOT_VALID("product-price-value-not-valid-error", "The price value of product: '%s' is not valid."),
+    PRODUCT_DETAILS_NOT_VALID("product-details-not-valid-error", "The details of product: '%s' is not valid."),
+    PRODUCT_NO_UPDATE_DATA("product-no-update-data-passed-error", "Data to update product have no be passed. Nothing to update."),
+
     // rest
     PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED("page-size-and-page-number-must-be-passed-error", "Both page number and page size must be filled"),
 
