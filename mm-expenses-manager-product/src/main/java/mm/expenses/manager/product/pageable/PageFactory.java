@@ -19,6 +19,10 @@ public class PageFactory {
         return null;
     }
 
+    public static PageRequest getPageRequest(final Integer pageNumber, final Integer pageSize) {
+        return PageHelper.getPageRequest(findCorrectPageNumber(pageNumber), findCorrectPageSize(pageSize), findCorrectSort(null), config.getMaxPageSize());
+    }
+
     public static PageRequest getPageRequest(final Integer pageNumber, final Integer pageSize, final Sort sort) {
         return PageHelper.getPageRequest(findCorrectPageNumber(pageNumber), findCorrectPageSize(pageSize), findCorrectSort(sort), config.getMaxPageSize());
     }

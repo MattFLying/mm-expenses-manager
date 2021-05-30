@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -482,6 +483,33 @@ class ProductControllerTest extends ProductApplicationTest {
 
 
     @Nested
+    class DeleteProduct {
+
+        @Test
+        void shouldReturnNotFound_whenProductDoesNotExists() throws Exception {
+            mockMvc.perform(delete(BASE_URL + "/" + ID))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void shouldDeleteProduct() throws Exception {
+            // given
+            final var existed = createProduct();
+            final var expected = existed.toBuilder().isDeleted(true).build();
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+            when(productRepository.save(any())).thenReturn(expected);
+
+            // then
+            mockMvc.perform(delete(BASE_URL + "/" + ID)).andExpect(status().isOk());
+        }
+
+    }
+
+
+    @Nested
     class FindProducts {
 
         @Test
@@ -520,7 +548,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product_2 = createProduct(PRODUCT_NAME + " 2", CurrencyCode.AUD);
 
             // when
-            when(productRepository.findByPrice_value(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            when(productRepository.findByPrice_valueAndIsDeletedFalse(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?price=" + priceRequest).contentType(DATA_FORMAT_JSON))
@@ -661,7 +689,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
 
             // when
-            when(productRepository.findByPrice_valueLessThan(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            when(productRepository.findByPrice_valueLessThanAndIsDeletedFalse(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&lessThan=true").contentType(DATA_FORMAT_JSON))
@@ -688,7 +716,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.NZD);
 
             // when
-            when(productRepository.findByPrice_valueGreaterThan(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            when(productRepository.findByPrice_valueGreaterThanAndIsDeletedFalse(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&greaterThan=true").contentType(DATA_FORMAT_JSON))
@@ -715,7 +743,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.SEK);
 
             // when
-            when(productRepository.findByPrice_valueBetween(any(), any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            when(productRepository.findByPrice_valueBetweenAndIsDeletedFalse(any(), any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?priceMin=" + 1 + "&priceMax=" + product.getPrice().getValue().doubleValue()).contentType(DATA_FORMAT_JSON))
@@ -744,7 +772,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = mock(ProductQueryFilter.class);
             when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            when(productRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            when(productRepository.findAllByIsDeletedFalse(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(get(BASE_URL).contentType(DATA_FORMAT_JSON))
@@ -780,7 +808,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = mock(ProductQueryFilter.class);
             when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            when(productRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            when(productRepository.findAllByIsDeletedFalse(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?sortOrder=NAME").contentType(DATA_FORMAT_JSON))
@@ -816,7 +844,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = mock(ProductQueryFilter.class);
             when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            when(productRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            when(productRepository.findAllByIsDeletedFalse(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?sortOrder=PRICE_VALUE").contentType(DATA_FORMAT_JSON))
@@ -852,7 +880,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = mock(ProductQueryFilter.class);
             when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            when(productRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            when(productRepository.findAllByIsDeletedFalse(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?sortOrder=PRICE_CURRENCY").contentType(DATA_FORMAT_JSON))
@@ -888,7 +916,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = mock(ProductQueryFilter.class);
             when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            when(productRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
+            when(productRepository.findAllByIsDeletedFalse(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?sortDesc=true").contentType(DATA_FORMAT_JSON))
@@ -924,7 +952,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = mock(ProductQueryFilter.class);
             when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            when(productRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            when(productRepository.findAllByIsDeletedFalse(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(get(BASE_URL + "?sortDesc=false").contentType(DATA_FORMAT_JSON))
@@ -960,7 +988,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = mock(ProductQueryFilter.class);
             when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            when(productRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            when(productRepository.findAllByIsDeletedFalse(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(get(BASE_URL).contentType(DATA_FORMAT_JSON))

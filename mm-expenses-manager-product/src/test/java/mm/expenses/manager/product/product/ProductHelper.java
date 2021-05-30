@@ -93,6 +93,7 @@ public class ProductHelper {
                 .createdAt(createdAndModifiedDate)
                 .lastModifiedAt(createdAndModifiedDate)
                 .version(1L)
+                .isDeleted(false)
                 .build();
     }
 

@@ -6,6 +6,7 @@ import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import static mm.expenses.manager.product.repository.RepositoryRegistry.productRepository;
@@ -20,8 +21,20 @@ public class ProductContext {
         return productRepository().save(product);
     }
 
-    public static Optional<Product> findProductById(final String id) {
-        return productRepository().findById(id);
+    public static Optional<Product> findProductById(final String productId) {
+        return productRepository().findById(productId);
+    }
+
+    public static void markAsDeleted(final Product product) {
+        productRepository().save(product);
+    }
+
+    public static void removeProducts(final Collection<String> productIds) {
+        productRepository().deleteByIdIn(productIds);
+    }
+
+    public static Page<Product> findDeleted(final Pageable pageable) {
+        return productRepository().findAllByIsDeletedTrue(pageable);
     }
 
     public static Page<Product> findAll(final ProductQueryFilter queryFilter, final Pageable pageable) {
@@ -30,7 +43,7 @@ public class ProductContext {
             case NAME:
                 return productRepository().findByName(queryFilter.getName(), pageable);
             case PRICE:
-                return productRepository().findByPrice_value(queryFilter.getPrice(), pageable);
+                return productRepository().findByPrice_valueAndIsDeletedFalse(queryFilter.getPrice(), pageable);
             case NAME_PRICE:
                 return productRepository().findByNameAndPrice_value(queryFilter.getName(), queryFilter.getPrice(), pageable);
             case NAME_PRICE_LESS_THAN:
@@ -40,13 +53,13 @@ public class ProductContext {
             case NAME_PRICE_MIN_PRICE_MAX:
                 return productRepository().findByNameAndPrice_valueBetween(queryFilter.getName(), queryFilter.getPriceMin(), queryFilter.getPriceMax(), pageable);
             case PRICE_LESS_THAN:
-                return productRepository().findByPrice_valueLessThan(queryFilter.getPrice(), pageable);
+                return productRepository().findByPrice_valueLessThanAndIsDeletedFalse(queryFilter.getPrice(), pageable);
             case PRICE_GREATER_THAN:
-                return productRepository().findByPrice_valueGreaterThan(queryFilter.getPrice(), pageable);
+                return productRepository().findByPrice_valueGreaterThanAndIsDeletedFalse(queryFilter.getPrice(), pageable);
             case PRICE_MIN_PRICE_MAX:
-                return productRepository().findByPrice_valueBetween(queryFilter.getPriceMin(), queryFilter.getPriceMax(), pageable);
+                return productRepository().findByPrice_valueBetweenAndIsDeletedFalse(queryFilter.getPriceMin(), queryFilter.getPriceMax(), pageable);
             default:
-                return productRepository().findAll(pageable);
+                return productRepository().findAllByIsDeletedFalse(pageable);
         }
     }
 

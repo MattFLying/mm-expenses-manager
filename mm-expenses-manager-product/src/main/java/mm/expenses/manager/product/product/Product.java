@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static mm.expenses.manager.product.product.ProductContext.findAll;
 import static mm.expenses.manager.product.product.ProductContext.findProductById;
+import static mm.expenses.manager.product.product.ProductContext.markAsDeleted;
 import static mm.expenses.manager.product.product.ProductContext.saveProduct;
 
 @Data
@@ -52,8 +53,19 @@ public class Product {
 
     private Map<String, Object> details;
 
+    private boolean isDeleted;
+
     @Version
     private final Long version;
+
+    void delete() {
+        final var now = DateUtils.now();
+
+        setDeleted(true);
+        setLastModifiedAt(now);
+
+        markAsDeleted(this);
+    }
 
     Product partiallyUpdate(final UpdateProductCommand updateProductCommand) {
         updateProductCommand.getName().ifPresent(this::updateName);
@@ -129,6 +141,15 @@ public class Product {
         final var pageable = PageFactory.getPageRequest(pageNumber, pageSize, Sort.by(sortingOrders));
 
         return findAll(queryFilter, pageable);
+    }
+
+    public static void delete(final String productId) {
+        findProductById(productId)
+                .ifPresentOrElse(
+                        Product::delete,
+                        () -> {
+                            throw new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId));
+                        });
     }
 
     private static SortOrder getOrDefault(final SortOrder sortOrder) {

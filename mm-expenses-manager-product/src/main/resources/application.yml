@@ -23,6 +23,8 @@ app:
       min-page-number: 0
       default-page-size: 10
       max-page-size: 50
+  product:
+    clear-deleted-cron: "0 0 0 ? * *" # every day at 12:00
   kafka:
     enabled: true
     brokers: localhost:9092

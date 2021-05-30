@@ -13,6 +13,8 @@ app:
       min-page-number: 0
       default-page-size: 10
       max-page-size: 50
+  product:
+    clear-deleted-cron: "0 * * * * *"
 
 spring:
   profiles:

@@ -19,6 +19,7 @@ import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,7 +52,8 @@ class ProductController {
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ProductPage.class)
-                            )),
+                            )
+                    ),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -113,7 +115,8 @@ class ProductController {
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ProductResponse.class)
-                            )),
+                            )
+                    ),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -138,7 +141,8 @@ class ProductController {
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ProductResponse.class)
-                            )),
+                            )
+                    ),
                     @ApiResponse(responseCode = "400", description = "Bad Request",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -169,6 +173,27 @@ class ProductController {
         return mapper.map(
                 Product.update(mapper.map(id, updateProductRequest))
         );
+    }
+
+    @Operation(
+            summary = "Delete product.",
+            description = "Remove product by given id.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Not Found",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    )
+            }
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    void deleteById(@Parameter(description = "Product id.") @PathVariable("id") final String id) {
+        Product.delete(id);
     }
 
 }
