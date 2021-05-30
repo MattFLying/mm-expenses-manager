@@ -108,6 +108,29 @@ class ProductController {
     }
 
     @Operation(
+            summary = "Finds product by id.",
+            description = "Find product by given id.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProductResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Not Found",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ExceptionMessage.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ProductResponse findById(@Parameter(description = "Product id.") @PathVariable("id") final String id) {
+        return mapper.map(Product.findById(id));
+    }
+
+    @Operation(
             summary = "Creates new product.",
             description = "Create a new product with all details.",
             responses = {

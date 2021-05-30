@@ -143,6 +143,10 @@ public class Product {
         return findAll(queryFilter, pageable);
     }
 
+    public static Product findById(final String productId) {
+        return findProductById(productId).orElseThrow(() -> new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId)));
+    }
+
     public static void delete(final String productId) {
         findProductById(productId)
                 .ifPresentOrElse(

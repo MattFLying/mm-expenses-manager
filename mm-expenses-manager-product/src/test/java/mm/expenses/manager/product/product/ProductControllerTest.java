@@ -510,6 +510,39 @@ class ProductControllerTest extends ProductApplicationTest {
 
 
     @Nested
+    class FindProductById {
+
+        @Test
+        void shouldReturnNotFound_whenProductDoesNotExists() throws Exception {
+            mockMvc.perform(get(BASE_URL + "/" + ID))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void shouldFindProductById() throws Exception {
+            // given
+            final var existed = createProduct();
+
+            // when
+            when(productRepository.findById(any())).thenReturn(Optional.of(existed));
+
+            // then
+            mockMvc.perform(get(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+
+                    .andExpect(jsonPath("$.id", is(existed.getId())))
+                    .andExpect(jsonPath("$.name", is(existed.getName())))
+                    .andExpect(jsonPath("$.price.value", is(existed.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.price.currency", is(existed.getPrice().getCurrency().toString())))
+                    .andExpect(jsonPath("$.details", is(existed.getDetails())));
+        }
+
+    }
+
+
+    @Nested
     class FindProducts {
 
         @Test
