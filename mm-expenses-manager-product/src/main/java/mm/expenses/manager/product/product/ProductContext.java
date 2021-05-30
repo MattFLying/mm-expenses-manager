@@ -25,10 +25,6 @@ public class ProductContext {
         return productRepository().findById(productId);
     }
 
-    public static void markAsDeleted(final Product product) {
-        productRepository().save(product);
-    }
-
     public static void removeProducts(final Collection<String> productIds) {
         productRepository().deleteByIdIn(productIds);
     }

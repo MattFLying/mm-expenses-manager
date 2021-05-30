@@ -28,7 +28,6 @@ import java.util.Optional;
 
 import static mm.expenses.manager.product.product.ProductContext.findAll;
 import static mm.expenses.manager.product.product.ProductContext.findProductById;
-import static mm.expenses.manager.product.product.ProductContext.markAsDeleted;
 import static mm.expenses.manager.product.product.ProductContext.saveProduct;
 
 @Data
@@ -64,7 +63,7 @@ public class Product {
         setDeleted(true);
         setLastModifiedAt(now);
 
-        markAsDeleted(this);
+        saveProduct(this);
     }
 
     Product partiallyUpdate(final UpdateProductCommand updateProductCommand) {
