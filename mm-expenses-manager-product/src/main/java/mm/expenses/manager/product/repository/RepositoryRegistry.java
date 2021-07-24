@@ -16,13 +16,21 @@ public class RepositoryRegistry {
 
     private static ProductRepository productRepository;
 
+    private static CategoryRepository categoryRepository;
+
     public static ProductRepository productRepository() {
         return productRepository;
     }
 
+    public static CategoryRepository categoryRepository() {
+        return categoryRepository;
+    }
+
     @Bean
-    static Object initRepositoryRegistry(final ProductRepository productRepo) {
+    static Object initRepositoryRegistry(final ProductRepository productRepo,
+                                         final CategoryRepository categoryRepo) {
         productRepository = productRepo;
+        categoryRepository = categoryRepo;
         return null;
     }
 
