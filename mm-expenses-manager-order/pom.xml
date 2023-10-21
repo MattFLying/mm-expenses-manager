@@ -11,6 +11,9 @@
         <version>0.2.5-SNAPSHOT</version>
     </parent>
 
+    <name>Expenses Manager Order Service</name>
+    <description>Order service responsible for orders preparation and management.</description>
+
     <artifactId>mm-expenses-manager-order</artifactId>
     <version>0.2.5-SNAPSHOT</version>
 
@@ -18,10 +21,6 @@
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
         <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
-
-        <!-- Other dependency versions -->
-        <spring-data-mongodb-version>4.1.5</spring-data-mongodb-version>
-        <mongodb-driver-version>4.11.0</mongodb-driver-version>
     </properties>
 
     <dependencies>
@@ -37,6 +36,12 @@
             <artifactId>mm-expenses-manager-exception</artifactId>
             <version>${mm-expenses-manager-exception-version}</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Spring dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <!-- MongoDB dependencies -->
@@ -58,7 +63,16 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
-            <version>${spring-data-mongodb-version}</version>
+        </dependency>
+
+        <!-- Swagger dependencies -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-data-rest</artifactId>
         </dependency>
     </dependencies>
 
@@ -67,6 +81,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
