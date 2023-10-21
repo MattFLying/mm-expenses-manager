@@ -47,10 +47,13 @@
 
         <!-- Project version -->
         <java-version>17</java-version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <lombok-version>1.18.30</lombok-version>
         <mapstruct-version>1.5.5.Final</mapstruct-version>
 
         <!-- Dependency version -->
+        <spring-boot-version>3.1.5</spring-boot-version>
         <spring-cloud-version>2022.0.4</spring-cloud-version>
         <spring-cloud-starter-stream-kafka-version>4.0.4</spring-cloud-starter-stream-kafka-version>
 
@@ -70,20 +73,26 @@
         <org-awaitility-version>4.2.0</org-awaitility-version>
         <nl-jqno-equalsverifier-version>3.15.2</nl-jqno-equalsverifier-version>
 
-        <!--<springdoc-openapi-starter-webmvc-ui-version>2.2.0</springdoc-openapi-starter-webmvc-ui-version>-->
-        <swagger-version>2.9.2</swagger-version>
-        <springdoc-openapi-ui>1.5.6</springdoc-openapi-ui>
-        <springdoc-openapi-data-rest>1.5.6</springdoc-openapi-data-rest>
+        <springdoc-openapi-version>1.7.0</springdoc-openapi-version>
+
+        <snakeyaml-version>2.0</snakeyaml-version>
+        <com-google-guava-version>32.1.3-jre</com-google-guava-version>
 
         <!-- Plugin version -->
         <maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
         <maven-resources-plugin-version>3.3.1</maven-resources-plugin-version>
+        <openapi-generator-plugin-version>7.0.1</openapi-generator-plugin-version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -259,20 +268,27 @@
         </dependency>
 
         <!-- Swagger dependencies -->
-        <!--<dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc-openapi-starter-webmvc-ui-version}</version>
-        </dependency>-->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
-            <version>${springdoc-openapi-ui}</version>
+            <version>${springdoc-openapi-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-data-rest</artifactId>
-            <version>${springdoc-openapi-data-rest}</version>
+            <version>${springdoc-openapi-version}</version>
+        </dependency>
+
+        <!-- Dependency vulnerabilities fixes -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${com-google-guava-version}</version>
         </dependency>
     </dependencies>
 
@@ -293,6 +309,12 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator-plugin-version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
