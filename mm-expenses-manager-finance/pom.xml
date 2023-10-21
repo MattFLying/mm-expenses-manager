@@ -8,31 +8,31 @@
     <parent>
         <artifactId>mm-expenses-manager-parent</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.2.5-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Finance Service</name>
     <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
 
     <artifactId>mm-expenses-manager-finance</artifactId>
-    <version>2021.05</version>
+    <version>0.2.5-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.2.0-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>0.2.0-SNAPSHOT</mm-expenses-manager-exception-version>
+        <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
+        <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
 
         <!-- Other dependency versions -->
-        <spring-data-mongodb-version>3.0.2.RELEASE</spring-data-mongodb-version>
-        <spring-data-redis-version>2.4.5</spring-data-redis-version>
-        <mongodb-driver-version>4.1.0</mongodb-driver-version>
-        <apache-commons-pool-version>2.9.0</apache-commons-pool-version>
-        <redis-client-jedis-version>3.5.2</redis-client-jedis-version>
+        <spring-data-mongodb-version>4.1.5</spring-data-mongodb-version>
+        <spring-data-redis-version>3.1.5</spring-data-redis-version>
+        <mongodb-driver-version>4.11.0</mongodb-driver-version>
+        <apache-commons-pool-version>2.12.0</apache-commons-pool-version>
+        <redis-client-jedis-version>5.0.2</redis-client-jedis-version>
 
         <!-- Plugin versions -->
-        <jacoco-version>0.8.6</jacoco-version>
-        <maven-surefire-version>2.22.2</maven-surefire-version>
-        <maven-failsafe-version>2.22.2</maven-failsafe-version>
+        <jacoco-version>0.8.11</jacoco-version>
+        <maven-surefire-version>3.1.2</maven-surefire-version>
+        <maven-failsafe-version>3.1.2</maven-failsafe-version>
     </properties>
 
     <dependencies>
