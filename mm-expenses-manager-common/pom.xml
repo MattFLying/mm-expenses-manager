@@ -17,4 +17,19 @@
     <artifactId>mm-expenses-manager-common</artifactId>
     <version>0.2.5-SNAPSHOT</version>
 
+    <dependencies>
+        <!-- Swagger dependencies -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-data-rest</artifactId>
+        </dependency>
+
+        <!-- Apache commons dependencies -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${apache-commons-fileupload}</version>
+        </dependency>
+    </dependencies>
+
 </project>

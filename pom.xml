@@ -6,13 +6,6 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.5</version>
-        <relativePath/>
-    </parent>
-
     <name>Expenses Manager Parent</name>
     <description>Parent project of Expenses Manager.</description>
 
@@ -47,16 +40,13 @@
 
         <!-- Project version -->
         <java-version>17</java-version>
+        <maven.compiler.source>${java-version}</maven.compiler.source>
+        <maven.compiler.target>${java-version}</maven.compiler.target>
+        <encoding>UTF-8</encoding>
+
+        <!-- Project related version -->
         <lombok-version>1.18.30</lombok-version>
         <mapstruct-version>1.5.5.Final</mapstruct-version>
-
-        <!-- Dependency version -->
-        <spring-cloud-version>2022.0.4</spring-cloud-version>
-        <spring-cloud-starter-stream-kafka-version>4.0.4</spring-cloud-starter-stream-kafka-version>
-
-        <apache-commons-lang3-version>3.13.0</apache-commons-lang3-version>
-        <apache-commons-collections4-version>4.4</apache-commons-collections4-version>
-        <apache-commons-math3>3.6.1</apache-commons-math3>
 
         <javax-activation-version>1.1.1</javax-activation-version>
         <javax-annotation-api-version>1.3.2</javax-annotation-api-version>
@@ -64,26 +54,50 @@
         <javax-xml-bind-version>2.3.1</javax-xml-bind-version>
         <org-javassist-version>3.29.2-GA</org-javassist-version>
 
+        <jacoco-version>0.8.11</jacoco-version>
+        <maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
+        <maven-resources-plugin-version>3.3.1</maven-resources-plugin-version>
+        <maven-surefire-version>3.1.2</maven-surefire-version>
+
+        <mongodb-driver-version>4.11.0</mongodb-driver-version>
+
+        <!-- Spring version -->
+        <spring-boot-version>3.1.5</spring-boot-version>
+        <spring-cloud-version>2022.0.4</spring-cloud-version>
+        <spring-cloud-starter-stream-kafka-version>4.0.4</spring-cloud-starter-stream-kafka-version>
+
+        <!-- Swagger version -->
+        <springdoc-openapi-version>1.7.0</springdoc-openapi-version>
+        <openapi-generator-plugin-version>7.0.1</openapi-generator-plugin-version>
+
+        <!-- Apache commons version -->
+        <apache-commons-lang3-version>3.13.0</apache-commons-lang3-version>
+        <apache-commons-collections4-version>4.4</apache-commons-collections4-version>
+        <apache-commons-math3>3.6.1</apache-commons-math3>
+        <apache-commons-fileupload>1.5</apache-commons-fileupload>
+
+        <!-- Tests version -->
         <assertj-core-version>3.24.2</assertj-core-version>
         <junit-platform-runner-version>1.10.0</junit-platform-runner-version>
         <junit-params-version>1.1.1</junit-params-version>
         <org-awaitility-version>4.2.0</org-awaitility-version>
         <nl-jqno-equalsverifier-version>3.15.2</nl-jqno-equalsverifier-version>
 
-        <!--<springdoc-openapi-starter-webmvc-ui-version>2.2.0</springdoc-openapi-starter-webmvc-ui-version>-->
-        <swagger-version>2.9.2</swagger-version>
-        <springdoc-openapi-ui>1.5.6</springdoc-openapi-ui>
-        <springdoc-openapi-data-rest>1.5.6</springdoc-openapi-data-rest>
-
-        <!-- Plugin version -->
-        <maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven-resources-plugin-version>3.3.1</maven-resources-plugin-version>
+        <!-- Vulnerabilities fixes versions -->
+        <snakeyaml-version>2.0</snakeyaml-version>
+        <com-google-guava-version>32.1.3-jre</com-google-guava-version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Spring dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -91,84 +105,22 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- Swagger dependencies -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc-openapi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-data-rest</artifactId>
+                <version>${springdoc-openapi-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-kafka</artifactId>
-            <version>${spring-cloud-starter-stream-kafka-version}</version>
-        </dependency>
-
-        <!-- Spring Kafka dependencies -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream-binder-kafka</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream-binder-kafka-streams</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- Java help dependencies -->
         <dependency>
             <groupId>javax.activation</groupId>
@@ -196,51 +148,6 @@
             <version>${org-javassist-version}</version>
         </dependency>
 
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj-core-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <version>${junit-platform-runner-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>pl.pragmatists</groupId>
-            <artifactId>JUnitParams</artifactId>
-            <version>${junit-params-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>${org-awaitility-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.jqno.equalsverifier</groupId>
-            <artifactId>equalsverifier</artifactId>
-            <version>${nl-jqno-equalsverifier-version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Lombok and mapstruct dependencies -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok-version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct-version}</version>
-        </dependency>
-
         <!-- Apache commons dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -258,21 +165,35 @@
             <version>${apache-commons-math3}</version>
         </dependency>
 
-        <!-- Swagger dependencies -->
-        <!--<dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc-openapi-starter-webmvc-ui-version}</version>
-        </dependency>-->
+        <!-- Lombok dependencies -->
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>${springdoc-openapi-ui}</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok-version}</version>
+        </dependency>
+
+        <!-- Mapstruct dependencies -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-data-rest</artifactId>
-            <version>${springdoc-openapi-data-rest}</version>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct-version}</version>
+        </dependency>
+
+        <!-- Dependency vulnerabilities fixes -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${com-google-guava-version}</version>
         </dependency>
     </dependencies>
 
@@ -288,56 +209,6 @@
     </repositories>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
-        <plugins>
-            <!-- Maven plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin-version}</version>
-                <configuration>
-                    <source>${java-version}</source>
-                    <target>${java-version}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct-version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok-version}</version>
-                        </path>
-                        <dependency>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>0.2.0</version>
-                        </dependency>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin-version}</version>
-                <configuration>
-                    <delimiters>
-                        <delimiter>@</delimiter>
-                    </delimiters>
-                    <useDefaultDelimiters>false</useDefaultDelimiters>
-                </configuration>
-            </plugin>
-        </plugins>
-
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -347,6 +218,74 @@
                 </includes>
             </resource>
         </resources>
+
+        <pluginManagement>
+            <plugins>
+                <!-- Spring plugins -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+
+                <!-- Swagger plugins -->
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator-plugin-version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                        <configuration>
+                            <delimiters>
+                                <delimiter>@</delimiter>
+                            </delimiters>
+                            <useDefaultDelimiters>false</useDefaultDelimiters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>${spring-boot-version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok-version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct-version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
