@@ -14,7 +14,6 @@ class WebMvcConfig implements WebMvcConfigurer {
                 .allowedMethods(allowedCorsHttpMethods())
                 .maxAge(3600)
                 .allowedOrigins("*")
-                .allowCredentials(true)
                 .allowedHeaders("*");
     }
 

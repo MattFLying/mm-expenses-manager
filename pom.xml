@@ -67,7 +67,7 @@
         <spring-cloud-starter-stream-kafka-version>4.0.4</spring-cloud-starter-stream-kafka-version>
 
         <!-- Swagger version -->
-        <springdoc-openapi-version>1.7.0</springdoc-openapi-version>
+        <springdoc-openapi-version>2.2.0</springdoc-openapi-version>
         <openapi-generator-plugin-version>7.0.1</openapi-generator-plugin-version>
 
         <!-- Apache commons version -->
@@ -109,12 +109,7 @@
             <!-- Swagger dependencies -->
             <dependency>
                 <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-ui</artifactId>
-                <version>${springdoc-openapi-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-data-rest</artifactId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc-openapi-version}</version>
             </dependency>
         </dependencies>
