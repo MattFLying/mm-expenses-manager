@@ -1,0 +1,13 @@
+version: "3.5"
+
+services:
+  mongo:
+    container_name: mongodb_expenses_manager_1
+    image: mongo
+    hostname: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: gP_h3cS!Lqu-4
+    restart: unless-stopped

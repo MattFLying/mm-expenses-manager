@@ -1,17 +1,35 @@
-mm-expenses-manager:
-  app-version: 0.1.0
-  app-name: Expenses manager order
+app:
+  configuration:
+    name: @project.name@
+    version: @project.version@
+    description: @project.description@
+    active-profile: dev
+    port: 8181
+    database:
+      mongodb:
+        user: admin
+        password: gP_h3cS!Lqu-4
+        name: expenses-manager-order
+        host: localhost
+        port: 27017
+        uri: mongodb://${app.configuration.database.mongodb.user}:${app.configuration.database.mongodb.password}@${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}?authSource=admin
+    pageable:
+      min-page-number: 0
+      default-page-size: 10
+      max-page-size: 50
 
 server:
-  port: 8181
+  port: ${app.configuration.port}
+
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/expenses-manager-order
+      uri: ${app.configuration.database.mongodb.uri}
+      auto-index-creation: true
     web:
       pageable:
-        default-page-size: 10
-        max-page-size: 50
+        default-page-size: ${app.configuration.pageable.default-page-size}
+        max-page-size: ${app.configuration.pageable.max-page-size}
 
 springfox:
   documentation:

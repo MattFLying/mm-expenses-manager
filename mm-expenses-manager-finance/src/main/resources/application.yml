@@ -16,10 +16,12 @@ app:
       disable-default-url: true
     database:
       mongodb:
+        user: admin
+        password: gP_h3cS!Lqu-4
         name: expenses-manager-finance
         host: localhost
         port: 27017
-        uri: mongodb://${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}
+        uri: mongodb://${app.configuration.database.mongodb.user}:${app.configuration.database.mongodb.password}@${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}?authSource=admin
     cache:
       type: simple # 'simple' or 'redis'
       clear-cron: "0 0 * ? * *" # every 1h
