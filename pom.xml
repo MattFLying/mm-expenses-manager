@@ -75,6 +75,7 @@
         <apache-commons-collections4-version>4.4</apache-commons-collections4-version>
         <apache-commons-math3>3.6.1</apache-commons-math3>
         <apache-commons-fileupload>1.5</apache-commons-fileupload>
+        <apache-commons-validator-version>1.7</apache-commons-validator-version>
 
         <!-- Tests version -->
         <assertj-core-version>3.24.2</assertj-core-version>
@@ -158,6 +159,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>${apache-commons-math3}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${apache-commons-validator-version}</version>
         </dependency>
 
         <!-- Lombok dependencies -->

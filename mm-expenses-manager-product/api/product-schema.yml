@@ -1,0 +1,107 @@
+openapi: 3.0.1
+info:
+  title: product-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8190
+
+tags:
+  - name: Product
+    description: Endpoints related with products.
+
+paths:
+
+  /api/v3/products:
+
+    get:
+      tags:
+        - Product
+      summary: Finds all available products by specific filters.
+      description: Check for available products relates with specified filters or check all.
+      operationId: findAll
+      parameters:
+        - name: pageNumber
+          in: query
+          required: false
+          example: 0
+          schema:
+            default: 0
+            minimum: 0
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: false
+          example: 15
+          schema:
+            default: 10
+            minimum: 1
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductPage"
+      security:
+        - oauth2:
+            - openid
+
+
+components:
+  schemas:
+
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+      additionalProperties: false
+      description: Product data.
+
+    ProductPage:
+      type: object
+      required:
+        - content
+        - empty
+        - first
+        - last
+        - page
+        - size
+        - pages
+        - elements
+        - total
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+        empty:
+          type: boolean
+        first:
+          type: boolean
+        last:
+          type: boolean
+        page:
+          type: integer
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+        pages:
+          type: integer
+          format: int32
+        elements:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int64
+      description: Page with products data.
+
+

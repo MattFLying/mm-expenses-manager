@@ -5,11 +5,7 @@ import mm.expenses.manager.exception.EmAppException;
 import mm.expenses.manager.exception.EmCheckedException;
 import mm.expenses.manager.exception.EmUncheckedException;
 import mm.expenses.manager.exception.ExceptionMessage;
-import mm.expenses.manager.exception.api.ApiBadRequestException;
-import mm.expenses.manager.exception.api.ApiConflictException;
-import mm.expenses.manager.exception.api.ApiException;
-import mm.expenses.manager.exception.api.ApiInternalErrorException;
-import mm.expenses.manager.exception.api.ApiNotFoundException;
+import mm.expenses.manager.exception.api.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,10 +58,32 @@ public class AppExceptionHandler {
         return messageEmAppException(uncheckedException);
     }
 
-    @ExceptionHandler(ValidationException.class)
+    @ExceptionHandler({ValidationException.class, jakarta.validation.ValidationException.class})
+    ResponseEntity<ExceptionMessage> handleValidationException(RuntimeException validationException) {
+        if (validationException instanceof ConstraintViolationException) {
+            var vE = new mm.expenses.manager.exception.api.ValidationException(ValidationExceptionMessage.VALIDATION_EXCEPTION, (ValidationException) validationException);
+
+            return messageValidationException(vE);
+            //return messageValidationException((ValidationException) validationException);
+        }
+        if (validationException instanceof jakarta.validation.ConstraintViolationException) {
+            var vE = new mm.expenses.manager.exception.api.ValidationException(ValidationExceptionMessage.VALIDATION_EXCEPTION, (jakarta.validation.ValidationException) validationException);
+
+            return messageValidationException(vE);
+            //return messageValidationException((jakarta.validation.ValidationException) validationException);
+        }
+        return messageValidationException(validationException);
+    }
+
+    /*@ExceptionHandler(ValidationException.class)
     ResponseEntity<ExceptionMessage> handleValidationException(final ValidationException validationException) {
         return messageValidationException(validationException);
     }
+
+    @ExceptionHandler(jakarta.validation.ValidationException.class)
+    ResponseEntity<ExceptionMessage> handleJakartaValidationException(final jakarta.validation.ValidationException validationException) {
+        return messageValidationException(validationException);
+    }*/
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ExceptionMessage> handleMethodArgumentNotValidException(final MethodArgumentNotValidException methodArgumentNotValidException) {
@@ -82,7 +100,77 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(fromApiException(exception), exception.httpStatus());
     }
 
-    private ResponseEntity<ExceptionMessage> messageValidationException(final ValidationException exception) {
+    private ResponseEntity<ExceptionMessage> messageValidationException(final RuntimeException exception) {
+        if (exception instanceof mm.expenses.manager.exception.api.ValidationException e) {
+            if (e.getValidationCause() instanceof ConstraintViolationException) {
+                final var constraintException = (ConstraintViolationException) exception.getCause();
+                final var message = constraintException.getConstraintViolations()
+                        .stream()
+                        .map(ConstraintViolation::getMessageTemplate)
+                        .collect(Collectors.joining(" "));
+
+                return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+            }
+            if (e.getValidationCause() instanceof jakarta.validation.ConstraintViolationException) {
+                final var constraintException = (jakarta.validation.ConstraintViolationException) exception.getCause();
+                final var message = constraintException.getConstraintViolations()
+                        .stream()
+                        .map(jakarta.validation.ConstraintViolation::getMessageTemplate)
+                        .collect(Collectors.joining(" "));
+
+                return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+            }
+
+
+
+
+
+
+            /*if (exception.getCause() instanceof ConstraintViolationException) {
+                final var constraintException = (ConstraintViolationException) exception.getCause();
+                final var message = constraintException.getConstraintViolations()
+                        .stream()
+                        .map(ConstraintViolation::getMessageTemplate)
+                        .collect(Collectors.joining(" "));
+
+                return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+            }
+            if (exception.getCause() instanceof jakarta.validation.ConstraintViolationException) {
+                final var constraintException = (jakarta.validation.ConstraintViolationException) exception.getCause();
+                final var message = constraintException.getConstraintViolations()
+                        .stream()
+                        .map(jakarta.validation.ConstraintViolation::getMessageTemplate)
+                        .collect(Collectors.joining(" "));
+
+                return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+            }*/
+        }
+
+
+
+
+        /*if (exception instanceof ConstraintViolationException) {
+            final var constraintException = (ConstraintViolationException) exception;
+            final var message = constraintException.getConstraintViolations()
+                    .stream()
+                    .map(ConstraintViolation::getMessageTemplate)
+                    .collect(Collectors.joining(" "));
+
+            return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+        }
+        if (exception instanceof jakarta.validation.ConstraintViolationException) {
+            final var constraintException = (jakarta.validation.ConstraintViolationException) exception;
+            final var message = constraintException.getConstraintViolations()
+                    .stream()
+                    .map(jakarta.validation.ConstraintViolation::getMessageTemplate)
+                    .collect(Collectors.joining(" "));
+
+            return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+        }*/
+        return new ResponseEntity<>(fromException(exception), HttpStatus.BAD_REQUEST);
+    }
+
+    /*private ResponseEntity<ExceptionMessage> messageValidationException(final ValidationException exception) {
         if (exception instanceof ConstraintViolationException) {
             final var constraintException = (ConstraintViolationException) exception;
             final var message = constraintException.getConstraintViolations()
@@ -93,7 +181,7 @@ public class AppExceptionHandler {
             return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(fromException(exception), HttpStatus.BAD_REQUEST);
-    }
+    }*/
 
     private ResponseEntity<ExceptionMessage> messageMethodArgumentNotValidException(final MethodArgumentNotValidException methodArgumentNotValidException) {
         final var message = methodArgumentNotValidException.getBindingResult()

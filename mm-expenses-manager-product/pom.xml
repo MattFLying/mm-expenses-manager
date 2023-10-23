@@ -21,6 +21,10 @@
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
         <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
+
+        <!-- API config -->
+        <api-generation-path>${project.basedir}/api</api-generation-path>
+        <api-package>mm.expenses.manager.product.api</api-package>
     </properties>
 
     <dependencies>
@@ -52,6 +56,10 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <!-- MongoDB dependencies -->
@@ -178,6 +186,49 @@
                         </rule>
                     </rules>
                 </configuration>
+            </plugin>
+
+            <!-- OpenAPI generator plugin -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <!-- Products API -->
+                    <execution>
+                        <id>product-schema</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+
+                            <inputSpec>${api-generation-path}/product-schema.yml</inputSpec>
+                            <packageName>${api-package}.product</packageName>
+                            <invokerPackage>${api-package}.product</invokerPackage>
+                            <apiPackage>${api-package}.product</apiPackage>
+                            <modelPackage>${api-package}.product.model</modelPackage>
+
+                            <typeMappings>
+                                <typeMapping>OffsetDateTime=Instant</typeMapping>
+                            </typeMappings>
+
+                            <importMappings>
+                                <importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
+                            </importMappings>
+
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <openApiNullable>false</openApiNullable>
+                                <serializableModel>true</serializableModel>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
