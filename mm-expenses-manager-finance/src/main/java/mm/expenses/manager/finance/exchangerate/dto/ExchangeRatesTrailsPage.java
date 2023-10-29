@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrail;
 import org.springframework.data.domain.Page;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.stream.Collectors;
 

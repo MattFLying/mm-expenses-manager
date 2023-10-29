@@ -3,7 +3,6 @@ package mm.expenses.manager.exception.api;
 import mm.expenses.manager.exception.ExceptionType;
 import org.springframework.http.HttpStatus;
 
-import javax.naming.OperationNotSupportedException;
 import java.util.Objects;
 
 public class ValidationException extends ApiException {
@@ -16,11 +15,6 @@ public class ValidationException extends ApiException {
     }
 
     public ValidationException(final ExceptionType exceptionType, final jakarta.validation.ValidationException validationException) {
-        super(exceptionType, validationException);
-        this.validationCause = validationException;
-    }
-
-    public ValidationException(final ExceptionType exceptionType, final javax.validation.ValidationException validationException) {
         super(exceptionType, validationException);
         this.validationCause = validationException;
     }

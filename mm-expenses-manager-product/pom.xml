@@ -16,16 +16,39 @@
 
     <artifactId>mm-expenses-manager-product</artifactId>
     <version>0.2.5-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
         <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
-
-        <!-- API config -->
-        <api-generation-path>${project.basedir}/api</api-generation-path>
-        <api-package>mm.expenses.manager.product.api</api-package>
     </properties>
+
+    <modules>
+        <module>api</module>
+        <module>app</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- MongoDB dependencies -->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-sync</artifactId>
+                <version>${mongodb-driver-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-core</artifactId>
+                <version>${mongodb-driver-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-reactivestreams</artifactId>
+                <version>${mongodb-driver-version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
@@ -41,196 +64,38 @@
             <version>${mm-expenses-manager-exception-version}</version>
         </dependency>
 
-        <!-- Spring dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <!-- MongoDB dependencies -->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
-            <version>${mongodb-driver-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-core</artifactId>
-            <version>${mongodb-driver-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-reactivestreams</artifactId>
-            <version>${mongodb-driver-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-        </dependency>
-
-        <!-- Swagger dependencies -->
+        <!-- OpenAPI dependencies -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
-
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj-core-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <version>${junit-platform-runner-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>pl.pragmatists</groupId>
-            <artifactId>JUnitParams</artifactId>
-            <version>${junit-params-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>${org-awaitility-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.jqno.equalsverifier</groupId>
-            <artifactId>equalsverifier</artifactId>
-            <version>${nl-jqno-equalsverifier-version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
-        <plugins>
-            <!-- Spring plugin -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                            <goal>build-info</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+        <pluginManagement>
+            <plugins>
+                <!-- Spring plugins -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot-version}</version>
+                </plugin>
 
-            <!-- Maven plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-version}</version>
-                <configuration>
-                    <reuseForks>true</reuseForks>
-                    <forkCount>2</forkCount>
-                    <excludes>
-                        <exclude>mm/expenses/manager/product/product/ProductMapperImpl.class</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
+                <!-- OpenAPI plugins -->
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator-plugin-version}</version>
+                </plugin>
 
-            <!-- Jacoco report plugin -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <excludes>
-                        <exclude>mm/expenses/manager/product/product/ProductMapperImpl.class</exclude>
-                    </excludes>
-                    <rules>
-                        <rule>
-                            <limits>
-                                <limit>
-                                    <counter>INSTRUCTION</counter>
-                                    <minimum>80.0%</minimum>
-                                </limit>
-                            </limits>
-                        </rule>
-                    </rules>
-                </configuration>
-            </plugin>
-
-            <!-- OpenAPI generator plugin -->
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <executions>
-                    <!-- Products API -->
-                    <execution>
-                        <id>product-schema</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-
-                        <configuration>
-                            <generatorName>spring</generatorName>
-                            <generateSupportingFiles>false</generateSupportingFiles>
-
-                            <inputSpec>${api-generation-path}/product-schema.yml</inputSpec>
-                            <packageName>${api-package}.product</packageName>
-                            <invokerPackage>${api-package}.product</invokerPackage>
-                            <apiPackage>${api-package}.product</apiPackage>
-                            <modelPackage>${api-package}.product.model</modelPackage>
-
-                            <typeMappings>
-                                <typeMapping>OffsetDateTime=Instant</typeMapping>
-                            </typeMappings>
-
-                            <importMappings>
-                                <importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
-                            </importMappings>
-
-                            <configOptions>
-                                <interfaceOnly>true</interfaceOnly>
-                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                                <openApiNullable>false</openApiNullable>
-                                <serializableModel>true</serializableModel>
-                                <skipDefaultInterface>true</skipDefaultInterface>
-                                <useTags>true</useTags>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+                <!-- Jacoco plugins -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${plugin-jacoco-version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>
