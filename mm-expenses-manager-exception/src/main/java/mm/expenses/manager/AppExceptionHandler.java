@@ -5,11 +5,7 @@ import mm.expenses.manager.exception.EmAppException;
 import mm.expenses.manager.exception.EmCheckedException;
 import mm.expenses.manager.exception.EmUncheckedException;
 import mm.expenses.manager.exception.ExceptionMessage;
-import mm.expenses.manager.exception.api.ApiBadRequestException;
-import mm.expenses.manager.exception.api.ApiConflictException;
-import mm.expenses.manager.exception.api.ApiException;
-import mm.expenses.manager.exception.api.ApiInternalErrorException;
-import mm.expenses.manager.exception.api.ApiNotFoundException;
+import mm.expenses.manager.exception.api.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +13,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 import java.util.stream.Collectors;
 
 import static mm.expenses.manager.exception.ExceptionMessage.fromApiException;
@@ -62,9 +55,13 @@ public class AppExceptionHandler {
         return messageEmAppException(uncheckedException);
     }
 
-    @ExceptionHandler(ValidationException.class)
-    ResponseEntity<ExceptionMessage> handleValidationException(final ValidationException validationException) {
-        return messageValidationException(validationException);
+    @ExceptionHandler({ValidationException.class, jakarta.validation.ValidationException.class})
+    ResponseEntity<ExceptionMessage> handleValidationException(RuntimeException exception) {
+        if (exception instanceof jakarta.validation.ConstraintViolationException) {
+            var validationException = new ValidationException(ValidationExceptionMessage.VALIDATION_EXCEPTION, (jakarta.validation.ValidationException) exception);
+            return messageValidationException(validationException);
+        }
+        return messageValidationException(exception);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -82,15 +79,17 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(fromApiException(exception), exception.httpStatus());
     }
 
-    private ResponseEntity<ExceptionMessage> messageValidationException(final ValidationException exception) {
-        if (exception instanceof ConstraintViolationException) {
-            final var constraintException = (ConstraintViolationException) exception;
-            final var message = constraintException.getConstraintViolations()
-                    .stream()
-                    .map(ConstraintViolation::getMessageTemplate)
-                    .collect(Collectors.joining(" "));
+    private ResponseEntity<ExceptionMessage> messageValidationException(final RuntimeException exception) {
+        if (exception instanceof mm.expenses.manager.exception.api.ValidationException validationException) {
+            if (validationException.getValidationCause() instanceof jakarta.validation.ConstraintViolationException) {
+                final var constraintException = (jakarta.validation.ConstraintViolationException) exception.getCause();
+                final var message = constraintException.getConstraintViolations()
+                        .stream()
+                        .map(jakarta.validation.ConstraintViolation::getMessageTemplate)
+                        .collect(Collectors.joining(" "));
 
-            return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+            }
         }
         return new ResponseEntity<>(fromException(exception), HttpStatus.BAD_REQUEST);
     }

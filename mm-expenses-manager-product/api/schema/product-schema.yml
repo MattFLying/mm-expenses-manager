@@ -1,0 +1,411 @@
+openapi: 3.0.1
+info:
+  title: product-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8190
+
+tags:
+  - name: Product
+    description: Provide API for products management.
+
+paths:
+
+  /products:
+    get:
+      tags:
+        - Product
+      summary: Finds all available products by specific filters.
+      description: Check for available products relates with specified filters or check all.
+      operationId: findAll
+      parameters:
+        - name: pageNumber
+          in: query
+          required: false
+          example: 0
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            format: int32
+        - name: pageSize
+          in: query
+          required: false
+          example: 15
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            format: int32
+        - name: SortOrderRequest
+          in: query
+          required: false
+          description: Sort products by.
+          schema:
+            $ref: "#/components/schemas/SortOrderRequest"
+        - name: sortDesc
+          in: query
+          required: false
+          description: Ascending sorting by default or descending if false.
+          schema:
+            type: boolean
+            default: true
+        - name: name
+          in: query
+          required: false
+          description: Specific name of the product.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: price
+          in: query
+          required: false
+          description: Specific price of the product.
+          schema:
+            type: BigDecimal
+            minimum: 0
+        - name: lessThan
+          in: query
+          required: false
+          description: If price is passed then could be used to specify if price should be less than.
+          schema:
+            type: boolean
+            default: false
+        - name: greaterThan
+          in: query
+          required: false
+          description: If price is passed then could be used to specify if price should be greater than.
+          schema:
+            type: boolean
+            default: false
+        - name: priceMin
+          in: query
+          required: false
+          description: Specific price for minimal price range.
+          schema:
+            type: BigDecimal
+            minimum: 0
+        - name: priceMax
+          in: query
+          required: false
+          description: Specific price for maximum price range.
+          schema:
+            type: BigDecimal
+            minimum: 0
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductPage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+    post:
+      tags:
+        - Product
+      summary: Creates new product.
+      description: Create a new product with all details.
+      operationId: create
+      requestBody:
+        required: true
+        x-constraints: "@ValidateProduct"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequest"
+
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /products/{id}:
+    get:
+      tags:
+        - Product
+      summary: Finds product by id.
+      description: Find product by given id.
+      operationId: findById
+      parameters:
+        - name: id
+          in: path
+          description: Product id.
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+    patch:
+      tags:
+        - Product
+      summary: Update product.
+      description: Partially update product.
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          description: Product id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        x-constraints: "@ValidateProduct"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductRequest"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+    delete:
+      tags:
+        - Product
+      summary: Delete product.
+      description: Remove product by given id.
+      operationId: deleteById
+      parameters:
+        - name: id
+          in: path
+          description: Product id.
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "204":
+          description: OK
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+components:
+  schemas:
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    SortOrderRequest:
+      type: string
+      enum: [ NAME, PRICE_VALUE, PRICE_CURRENCY ]
+      description: Sorting order for products.
+
+    ProductDetailsRequest:
+      type: object
+      additionalProperties: true
+      description: Additional data of the product.
+
+    PriceResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency code of the price.
+        value:
+          type: BigDecimal
+          description: Price value.
+      additionalProperties: false
+      description: Price response data.
+
+    CreatePriceRequest:
+      type: object
+      required:
+        - currency
+        - value
+      properties:
+        currency:
+          type: string
+          description: Currency code of the price.
+        value:
+          type: BigDecimal
+          minimum: 0
+          description: Price value.
+      additionalProperties: false
+      description: Price request data.
+
+    CreateProductRequest:
+      type: object
+      required:
+        - name
+        - price
+        - details
+      properties:
+        name:
+          type: string
+          description: The name of the product.
+        price:
+          $ref: '#/components/schemas/CreatePriceRequest'
+        details:
+          $ref: "#/components/schemas/ProductDetailsRequest"
+      additionalProperties: false
+      description: Product response data.
+
+    UpdatePriceRequest:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency code of the price.
+        value:
+          type: BigDecimal
+          description: Price value.
+      additionalProperties: false
+      description: Price update request data.
+
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the product.
+        price:
+          $ref: '#/components/schemas/UpdatePriceRequest'
+        details:
+          $ref: "#/components/schemas/ProductDetailsRequest"
+      additionalProperties: false
+      description: Product update request data.
+
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Product id.
+        name:
+          type: string
+          description: Product name.
+        price:
+          $ref: '#/components/schemas/PriceResponse'
+        details:
+          $ref: "#/components/schemas/ProductDetailsRequest"
+      additionalProperties: false
+      description: Product response data.
+
+    ProductPage:
+      type: object
+      required:
+        - content
+        - empty
+        - first
+        - last
+        - page
+        - size
+        - hasNext
+        - pages
+        - elements
+        - total
+      properties:
+        content:
+          type: array
+          description: Products content on page.
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+        empty:
+          type: boolean
+          description: Defines if the page has empty content.
+        first:
+          type: boolean
+          description: Defines if retrieved page is first.
+        last:
+          type: boolean
+          description: Defines if retrieved page is last.
+        page:
+          type: integer
+          description: Products page number.
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          description: Products page size.
+          format: int32
+          minimum: 1
+        hasNext:
+          type: boolean
+          description: Defines if there is more available pages.
+        totalPages:
+          type: integer
+          description: Total available pages of products.
+          format: int32
+        elements:
+          type: integer
+          description: Number of elements on page.
+          format: int32
+        totalElements:
+          type: integer
+          description: Total available products.
+          format: int64
+      description: Page with products data.

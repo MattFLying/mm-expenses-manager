@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.config;
+package mm.expenses.manager.product.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
