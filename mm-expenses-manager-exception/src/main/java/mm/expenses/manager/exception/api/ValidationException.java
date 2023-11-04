@@ -26,6 +26,10 @@ public class ValidationException extends ApiException {
         return validationCause;
     }
 
+    public boolean hasCause() {
+        return Objects.nonNull(validationCause);
+    }
+
     @Override
     public HttpStatus httpStatus() {
         return HttpStatus.BAD_REQUEST;

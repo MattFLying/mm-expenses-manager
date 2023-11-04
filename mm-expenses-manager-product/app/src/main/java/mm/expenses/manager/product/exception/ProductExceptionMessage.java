@@ -2,6 +2,7 @@ package mm.expenses.manager.product.exception;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.exception.ExceptionType;
+import mm.expenses.manager.product.ProductsExceptionMessage;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
@@ -21,10 +22,10 @@ public enum ProductExceptionMessage implements ExceptionType {
 
     // product
     PRODUCT_NOT_FOUND("product-not-found-error", "Product of id '%s' not found."),
-    PRODUCT_NAME_NOT_VALID("product-name-not-valid-error", "The name of product: '%s' is not valid."),
-    PRODUCT_PRICE_CURRENCY_NOT_VALID("product-price-currency-not-valid-error", "The price currency of product is not valid."),
-    PRODUCT_PRICE_VALUE_NOT_VALID("product-price-value-not-valid-error", "The price value of product: '%s' is not valid."),
-    PRODUCT_DETAILS_NOT_VALID("product-details-not-valid-error", "The details of product: '%s' is not valid."),
+    PRODUCT_NAME_NOT_VALID(ProductsExceptionMessage.PRODUCT_NAME_EMPTY),
+    PRODUCT_PRICE_CURRENCY_NOT_VALID(ProductsExceptionMessage.PRODUCT_PRICE_CURRENCY_UNDEFINED),
+    PRODUCT_PRICE_VALUE_NOT_VALID(ProductsExceptionMessage.PRODUCT_PRICE_VALUE_LESS_THAN_0),
+    PRODUCT_DETAILS_NOT_VALID(ProductsExceptionMessage.PRODUCT_DETAILS_INVALID),
     PRODUCT_NO_UPDATE_DATA("product-no-update-data-passed-error", "Data to update product have no be passed. Nothing to update."),
 
     // rest
@@ -37,6 +38,11 @@ public enum ProductExceptionMessage implements ExceptionType {
     private final String code;
     private final String message;
     private Object[] parameters = null;
+
+    ProductExceptionMessage(ExceptionType exceptionType) {
+        this.code = exceptionType.getCode();
+        this.message = exceptionType.getMessage();
+    }
 
     @Override
     public String getCode() {

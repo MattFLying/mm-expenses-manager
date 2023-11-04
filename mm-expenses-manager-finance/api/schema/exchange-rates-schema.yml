@@ -1,0 +1,396 @@
+openapi: 3.0.1
+info:
+  title: exchange-rates-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8185
+
+tags:
+  - name: Exchange Rates
+    description: Provide API to check exchange rates for different currencies.
+
+paths:
+
+  /exchange-rates:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Finds exchange rates for all available currency codes.
+      description: Check exchange rate for all available currency codes. Can be parametrized to specify result.
+      operationId: findAllExchangeRates
+      parameters:
+        - name: pageNumber
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: date
+          in: query
+          required: false
+          description: Specific date to be found.
+          schema:
+            type: string
+            format: date
+        - name: from
+          in: query
+          required: false
+          description: Specific start date to be found.
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          description: Specific end date to be found.
+          schema:
+            type: string
+            format: date
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeRatesAccumulatePage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /exchange-rates/latest:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Finds latest exchange rate for all available currency codes.
+      description: Check latest exchange rate for all available currency codes. Always retrieve the latest available exchange rates.
+      operationId: findLatest
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeRatesPage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /exchange-rates/{currency}:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Finds exchange rates for specific currency code.
+      description: Check exchange rate for specific currency code. Can be parametrized to specify result.
+      operationId: findAllForCurrency
+      parameters:
+        - name: currency
+          in: path
+          description: Currency code for expected exchange rates.
+          required: true
+          x-constraints: "@ValidateCurrency"
+          schema:
+            type: string
+        - name: pageNumber
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: from
+          in: query
+          required: false
+          description: Specific start date to be found.
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          description: Specific end date to be found.
+          schema:
+            type: string
+            format: date
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeRatesAccumulatePage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /exchange-rates/{currency}/latest:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Finds latest exchange rate for specific currency code.
+      description: Check latest exchange rate for specific currency code. Always retrieve the latest available exchange rate.
+      operationId: findLatestForCurrency
+      parameters:
+        - name: currency
+          in: path
+          description: Currency code for expected exchange rates.
+          required: true
+          x-constraints: "@ValidateCurrency"
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeRatesDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /exchange-rates/{currency}/{date}:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Finds exchange rate for specific currency code and date.
+      description: Check exchange rate for specific currency code and date. Always retrieve exchange rate for given date.
+      operationId: findForCurrencyAndDate
+      parameters:
+        - name: currency
+          in: path
+          description: Currency code for expected exchange rates.
+          required: true
+          x-constraints: "@ValidateCurrency"
+          schema:
+            type: string
+        - name: date
+          in: path
+          required: true
+          description: Specific date to be found.
+          schema:
+            type: string
+            format: date
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeRatesDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+components:
+  schemas:
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    CurrencyValueDto:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Exchange rate currency code.
+        value:
+          type: double
+          description: Exchange rate value.
+      additionalProperties: false
+      description: Exchange rate value.
+
+    RateDto:
+      type: object
+      properties:
+        from:
+          $ref: '#/components/schemas/CurrencyValueDto'
+          description: Exchange rate from currency.
+        to:
+          $ref: '#/components/schemas/CurrencyValueDto'
+          description: Exchange rate to currency.
+      additionalProperties: false
+      description: Rate response for exchange rate.
+
+    ExchangeRateDto:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Exchange rate for specific currency date.
+        rate:
+          $ref: '#/components/schemas/RateDto'
+          description: Exchange rate.
+      additionalProperties: false
+      description: Exchange rate response for specific currency code and date.
+
+    ExchangeRatesDto:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency code.
+        rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRateDto'
+          description: Exchange rates for specific currency code.
+      additionalProperties: false
+      description: Exchange rate response for specific currency code.
+
+    ExchangeRatesPage:
+      type: object
+      required:
+        - content
+        - currencies
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRatesDto'
+          description: Exchange rates for each currency code.
+        currencies:
+          type: integer
+          description: Retrieved currency codes count.
+          format: int32
+      description: Paged simple exchange rates response.
+
+    ExchangeRatePage:
+      type: object
+      required:
+        - content
+        - empty
+        - first
+        - last
+        - page
+        - size
+        - hasNext
+        - pages
+        - elements
+        - total
+      properties:
+        content:
+          $ref: '#/components/schemas/ExchangeRatesDto'
+          description: Products content on page.
+        empty:
+          type: boolean
+          description: Defines if the page has empty content.
+        first:
+          type: boolean
+          description: Defines if retrieved page is first.
+        last:
+          type: boolean
+          description: Defines if retrieved page is last.
+        page:
+          type: integer
+          description: Exchange rates page number.
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          description: Exchange rates page size.
+          format: int32
+          minimum: 1
+        hasNext:
+          type: boolean
+          description: Defines if there is more available pages.
+        totalPages:
+          type: integer
+          description: Total available pages of exchange rates for currency.
+          format: int32
+        elements:
+          type: integer
+          description: Retrieved exchange rates count.
+          format: int32
+        totalElements:
+          type: integer
+          description: Total available exchange rates for currency.
+          format: int64
+      description: Exchange rates response for specific currency code.
+
+    ExchangeRatesAccumulatePage:
+      type: object
+      required:
+        - content
+        - currencies
+        - exchangeRates
+        - totalExchangeRates
+      properties:
+        content:
+          type: array
+          description: Exchange rates for each currency code.
+          items:
+            $ref: '#/components/schemas/ExchangeRatePage'
+        currencies:
+          type: integer
+          description: Retrieved currency codes count.
+          format: int32
+        exchangeRates:
+          type: integer
+          description: Retrieved exchange rates count.
+          format: int32
+        totalExchangeRates:
+          type: integer
+          description: Total available exchange rates.
+          format: int64
+      description: Exchange rates response with accumulated pages per currency code.

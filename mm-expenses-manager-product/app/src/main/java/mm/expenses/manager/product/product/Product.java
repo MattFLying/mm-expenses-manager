@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.exception.ProductNotFoundException;
 import mm.expenses.manager.product.exception.ProductValidationException;
@@ -12,7 +13,6 @@ import mm.expenses.manager.product.price.Price;
 import mm.expenses.manager.product.product.command.CreateProductCommand;
 import mm.expenses.manager.product.product.command.UpdateProductCommand;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
-import mm.expenses.manager.product.validator.ProductValidator;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
@@ -75,7 +75,7 @@ public class Product {
     }
 
     void updateName(final String newName) {
-        if (ProductValidator.isNameEmpty(newName)) {
+        if (ProductCommonValidation.isNameEmpty(newName)) {
             throw new ProductValidationException(ProductExceptionMessage.PRODUCT_NAME_NOT_VALID.withParameters(newName));
         }
         setName(newName);

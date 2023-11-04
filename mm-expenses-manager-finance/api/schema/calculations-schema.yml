@@ -1,0 +1,122 @@
+openapi: 3.0.1
+info:
+  title: calculations-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8185
+
+tags:
+  - name: Calculations
+    description: Provide API to currencies conversion.
+
+paths:
+
+  /calculations:
+    get:
+      tags:
+        - Calculations
+      summary: Convert single currency with latest exchange rate or with given date.
+      description: Allow to calculate exchange rate for specific currency code with additional parameters.
+      operationId: convertRate
+      parameters:
+        - name: from
+          in: query
+          description: Currency code from which will be made conversion.
+          required: true
+          x-constraints: "@ValidateCurrencyCalculation"
+          schema:
+            type: string
+        - name: to
+          in: query
+          description: Currency code to which will be made conversion.
+          required: true
+          x-constraints: "@ValidateCurrencyCalculation"
+          schema:
+            type: string
+        - name: value
+          in: query
+          description: Value of currency from which will be made conversion.
+          required: true
+          schema:
+            type: double
+        - name: date
+          in: query
+          description: Specific date of exchange rate.
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: id
+          in: query
+          description: Id to be used for calculated result and retrieved with it. Just for recognition purposes, id won't be processed.
+          required: false
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyConversionDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+components:
+  schemas:
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    CurrencyConversionValueDto:
+      type: object
+      properties:
+        value:
+          type: double
+          description: Conversion value.
+        code:
+          type: string
+          description: Conversion currency code.
+      additionalProperties: false
+      description: Currency conversion value.
+
+    CurrencyConversionDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id to be used for calculated result and retrieved with it. Just for recognition purposes, id won't be processed.
+        date:
+          type: string
+          format: date
+          description: Specific date for which calculation has been made.
+        from:
+          $ref: '#/components/schemas/CurrencyConversionValueDto'
+          description: Converted from.
+        to:
+          $ref: '#/components/schemas/CurrencyConversionValueDto'
+          description: Converted to.
+      additionalProperties: false
+      description: Currency conversion response.

@@ -1,0 +1,140 @@
+openapi: 3.0.1
+info:
+  title: currencies-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8185
+
+tags:
+  - name: Currencies
+    description: Provide API for currencies.
+
+paths:
+
+  /currencies:
+    get:
+      tags:
+        - Currencies
+      summary: Finds all available currency codes.
+      description: Check currently all available currency codes that can be used in different endpoints.
+      operationId: findAllAvailableCurrencyCodes
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyDto"
+
+  /currencies/current:
+    get:
+      tags:
+        - Currencies
+      summary: Finds currently used currency code.
+      description: Check currently used currency code in system.
+      operationId: findCurrentCurrencyCode
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyDto"
+
+  /currencies/info:
+    get:
+      tags:
+        - Currencies
+      summary: Finds information for all available currency codes.
+      description: Check information for currently all available currency codes that can be used in different endpoints.
+      operationId: findAllAvailableCurrenciesInformation
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyInfoDto"
+
+components:
+  schemas:
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    CountryDto:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Country two digits code.
+        name:
+          type: string
+          description: Country name.
+      additionalProperties: false
+      description: Country response.
+
+    CurrencyDto:
+      type: object
+      properties:
+        codes:
+          type: array
+          items:
+            type: string
+          description: Available currency codes.
+        currenciesCount:
+          type: integer
+          description: Available currency codes count.
+      additionalProperties: false
+      description: Currency codes response.
+
+    CurrencyCodeDto:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Currency code.
+        name:
+          type: string
+          description: Currency name.
+        isoCode:
+          type: integer
+          description: Currency ISO 4217 code.
+        usedInCountries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CountryDto'
+          description: Countries where currency is used.
+      additionalProperties: false
+      description: Currency code response.
+
+    CurrencyInfoDto:
+      type: object
+      properties:
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyCodeDto'
+          description: Available currency codes.
+      additionalProperties: false
+      description: Currency codes information response.

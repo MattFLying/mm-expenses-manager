@@ -1,0 +1,184 @@
+openapi: 3.0.1
+info:
+  title: management-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8185
+
+tags:
+  - name: Management
+    description: Provide API for service management.
+
+paths:
+
+  /management/exchange-rates/trails:
+    get:
+      tags:
+        - Management
+      summary: Finds trails of exchange rates operations.
+      description: Check logs for all available operations on exchange rates in service.
+      operationId: findAllTrails
+      parameters:
+        - name: pageNumber
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: date
+          in: query
+          required: false
+          description: Specific date to be found.
+          schema:
+            type: string
+            format: date
+        - name: operation
+          in: query
+          required: false
+          description: Type of exchange rate operation.
+          schema:
+            $ref: '#/components/schemas/OperationType'
+        - name: state
+          in: query
+          required: false
+          description: Status of exchange rate operation.
+          schema:
+            $ref: '#/components/schemas/StateType'
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeRatesTrailsPage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /management/exchange-rates/history-update:
+    post:
+      tags:
+        - Management
+      summary: Update historical exchange rates.
+      description: Update historical exchange rates for all available currency codes.
+      operationId: fetchAndSaveHistoricCurrencies
+
+      responses:
+        "204":
+          description: OK
+
+components:
+  schemas:
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    StateType:
+      type: string
+      enum:
+        - SUCCESS
+        - ERROR
+      description: Exchange rate trail status.
+
+    OperationType:
+      type: string
+      enum:
+        - EXCHANGE_RATES_HISTORY_UPDATE
+        - LATEST_EXCHANGE_RATES_SYNCHRONIZATION
+        - CREATE_OR_UPDATE
+      description: Exchange rate trail operation.
+
+    ExchangeRateTrailDto:
+      type: object
+      properties:
+        operation:
+          $ref: '#/components/schemas/OperationType'
+          description: Operation type.
+        state:
+          $ref: '#/components/schemas/StateType'
+          description: Operation status.
+        date:
+          type: string
+          format: date-time
+          description: Date when operation occurred.
+        evaluated:
+          type: integer
+          format: int64
+          description: Defines how many exchange rates has been evaluated.
+        skipped:
+          type: integer
+          format: int64
+          description: Defines how many exchange rates has been skipped.
+        affectedIds:
+          type: array
+          items:
+            type: string
+          description: Ids of exchange rates that have been under evaluation.
+      additionalProperties: false
+      description: Exchange rate trail response.
+
+    ExchangeRatesTrailsPage:
+      type: object
+      required:
+        - content
+        - numberOfElements
+        - totalElements
+        - totalPages
+        - hasNext
+        - first
+        - last
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRateTrailDto'
+          description: Available trails response.
+        numberOfElements:
+          type: integer
+          description: Available trails response count.
+          format: int32
+        totalElements:
+          type: integer
+          description: Available trails total elements.
+          format: int64
+        totalPages:
+          type: integer
+          description: Available trails total pages.
+          format: int32
+        hasNext:
+          type: boolean
+          description: Defines if there is more available pages.
+        first:
+          type: boolean
+          description: Defines if retrieved page is first.
+        last:
+          type: boolean
+          description: Defines if retrieved page is last.
+      description: Paged exchange rate trails response.

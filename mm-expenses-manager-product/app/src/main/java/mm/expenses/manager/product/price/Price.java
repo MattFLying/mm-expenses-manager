@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.product.validator.ProductValidator;
+import mm.expenses.manager.product.ProductCommonValidation;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -41,11 +41,11 @@ public class Price {
     }
 
     public boolean isValueValid() {
-        return ProductValidator.isPriceValueValid(value);
+        return ProductCommonValidation.isPriceValueValid(value);
     }
 
     public boolean isCurrencyCodeValid() {
-        return ProductValidator.isPriceCurrencyCodeValid(currency);
+        return ProductCommonValidation.isPriceCurrencyCodeValid(currency);
     }
 
     private BigDecimal withScale(final BigDecimal value) {
