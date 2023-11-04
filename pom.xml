@@ -79,6 +79,7 @@
         <apache-commons-validator-version>1.7</apache-commons-validator-version>
 
         <!-- Tests version -->
+        <junit-jupiter-version>5.10.0</junit-jupiter-version>
         <assertj-core-version>3.24.2</assertj-core-version>
         <junit-platform-runner-version>1.10.0</junit-platform-runner-version>
         <junit-params-version>1.1.1</junit-params-version>
@@ -92,6 +93,15 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- JUnit dependencies -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit-jupiter-version}</version>
+                <type>pom</type>
+                <scope>test</scope>
+            </dependency>
+
             <!-- Spring dependencies -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

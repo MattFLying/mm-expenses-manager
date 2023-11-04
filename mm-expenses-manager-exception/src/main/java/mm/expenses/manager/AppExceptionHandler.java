@@ -1,11 +1,13 @@
 package mm.expenses.manager;
 
+import jakarta.validation.Path;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.exception.EmAppException;
 import mm.expenses.manager.exception.EmCheckedException;
 import mm.expenses.manager.exception.EmUncheckedException;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.exception.api.*;
+import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,9 +59,8 @@ public class AppExceptionHandler {
 
     @ExceptionHandler({ValidationException.class, jakarta.validation.ValidationException.class})
     ResponseEntity<ExceptionMessage> handleValidationException(RuntimeException exception) {
-        if (exception instanceof jakarta.validation.ConstraintViolationException) {
-            var validationException = new ValidationException(ValidationExceptionMessage.VALIDATION_EXCEPTION, (jakarta.validation.ValidationException) exception);
-            return messageValidationException(validationException);
+        if (exception instanceof jakarta.validation.ConstraintViolationException violationException) {
+            return messageValidationException(new ValidationException(ValidationExceptionMessage.VALIDATION_EXCEPTION, violationException));
         }
         return messageValidationException(exception);
     }
@@ -80,18 +81,31 @@ public class AppExceptionHandler {
     }
 
     private ResponseEntity<ExceptionMessage> messageValidationException(final RuntimeException exception) {
+        final var badRequest = HttpStatus.BAD_REQUEST;
         if (exception instanceof mm.expenses.manager.exception.api.ValidationException validationException) {
-            if (validationException.getValidationCause() instanceof jakarta.validation.ConstraintViolationException) {
-                final var constraintException = (jakarta.validation.ConstraintViolationException) exception.getCause();
+            if (validationException.hasCause() && validationException.getValidationCause() instanceof jakarta.validation.ConstraintViolationException constraintException) {
                 final var message = constraintException.getConstraintViolations()
                         .stream()
                         .map(jakarta.validation.ConstraintViolation::getMessageTemplate)
                         .collect(Collectors.joining(" "));
+                final var code = constraintException.getConstraintViolations()
+                        .stream()
+                        .map(jakarta.validation.ConstraintViolation::getPropertyPath)
+                        .findAny()
+                        .map(path -> extractValidationCode(path, badRequest))
+                        .orElse(badRequest.getReasonPhrase());
 
-                return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(of(code, message, badRequest), badRequest);
             }
         }
-        return new ResponseEntity<>(fromException(exception), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(fromException(exception), badRequest);
+    }
+
+    private String extractValidationCode(Path path, HttpStatus statusAsDefault) {
+        if (path instanceof PathImpl pathImpl) {
+            return pathImpl.getLeafNode().getName();
+        }
+        return statusAsDefault.getReasonPhrase();
     }
 
     private ResponseEntity<ExceptionMessage> messageMethodArgumentNotValidException(final MethodArgumentNotValidException methodArgumentNotValidException) {

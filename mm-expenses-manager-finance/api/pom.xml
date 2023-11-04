@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>mm-expenses-manager-finance</artifactId>
+        <groupId>mm-expenses-manager</groupId>
+        <version>0.2.5-SNAPSHOT</version>
+    </parent>
+
+    <name>Expenses Manager Finance Service</name>
+    <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
+
+    <packaging>jar</packaging>
+
+    <artifactId>mm-expenses-manager-finance-api</artifactId>
+    <version>0.2.5-SNAPSHOT</version>
+
+    <properties>
+        <!-- API config -->
+        <api-generation-path>${project.basedir}/schema</api-generation-path>
+        <api-package>mm.expenses.manager.finance.api</api-package>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Maven plugins -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok-version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>${spring-boot-version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <source>${java-version}</source>
+                    <target>${java-version}</target>
+                </configuration>
+            </plugin>
+
+            <!-- OpenAPI plugins -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <!-- Currencies API -->
+                    <execution>
+                        <id>currencies-schema</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+
+                            <inputSpec>${api-generation-path}/currencies-schema.yml</inputSpec>
+                            <packageName>${api-package}.currency</packageName>
+                            <invokerPackage>${api-package}.currency</invokerPackage>
+                            <apiPackage>${api-package}.currency</apiPackage>
+                            <modelPackage>${api-package}.currency.model</modelPackage>
+
+                            <typeMappings>
+                                <typeMapping>OffsetDateTime=Instant</typeMapping>
+                            </typeMappings>
+
+                            <importMappings>
+                                <importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
+                                <importMapping>BigDecimal=java.math.BigDecimal</importMapping>
+                            </importMappings>
+
+                            <templateDirectory>
+                                ${project.basedir}/src/main/resources/templates
+                            </templateDirectory>
+
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <interfaceOnly>true</interfaceOnly>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <openApiNullable>false</openApiNullable>
+                                <serializableModel>true</serializableModel>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useTags>true</useTags>
+                                <useResponseEntity>false</useResponseEntity>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <!-- Calculations API -->
+                    <execution>
+                        <id>calculations-schema</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+
+                            <inputSpec>${api-generation-path}/calculations-schema.yml</inputSpec>
+                            <packageName>${api-package}.calculations</packageName>
+                            <invokerPackage>${api-package}.calculations</invokerPackage>
+                            <apiPackage>${api-package}.calculations</apiPackage>
+                            <modelPackage>${api-package}.calculations.model</modelPackage>
+
+                            <typeMappings>
+                                <typeMapping>OffsetDateTime=Instant</typeMapping>
+                            </typeMappings>
+
+                            <importMappings>
+                                <importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
+                                <importMapping>BigDecimal=java.math.BigDecimal</importMapping>
+                            </importMappings>
+
+                            <templateDirectory>
+                                ${project.basedir}/src/main/resources/templates
+                            </templateDirectory>
+
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <interfaceOnly>true</interfaceOnly>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <openApiNullable>false</openApiNullable>
+                                <serializableModel>true</serializableModel>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useTags>true</useTags>
+                                <useResponseEntity>false</useResponseEntity>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <!-- Exchange Rates API -->
+                    <execution>
+                        <id>exchange-rates-schema</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+
+                            <inputSpec>${api-generation-path}/exchange-rates-schema.yml</inputSpec>
+                            <packageName>${api-package}.exchangerate</packageName>
+                            <invokerPackage>${api-package}.exchangerate</invokerPackage>
+                            <apiPackage>${api-package}.exchangerate</apiPackage>
+                            <modelPackage>${api-package}.exchangerate.model</modelPackage>
+
+                            <typeMappings>
+                                <typeMapping>OffsetDateTime=Instant</typeMapping>
+                            </typeMappings>
+
+                            <importMappings>
+                                <importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
+                                <importMapping>BigDecimal=java.math.BigDecimal</importMapping>
+                            </importMappings>
+
+                            <templateDirectory>
+                                ${project.basedir}/src/main/resources/templates
+                            </templateDirectory>
+
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <interfaceOnly>true</interfaceOnly>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <openApiNullable>false</openApiNullable>
+                                <serializableModel>true</serializableModel>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useTags>true</useTags>
+                                <useResponseEntity>false</useResponseEntity>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <!-- Management API -->
+                    <execution>
+                        <id>management-schema</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+
+                            <inputSpec>${api-generation-path}/management-schema.yml</inputSpec>
+                            <packageName>${api-package}.management</packageName>
+                            <invokerPackage>${api-package}.management</invokerPackage>
+                            <apiPackage>${api-package}.management</apiPackage>
+                            <modelPackage>${api-package}.management.model</modelPackage>
+
+                            <typeMappings>
+                                <typeMapping>OffsetDateTime=Instant</typeMapping>
+                            </typeMappings>
+
+                            <importMappings>
+                                <importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
+                                <importMapping>BigDecimal=java.math.BigDecimal</importMapping>
+                            </importMappings>
+
+                            <templateDirectory>
+                                ${project.basedir}/src/main/resources/templates
+                            </templateDirectory>
+
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <interfaceOnly>true</interfaceOnly>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <openApiNullable>false</openApiNullable>
+                                <serializableModel>true</serializableModel>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useTags>true</useTags>
+                                <useResponseEntity>false</useResponseEntity>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

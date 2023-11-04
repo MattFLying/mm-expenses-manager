@@ -50,6 +50,11 @@ public class ExceptionMessage implements Serializable {
         return new ExceptionMessage(status.getReasonPhrase(), formattedStatus, message, Instant.now());
     }
 
+    public static ExceptionMessage of(final String code, final String message, final HttpStatus status) {
+        final var formattedStatus = formatStatus(status);
+        return new ExceptionMessage(code, formattedStatus, message, Instant.now());
+    }
+
     public static String formatStatus(final HttpStatus status) {
         return String.format("%d(%s)", status.value(), status.getReasonPhrase());
     }
