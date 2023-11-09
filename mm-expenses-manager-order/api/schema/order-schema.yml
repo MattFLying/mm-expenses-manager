@@ -1,0 +1,424 @@
+openapi: 3.0.1
+info:
+  title: order-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8190
+
+tags:
+  - name: Order
+    description: Provide API for orders management.
+
+paths:
+
+  /orders:
+    get:
+      tags:
+        - Order
+      summary: Finds all available orders.
+      description: Check for all available orders.
+      operationId: findAll
+      parameters:
+        - name: pageNumber
+          in: query
+          required: false
+          example: 0
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            format: int32
+        - name: pageSize
+          in: query
+          required: false
+          example: 15
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            format: int32
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderPage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+    post:
+      tags:
+        - Order
+      summary: Creates new order.
+      description: Create a new order.
+      operationId: create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNewOrderRequest"
+
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /orders/{id}:
+    get:
+      tags:
+        - Order
+      summary: Finds order by id.
+      description: Find order by given id.
+      operationId: findById
+      parameters:
+        - name: id
+          in: path
+          description: Order id.
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+    put:
+      tags:
+        - Order
+      summary: Update order.
+      description: Update order.
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          description: Order id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderRequest"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+    delete:
+      tags:
+        - Order
+      summary: Delete order.
+      description: Remove order by given id.
+      operationId: deleteById
+      parameters:
+        - name: id
+          in: path
+          description: Order id.
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "204":
+          description: OK
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /orders/remove:
+    delete:
+      tags:
+        - Order
+      summary: Delete orders by ids.
+      description: Remove orders by given ids.
+      operationId: deleteByIds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderIds"
+
+      responses:
+        "204":
+          description: OK
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+components:
+  schemas:
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    OrderIds:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          description: Orders ids.
+          items:
+            type: string
+      additionalProperties: false
+      description: Request with ids of orders.
+
+    CreateNewOrderedProductRequest:
+      type: object
+      required:
+        - productId
+        - quantity
+      properties:
+        productId:
+          type: string
+          description: Ordered product id.
+        quantity:
+          type: double
+          description: Ordered product quantity.
+      additionalProperties: false
+      description: New ordered product request data.
+
+    CreateNewOrderRequest:
+      type: object
+      required:
+        - name
+        - orderedProducts
+      properties:
+        name:
+          type: string
+          description: The name of the order.
+        orderedProducts:
+          type: array
+          description: Products in the order.
+          items:
+            $ref: '#/components/schemas/CreateNewOrderedProductRequest'
+      additionalProperties: false
+      description: New order request data.
+
+    UpdateOrderedProductRequest:
+      type: object
+      required:
+        - id
+        - quantity
+      properties:
+        id:
+          type: string
+          description: Ordered product id.
+        quantity:
+          type: double
+          description: Ordered product quantity.
+      additionalProperties: false
+      description: Ordered product to be updated request data.
+
+    UpdateOrderRequest:
+      type: object
+      required:
+        - name
+        - orderedProducts
+        - newProducts
+      properties:
+        name:
+          type: string
+          description: The name of the order.
+        orderedProducts:
+          type: array
+          description: Products in the order.
+          items:
+            $ref: '#/components/schemas/UpdateOrderedProductRequest'
+        newProducts:
+          type: array
+          description: New products in the order.
+          items:
+            $ref: '#/components/schemas/CreateNewOrderedProductRequest'
+      additionalProperties: false
+      description: Order to be updated request data.
+
+    PriceResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency code of the price.
+        amount:
+          type: BigDecimal
+          description: Price value.
+      additionalProperties: false
+      description: Price response data.
+
+    BoughtProductResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Product id.
+        name:
+          type: string
+          description: Product name.
+        price:
+          $ref: '#/components/schemas/PriceResponse'
+          description: Product price.
+      additionalProperties: false
+      description: Bought product response data.
+
+    OrderedProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Product id.
+        boughtProduct:
+          $ref: '#/components/schemas/BoughtProductResponse'
+          description: Bought product.
+        quantity:
+          type: double
+          description: Ordered product quantity.
+        priceSummary:
+          $ref: '#/components/schemas/PriceResponse'
+          description: Summary price for all related products.
+      additionalProperties: false
+      description: Ordered product response data.
+
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Order id.
+        name:
+          type: string
+          description: Order name.
+        priceSummary:
+          $ref: '#/components/schemas/PriceResponse'
+          description: Order summary price for all products.
+        orderedProducts:
+          type: array
+          description: Products in the order.
+          items:
+            $ref: '#/components/schemas/OrderedProductResponse'
+      additionalProperties: false
+      description: Order response data.
+
+    OrderPage:
+      type: object
+      required:
+        - content
+        - empty
+        - first
+        - last
+        - page
+        - size
+        - hasNext
+        - pages
+        - elements
+        - total
+      properties:
+        content:
+          type: array
+          description: Orders content on page.
+          items:
+            $ref: '#/components/schemas/OrderResponse'
+        empty:
+          type: boolean
+          description: Defines if the page has empty content.
+        first:
+          type: boolean
+          description: Defines if retrieved page is first.
+        last:
+          type: boolean
+          description: Defines if retrieved page is last.
+        page:
+          type: integer
+          description: Orders page number.
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          description: Orders page size.
+          format: int32
+          minimum: 1
+        hasNext:
+          type: boolean
+          description: Defines if there is more available pages.
+        totalPages:
+          type: integer
+          description: Total available pages of orders.
+          format: int32
+        elements:
+          type: integer
+          description: Number of elements on page.
+          format: int32
+        totalElements:
+          type: integer
+          description: Total available orders.
+          format: int64
+      description: Page with orders data.
+
