@@ -24,6 +24,8 @@
 
     <modules>
         <module>common-utils</module>
+        <module>common-beans</module>
+        <module>common-exceptions</module>
     </modules>
 
     <dependencyManagement>
