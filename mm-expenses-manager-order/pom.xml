@@ -16,12 +16,39 @@
 
     <artifactId>mm-expenses-manager-order</artifactId>
     <version>0.2.5-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
         <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
     </properties>
+
+    <modules>
+        <module>api</module>
+        <module>app</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- MongoDB dependencies -->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-sync</artifactId>
+                <version>${mongodb-driver-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-core</artifactId>
+                <version>${mongodb-driver-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-reactivestreams</artifactId>
+                <version>${mongodb-driver-version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
@@ -35,37 +62,9 @@
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-exception</artifactId>
             <version>${mm-expenses-manager-exception-version}</version>
-            <scope>compile</scope>
         </dependency>
 
-        <!-- Spring dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <!-- MongoDB dependencies -->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
-            <version>${mongodb-driver-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-core</artifactId>
-            <version>${mongodb-driver-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-reactivestreams</artifactId>
-            <version>${mongodb-driver-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-        </dependency>
-
-        <!-- Swagger dependencies -->
+        <!-- OpenAPI dependencies -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -73,51 +72,30 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <!-- Maven plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${spring-boot-version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok-version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct-version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>0.2.0</version>
-                        </path>
-                    </annotationProcessorPaths>
-                    <showWarnings>true</showWarnings>
-                </configuration>
-            </plugin>
+        <pluginManagement>
+            <plugins>
+                <!-- Spring plugins -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot-version}</version>
+                </plugin>
 
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                            <goal>build-info</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+                <!-- OpenAPI plugins -->
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator-plugin-version}</version>
+                </plugin>
+
+                <!-- Jacoco plugins -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${plugin-jacoco-version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>
