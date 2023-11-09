@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 
 import java.time.LocalDate;

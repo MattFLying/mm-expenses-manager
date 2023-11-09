@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.util;
+package mm.expenses.manager.common.utils.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

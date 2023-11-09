@@ -3,7 +3,7 @@ package mm.expenses.manager.product.price;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.product.ProductCommonValidation;
 
 import java.math.BigDecimal;

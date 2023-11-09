@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.cache.exchangerate;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import org.assertj.core.api.AbstractAssert;
 import org.springframework.data.domain.Page;

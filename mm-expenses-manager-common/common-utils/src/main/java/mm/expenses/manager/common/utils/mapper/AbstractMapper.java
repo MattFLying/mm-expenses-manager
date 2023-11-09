@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.mapper;
+package mm.expenses.manager.common.utils.mapper;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;

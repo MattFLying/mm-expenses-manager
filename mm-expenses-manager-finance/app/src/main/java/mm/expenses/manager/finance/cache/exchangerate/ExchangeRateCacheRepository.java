@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.cache.exchangerate;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 
 import java.time.LocalDate;
 import java.util.Collection;

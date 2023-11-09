@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.management;
 
-import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;

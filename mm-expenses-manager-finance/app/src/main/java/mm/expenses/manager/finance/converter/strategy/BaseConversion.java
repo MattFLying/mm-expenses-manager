@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.converter.strategy;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache.RateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static mm.expenses.manager.common.util.DateUtils.instantToLocalDateUTC;
+import static mm.expenses.manager.common.utils.util.DateUtils.instantToLocalDateUTC;
 
 /**
  * Abstraction with common logic for all conversions

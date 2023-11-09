@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.i18n;
+package mm.expenses.manager.common.utils.i18n;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.exchangerate.trail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation.State;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

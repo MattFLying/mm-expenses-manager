@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.currency;
 
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

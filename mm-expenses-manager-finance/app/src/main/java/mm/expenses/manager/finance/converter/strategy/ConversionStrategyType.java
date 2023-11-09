@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.converter.strategy;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 
 /**
  * Conversion strategy

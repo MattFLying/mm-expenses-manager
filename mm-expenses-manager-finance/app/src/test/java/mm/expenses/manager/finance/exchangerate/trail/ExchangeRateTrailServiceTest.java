@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.exchangerate.trail;
 
-import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation.State;
 import org.junit.jupiter.api.Nested;

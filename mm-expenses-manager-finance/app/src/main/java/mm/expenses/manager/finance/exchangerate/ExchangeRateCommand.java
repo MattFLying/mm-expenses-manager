@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.exception.common.InvalidDateException;
 import mm.expenses.manager.finance.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;

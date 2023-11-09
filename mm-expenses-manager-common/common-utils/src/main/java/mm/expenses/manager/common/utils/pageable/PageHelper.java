@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.pageable;
+package mm.expenses.manager.common.utils.pageable;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

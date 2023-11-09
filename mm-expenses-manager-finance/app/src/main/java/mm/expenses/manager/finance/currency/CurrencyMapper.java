@@ -1,8 +1,8 @@
 package mm.expenses.manager.finance.currency;
 
-import mm.expenses.manager.common.i18n.CountryCode;
-import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.i18n.CountryCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.finance.api.currency.model.CountryDto;
 import mm.expenses.manager.finance.api.currency.model.CurrencyCodeDto;
 import mm.expenses.manager.finance.api.currency.model.CurrencyDto;

@@ -1,7 +1,7 @@
 package mm.expenses.manager.product;
 
 import jakarta.validation.ConstraintValidatorContext;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 

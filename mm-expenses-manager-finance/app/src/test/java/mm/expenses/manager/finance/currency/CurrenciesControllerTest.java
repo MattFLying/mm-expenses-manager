@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.currency;
 
-import mm.expenses.manager.common.i18n.CountryCode;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CountryCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

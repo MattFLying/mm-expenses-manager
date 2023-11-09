@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.converter;
 
-import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionDto;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.finance.config.MapperImplNaming;

@@ -1,6 +1,6 @@
 package mm.expenses.manager.order.product;
 
-import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.order.api.product.model.CreateNewProductRequest;
 import mm.expenses.manager.order.api.product.model.ProductPage;
 import mm.expenses.manager.order.api.product.model.ProductResponse;

@@ -1,6 +1,6 @@
 package mm.expenses.manager.order.order;
 
-import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.order.api.order.model.*;
 import mm.expenses.manager.order.currency.Price;
 import mm.expenses.manager.order.currency.PriceMapper;

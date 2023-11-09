@@ -20,6 +20,7 @@
     <properties>
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
+        <mm-expenses-manager-common-utils-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-utils-version>
 
         <!-- Other dependency versions -->
         <spring-cloud-starter-netflix-hystrix-version>2.2.10.RELEASE</spring-cloud-starter-netflix-hystrix-version>
@@ -29,8 +30,8 @@
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>mm-expenses-manager-common</artifactId>
-            <version>${mm-expenses-manager-common-version}</version>
+            <artifactId>common-utils</artifactId>
+            <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>
         </dependency>
 
