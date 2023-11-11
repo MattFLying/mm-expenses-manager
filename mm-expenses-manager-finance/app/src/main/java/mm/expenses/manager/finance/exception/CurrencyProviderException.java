@@ -1,8 +1,8 @@
 package mm.expenses.manager.finance.exception;
 
-import mm.expenses.manager.exception.EmCheckedException;
-import mm.expenses.manager.exception.ExceptionType;
-import mm.expenses.manager.exception.api.feign.ApiFeignClientException;
+import mm.expenses.manager.common.exceptions.base.EmCheckedException;
+import mm.expenses.manager.common.exceptions.base.ExceptionType;
+import mm.expenses.manager.common.beans.exception.feign.ApiFeignClientException;
 import org.springframework.http.HttpStatus;
 
 import java.util.Objects;

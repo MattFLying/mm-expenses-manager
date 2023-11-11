@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.pageable;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.utils.pageable.PageHelper;
+import mm.expenses.manager.common.beans.pageable.PageHelper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

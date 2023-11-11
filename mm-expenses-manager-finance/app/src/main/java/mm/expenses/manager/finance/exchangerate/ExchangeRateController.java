@@ -2,8 +2,8 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.exception.api.ApiBadRequestException;
-import mm.expenses.manager.exception.api.ApiNotFoundException;
+import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
+import mm.expenses.manager.common.beans.exception.api.ApiNotFoundException;
 import mm.expenses.manager.finance.api.exchangerate.ExchangeRatesApi;
 import mm.expenses.manager.finance.api.exchangerate.model.ExchangeRatesAccumulatePage;
 import mm.expenses.manager.finance.api.exchangerate.model.ExchangeRatesDto;

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.UUID;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class AbstractMapper {
 
     @Named("createInstantNow")

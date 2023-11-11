@@ -1,6 +1,6 @@
 package mm.expenses.manager.product.pageable;
 
-import mm.expenses.manager.common.utils.pageable.PageHelper;
+import mm.expenses.manager.common.beans.pageable.PageHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>mm-expenses-manager-parent</artifactId>
+        <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
         <version>0.2.5-SNAPSHOT</version>
     </parent>
@@ -16,10 +16,6 @@
 
     <artifactId>common-exceptions</artifactId>
     <version>0.2.5-SNAPSHOT</version>
-
-    <dependencies>
-
-    </dependencies>
 
     <build>
         <plugins>
@@ -48,11 +44,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${spring-boot-version}</version>
-                        </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>

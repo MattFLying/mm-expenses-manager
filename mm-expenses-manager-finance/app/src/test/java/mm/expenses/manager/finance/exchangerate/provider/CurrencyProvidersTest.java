@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
-import mm.expenses.manager.exception.api.ApiInternalErrorException;
+import mm.expenses.manager.common.beans.exception.api.ApiInternalErrorException;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.currency.CurrencyRatesConfig;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;

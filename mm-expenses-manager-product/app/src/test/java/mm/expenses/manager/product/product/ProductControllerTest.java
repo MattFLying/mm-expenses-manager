@@ -2,9 +2,8 @@ package mm.expenses.manager.product.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.exception.ExceptionMessage;
+import mm.expenses.manager.common.beans.exception.ExceptionMessage;
 import mm.expenses.manager.product.ProductApplicationTest;
-import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.hamcrest.Matchers;

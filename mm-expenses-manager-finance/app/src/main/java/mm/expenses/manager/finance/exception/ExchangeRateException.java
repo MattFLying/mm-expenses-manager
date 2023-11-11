@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exception;
 
-import mm.expenses.manager.exception.EmUncheckedException;
-import mm.expenses.manager.exception.ExceptionType;
+import mm.expenses.manager.common.exceptions.base.EmUncheckedException;
+import mm.expenses.manager.common.exceptions.base.ExceptionType;
 
 /**
  * Default exception for any cases of exchange rates.

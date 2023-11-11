@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exception;
 
-import mm.expenses.manager.exception.EmCheckedException;
-import mm.expenses.manager.exception.ExceptionType;
+import mm.expenses.manager.common.exceptions.base.EmCheckedException;
+import mm.expenses.manager.common.exceptions.base.ExceptionType;
 
 /**
  * Exception thrown when something went wrong with update historical exchange rates process.

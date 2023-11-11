@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exception;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.exception.ExceptionType;
+import mm.expenses.manager.common.exceptions.base.ExceptionType;
 import mm.expenses.manager.finance.currency.CurrencyExceptionMessage;
 import org.apache.commons.lang3.ArrayUtils;
 

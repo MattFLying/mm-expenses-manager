@@ -20,11 +20,9 @@
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-common-utils-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-utils-version>
         <mm-expenses-manager-common-beans-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-beans-version>
         <mm-expenses-manager-common-exceptions-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
-        <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
+        <mm-expenses-manager-common-utils-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-utils-version>
     </properties>
 
     <modules>
@@ -63,19 +61,14 @@
         </dependency>
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>mm-expenses-manager-exception</artifactId>
-            <version>${mm-expenses-manager-exception-version}</version>
+            <artifactId>common-exceptions</artifactId>
+            <version>${mm-expenses-manager-common-exceptions-version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-beans</artifactId>
             <version>${mm-expenses-manager-common-beans-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-exceptions</artifactId>
-            <version>${mm-expenses-manager-common-exceptions-version}</version>
             <scope>compile</scope>
         </dependency>
 
