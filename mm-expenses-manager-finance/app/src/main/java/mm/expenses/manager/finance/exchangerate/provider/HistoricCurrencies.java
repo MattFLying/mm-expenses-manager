@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.exchangerate.provider;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.exception.HistoricalCurrencyException;
 
 import java.time.Instant;

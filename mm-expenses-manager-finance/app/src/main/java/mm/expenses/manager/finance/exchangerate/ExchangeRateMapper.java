@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exchangerate;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.finance.api.exchangerate.model.*;
 import mm.expenses.manager.finance.config.MapperImplNaming;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate.Rate;

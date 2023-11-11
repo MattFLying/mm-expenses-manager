@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.currency;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 
 public interface CurrencyProvider {
 

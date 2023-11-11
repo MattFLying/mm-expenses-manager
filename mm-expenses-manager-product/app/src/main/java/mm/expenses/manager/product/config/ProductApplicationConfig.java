@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.ErrorHandlingConfig;
+import mm.expenses.manager.common.beans.exception.config.ErrorHandlingConfig;
 import mm.expenses.manager.product.config.converter.BigDecimalToDecimal128Converter;
 import mm.expenses.manager.product.config.converter.Decimal128ToBigDecimalConverter;
 import org.springframework.context.annotation.Bean;

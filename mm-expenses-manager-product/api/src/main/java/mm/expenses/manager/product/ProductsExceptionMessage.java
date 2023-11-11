@@ -1,7 +1,7 @@
 package mm.expenses.manager.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.exception.ExceptionType;
+import mm.expenses.manager.common.exceptions.base.ExceptionType;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package mm.expenses.manager.order.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.exception.api.ApiBadRequestException;
+import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;

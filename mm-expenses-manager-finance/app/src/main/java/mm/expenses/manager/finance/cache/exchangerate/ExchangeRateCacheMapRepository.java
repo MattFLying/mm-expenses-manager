@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.cache.exchangerate;
 
 import lombok.Generated;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;

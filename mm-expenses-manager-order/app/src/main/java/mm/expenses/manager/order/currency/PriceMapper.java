@@ -1,6 +1,6 @@
 package mm.expenses.manager.order.currency;
 
-import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.order.api.product.model.PriceRequest;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;

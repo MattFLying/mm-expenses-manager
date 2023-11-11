@@ -1,8 +1,8 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.exception.api.ApiBadRequestException;
-import mm.expenses.manager.exception.api.ApiConflictException;
+import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
+import mm.expenses.manager.common.beans.exception.api.ApiConflictException;
 import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.ProductResponse;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;

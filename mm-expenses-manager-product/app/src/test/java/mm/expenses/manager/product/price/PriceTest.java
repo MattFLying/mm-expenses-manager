@@ -1,6 +1,6 @@
 package mm.expenses.manager.product.price;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.product.BaseInitTest;
 import org.junit.jupiter.api.Test;
 

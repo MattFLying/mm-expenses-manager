@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.cache.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheRepository.CacheType;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;

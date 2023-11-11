@@ -3,7 +3,7 @@ package mm.expenses.manager.finance.exchangerate.provider.nbp;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import org.apache.commons.lang3.StringUtils;
 

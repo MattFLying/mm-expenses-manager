@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;

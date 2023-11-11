@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Generated;
 import lombok.NoArgsConstructor;
-import mm.expenses.manager.exception.api.feign.ApiFeignClientException;
+import mm.expenses.manager.common.beans.exception.feign.ApiFeignClientException;
 import mm.expenses.manager.finance.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import org.springframework.cloud.openfeign.FeignClient;

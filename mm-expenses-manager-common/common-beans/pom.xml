@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>mm-expenses-manager-common</artifactId>
+        <groupId>mm-expenses-manager</groupId>
+        <version>0.2.5-SNAPSHOT</version>
+    </parent>
+
+    <name>Expenses Manager Common Beans</name>
+    <description>Expenses Manager common beans.</description>
+
+    <artifactId>common-beans</artifactId>
+    <version>0.2.5-SNAPSHOT</version>
+
+    <properties>
+        <!-- ExpensesManager dependency versions -->
+        <mm-expenses-manager-common-exceptions-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
+
+        <!-- Spring dependency versions -->
+        <spring-cloud-starter-netflix-hystrix-version>2.2.10.RELEASE</spring-cloud-starter-netflix-hystrix-version>
+
+        <!-- Other dependency versions -->
+        <hibernate-validator-version>8.0.1.Final</hibernate-validator-version>
+    </properties>
+
+    <dependencies>
+        <!-- ExpensesManager dependencies -->
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-exceptions</artifactId>
+            <version>${mm-expenses-manager-common-exceptions-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Spring dependencies -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+            <version>${spring-cloud-starter-netflix-hystrix-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Swagger dependencies -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <!-- Other dependencies -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator-version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven plugins -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                        <configuration>
+                            <delimiters>
+                                <delimiter>@</delimiter>
+                            </delimiters>
+                            <useDefaultDelimiters>false</useDefaultDelimiters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>${spring-boot-version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok-version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct-version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-version}</version>
+                <configuration>
+                    <reuseForks>true</reuseForks>
+                    <forkCount>2</forkCount>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

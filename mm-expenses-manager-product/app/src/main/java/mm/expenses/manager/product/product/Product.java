@@ -3,7 +3,7 @@ package mm.expenses.manager.product.product;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.exception.ProductNotFoundException;

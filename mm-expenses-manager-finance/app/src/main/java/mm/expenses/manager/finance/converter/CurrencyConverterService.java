@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.converter;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate;
 import mm.expenses.manager.finance.converter.strategy.ConversionStrategy;
 import mm.expenses.manager.finance.converter.strategy.ConversionStrategyType;

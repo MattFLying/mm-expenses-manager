@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exchangerate.provider.nbp;
 
-import mm.expenses.manager.common.i18n.CurrencyCode;
-import mm.expenses.manager.common.util.DateUtils;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exception.CurrencyProviderException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
@@ -13,7 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.time.LocalDate;
 import java.util.List;
 
-import static mm.expenses.manager.common.util.DateUtils.ZONE_UTC;
+import static mm.expenses.manager.common.utils.util.DateUtils.ZONE_UTC;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.HISTORY_FROM_YEAR;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.MAX_DAYS_TO_FETCH;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;

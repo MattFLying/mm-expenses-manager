@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.management;
 
-import mm.expenses.manager.common.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.finance.api.management.model.ExchangeRateTrailDto;
 import mm.expenses.manager.finance.api.management.model.ExchangeRatesTrailsPage;
 import mm.expenses.manager.finance.api.management.model.OperationType;
