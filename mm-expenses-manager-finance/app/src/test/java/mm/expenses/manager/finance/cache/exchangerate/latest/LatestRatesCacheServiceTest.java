@@ -1,5 +1,6 @@
 package mm.expenses.manager.finance.cache.exchangerate.latest;
 
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
@@ -8,7 +9,6 @@ import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.pageable.PageFactory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,7 +55,7 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
     private ExchangeRateCacheService exchangeRateCacheService;
 
     @Autowired
-    private PageFactory pageFactory;
+    private PaginationHelper pagination;
 
     private LatestRatesCacheService latestCacheMap;
 
@@ -99,7 +99,7 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
             final var expectedList = List.of(expected_1, expected_2);
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pagination.getPageRequest(0, 2));
             when(exchangeRateService.findByDate(any(Pageable.class), any(LocalDate.class))).thenReturn(Page.empty());
             when(exchangeRateService.findAll(eq(null), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(expectedList)));
             when(exchangeRateCacheService.findAllLatest()).thenReturn(Collections.emptyList());
@@ -143,7 +143,7 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
             final var expectedList = List.of(expected_1, expected_2);
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pagination.getPageRequest(0, 2));
             when(exchangeRateService.findByDate(any(Pageable.class), any(LocalDate.class))).thenReturn(Page.empty());
             when(exchangeRateService.findAll(eq(null), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(expectedList)));
             when(exchangeRateCacheService.findAllLatest()).thenReturn(List.of(ExchangeRateCache.of(expected_1, true, PROVIDER_NAME), ExchangeRateCache.of(expected_2, true, PROVIDER_NAME)));
@@ -187,7 +187,7 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
             final var expectedList = List.of(expected_1, expected_2);
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pagination.getPageRequest(0, 2));
             when(exchangeRateService.findByDate(any(Pageable.class), any(LocalDate.class))).thenReturn(Page.empty());
             when(exchangeRateService.findAll(eq(null), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(expectedList)));
             when(exchangeRateCacheService.findAllLatest()).thenReturn(List.of(ExchangeRateCache.of(expected_1, true, PROVIDER_NAME)));

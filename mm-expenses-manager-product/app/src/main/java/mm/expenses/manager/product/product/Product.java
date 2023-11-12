@@ -8,7 +8,6 @@ import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.exception.ProductNotFoundException;
 import mm.expenses.manager.product.exception.ProductValidationException;
-import mm.expenses.manager.product.pageable.PageFactory;
 import mm.expenses.manager.product.price.Price;
 import mm.expenses.manager.product.product.command.CreateProductCommand;
 import mm.expenses.manager.product.product.command.UpdateProductCommand;
@@ -17,7 +16,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,7 +24,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 @Data
 @EqualsAndHashCode
@@ -131,10 +129,7 @@ public class Product {
         return ProductContext.saveProduct(existed.partiallyUpdate(updateProductCommand));
     }
 
-    public static Page<Product> findProducts(final ProductQueryFilter queryFilter, final Integer pageNumber, final Integer pageSize, final SortOrder sortOrder, final Boolean shouldSortDesc) {
-        final var sortingOrders = getOrDefault(sortOrder).withDirectionAscOrDesc(shouldSortDesc).getOrders();
-        final var pageable = PageFactory.getPageRequest(pageNumber, pageSize, Sort.by(sortingOrders));
-
+    public static Page<Product> findProducts(ProductQueryFilter queryFilter, PageRequest pageable) {
         return ProductContext.findAll(queryFilter, pageable);
     }
 
@@ -149,10 +144,6 @@ public class Product {
                         () -> {
                             throw new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId));
                         });
-    }
-
-    private static SortOrder getOrDefault(final SortOrder sortOrder) {
-        return Optional.ofNullable(sortOrder).orElse(SortOrder.NAME);
     }
 
 }

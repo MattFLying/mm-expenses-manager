@@ -1,5 +1,6 @@
 package mm.expenses.manager.finance.converter;
 
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.beans.exception.ExceptionMessage;
@@ -11,7 +12,6 @@ import mm.expenses.manager.finance.converter.strategy.ConversionStrategyType;
 import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateHelper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
-import mm.expenses.manager.finance.pageable.PageFactory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
     private LatestCacheServiceTest latestCacheTest;
 
     @Autowired
-    private PageFactory pageFactory;
+    private PaginationHelper pagination;
 
     @Override
     protected void setupBeforeEachTest() {
@@ -267,7 +267,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             when(exchangeRateCacheService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date))).thenReturn(List.of(
                     ExchangeRateCache.of(expected_1, true, PROVIDER_NAME), ExchangeRateCache.of(expected_2, true, PROVIDER_NAME)
             ));
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, CurrencyCode.values().length - 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pagination.getPageRequest(0, CurrencyCode.values().length - 2));
             when(exchangeRateService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(List.of(expected_1, expected_2))));
 
             // then
@@ -306,7 +306,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             final var idOfResult = UUID.randomUUID().toString();
 
             // when
-            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pageFactory.getPageRequest(0, CurrencyCode.values().length - 2));
+            when(exchangeRateService.pageRequest(anyInt(), anyInt())).thenReturn(pagination.getPageRequest(0, CurrencyCode.values().length - 2));
             when(exchangeRateService.findForCurrencyCodesAndSpecificDate(eq(Set.of(from, to)), eq(date), any(Pageable.class))).thenReturn(Stream.of(new PageImpl<>(List.of(expected_1, expected_2))));
 
             // then

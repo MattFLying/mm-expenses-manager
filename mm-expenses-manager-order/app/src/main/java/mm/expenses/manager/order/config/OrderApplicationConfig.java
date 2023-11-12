@@ -6,10 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import mm.expenses.manager.common.beans.exception.config.ErrorHandlingConfig;
+import mm.expenses.manager.common.beans.pagination.PaginationConfig;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import({ErrorHandlingConfig.class, PaginationConfig.class})
 class OrderApplicationConfig {
 
     @Bean
@@ -25,6 +30,11 @@ class OrderApplicationConfig {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         return objectMapper;
+    }
+
+    @Bean
+    PaginationHelper paginationHelper(final PaginationConfig paginationConfig) {
+        return new PaginationHelper(paginationConfig);
     }
 
 }

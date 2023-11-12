@@ -3,9 +3,9 @@ package mm.expenses.manager.order.product;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
 import mm.expenses.manager.common.beans.exception.api.ApiNotFoundException;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.order.api.product.ProductApi;
 import mm.expenses.manager.order.api.product.model.*;
-import mm.expenses.manager.order.pageable.PageFactory;
 import mm.expenses.manager.order.product.exception.ProductCreationException;
 import mm.expenses.manager.order.product.exception.ProductNotFoundException;
 import mm.expenses.manager.order.product.exception.ProductUpdateException;
@@ -25,6 +25,7 @@ class ProductController implements ProductApi {
 
     private final ProductService service;
     private final ProductMapper mapper;
+    private final PaginationHelper pagination;
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,7 +37,7 @@ class ProductController implements ProductApi {
                                @RequestParam(value = "greaterThan", required = false) Boolean greaterThan,
                                @RequestParam(value = "priceMin", required = false) BigDecimal priceMin,
                                @RequestParam(value = "priceMax", required = false) BigDecimal priceMax) {
-        final var pageable = PageFactory.getPageRequest(pageNumber, pageSize);
+        final var pageable = pagination.getPageRequest(pageNumber, pageSize);
         final var filters = new ProductRequestFilter(name, price, priceMin, priceMax, lessThan, greaterThan);
         final var result = switch (filters.filter()) {
             case BY_NAME -> service.findByName(name, pageable);

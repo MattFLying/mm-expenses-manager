@@ -1,12 +1,12 @@
 package mm.expenses.manager.finance.exchangerate;
 
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.currency.CurrenciesService;
 import mm.expenses.manager.finance.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
-import mm.expenses.manager.finance.pageable.PageFactory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -61,7 +61,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
     private ExchangeRateService exchangeRateService;
 
     @Autowired
-    private PageFactory pageFactory;
+    private PaginationHelper pagination;
 
 
     @Override
@@ -85,7 +85,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         assertThat(result.getPageNumber()).isEqualTo(pageNumber);
         assertThat(result.getPageSize()).isEqualTo(pageSize);
         assertThat(result.getSort().isSorted()).isTrue();
-        assertThat(result.getSort()).hasToString(ExchangeRate.DEFAULT_SORT_BY + ": " + ExchangeRate.DEFAULT_SORT_ORDER.getDirection());
+        assertThat(result.getSort().toList()).containsExactlyInAnyOrderElementsOf(ExchangeRateSortOrder.DEFAULT_SORT.getOrders());
     }
 
     @Test
@@ -200,7 +200,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when
             when(exchangeRateRepository.findByCurrencyAndDate(currency, date)).thenReturn(Optional.of(expected));
 
-            final var result = exchangeRateService.findForCurrencyCodesAndSpecificDate(Set.of(currency), DateUtils.instantToLocalDateUTC(date), pageFactory.getPageRequest(0, 10));
+            final var result = exchangeRateService.findForCurrencyCodesAndSpecificDate(Set.of(currency), DateUtils.instantToLocalDateUTC(date), pagination.getPageRequest(0, 10));
 
             // then
             assertExchangeRates(result).forCurrencyHasExactlyTheSameAs(currency, List.of(expected));
@@ -226,7 +226,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // when
             when(exchangeRateRepository.findByDate(eq(date), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expected)));
 
-            final var result = exchangeRateService.findByDate(pageFactory.getPageRequest(0, 1), DateUtils.instantToLocalDateUTC(date));
+            final var result = exchangeRateService.findByDate(pagination.getPageRequest(0, 1), DateUtils.instantToLocalDateUTC(date));
 
             // then
             assertExchangeRates(result).forCurrencyHasExactlyTheSameAs(currency, List.of(expected));

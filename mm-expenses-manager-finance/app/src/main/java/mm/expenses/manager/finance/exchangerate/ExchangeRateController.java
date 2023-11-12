@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
 import mm.expenses.manager.common.beans.exception.api.ApiNotFoundException;
@@ -11,7 +12,6 @@ import mm.expenses.manager.finance.api.exchangerate.model.ExchangeRatesPage;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheMapper;
 import mm.expenses.manager.finance.cache.exchangerate.latest.LatestRatesCacheService;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
-import mm.expenses.manager.finance.pageable.PageFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +32,7 @@ class ExchangeRateController implements ExchangeRatesApi {
     private final LatestRatesCacheService latest;
     private final ExchangeRateMapper mapper;
     private final ExchangeRateCacheMapper cacheMapper;
-    private final PageFactory pageFactory;
+    private final PaginationHelper pagination;
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,9 +47,8 @@ class ExchangeRateController implements ExchangeRatesApi {
         if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
             throw new ApiBadRequestException(FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
-        final var pageable = pageFactory.getPageable(pageNumber, pageSize);
 
-        return mapper.mapAccumulatePage(mapper.groupAndSortPagedResult(service.findAll(date, from, to, pageable)));
+        return mapper.mapAccumulatePage(mapper.groupAndSortPagedResult(service.findAll(date, from, to, pagination.getPageable(pageNumber, pageSize))));
     }
 
     @Override
@@ -63,9 +62,8 @@ class ExchangeRateController implements ExchangeRatesApi {
         if ((Objects.isNull(from) && Objects.nonNull(to)) || (Objects.nonNull(from) && Objects.isNull(to))) {
             throw new ApiBadRequestException(FinanceExceptionMessage.CURRENCY_FILTER_BY_DATE_RANGE);
         }
-        final var pageable = pageFactory.getPageable(pageNumber, pageSize);
 
-        return mapper.mapAccumulatePage(mapper.groupAndSortPagedResult(service.findAllForCurrency(currencyCode, from, to, pageable)));
+        return mapper.mapAccumulatePage(mapper.groupAndSortPagedResult(service.findAllForCurrency(currencyCode, from, to, pagination.getPageable(pageNumber, pageSize))));
     }
 
     @Override

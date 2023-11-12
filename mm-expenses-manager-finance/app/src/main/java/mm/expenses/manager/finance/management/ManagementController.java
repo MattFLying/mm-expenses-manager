@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.management;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.finance.api.management.ManagementApi;
 import mm.expenses.manager.finance.api.management.model.ExchangeRatesTrailsPage;
 import mm.expenses.manager.finance.api.management.model.OperationType;
@@ -9,7 +10,6 @@ import mm.expenses.manager.finance.api.management.model.StateType;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailService;
-import mm.expenses.manager.finance.pageable.PageFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,7 +31,7 @@ class ManagementController implements ManagementApi {
     private final ExchangeRateService exchangeRateService;
     private final ExchangeRateTrailService exchangeRateTrailService;
     private final TrailMapper mapper;
-    private final PageFactory pageFactory;
+    private final PaginationHelper pagination;
 
     @Override
     @PostMapping(value = "/exchange-rates/history-update")
@@ -50,9 +50,8 @@ class ManagementController implements ManagementApi {
         if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
             throw new ApiBadRequestException(FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
-        final var pageable = pageFactory.getPageable(pageNumber, pageSize);
 
-        return mapper.map(exchangeRateTrailService.findTrails(date, mapper.map(operation), mapper.map(state), pageable));
+        return mapper.map(exchangeRateTrailService.findTrails(date, mapper.map(operation), mapper.map(state), pagination.getPageable(pageNumber, pageSize)));
     }
 
 }

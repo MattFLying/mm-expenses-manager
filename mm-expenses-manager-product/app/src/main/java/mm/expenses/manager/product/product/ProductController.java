@@ -3,8 +3,10 @@ package mm.expenses.manager.product.product;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
 import mm.expenses.manager.common.beans.exception.api.ApiConflictException;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.ProductResponse;
+import mm.expenses.manager.product.api.product.model.SortOrderRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.springframework.http.HttpStatus;
@@ -29,12 +31,13 @@ import java.util.Objects;
 class ProductController implements ProductApi {
 
     private final ProductMapper mapper;
+    private final PaginationHelper pagination;
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public mm.expenses.manager.product.api.product.model.ProductPage findAll(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                                                                              @RequestParam(value = "pageSize", required = false) Integer pageSize,
-                                                                             @RequestParam(value = "sortOrder", required = false) mm.expenses.manager.product.api.product.model.SortOrderRequest sortOrder,
+                                                                             @RequestParam(value = "sortOrder", required = false) SortOrderRequest sortOrder,
                                                                              @RequestParam(value = "sortDesc", required = false) Boolean sortDesc,
                                                                              @RequestParam(value = "name", required = false) String name,
                                                                              @RequestParam(value = "price", required = false) BigDecimal price,
@@ -73,7 +76,7 @@ class ProductController implements ProductApi {
         }
 
         return mapper.map(
-                Product.findProducts(queryFilter, pageNumber, pageSize, mapper.mapSortOrder(sortOrder), sortDesc)
+                Product.findProducts(queryFilter, pagination.getPageRequest(pageNumber, pageSize, ProductSortOrder.of(sortOrder, sortDesc)))
         );
     }
 

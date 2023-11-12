@@ -1,7 +1,8 @@
 package mm.expenses.manager.product.product;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.product.pageable.PageFactory;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 class ProductScheduler {
+
+    private final PaginationHelper pagination;
 
     @Scheduled(cron = "${app.product.clear-deleted-cron}")
     void cleanDeletedProducts() {
@@ -39,7 +43,7 @@ class ProductScheduler {
     }
 
     private PageRequest pageRequest(final int pageNumber) {
-        return PageFactory.getPageRequest(pageNumber, 50);
+        return pagination.getPageRequest(pageNumber, 50);
     }
 
 }

@@ -1,7 +1,7 @@
 package mm.expenses.manager.product.product;
 
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.product.ProductApplicationTest;
-import mm.expenses.manager.product.pageable.PageFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -12,17 +12,15 @@ import java.util.List;
 import java.util.UUID;
 
 import static mm.expenses.manager.product.product.ProductHelper.createProduct;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class ProductSchedulerTest extends ProductApplicationTest {
 
     @Autowired
     private ProductScheduler productScheduler;
+
+    @Autowired
+    private PaginationHelper pagination;
 
     @Test
     void shouldDeleteMarkedAsDeleted() {
@@ -31,8 +29,8 @@ class ProductSchedulerTest extends ProductApplicationTest {
         final var existed_2 = createProduct().toBuilder().id(UUID.randomUUID().toString()).isDeleted(true).build();
 
         // when
-        Mockito.when(productRepository.findAllByIsDeletedTrue(eq(PageFactory.getPageRequest(0, 50)))).thenReturn(new PageImpl<>(List.of(existed_1, existed_2)));
-        Mockito.when(productRepository.findAllByIsDeletedTrue(eq(PageFactory.getPageRequest(1, 50)))).thenReturn(new PageImpl<>(List.of()));
+        Mockito.when(productRepository.findAllByIsDeletedTrue(eq(pagination.getPageRequest(0, 50)))).thenReturn(new PageImpl<>(List.of(existed_1, existed_2)));
+        Mockito.when(productRepository.findAllByIsDeletedTrue(eq(pagination.getPageRequest(1, 50)))).thenReturn(new PageImpl<>(List.of()));
 
         productScheduler.cleanDeletedProducts();
 
