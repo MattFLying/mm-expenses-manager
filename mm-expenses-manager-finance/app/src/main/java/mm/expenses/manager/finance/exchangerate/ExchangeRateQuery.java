@@ -1,13 +1,12 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.finance.pageable.PageFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -19,14 +18,13 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static mm.expenses.manager.common.utils.util.DateUtils.localDateToInstantUTC;
-import static mm.expenses.manager.finance.exchangerate.ExchangeRate.DEFAULT_SORT_ORDER;
 
 @Component
 @RequiredArgsConstructor
 class ExchangeRateQuery {
 
     private final ExchangeRateRepository repository;
-    private final PageFactory pageFactory;
+    private final PaginationHelper pagination;
 
     Stream<Page<ExchangeRate>> findAllCurrenciesRates(final Collection<CurrencyCode> currencies, final LocalDate date, final LocalDate from, final LocalDate to, final Pageable pageable) {
         final var page = pageRequest(pageable);
@@ -69,7 +67,7 @@ class ExchangeRateQuery {
     }
 
     PageRequest pageRequest(final Integer pageNumber, final Integer pageSize) {
-        return pageFactory.getPageRequest(pageNumber, pageSize, Sort.by(DEFAULT_SORT_ORDER));
+        return pagination.getPageRequest(pageNumber, pageSize, ExchangeRateSortOrder.DEFAULT_SORT);
     }
 
     PageRequest pageRequest(final Pageable pageable) {

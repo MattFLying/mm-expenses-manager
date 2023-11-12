@@ -21,7 +21,7 @@ app:
         host: localhost
         port: 27017
         uri: mongodb://${app.configuration.database.mongodb.user}:${app.configuration.database.mongodb.password}@${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}?authSource=admin
-    pageable:
+    pagination:
       min-page-number: 0
       default-page-size: 10
       max-page-size: 50
@@ -40,8 +40,8 @@ spring:
       auto-index-creation: true
     web:
       pageable:
-        default-page-size: ${app.configuration.pageable.default-page-size}
-        max-page-size: ${app.configuration.pageable.max-page-size}
+        default-page-size: ${app.configuration.pagination.default-page-size}
+        max-page-size: ${app.configuration.pagination.max-page-size}
 
 springdoc:
   swagger-ui:

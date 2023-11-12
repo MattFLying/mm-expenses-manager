@@ -9,6 +9,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.exception.config.ErrorHandlingConfig;
+import mm.expenses.manager.common.beans.pagination.PaginationConfig;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.product.config.converter.BigDecimalToDecimal128Converter;
 import mm.expenses.manager.product.config.converter.Decimal128ToBigDecimalConverter;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +23,7 @@ import java.util.Arrays;
 @Generated
 @Configuration
 @RequiredArgsConstructor
-@Import({ErrorHandlingConfig.class})
+@Import({ErrorHandlingConfig.class, PaginationConfig.class})
 class ProductApplicationConfig {
 
     private final AppConfig config;
@@ -47,6 +49,11 @@ class ProductApplicationConfig {
                 new BigDecimalToDecimal128Converter(),
                 new Decimal128ToBigDecimalConverter()
         ));
+    }
+
+    @Bean
+    PaginationHelper paginationHelper(final PaginationConfig paginationConfig) {
+        return new PaginationHelper(paginationConfig);
     }
 
 }

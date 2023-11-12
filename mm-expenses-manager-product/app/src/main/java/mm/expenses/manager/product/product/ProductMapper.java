@@ -68,11 +68,4 @@ abstract class ProductMapper extends AbstractMapper {
         return StringUtils.isBlank(currency) ? null : getCurrency(currency);
     }
 
-    public SortOrder mapSortOrder(final mm.expenses.manager.product.api.product.model.SortOrderRequest sortOrderApi) {
-        if (sortOrderApi == null) {
-            return null;
-        }
-        return SortOrder.valueOf(sortOrderApi.name());
-    }
-
 }

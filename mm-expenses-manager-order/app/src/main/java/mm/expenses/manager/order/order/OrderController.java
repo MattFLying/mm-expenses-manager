@@ -3,12 +3,12 @@ package mm.expenses.manager.order.order;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
 import mm.expenses.manager.common.beans.exception.api.ApiNotFoundException;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.order.api.order.OrderApi;
 import mm.expenses.manager.order.api.order.model.*;
 import mm.expenses.manager.order.order.exception.OrderCreationException;
 import mm.expenses.manager.order.order.exception.OrderNotFoundException;
 import mm.expenses.manager.order.order.exception.OrderUpdateException;
-import mm.expenses.manager.order.pageable.PageFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +24,7 @@ class OrderController implements OrderApi {
 
     private final OrderService service;
     private final OrderMapper mapper;
+    private final PaginationHelper pagination;
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
@@ -42,11 +43,7 @@ class OrderController implements OrderApi {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public OrderPage findAll(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                              @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        return mapper.mapToPageResponse(
-                service.findAll(
-                        PageFactory.getPageRequest(pageNumber, pageSize)
-                )
-        );
+        return mapper.mapToPageResponse(service.findAll(pagination.getPageRequest(pageNumber, pageSize)));
     }
 
     @Override

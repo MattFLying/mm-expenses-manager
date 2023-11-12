@@ -9,6 +9,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.exception.config.ErrorHandlingConfig;
+import mm.expenses.manager.common.beans.pagination.PaginationConfig;
+import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -20,7 +22,7 @@ import java.util.Objects;
 @Generated
 @Configuration
 @RequiredArgsConstructor
-@Import({ErrorHandlingConfig.class})
+@Import({ErrorHandlingConfig.class, PaginationConfig.class})
 class FinanceApplicationConfig {
 
     private static final int INITIAL_POOL_SIZE = 100;
@@ -54,6 +56,11 @@ class FinanceApplicationConfig {
         taskScheduler.setRemoveOnCancelPolicy(true);
 
         return taskScheduler;
+    }
+
+    @Bean
+    PaginationHelper paginationHelper(final PaginationConfig paginationConfig) {
+        return new PaginationHelper(paginationConfig);
     }
 
 }
