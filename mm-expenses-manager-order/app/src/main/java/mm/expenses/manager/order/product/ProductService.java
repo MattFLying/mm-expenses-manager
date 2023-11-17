@@ -2,6 +2,7 @@ package mm.expenses.manager.order.product;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.api.product.model.CreateNewProductRequest;
 import mm.expenses.manager.order.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.order.product.exception.ProductCreationException;
@@ -87,7 +88,7 @@ public class ProductService {
         try {
             validator.checkIfObjectIsValid(validator.validateNew(newProduct), ProductValidationException.class);
 
-            final var preparedData = mapper.map(newProduct, mapper.createInstantNow());
+            final var preparedData = mapper.map(newProduct, DateUtils.nowAsInstant());
             final var saved = repository.save(mapper.map(preparedData));
             log.info("New product created with id: {}", saved.getId());
 

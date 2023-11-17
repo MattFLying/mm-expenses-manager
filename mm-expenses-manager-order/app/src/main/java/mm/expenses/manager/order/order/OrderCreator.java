@@ -2,6 +2,7 @@ package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderRequest;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.order.exception.OrderCreationException;
@@ -39,7 +40,7 @@ class OrderCreator {
             validator.checkIfObjectIsValid(validator.validateNew(newOrder), OrderValidationException.class);
 
             final var orderedProducts = createOrderedProducts(newOrderedProducts);
-            final var preparedData = mapper.map(newOrder, orderedProducts, mapper.createInstantNow());
+            final var preparedData = mapper.map(newOrder, orderedProducts, DateUtils.nowAsInstant());
             final var saved = repository.save(mapper.map(preparedData));
             return Optional.of(saved).map(mapper::map);
         } catch (final OrderValidationException exception) {

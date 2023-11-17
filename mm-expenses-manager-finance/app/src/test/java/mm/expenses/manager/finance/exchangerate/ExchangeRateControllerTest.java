@@ -62,7 +62,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 1;
 
             final var date = LocalDate.now().minusDays(5);
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -108,7 +108,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedTotalContentSize = 2;
 
             final var date = LocalDate.now().minusDays(5);
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -221,7 +221,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 2;
 
             final var date = LocalDate.now().minusDays(5);
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
 
             final var currency_1 = CurrencyCode.CHF;
             final var expected_1 = createNewExchangeRate(currency_1, dateAsInstant);
@@ -271,7 +271,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 1;
 
             final var date = LocalDate.now().minusDays(3);
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -317,7 +317,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedPagesSize = 1;
 
             final var date = LocalDate.now().minusDays(3);
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final var dateFrom = date.minusDays(2);
             final var dateTo = date.plusDays(1);
 
@@ -421,7 +421,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedContentSize = 1;
 
             final var date = LocalDate.now();
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);
@@ -492,7 +492,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
             final var expectedContentSize = 1;
 
             final var date = LocalDate.now().minusDays(8);
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
 
             final var expected_1 = createNewExchangeRate(currency, dateAsInstant);
             final var rate_1 = expected_1.getRateByProvider(PROVIDER_NAME);

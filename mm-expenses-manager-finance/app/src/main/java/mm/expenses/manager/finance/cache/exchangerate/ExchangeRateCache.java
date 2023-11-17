@@ -51,7 +51,7 @@ public class ExchangeRateCache implements Serializable {
         return ExchangeRateCache.builder()
                 .id(exchangeRate.getId())
                 .currency(exchangeRate.getCurrency())
-                .date(DateUtils.instantToLocalDateUTC(exchangeRate.getDate()))
+                .date(DateUtils.instantToLocalDate(exchangeRate.getDate()))
                 .from(RateCache.of(exchangeRate.getRateByProvider(provider).getFrom()))
                 .to(RateCache.of(exchangeRate.getRateByProvider(provider).getTo()))
                 .isLatest(isLatest)

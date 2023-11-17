@@ -8,6 +8,7 @@ import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.ProductResponse;
 import mm.expenses.manager.product.api.product.model.SortOrderRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
+import mm.expenses.manager.product.price.PriceMapper;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,7 +31,8 @@ import java.util.Objects;
 @RequestMapping("products")
 class ProductController implements ProductApi {
 
-    private final ProductMapper mapper;
+    private final ProductMapper productMapper;
+    private final PriceMapper priceMapper;
     private final PaginationHelper pagination;
 
     @Override
@@ -75,7 +77,7 @@ class ProductController implements ProductApi {
             }
         }
 
-        return mapper.map(
+        return productMapper.map(
                 Product.findProducts(queryFilter, pagination.getPageRequest(pageNumber, pageSize, ProductSortOrder.of(sortOrder, sortDesc)))
         );
     }
@@ -83,15 +85,16 @@ class ProductController implements ProductApi {
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public mm.expenses.manager.product.api.product.model.ProductResponse findById(@PathVariable("id") String id) {
-        return mapper.map(Product.findById(id));
+        final var product = Product.findById(id);
+        return productMapper.map(product, priceMapper.map(product.getPrice()));
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public mm.expenses.manager.product.api.product.model.ProductResponse create(@RequestBody mm.expenses.manager.product.api.product.model.CreateProductRequest createProductRequest) {
-        return mapper.map(
-                Product.create(mapper.map(createProductRequest))
+        return productMapper.mapProductResponse(
+                Product.create(productMapper.map(createProductRequest, priceMapper.map(createProductRequest.getPrice())))
         );
     }
 
@@ -102,8 +105,8 @@ class ProductController implements ProductApi {
         if (!isAnyUpdateProduct(updateProductRequest)) {
             throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
         }
-        return mapper.map(
-                Product.update(mapper.map(id, updateProductRequest))
+        return productMapper.mapProductResponse(
+                Product.update(productMapper.map(id, updateProductRequest, priceMapper.map(updateProductRequest.getPrice())))
         );
     }
 

@@ -2,15 +2,19 @@ package mm.expenses.manager.order.currency;
 
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.order.api.product.model.PriceRequest;
+import mm.expenses.manager.order.config.MapperImplNaming;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-public abstract class PriceMapper extends AbstractMapper {
+@Mapper(
+        componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        implementationName = MapperImplNaming.PRICE_MAPPER
+)
+public interface PriceMapper extends AbstractMapper {
 
-    public abstract Price map(final PriceRequest dto);
+    Price map(final PriceRequest dto);
 
-    public abstract PriceRequest map(final Price price);
+    PriceRequest map(final Price price);
 
 }
 

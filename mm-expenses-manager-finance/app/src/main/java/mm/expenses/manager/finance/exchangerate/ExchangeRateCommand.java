@@ -2,7 +2,8 @@ package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.common.exceptions.date.InvalidDateException;
+import mm.expenses.manager.common.exceptions.date.InvalidDateTimeException;
+import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
@@ -93,7 +94,7 @@ class ExchangeRateCommand {
             savedHistoryCount = savedHistory.size();
             duplicatesCount = exchangeRates.size() - savedHistoryCount;
             status = State.SUCCESS;
-        } catch (final InvalidDateException exception) {
+        } catch (final InvalidDateTimeException exception) {
             throw new ExchangeRateException(exception.getType(), exception);
         } catch (final Exception exception) {
             throw new ExchangeRateException(FinanceExceptionMessage.SAVE_OR_UPDATE_EXCHANGE_RATES, exception);
@@ -118,7 +119,7 @@ class ExchangeRateCommand {
                     if (existedByCurrency.containsKey(rateEntry.getKey())) {
                         final var rates = existedByCurrency.getOrDefault(rateEntry.getKey(), Collections.emptyList())
                                 .stream()
-                                .collect(Collectors.toMap(entity -> mapper.fromInstantToLocalDate(entity.getDate()), Function.identity()));
+                                .collect(Collectors.toMap(entity -> DateUtils.instantToLocalDate(entity.getDate()), Function.identity()));
 
                         return rateEntry.getValue().stream()
                                 .map(rate -> createOrUpdate(rates, rate))
@@ -127,7 +128,7 @@ class ExchangeRateCommand {
                                 .collect(Collectors.toList());
                     } else {
                         return rateEntry.getValue().stream()
-                                .map(rate -> mapper.map(rate, mapper.createInstantNow()))
+                                .map(rate -> mapper.map(rate, DateUtils.nowAsInstant()))
                                 .collect(Collectors.toList());
                     }
                 })
@@ -153,11 +154,11 @@ class ExchangeRateCommand {
                 final var rate = mapper.map(existed.getCurrency(), targetCurrency, currencyRate.getRate());
                 existed.addRateForProvider(providerName, rate);
                 existed.addDetailsForProvider(providerName, currencyRate.getDetails());
-                return Optional.of(ExchangeRate.modified(existed, mapper.createInstantNow()));
+                return Optional.of(ExchangeRate.modified(existed, DateUtils.nowAsInstant()));
             }
             return Optional.empty();
         }
-        return Optional.of(mapper.map(currencyRate, mapper.createInstantNow()));
+        return Optional.of(mapper.map(currencyRate, DateUtils.nowAsInstant()));
     }
 
     /**
@@ -170,9 +171,9 @@ class ExchangeRateCommand {
      */
     private Stream<ExchangeRate> findByCurrenciesAndDateOrDateRange(final Set<CurrencyCode> currencies, final LocalDate fromDate, final LocalDate toDate) {
         if (!fromDate.isEqual(toDate)) {
-            return repository.findByCurrencyInAndDateBetween(currencies, mapper.fromLocalDateToInstant(fromDate).minus(1, ChronoUnit.DAYS), mapper.fromLocalDateToInstant(toDate).plus(1, ChronoUnit.DAYS));
+            return repository.findByCurrencyInAndDateBetween(currencies, DateUtils.localDateToInstant(fromDate).minus(1, ChronoUnit.DAYS), DateUtils.localDateToInstant(toDate).plus(1, ChronoUnit.DAYS));
         }
-        return repository.findByCurrencyInAndDate(currencies, mapper.fromLocalDateToInstant(fromDate));
+        return repository.findByCurrencyInAndDate(currencies, DateUtils.localDateToInstant(fromDate));
     }
 
     /**
@@ -199,9 +200,9 @@ class ExchangeRateCommand {
 
     private <T extends CurrencyRate> LocalDate findDateOrThrowException(final Supplier<Optional<T>> dateExtractor, final FinanceExceptionMessage exceptionMessage) {
         try {
-            return dateExtractor.get().map(CurrencyRate::getDate).orElseThrow(() -> new InvalidDateException(exceptionMessage));
+            return dateExtractor.get().map(CurrencyRate::getDate).orElseThrow(() -> new InvalidDateTimeException(exceptionMessage));
         } catch (final Exception exception) {
-            throw new InvalidDateException(exceptionMessage);
+            throw new InvalidDateTimeException(exceptionMessage);
         }
     }
 

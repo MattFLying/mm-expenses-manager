@@ -33,7 +33,7 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
             final var config = provider.getProviderConfig();
             final var maxDaysToFetch = config.getDetails().getMaxDaysToFetch();
             final var startYear = config.getDetails().getHistoryFromYear();
-            final var today = DateUtils.now();
+            final var today = DateUtils.nowAsInstant();
             final var dateFrom = DateUtils.beginningOfTheYear(startYear);
             final var dates = findDates(today, startYear, maxDaysToFetch);
 
@@ -71,7 +71,7 @@ class NbpHistoryUpdater extends HistoricCurrencies<NbpCurrencyRate> {
                     .stream()
                     .map(ratesForCurrencyByDate -> missingDates.stream()
                             .filter(missingDate -> !ratesForCurrencyByDate.containsKey(missingDate))
-                            .map(missingDate -> prepareMissingCurrency(dateFrom, missingDate, DateUtils.instantToLocalDateUTC(today), ratesForCurrencyByDate))
+                            .map(missingDate -> prepareMissingCurrency(dateFrom, missingDate, DateUtils.instantToLocalDate(today), ratesForCurrencyByDate))
                             .filter(Optional::isPresent)
                             .map(Optional::get)
                             .collect(Collectors.toSet())

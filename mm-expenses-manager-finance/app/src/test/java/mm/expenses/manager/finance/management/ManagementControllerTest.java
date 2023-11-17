@@ -63,8 +63,8 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("1", "2");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
             final var pageRequest = PageRequest.of(0, 1);
@@ -99,7 +99,7 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("3", "4");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
             final var pageRequest = PageRequest.of(0, 1);
@@ -134,8 +134,8 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("5", "6");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
             final var pageRequest = PageRequest.of(0, 1);
@@ -170,8 +170,8 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("4", "9");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
             final var pageRequest = PageRequest.of(0, 1);
@@ -206,7 +206,7 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("4", "8");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
             final var pageRequest = PageRequest.of(0, 1);
@@ -241,7 +241,7 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("7", "8");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
             final var pageRequest = PageRequest.of(0, 1);
@@ -276,8 +276,8 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("9", "0");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
             final var pageRequest = PageRequest.of(0, 1);
@@ -311,7 +311,7 @@ class ManagementControllerTest extends FinanceApplicationTest {
             final var affectedIds = List.of("5", "8");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 5;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
             final var operation = TrailOperation.EXCHANGE_RATES_HISTORY_UPDATE.withStatus(TrailOperation.State.ERROR);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);

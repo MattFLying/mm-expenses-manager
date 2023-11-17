@@ -33,7 +33,7 @@ public class ExchangeRateTrailService {
         final var trail = ExchangeRateTrail.builder()
                 .operation(exchangeRatesOperation)
                 .state(state)
-                .date(DateUtils.now())
+                .date(DateUtils.nowAsInstant())
                 .evaluated(evaluatedCount)
                 .skipped(skippedCount)
                 .affectedIds(affectedIds)

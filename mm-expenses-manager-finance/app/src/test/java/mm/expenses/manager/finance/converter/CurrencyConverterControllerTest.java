@@ -92,8 +92,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
         void shouldConvertFromDifferentToDefault(final CurrencyCode currency) throws Exception {
             // given
             final var date = LocalDate.now().minusDays(2);
-            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var createdModified = DateUtils.localDateToInstant(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();
@@ -120,8 +120,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
         void shouldConvertFromDifferentToDefaultWithSpecificDate(final CurrencyCode currency) throws Exception {
             // given
             final var date = LocalDate.now().minusDays(2);
-            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var createdModified = DateUtils.localDateToInstant(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();
@@ -150,8 +150,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
         void shouldConvertFromDefaultToDifferent(final CurrencyCode currency) throws Exception {
             // given
             final var date = LocalDate.now().minusDays(2);
-            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var createdModified = DateUtils.localDateToInstant(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();
@@ -179,8 +179,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
         void shouldConvertFromDefaultToDifferentWithSpecificDate(final CurrencyCode currency) throws Exception {
             // given
             final var date = LocalDate.now().minusDays(2);
-            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var createdModified = DateUtils.localDateToInstant(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();
@@ -212,8 +212,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             final var to = currencyPair.getRight();
 
             final var date = LocalDate.now().minusDays(2);
-            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var createdModified = DateUtils.localDateToInstant(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final Map<String, Object> details = Map.of();
 
             final var id_1 = UUID.randomUUID().toString();
@@ -248,8 +248,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             final var to = currencyPair.getRight();
 
             final var date = LocalDate.now().minusDays(2);
-            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var createdModified = DateUtils.localDateToInstant(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final Map<String, Object> details = Map.of();
 
             final var id_1 = UUID.randomUUID().toString();
@@ -290,8 +290,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             final var to = currencyPair.getRight();
 
             final var date = LocalDate.now().minusDays(2);
-            final var createdModified = DateUtils.localDateToInstantUTC(date.minusDays(5));
-            final var dateAsInstant = DateUtils.localDateToInstantUTC(date);
+            final var createdModified = DateUtils.localDateToInstant(date.minusDays(5));
+            final var dateAsInstant = DateUtils.localDateToInstant(date);
             final Map<String, Object> details = Map.of();
 
             final var id_1 = UUID.randomUUID().toString();

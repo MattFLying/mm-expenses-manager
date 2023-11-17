@@ -51,7 +51,7 @@ class ManagementController implements ManagementApi {
             throw new ApiBadRequestException(FinanceExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
 
-        return mapper.map(exchangeRateTrailService.findTrails(date, mapper.map(operation), mapper.map(state), pagination.getPageable(pageNumber, pageSize)));
+        return mapper.mapToPageResponse(exchangeRateTrailService.findTrails(date, mapper.map(operation), mapper.map(state), pagination.getPageable(pageNumber, pageSize)));
     }
 
 }

@@ -127,19 +127,19 @@ public class ProductHelper {
     }
 
     public static Product createProduct() {
-        return createProduct(PRODUCT_NAME, DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), DateUtils.now());
+        return createProduct(PRODUCT_NAME, DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), DateUtils.nowAsInstant());
     }
 
     public static Product createProduct(final String name, final CurrencyCode currency) {
-        return createProduct(name, currency, DateUtils.now());
+        return createProduct(name, currency, DateUtils.nowAsInstant());
     }
 
     public static Product createProduct(final String name, final BigDecimal price, final CurrencyCode currency) {
-        return createProduct(name, currency, price, DateUtils.now());
+        return createProduct(name, currency, price, DateUtils.nowAsInstant());
     }
 
     public static Product createProductFromProductRequest(final CreateProductRequest createProductRequest) {
-        final var now = DateUtils.now();
+        final var now = DateUtils.nowAsInstant();
         return Product.builder()
                 .id(ID)
                 .name(createProductRequest.getName())
@@ -152,7 +152,7 @@ public class ProductHelper {
     }
 
     public static Product createProductFromUpdateProductRequest(final UpdateProductRequest updateProductRequest) {
-        final var now = DateUtils.now();
+        final var now = DateUtils.nowAsInstant();
         return Product.builder()
                 .id(ID)
                 .name(updateProductRequest.getName())

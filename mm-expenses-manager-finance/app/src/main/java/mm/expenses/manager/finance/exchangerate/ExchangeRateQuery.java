@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static mm.expenses.manager.common.utils.util.DateUtils.localDateToInstantUTC;
+import static mm.expenses.manager.common.utils.util.DateUtils.localDateToInstant;
 
 @Component
 @RequiredArgsConstructor
@@ -31,11 +31,11 @@ class ExchangeRateQuery {
         return currencies.stream()
                 .map(code -> {
                     if (Objects.nonNull(date)) {
-                        return repository.findByCurrencyAndDate(code, localDateToInstantUTC(date)).map(List::of)
+                        return repository.findByCurrencyAndDate(code, localDateToInstant(date)).map(List::of)
                                 .map(result -> (Page<ExchangeRate>) new PageImpl<>(result, page, page.getPageSize()))
                                 .orElse(Page.empty(page));
                     } else if (Objects.nonNull(from) && Objects.nonNull(to)) {
-                        return repository.findByCurrencyAndDateBetween(code, localDateToInstantUTC(from), localDateToInstantUTC(to), page);
+                        return repository.findByCurrencyAndDateBetween(code, localDateToInstant(from), localDateToInstant(to), page);
                     } else {
                         return repository.findByCurrency(code, page);
                     }
@@ -46,7 +46,7 @@ class ExchangeRateQuery {
     Stream<Page<ExchangeRate>> findAllForCurrencyRates(final CurrencyCode currency, final LocalDate from, final LocalDate to, final Pageable pageable) {
         final var page = pageRequest(pageable);
         if (Objects.nonNull(from) && Objects.nonNull(to)) {
-            return Stream.of(repository.findByCurrencyAndDateBetween(currency, localDateToInstantUTC(from), localDateToInstantUTC(to), page)).filter(Objects::nonNull);
+            return Stream.of(repository.findByCurrencyAndDateBetween(currency, localDateToInstant(from), localDateToInstant(to), page)).filter(Objects::nonNull);
         } else {
             return Stream.of(repository.findByCurrency(currency, page)).filter(Objects::nonNull);
         }
@@ -54,7 +54,7 @@ class ExchangeRateQuery {
 
     Page<ExchangeRate> findAllTodayRates(final Pageable pageable) {
         final var page = pageRequest(pageable);
-        return repository.findByDate(localDateToInstantUTC(LocalDate.now()), page);
+        return repository.findByDate(localDateToInstant(LocalDate.now()), page);
     }
 
     Page<ExchangeRate> findByDate(final Pageable pageable, final Instant date) {
@@ -63,7 +63,7 @@ class ExchangeRateQuery {
     }
 
     Optional<ExchangeRate> findByCurrencyAndDate(final CurrencyCode currency, final LocalDate date) {
-        return repository.findByCurrencyAndDate(currency, localDateToInstantUTC(date));
+        return repository.findByCurrencyAndDate(currency, localDateToInstant(date));
     }
 
     PageRequest pageRequest(final Integer pageNumber, final Integer pageSize) {

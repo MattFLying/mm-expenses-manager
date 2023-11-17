@@ -48,8 +48,8 @@ spring:
       auto-index-creation: true
     web:
       pageable:
-        default-page-size: ${app.configuration.pageable.default-page-size}
-        max-page-size: ${app.configuration.pageable.max-page-size}
+        default-page-size: ${app.configuration.pagination.default-page-size}
+        max-page-size: ${app.configuration.pagination.max-page-size}
   cloud:
     stream:
       kafka:
