@@ -9,15 +9,18 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, implementationName = MapperImplNaming.CURRENCY_CONVERTER_MAPPER)
-abstract class CurrencyConverterMapper extends AbstractMapper {
+@Mapper(
+        componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        implementationName = MapperImplNaming.CURRENCY_CONVERTER_MAPPER
+)
+public interface CurrencyConverterMapper extends AbstractMapper {
 
     @Mapping(target = "from", expression = "java(map(currencyConversion.getFrom()))")
     @Mapping(target = "to", expression = "java(map(currencyConversion.getTo()))")
-    abstract CurrencyConversionDto map(final CurrencyConversion currencyConversion);
+    CurrencyConversionDto map(final CurrencyConversion currencyConversion);
 
     @Mapping(target = "code", expression = "java(currencyConversion.getCode().getCode())")
-    abstract CurrencyConversionValueDto map(final CurrencyRate currencyConversion);
+    CurrencyConversionValueDto map(final CurrencyRate currencyConversion);
 
 }
 

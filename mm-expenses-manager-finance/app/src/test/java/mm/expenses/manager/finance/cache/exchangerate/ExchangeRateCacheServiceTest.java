@@ -55,8 +55,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldFindLatestForCurrency(final CurrencyCode currency) {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();
@@ -87,8 +87,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldFindAllLatestOfCurrencies() {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.USD;
@@ -121,8 +121,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldFindAllLatest() {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.CHF;
@@ -155,8 +155,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldFindForCurrencyCodesAndSpecificDate() {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.CAD;
@@ -190,8 +190,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldFindForCurrencyAndSpecificDate(final CurrencyCode currency) {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();
@@ -222,8 +222,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldDisableLatest() {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.CAD;
@@ -266,8 +266,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldSaveFresh(final CurrencyCode currency) {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();
@@ -298,8 +298,8 @@ class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
         void shouldSaveFresh_withParameters(final CurrencyCode currency) {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var id = UUID.randomUUID().toString();

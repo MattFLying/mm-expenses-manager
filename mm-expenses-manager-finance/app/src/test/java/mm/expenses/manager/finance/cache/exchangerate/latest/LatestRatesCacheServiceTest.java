@@ -81,8 +81,8 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
         void shouldSaveInMemory_whenNoCacheExist() {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.AUD;
@@ -125,8 +125,8 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
         void shouldSaveInMemory_whenCacheIsUpToDateThenSkip() {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.CHF;
@@ -169,8 +169,8 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
         void shouldSaveInMemory_whenCacheHasRateThenDisableLatestAndSaveFresh() {
             // given
             final var todayLocalDate = LocalDate.now();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.USD;
@@ -217,8 +217,8 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
         @Test
         void shouldGetAllLatest() {
             // given
-            final var today = DateUtils.localDateToInstantUTC(LocalDate.now());
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(LocalDate.now());
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.AUD;
@@ -251,8 +251,8 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
             // given
             final var todayLocalDate = LocalDate.now();
             final var id = UUID.randomUUID().toString();
-            final var today = DateUtils.localDateToInstantUTC(todayLocalDate);
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(todayLocalDate);
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final var rate = ExchangeRateHelper.createNewRandomRateToPLN(currency);
             final Map<String, Object> details = Map.of();
 
@@ -276,8 +276,8 @@ class LatestRatesCacheServiceTest extends FinanceApplicationTest {
         @Test
         void shouldGetLatest() {
             // given
-            final var today = DateUtils.localDateToInstantUTC(LocalDate.now());
-            final var createdModified = DateUtils.localDateToInstantUTC(LocalDate.now().minusDays(5));
+            final var today = DateUtils.localDateToInstant(LocalDate.now());
+            final var createdModified = DateUtils.localDateToInstant(LocalDate.now().minusDays(5));
             final Map<String, Object> details = Map.of();
 
             final var currency_1 = CurrencyCode.AUD;

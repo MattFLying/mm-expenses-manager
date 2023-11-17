@@ -53,7 +53,7 @@ public class Product {
     private final Long version;
 
     void delete() {
-        final var now = DateUtils.now();
+        final var now = DateUtils.nowAsInstant();
 
         setDeleted(true);
         setLastModifiedAt(now);
@@ -66,7 +66,7 @@ public class Product {
         updateProductCommand.getPrice().ifPresent(this::updatePrice);
         updateProductCommand.getDetails().ifPresent(this::updateDetails);
 
-        final var now = DateUtils.now();
+        final var now = DateUtils.nowAsInstant();
         setLastModifiedAt(now);
 
         return this;
@@ -110,7 +110,7 @@ public class Product {
     }
 
     public static Product create(final CreateProductCommand createProductCommand) {
-        final var now = DateUtils.now();
+        final var now = DateUtils.nowAsInstant();
         final var newProduct = Product.builder()
                 .name(createProductCommand.getName())
                 .price(createProductCommand.getPrice())

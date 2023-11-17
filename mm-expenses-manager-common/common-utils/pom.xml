@@ -27,6 +27,14 @@
     </properties>
 
     <dependencies>
+        <!-- ExpensesManager dependencies -->
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-exceptions</artifactId>
+            <version>${mm-expenses-manager-common-exceptions-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Apache commons dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -58,6 +66,25 @@
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>${apache-commons-fileupload}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit-jupiter-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- Other dependencies -->

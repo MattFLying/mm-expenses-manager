@@ -89,7 +89,7 @@ public class LatestRatesCacheService {
         final var pageRequest = exchangeRateService.pageRequest(0, currenciesService.getAllAvailableCurrenciesCount());
         NavigableMap<Instant, List<ExchangeRate>> allLatest = findAllLatest(pageRequest);
 
-        final var now = DateUtils.instantToLocalDateUTC(DateUtils.now());
+        final var now = DateUtils.instantToLocalDate(DateUtils.nowAsInstant());
         var from = now.minusDays(DAYS_TO_FIND_IN_PAST);
         var to = LocalDate.from(now);
         var notFoundStepCount = 0L;
@@ -117,7 +117,7 @@ public class LatestRatesCacheService {
     }
 
     private TreeMap<Instant, List<ExchangeRate>> findAllLatest(final PageRequest pageRequest) {
-        return exchangeRateService.findByDate(pageRequest, DateUtils.instantToLocalDateUTC(Instant.now()))
+        return exchangeRateService.findByDate(pageRequest, DateUtils.instantToLocalDate(Instant.now()))
                 .stream()
                 .collect(Collectors.groupingBy(ExchangeRate::getDate, TreeMap::new, Collectors.toList()));
     }

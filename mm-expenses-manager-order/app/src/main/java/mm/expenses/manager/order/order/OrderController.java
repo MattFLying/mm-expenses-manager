@@ -31,7 +31,7 @@ class OrderController implements OrderApi {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public OrderResponse create(@RequestBody CreateNewOrderRequest request) {
         try {
-            return service.create(mapper.mapToNewRequest(request))
+            return service.create(mapper.map(request))
                     .map(mapper::mapToResponse)
                     .orElseThrow();
         } catch (final OrderCreationException exception) {
@@ -59,7 +59,7 @@ class OrderController implements OrderApi {
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public OrderResponse update(@PathVariable("id") String id, @RequestBody UpdateOrderRequest request) {
         try {
-            return service.update(id, mapper.mapToUpdatedRequest(request))
+            return service.update(id, mapper.map(request))
                     .map(mapper::mapToResponse)
                     .orElseThrow();
         } catch (final OrderNotFoundException exception) {

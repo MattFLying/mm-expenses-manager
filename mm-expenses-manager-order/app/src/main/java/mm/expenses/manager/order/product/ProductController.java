@@ -63,7 +63,7 @@ class ProductController implements ProductApi {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ProductResponse create(@RequestBody CreateNewProductRequest request) {
         try {
-            return service.create(mapper.mapToNewRequest(request))
+            return service.create(mapper.map(request))
                     .map(mapper::mapToResponse)
                     .orElseThrow();
         } catch (final ProductCreationException exception) {
@@ -76,7 +76,7 @@ class ProductController implements ProductApi {
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ProductResponse update(@PathVariable("id") String id, @RequestBody UpdateProductRequest request) {
         try {
-            return service.update(id, mapper.mapToUpdatedRequest(request))
+            return service.update(id, mapper.map(request))
                     .map(mapper::mapToResponse)
                     .orElseThrow();
         } catch (final ProductNotFoundException exception) {

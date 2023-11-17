@@ -66,8 +66,8 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             final var affectedIds = List.of("3", "4", "5");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10L;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
 
@@ -95,7 +95,7 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             final var affectedIds = List.of("6");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 5L;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
 
@@ -122,7 +122,7 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             // given
             final var evaluatedCount = 0L;
             final var skippedCount = 5L;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, Collections.emptyList());
 
@@ -149,8 +149,8 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             // given
             final var evaluatedCount = 0L;
             final var skippedCount = 3L;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, Collections.emptyList());
 
@@ -178,7 +178,7 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             final var affectedIds = List.of("6", "7");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 3L;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
 
@@ -206,8 +206,8 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             final var affectedIds = List.of("6", "7");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 3L;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
 
@@ -235,8 +235,8 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             final var affectedIds = List.of("8", "9");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 0L;
-            final var date = DateUtils.now();
-            final var dateAsLocalDate = DateUtils.instantToLocalDateUTC(date);
+            final var date = DateUtils.nowAsInstant();
+            final var dateAsLocalDate = DateUtils.instantToLocalDate(date);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);
 
@@ -263,7 +263,7 @@ class ExchangeRateTrailServiceTest extends FinanceApplicationTest {
             final var affectedIds = List.of("3", "4", "5", "6");
             final var evaluatedCount = affectedIds.size();
             final var skippedCount = 10L;
-            final var date = DateUtils.now();
+            final var date = DateUtils.nowAsInstant();
             final var operation = TrailOperation.LATEST_EXCHANGE_RATES_SYNCHRONIZATION.withStatus(State.SUCCESS);
 
             final var trail = createNewExchangeRateTrail(operation, date, evaluatedCount, skippedCount, affectedIds);

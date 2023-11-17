@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static mm.expenses.manager.common.utils.util.DateUtils.instantToLocalDateUTC;
+import static mm.expenses.manager.common.utils.util.DateUtils.instantToLocalDate;
 
 /**
  * Abstraction with common logic for all conversions
@@ -76,7 +76,7 @@ abstract class BaseConversion implements ConversionStrategy {
         final var fresh = exchangeRateService.findForCurrencyAndSpecificDate(code, date);
         fresh.ifPresent(exchangeRate -> CompletableFuture.runAsync(() -> exchangeRateCacheService.saveFresh(List.of(exchangeRate), false)));
 
-        return fresh.map(rate -> Pair.of(instantToLocalDateUTC(rate.getDate()), ExchangeRateCache.of(rate, currencyProviders.getProviderName()))).orElse(Pair.of(date, ExchangeRateCache.empty(code)));
+        return fresh.map(rate -> Pair.of(instantToLocalDate(rate.getDate()), ExchangeRateCache.of(rate, currencyProviders.getProviderName()))).orElse(Pair.of(date, ExchangeRateCache.empty(code)));
     }
 
     protected Map<CurrencyCode, Pair<LocalDate, ExchangeRateCache>> getRatesForDate(final Set<CurrencyCode> codes, final LocalDate date) {
@@ -95,7 +95,7 @@ abstract class BaseConversion implements ConversionStrategy {
         return fresh.stream()
                 .collect(Collectors.toMap(
                         ExchangeRate::getCurrency,
-                        rateEntry -> Pair.of(instantToLocalDateUTC(rateEntry.getDate()), ExchangeRateCache.of(rateEntry, currencyProviders.getProviderName()))
+                        rateEntry -> Pair.of(instantToLocalDate(rateEntry.getDate()), ExchangeRateCache.of(rateEntry, currencyProviders.getProviderName()))
                 ));
     }
 

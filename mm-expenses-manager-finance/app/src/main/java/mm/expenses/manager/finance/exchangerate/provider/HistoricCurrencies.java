@@ -38,7 +38,7 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
         final var result = new LinkedList<DateRange>();
 
         final var dateFrom = DateUtils.beginningOfTheYear(startYear);
-        final var dateTo = DateUtils.instantToLocalDateUTC(endDate);
+        final var dateTo = DateUtils.instantToLocalDate(endDate);
 
         if (DateUtils.daysBetween(dateFrom, dateTo) > maxDaysToFetch) {
             var from = LocalDate.from(dateFrom);
@@ -71,7 +71,7 @@ public abstract class HistoricCurrencies<T extends CurrencyRate> {
         final var presentDates = rates.stream()
                 .map(CurrencyRate::getDate)
                 .collect(Collectors.toSet());
-        final var dateTo = DateUtils.instantToLocalDateUTC(today);
+        final var dateTo = DateUtils.instantToLocalDate(today);
 
         final var missingDates = Stream.iterate(
                 dateFrom,

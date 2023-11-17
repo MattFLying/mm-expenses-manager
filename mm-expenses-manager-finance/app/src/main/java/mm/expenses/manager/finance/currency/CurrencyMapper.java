@@ -17,36 +17,32 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, implementationName = MapperImplNaming.CURRENCY_MAPPER)
-abstract class CurrencyMapper extends AbstractMapper {
+@Mapper(
+        componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        implementationName = MapperImplNaming.CURRENCY_MAPPER,
+        imports = {Collectors.class, Comparator.class}
+)
+public interface CurrencyMapper extends AbstractMapper {
 
     @Mapping(target = "code", expression = "java(countryCode.name())")
-    @Mapping(target = "name", expression = "java(countryCode.getName())")
-    abstract CountryDto map(final CountryCode countryCode);
+    CountryDto map(final CountryCode countryCode);
 
     @Mapping(target = "code", expression = "java(currencyCode.name())")
-    @Mapping(target = "usedInCountries", expression = "java(map(currencyCode.getCountryCodesList()))")
-    abstract CurrencyCodeDto mapToCurrencyCodeDto(final CurrencyCode currencyCode);
+    @Mapping(target = "usedInCountries", expression = "java(currencyCode.getCountryCodesList().stream().map(this::map).sorted(Comparator.comparing(CountryDto::getCode)).collect(Collectors.toList()))")
+    CurrencyCodeDto map(final CurrencyCode currencyCode);
 
-    abstract List<CurrencyCodeDto> mapToCurrencyCodeDto(final Collection<CurrencyCode> currencyCode);
+    List<CurrencyCodeDto> mapToCurrencyCodeDto(final Collection<CurrencyCode> currencyCode);
 
-    abstract CurrencyDto mapToCurrencyDto(final Collection<String> codes, final Integer currenciesCount);
+    CurrencyDto map(final Collection<String> codes, final Integer currenciesCount);
 
-    public CurrencyDto mapToCurrencyDto(final Collection<String> currencyCodes) {
-        return mapToCurrencyDto(currencyCodes, currencyCodes.size());
+    default CurrencyDto mapToCurrencyDto(final Collection<String> currencyCodes) {
+        return map(currencyCodes, currencyCodes.size());
     }
 
-    public CurrencyInfoDto mapToCurrencyInfo(final Collection<CurrencyCodeDto> currencies) {
+    default CurrencyInfoDto mapToCurrencyInfo(final Collection<CurrencyCodeDto> currencies) {
         var info = new CurrencyInfoDto();
         info.setCurrencies(currencies.stream().sorted(Comparator.comparing(CurrencyCodeDto::getCode)).toList());
         return info;
-    }
-
-    public List<CountryDto> map(final Collection<CountryCode> countryCodes) {
-        return countryCodes.stream()
-                .map(this::map)
-                .sorted(Comparator.comparing(CountryDto::getCode))
-                .collect(Collectors.toList());
     }
 
 }

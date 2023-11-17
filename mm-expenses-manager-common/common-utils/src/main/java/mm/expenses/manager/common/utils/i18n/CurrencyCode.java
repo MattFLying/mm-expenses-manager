@@ -49,6 +49,10 @@ public enum CurrencyCode {
         return getCurrencyFromString(value, true);
     }
 
+    public static CurrencyCode getCurrencyFromStringOrNull(final String currency) {
+        return StringUtils.isBlank(currency) ? null : getCurrencyFromString(currency);
+    }
+
     public static CurrencyCode of(final CurrencyCode currencyCode) {
         return Objects.nonNull(currencyCode) ? currencyCode : CurrencyCode.UNDEFINED;
     }
