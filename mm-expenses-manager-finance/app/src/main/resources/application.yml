@@ -3,7 +3,7 @@ app:
     name: @project.name@
     version: @project.version@
     description: @project.description@
-    active-profile: dev
+    active-profile: @active-profile@
     port: 8185
     scheduled-thread-pool-size: 100
     contact:
@@ -63,7 +63,7 @@ spring:
   application:
     name: ${app.configuration.name}
   profiles:
-    active: dev
+    active: ${app.configuration.active-profile}
   cache:
     type: ${app.configuration.cache.type}
   redis:

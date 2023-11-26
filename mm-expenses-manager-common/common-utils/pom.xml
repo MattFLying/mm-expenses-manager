@@ -8,14 +8,14 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.5-SNAPSHOT</version>
+        <version>0.2.6-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Utils</name>
-    <description>Expenses Manager common utils.</description>
+    <description>Expenses Manager common utils with utilities components.</description>
 
     <artifactId>common-utils</artifactId>
-    <version>0.2.5-SNAPSHOT</version>
+    <version>0.2.6-SNAPSHOT</version>
 
     <properties>
         <!-- Apache commons version -->
@@ -72,13 +72,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-jupiter-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${junit-jupiter-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -109,7 +107,7 @@
                         </goals>
                         <configuration>
                             <delimiters>
-                                <delimiter>@</delimiter>
+                                <delimiter>${properties-delimiter}</delimiter>
                             </delimiters>
                             <useDefaultDelimiters>false</useDefaultDelimiters>
                         </configuration>
@@ -134,7 +132,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>0.2.0</version>
+                            <version>${lombok-mapstruct-binding-version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <showWarnings>true</showWarnings>
@@ -143,7 +141,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-version}</version>
                 <configuration>
                     <reuseForks>true</reuseForks>
                     <forkCount>2</forkCount>

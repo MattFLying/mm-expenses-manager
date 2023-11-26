@@ -8,22 +8,22 @@
     <parent>
         <artifactId>mm-expenses-manager-parent</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.5-SNAPSHOT</version>
+        <version>0.2.6-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Order Service</name>
     <description>Order service responsible for orders preparation and management.</description>
 
     <artifactId>mm-expenses-manager-order</artifactId>
-    <version>0.2.5-SNAPSHOT</version>
+    <version>0.2.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-beans-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-beans-version>
-        <mm-expenses-manager-common-exceptions-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
-        <mm-expenses-manager-common-utils-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-utils-version>
-        <mm-expenses-manager-common-web-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-web-version>
+        <mm-expenses-manager-common-beans-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-beans-version>
+        <mm-expenses-manager-common-exceptions-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
+        <mm-expenses-manager-common-utils-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-utils-version>
+        <mm-expenses-manager-common-web-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-web-version>
     </properties>
 
     <modules>
@@ -56,14 +56,14 @@
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-utils</artifactId>
-            <version>${mm-expenses-manager-common-utils-version}</version>
+            <artifactId>common-exceptions</artifactId>
+            <version>${mm-expenses-manager-common-exceptions-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-exceptions</artifactId>
-            <version>${mm-expenses-manager-common-exceptions-version}</version>
+            <artifactId>common-utils</artifactId>
+            <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -78,39 +78,6 @@
             <version>${mm-expenses-manager-common-web-version}</version>
             <scope>compile</scope>
         </dependency>
-
-        <!-- OpenAPI dependencies -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
     </dependencies>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <!-- Spring plugins -->
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring-boot-version}</version>
-                </plugin>
-
-                <!-- OpenAPI plugins -->
-                <plugin>
-                    <groupId>org.openapitools</groupId>
-                    <artifactId>openapi-generator-maven-plugin</artifactId>
-                    <version>${openapi-generator-plugin-version}</version>
-                </plugin>
-
-                <!-- Jacoco plugins -->
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${plugin-jacoco-version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
 </project>

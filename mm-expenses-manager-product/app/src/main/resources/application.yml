@@ -3,7 +3,7 @@ app:
     name: @project.name@
     version: @project.version@
     description: @project.description@
-    active-profile: dev
+    active-profile: @active-profile@
     port: 8190
     contact:
       name: @developer-name@
@@ -41,7 +41,7 @@ spring:
   application:
     name: ${app.configuration.name}
   profiles:
-    active: dev
+    active: ${app.configuration.active-profile}
   data:
     mongodb:
       uri: ${app.configuration.database.mongodb.uri}

@@ -8,18 +8,18 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.5-SNAPSHOT</version>
+        <version>0.2.6-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Beans</name>
-    <description>Expenses Manager common beans.</description>
+    <description>Expenses Manager common beans with bean components.</description>
 
     <artifactId>common-beans</artifactId>
-    <version>0.2.5-SNAPSHOT</version>
+    <version>0.2.6-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-exceptions-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
+        <mm-expenses-manager-common-exceptions-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
     </properties>
 
     <dependencies>
@@ -61,7 +61,7 @@
                         </goals>
                         <configuration>
                             <delimiters>
-                                <delimiter>@</delimiter>
+                                <delimiter>${properties-delimiter}</delimiter>
                             </delimiters>
                             <useDefaultDelimiters>false</useDefaultDelimiters>
                         </configuration>
@@ -91,7 +91,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>0.2.0</version>
+                            <version>${lombok-mapstruct-binding-version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <showWarnings>true</showWarnings>
@@ -100,7 +100,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-version}</version>
                 <configuration>
                     <reuseForks>true</reuseForks>
                     <forkCount>2</forkCount>

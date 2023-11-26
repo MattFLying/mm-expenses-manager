@@ -8,22 +8,22 @@
     <parent>
         <artifactId>mm-expenses-manager-finance</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.5-SNAPSHOT</version>
+        <version>0.2.6-SNAPSHOT</version>
     </parent>
 
-    <name>Expenses Manager Finance Service</name>
+    <name>Expenses Manager Finance App</name>
     <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-finance-app</artifactId>
-    <version>0.2.5-SNAPSHOT</version>
+    <version>0.2.6-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
-        <mm-expenses-manager-finance-api-version>0.2.5-SNAPSHOT</mm-expenses-manager-finance-api-version>
+        <mm-expenses-manager-common-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-version>
+        <mm-expenses-manager-exception-version>0.2.6-SNAPSHOT</mm-expenses-manager-exception-version>
+        <mm-expenses-manager-finance-api-version>0.2.6-SNAPSHOT</mm-expenses-manager-finance-api-version>
 
         <!-- Other dependency versions -->
         <apache-commons-pool-version>2.12.0</apache-commons-pool-version>
@@ -163,12 +163,21 @@
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>${nl-jqno-equalsverifier-version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.yml</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <!-- Maven plugins -->
             <plugin>
@@ -183,7 +192,7 @@
                         </goals>
                         <configuration>
                             <delimiters>
-                                <delimiter>@</delimiter>
+                                <delimiter>${properties-delimiter}</delimiter>
                             </delimiters>
                             <useDefaultDelimiters>false</useDefaultDelimiters>
                         </configuration>
@@ -213,7 +222,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>0.2.0</version>
+                            <version>${lombok-mapstruct-binding-version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <showWarnings>true</showWarnings>
@@ -222,7 +231,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-version}</version>
                 <configuration>
                     <reuseForks>true</reuseForks>
                     <forkCount>2</forkCount>
