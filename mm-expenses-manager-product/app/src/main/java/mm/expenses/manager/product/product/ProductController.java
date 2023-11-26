@@ -1,9 +1,9 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
-import mm.expenses.manager.common.beans.exception.api.ApiConflictException;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.exception.ApiBadRequestException;
+import mm.expenses.manager.common.web.exception.ApiConflictException;
 import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.ProductResponse;
 import mm.expenses.manager.product.api.product.model.SortOrderRequest;
@@ -84,7 +84,7 @@ class ProductController implements ProductApi {
 
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public mm.expenses.manager.product.api.product.model.ProductResponse findById(@PathVariable("id") String id) {
+    public ProductResponse findById(@PathVariable("id") String id) {
         final var product = Product.findById(id);
         return productMapper.map(product, priceMapper.map(product.getPrice()));
     }

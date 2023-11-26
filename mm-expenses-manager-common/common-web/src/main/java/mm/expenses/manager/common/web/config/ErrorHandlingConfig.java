@@ -1,9 +1,9 @@
-package mm.expenses.manager.common.beans.exception.config;
+package mm.expenses.manager.common.web.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.exception.handler.AppExceptionHandler;
+import mm.expenses.manager.common.web.exception.handler.AppExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

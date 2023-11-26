@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.management;
 
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.common.beans.exception.ExceptionMessage;
+import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exchangerate.ExchangeRateService;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrailService;

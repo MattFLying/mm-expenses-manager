@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.converter;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
+import mm.expenses.manager.common.web.exception.ApiBadRequestException;
 import mm.expenses.manager.finance.api.calculations.CalculationsApi;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionDto;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;

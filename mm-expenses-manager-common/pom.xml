@@ -21,12 +21,15 @@
     <properties>
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-exceptions-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
+        <mm-expenses-manager-common-utils-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-utils-version>
+        <mm-expenses-manager-common-beans-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-beans-version>
     </properties>
 
     <modules>
         <module>common-utils</module>
-        <module>common-beans</module>
         <module>common-exceptions</module>
+        <module>common-beans</module>
+        <module>common-web</module>
     </modules>
 
     <dependencyManagement>

@@ -2,7 +2,7 @@ package mm.expenses.manager.product.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.common.beans.exception.ExceptionMessage;
+import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.product.ProductApplicationTest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;

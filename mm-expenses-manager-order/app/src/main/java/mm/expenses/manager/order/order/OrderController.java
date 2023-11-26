@@ -1,94 +1,118 @@
 package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
-import mm.expenses.manager.common.beans.exception.api.ApiNotFoundException;
+import mm.expenses.manager.common.beans.pagination.PaginationConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.RequestProcessor;
+import mm.expenses.manager.common.web.WebInterceptor;
+import mm.expenses.manager.common.web.WebContext;
+import mm.expenses.manager.common.web.exception.ApiBadRequestException;
+import mm.expenses.manager.common.web.exception.ApiNotFoundException;
 import mm.expenses.manager.order.api.order.OrderApi;
 import mm.expenses.manager.order.api.order.model.*;
 import mm.expenses.manager.order.order.exception.OrderCreationException;
-import mm.expenses.manager.order.order.exception.OrderNotFoundException;
+import mm.expenses.manager.order.order.exception.OrderExceptionMessage;
 import mm.expenses.manager.order.order.exception.OrderUpdateException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 
-import static mm.expenses.manager.order.config.UrlDefaultPaths.ORDER_URL;
-
 @RestController
+@RequestMapping(OrderWebApi.BASE_URL)
 @RequiredArgsConstructor
-@RequestMapping(ORDER_URL)
 class OrderController implements OrderApi {
 
-    private final OrderService service;
-    private final OrderMapper mapper;
     private final PaginationHelper pagination;
+    private final WebInterceptor interceptor;
 
-    @Override
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public OrderResponse create(@RequestBody CreateNewOrderRequest request) {
-        try {
-            return service.create(mapper.map(request))
-                    .map(mapper::mapToResponse)
-                    .orElseThrow();
-        } catch (final OrderCreationException exception) {
-            throw new ApiBadRequestException(null);
-        }
-    }
+    private final OrderMapper mapper;
+    private final OrderService service;
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public OrderPage findAll(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
-                             @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        return mapper.mapToPageResponse(service.findAll(pagination.getPageRequest(pageNumber, pageSize)));
+    public ResponseEntity<OrderPage> findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER_PROPERTY, required = false) final Integer pageNumber,
+                                             @RequestParam(value = PaginationConfig.PAGE_SIZE_PROPERTY, required = false) final Integer pageSize) {
+        final var pageable = pagination.getPageRequest(pageNumber, pageSize);
+
+        final var context = WebContext.of(OrderWebApi.FIND_ALL);
+        final RequestProcessor processor = webContext -> mapper.mapToPageResponse(service.findAll(pageable));
+
+        return interceptor.processRequest(processor, context);
     }
 
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public OrderResponse findById(@PathVariable("id") String id) {
-        return service.findById(id)
-                .map(mapper::mapToResponse)
-                .orElseThrow();
+    public ResponseEntity<OrderResponse> findById(@PathVariable("id") final String id) {
+        final var context = WebContext.of(OrderWebApi.FIND_BY_ID).requestId(id);
+        final RequestProcessor processor = webContext -> {
+            final var orderId = webContext.getRequestId();
+
+            return service.findById(orderId)
+                    .map(mapper::mapToResponse)
+                    .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(orderId)));
+        };
+        return interceptor.processRequest(processor, context);
+    }
+
+    @Override
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<OrderResponse> create(@RequestBody final CreateNewOrderRequest request) {
+        final var context = WebContext.of(OrderWebApi.CREATE).requestBody(request);
+        final RequestProcessor processor = webContext -> {
+            try {
+                final var newOrder = (CreateNewOrderRequest) webContext.getRequestBody();
+                return service.create(newOrder).map(mapper::mapToResponse);
+            } catch (final OrderCreationException exception) {
+                throw new ApiBadRequestException(OrderExceptionMessage.NEW_ORDER_VALIDATION, exception);
+            }
+        };
+        return interceptor.processRequest(processor, context);
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public OrderResponse update(@PathVariable("id") String id, @RequestBody UpdateOrderRequest request) {
-        try {
-            return service.update(id, mapper.map(request))
-                    .map(mapper::mapToResponse)
-                    .orElseThrow();
-        } catch (final OrderNotFoundException exception) {
-            throw new ApiNotFoundException(null);
-        } catch (final OrderUpdateException exception) {
-            throw new ApiBadRequestException(null);
-        }
+    public ResponseEntity<OrderResponse> update(@PathVariable("id") final String id, @RequestBody final UpdateOrderRequest request) {
+        final var context = WebContext.of(OrderWebApi.UPDATE).requestId(id).requestBody(request);
+        final RequestProcessor processor = webContext -> {
+            try {
+                final var updateOrderRequest = (UpdateOrderRequest) webContext.getRequestBody();
+                return service.update(webContext.getRequestId(), updateOrderRequest)
+                        .map(mapper::mapToResponse)
+                        .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(webContext.getRequestId())));
+            } catch (final OrderUpdateException exception) {
+                throw new ApiBadRequestException(OrderExceptionMessage.UPDATE_ORDER_VALIDATION, exception);
+            }
+        };
+        return interceptor.processRequest(processor, context);
     }
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void deleteById(@PathVariable("id") String id) {
-        try {
-            service.remove(id);
-        } catch (final OrderNotFoundException exception) {
-            throw new ApiNotFoundException(null);
-        }
+    public ResponseEntity<Void> deleteById(@PathVariable("id") final String id) {
+        final var context = WebContext.of(OrderWebApi.DELETE).requestId(id);
+        final RequestProcessor processor = webContext -> {
+            service.remove(webContext.getRequestId());
+            return true;
+        };
+        return interceptor.processRequest(processor, context);
     }
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void deleteByIds(@RequestBody OrderIds request) {
-        try {
-            service.removeByIds(new HashSet<>(request.getIds()));
-        } catch (final OrderNotFoundException exception) {
-            throw new ApiNotFoundException(null);
-        }
+    public ResponseEntity<Void> deleteByIds(@RequestBody final OrderIds request) {
+        final var context = WebContext.of(OrderWebApi.DELETE_BY_IDS).requestIds(request.getIds());
+        final RequestProcessor processor = webContext -> {
+            service.removeByIds(new HashSet<>(webContext.getRequestIds()));
+            return true;
+        };
+        return interceptor.processRequest(processor, context);
     }
 
     // To be tracked later
