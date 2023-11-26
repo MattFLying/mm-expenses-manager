@@ -8,16 +8,16 @@
     <parent>
         <artifactId>mm-expenses-manager-finance</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.5-SNAPSHOT</version>
+        <version>0.2.6-SNAPSHOT</version>
     </parent>
 
-    <name>Expenses Manager Finance Service</name>
+    <name>Expenses Manager Finance Api</name>
     <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-finance-api</artifactId>
-    <version>0.2.5-SNAPSHOT</version>
+    <version>0.2.6-SNAPSHOT</version>
 
     <properties>
         <!-- API config -->

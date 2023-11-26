@@ -8,22 +8,22 @@
     <parent>
         <artifactId>mm-expenses-manager-product</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.5-SNAPSHOT</version>
+        <version>0.2.6-SNAPSHOT</version>
     </parent>
 
-    <name>Expenses Manager Product Service</name>
+    <name>Expenses Manager Product App</name>
     <description>Product service responsible for products preparation and management.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-product-app</artifactId>
-    <version>0.2.5-SNAPSHOT</version>
+    <version>0.2.6-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>0.2.5-SNAPSHOT</mm-expenses-manager-exception-version>
-        <mm-expenses-manager-product-api-version>0.2.5-SNAPSHOT</mm-expenses-manager-product-api-version>
+        <mm-expenses-manager-common-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-version>
+        <mm-expenses-manager-exception-version>0.2.6-SNAPSHOT</mm-expenses-manager-exception-version>
+        <mm-expenses-manager-product-api-version>0.2.6-SNAPSHOT</mm-expenses-manager-product-api-version>
     </properties>
 
     <dependencies>
@@ -68,19 +68,6 @@
         </dependency>
 
         <!-- Test dependencies -->
-
-        <!--<dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-jupiter-version}</version>
-            <scope>test</scope>
-        </dependency>-->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -105,12 +92,21 @@
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>${nl-jqno-equalsverifier-version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.yml</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <!-- Maven plugins -->
             <plugin>
@@ -125,7 +121,7 @@
                         </goals>
                         <configuration>
                             <delimiters>
-                                <delimiter>@</delimiter>
+                                <delimiter>${properties-delimiter}</delimiter>
                             </delimiters>
                             <useDefaultDelimiters>false</useDefaultDelimiters>
                         </configuration>
@@ -155,7 +151,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>0.2.0</version>
+                            <version>${lombok-mapstruct-binding-version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <showWarnings>true</showWarnings>
@@ -164,7 +160,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-version}</version>
                 <configuration>
                     <reuseForks>true</reuseForks>
                     <forkCount>2</forkCount>
@@ -172,13 +167,6 @@
                         <exclude>mm/expenses/manager/product/product/ProductMapperImpl.class</exclude>
                     </excludes>
                 </configuration>
-                <!--<dependencies>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>1.3.2</version>
-                    </dependency>
-                </dependencies>-->
             </plugin>
 
             <!-- Spring plugins -->
