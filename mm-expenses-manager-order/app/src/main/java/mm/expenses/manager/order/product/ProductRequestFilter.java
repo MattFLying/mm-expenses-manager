@@ -1,21 +1,25 @@
 package mm.expenses.manager.order.product;
 
-import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
+import mm.expenses.manager.common.web.exception.ApiBadRequestException;
+import mm.expenses.manager.order.product.exception.ProductExceptionMessage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-@RequiredArgsConstructor
-class ProductRequestFilter {
+record ProductRequestFilter(String name,
+                            BigDecimal price,
+                            BigDecimal priceMin,
+                            BigDecimal priceMax,
+                            Boolean lessThan,
+                            Boolean greaterThan) {
 
-    private final String name;
-    private final BigDecimal price;
-    private final BigDecimal priceMin;
-    private final BigDecimal priceMax;
-    private final boolean lessThan;
-    private final boolean greaterThan;
+    static final String NAME_PROPERTY = "name";
+    static final String PRICE_PROPERTY = "price";
+    static final String PRICE_MIN_PROPERTY = "priceMin";
+    static final String PRICE_MAX_PROPERTY = "priceMax";
+    static final String PRICE_LESS_THAN_PROPERTY = "lessThan";
+    static final String PRICE_GREATER_THAN_PROPERTY = "greaterThan";
 
     boolean isPriceNotRestrictedToBeLessOrGreater() {
         return Objects.nonNull(price) && !lessThan && !greaterThan;
@@ -33,15 +37,13 @@ class ProductRequestFilter {
         }
         if (isOnlyPriceLess()) {
             if (isPriceNotRestrictedToBeLessOrGreater()) {
-                //throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_PRICE_LESS_AND_GREATER.getCode(), "Price must be less or greater");
-                throw new ApiBadRequestException(null);
+                throw new ApiBadRequestException(ProductExceptionMessage.PRODUCT_PRICE_LESS_AND_GREATER);
             }
             return ProductFilter.BY_PRICE_LESS_THAN;
         }
         if (isOnlyPriceGreater()) {
             if (isPriceNotRestrictedToBeLessOrGreater()) {
-                //throw new ApiBadRequestException(ProductExceptionCode.PRODUCT_PRICE_LESS_AND_GREATER.getCode(), "Price must be less or greater");
-                throw new ApiBadRequestException(null);
+                throw new ApiBadRequestException(ProductExceptionMessage.PRODUCT_PRICE_LESS_AND_GREATER);
             }
             return ProductFilter.BY_PRICE_GREATER_THAN;
         }

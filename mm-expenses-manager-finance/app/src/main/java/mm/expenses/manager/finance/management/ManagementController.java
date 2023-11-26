@@ -1,8 +1,8 @@
 package mm.expenses.manager.finance.management;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.exception.ApiBadRequestException;
 import mm.expenses.manager.finance.api.management.ManagementApi;
 import mm.expenses.manager.finance.api.management.model.ExchangeRatesTrailsPage;
 import mm.expenses.manager.finance.api.management.model.OperationType;

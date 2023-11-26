@@ -1,7 +1,7 @@
 package mm.expenses.manager.product.exception;
 
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
-import mm.expenses.manager.common.beans.exception.api.ApiBadRequestException;
+import mm.expenses.manager.common.web.exception.ApiBadRequestException;
 
 /**
  * Validation exception for products.

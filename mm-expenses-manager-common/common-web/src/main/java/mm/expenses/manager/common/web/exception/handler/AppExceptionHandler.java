@@ -1,12 +1,11 @@
-package mm.expenses.manager.common.beans.exception.handler;
+package mm.expenses.manager.common.web.exception.handler;
 
 import jakarta.validation.Path;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.common.beans.exception.ExceptionMessage;
-import mm.expenses.manager.common.beans.exception.api.*;
 import mm.expenses.manager.common.exceptions.base.EmAppException;
 import mm.expenses.manager.common.exceptions.base.EmCheckedException;
 import mm.expenses.manager.common.exceptions.base.EmUncheckedException;
+import mm.expenses.manager.common.web.exception.*;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -16,11 +15,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.stream.Collectors;
-
-import static mm.expenses.manager.common.beans.exception.ExceptionMessage.fromApiException;
-import static mm.expenses.manager.common.beans.exception.ExceptionMessage.fromCustomException;
-import static mm.expenses.manager.common.beans.exception.ExceptionMessage.fromException;
-import static mm.expenses.manager.common.beans.exception.ExceptionMessage.of;
 
 @Slf4j
 @ControllerAdvice
@@ -45,6 +39,11 @@ public class AppExceptionHandler {
     @ExceptionHandler(ApiConflictException.class)
     ResponseEntity<ExceptionMessage> handleConflictException(final ApiConflictException conflict) {
         return messageApiException(conflict);
+    }
+
+    @ExceptionHandler(ApiMethodNotAllowed.class)
+    ResponseEntity<ExceptionMessage> handleApiMethodNotAllowed(final ApiMethodNotAllowed methodNotAllowed) {
+        return messageApiException(methodNotAllowed);
     }
 
     @ExceptionHandler(EmCheckedException.class)
@@ -77,7 +76,7 @@ public class AppExceptionHandler {
     }
 
     private ResponseEntity<ExceptionMessage> messageApiException(final ApiException exception) {
-        return new ResponseEntity<>(fromApiException(exception), exception.httpStatus());
+        return new ResponseEntity<>(ExceptionMessage.fromApiException(exception), exception.httpStatus());
     }
 
     private ResponseEntity<ExceptionMessage> messageValidationException(final RuntimeException exception) {
@@ -95,10 +94,10 @@ public class AppExceptionHandler {
                         .map(path -> extractValidationCode(path, badRequest))
                         .orElse(badRequest.getReasonPhrase());
 
-                return new ResponseEntity<>(of(code, message, badRequest), badRequest);
+                return new ResponseEntity<>(ExceptionMessage.of(code, message, badRequest), badRequest);
             }
         }
-        return new ResponseEntity<>(fromException(exception), badRequest);
+        return new ResponseEntity<>(ExceptionMessage.fromException(exception), badRequest);
     }
 
     private String extractValidationCode(Path path, HttpStatus statusAsDefault) {
@@ -114,15 +113,15 @@ public class AppExceptionHandler {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(" "));
-        return new ResponseEntity<>(of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ExceptionMessage.of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<ExceptionMessage> messageEmAppException(final EmAppException exception) {
-        return new ResponseEntity<>(fromCustomException(exception), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ExceptionMessage.fromCustomException(exception), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ExceptionMessage> message(final Exception exception) {
-        return new ResponseEntity<>(fromException(exception), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ExceptionMessage.fromException(exception), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

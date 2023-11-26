@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.exception.config.ErrorHandlingConfig;
+import mm.expenses.manager.common.web.config.ErrorHandlingConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.product.config.converter.BigDecimalToDecimal128Converter;

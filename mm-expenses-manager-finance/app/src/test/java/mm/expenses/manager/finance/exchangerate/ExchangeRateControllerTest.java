@@ -2,7 +2,7 @@ package mm.expenses.manager.finance.exchangerate;
 
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.common.beans.exception.ExceptionMessage;
+import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheServiceTest;
 import mm.expenses.manager.finance.currency.CurrenciesService;

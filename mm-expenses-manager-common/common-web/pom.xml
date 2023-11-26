@@ -11,15 +11,18 @@
         <version>0.2.5-SNAPSHOT</version>
     </parent>
 
-    <name>Expenses Manager Common Beans</name>
-    <description>Expenses Manager common beans.</description>
+    <name>Expenses Manager Common Web</name>
+    <description>Expenses Manager common web.</description>
 
-    <artifactId>common-beans</artifactId>
+    <artifactId>common-web</artifactId>
     <version>0.2.5-SNAPSHOT</version>
 
     <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-exceptions-version>0.2.5-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
+        <!-- Spring dependency versions -->
+        <spring-cloud-starter-netflix-hystrix-version>2.2.10.RELEASE</spring-cloud-starter-netflix-hystrix-version>
+
+        <!-- Other dependency versions -->
+        <hibernate-validator-version>8.0.1.Final</hibernate-validator-version>
     </properties>
 
     <dependencies>
@@ -30,6 +33,18 @@
             <version>${mm-expenses-manager-common-exceptions-version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-utils</artifactId>
+            <version>${mm-expenses-manager-common-utils-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-beans</artifactId>
+            <version>${mm-expenses-manager-common-beans-version}</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- Spring dependencies -->
         <dependency>
@@ -37,12 +52,55 @@
             <artifactId>spring-data-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+            <version>${spring-cloud-starter-netflix-hystrix-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Swagger dependencies -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <!-- Other dependencies -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator-version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit-jupiter-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Other dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -73,11 +131,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${spring-boot-version}</version>
-                        </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>

@@ -1,14 +1,13 @@
-package mm.expenses.manager.common.beans.exception.config;
+package mm.expenses.manager.common.web.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import feign.codec.ErrorDecoder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.common.beans.exception.ExceptionMessage;
-import mm.expenses.manager.common.beans.exception.feign.ApiFeignClientException;
+import mm.expenses.manager.common.web.exception.ExceptionMessage;
+import mm.expenses.manager.common.web.exception.feign.ApiFeignClientException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
@@ -33,9 +32,9 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
         return ApiFeignClientException.builder()
                 .status(HttpStatus.resolve(response.status()))
                 .headers(response.headers())
-                .message(responseBody.map(ResponseContent::getContent).orElse("Unknown error occurred"))
+                .message(responseBody.map(ResponseContent::content).orElse("Unknown error occurred"))
                 .methodKey(methodKey)
-                .errorResponse(responseBody.map(ResponseContent::getExceptionMessage).orElse(null))
+                .errorResponse(responseBody.map(ResponseContent::exceptionMessage).orElse(null))
                 .build();
     }
 
@@ -86,12 +85,7 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
         }
     }
 
-    @Data
-    @RequiredArgsConstructor
-    private static class ResponseContent {
-        private final String content;
-        private final ExceptionMessage exceptionMessage;
-
+    private record ResponseContent(String content, ExceptionMessage exceptionMessage) {
         static ResponseContent of(final String content, final Response response) {
             return new ResponseContent(
                     content,

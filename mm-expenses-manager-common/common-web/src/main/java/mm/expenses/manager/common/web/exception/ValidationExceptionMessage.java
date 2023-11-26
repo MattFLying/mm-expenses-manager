@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.beans.exception.api;
+package mm.expenses.manager.common.web.exception;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
