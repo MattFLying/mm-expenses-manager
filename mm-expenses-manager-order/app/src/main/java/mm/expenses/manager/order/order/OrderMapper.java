@@ -4,6 +4,7 @@ import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
 import mm.expenses.manager.order.api.order.model.*;
+import mm.expenses.manager.order.config.MapperImplNaming;
 import mm.expenses.manager.order.order.OrderEntity.OrderedProductEntity;
 import mm.expenses.manager.order.order.model.*;
 import mm.expenses.manager.order.order.model.Order.OrderedProduct;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        implementationName = MapperImplNaming.ORDER_MAPPER,
         imports = {StringUtils.class, Collectors.class, Order.class, DateUtils.class, IdUtils.class}
 )
 public interface OrderMapper extends AbstractMapper {
@@ -48,6 +50,8 @@ public interface OrderMapper extends AbstractMapper {
     @Mapping(target = "quantity", source = "newProduct.quantity")
     @Mapping(target = "createdAt", expression = "java(DateUtils.nowAsInstant())")
     @Mapping(target = "lastModifiedAt", expression = "java(DateUtils.nowAsInstant())")
+    @Mapping(target = "boughtProduct", source = "product")
+    @Mapping(target = "boughtProduct.productId", source = "product.id")
     OrderedProduct map(final CreateNewOrderedProductRequest newProduct, final Product product);
 
     OrderedProductEntity map(final OrderedProduct domain);
@@ -63,6 +67,7 @@ public interface OrderMapper extends AbstractMapper {
     @Mapping(target = "content", expression = "java(orderPage.getContent().stream().map(this::mapToResponse).collect(Collectors.toList()))")
     @Mapping(target = "hasNext", expression = "java(orderPage.hasNext())")
     @Mapping(target = "elements", source = "orderPage.numberOfElements")
+    @Mapping(target = "page", source = "orderPage.number")
     OrderPage mapToPageResponse(final Page<Order> orderPage);
 
 }

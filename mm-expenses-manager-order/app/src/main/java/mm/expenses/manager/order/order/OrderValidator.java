@@ -6,6 +6,7 @@ import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderedProductRequest;
 import mm.expenses.manager.order.order.model.*;
+import mm.expenses.manager.order.order.model.Order.OrderedProduct;
 import mm.expenses.manager.order.validator.DomainValidator.Validator;
 import mm.expenses.manager.order.validator.ValidatorMessage;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +44,7 @@ class OrderValidator implements Validator<Order, CreateNewOrderRequest, UpdateOr
         return validators;
     }
 
-    private Collection<ValidatorMessage> validateDomainOrderedProducts(final List<Order.OrderedProduct> objects) {
+    private Collection<ValidatorMessage> validateDomainOrderedProducts(final List<OrderedProduct> objects) {
         return objects.stream()
                 .map(orderedProduct -> validateProductQuantity(orderedProduct.getId(), orderedProduct.getQuantity()))
                 .flatMap(Collection::stream)

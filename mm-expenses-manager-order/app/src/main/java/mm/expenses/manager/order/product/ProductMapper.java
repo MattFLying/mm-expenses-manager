@@ -48,6 +48,7 @@ public interface ProductMapper extends AbstractMapper {
     @Mapping(target = "content", expression = "java(productPage.getContent().stream().map(this::mapToResponse).collect(Collectors.toList()))")
     @Mapping(target = "hasNext", expression = "java(productPage.hasNext())")
     @Mapping(target = "elements", source = "productPage.numberOfElements")
+    @Mapping(target = "page", source = "productPage.number")
     ProductPage mapToPageResponse(final Page<Product> productPage);
 
 }
