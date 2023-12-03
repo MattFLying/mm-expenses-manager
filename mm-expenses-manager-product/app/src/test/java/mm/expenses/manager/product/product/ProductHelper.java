@@ -46,18 +46,24 @@ public class ProductHelper {
         return request;
     }
 
-    public static UpdatePriceRequest updatePriceRequest(final CurrencyCode currency) {
-        var request = new UpdatePriceRequest();
-        request.setCurrency(Objects.nonNull(currency) ? currency.getCode() : null);
+    public static UpdateProductRequest updatePriceRequest(final CurrencyCode currency) {
+        var requestPrice = new UpdatePriceRequest();
+        requestPrice.setCurrency(Objects.nonNull(currency) ? currency.getCode() : null);
 
-        return request;
+        var requestProduct = new UpdateProductRequest();
+        requestProduct.setPrice(requestPrice);
+
+        return requestProduct;
     }
 
-    public static UpdatePriceRequest updatePriceRequest(final BigDecimal priceValue) {
-        var request = new UpdatePriceRequest();
-        request.setValue(priceValue);
+    public static UpdateProductRequest updatePriceRequest(final BigDecimal priceValue) {
+        var requestPrice = new UpdatePriceRequest();
+        requestPrice.setValue(priceValue);
 
-        return request;
+        var requestProduct = new UpdateProductRequest();
+        requestProduct.setPrice(requestPrice);
+
+        return requestProduct;
     }
 
     public static UpdateProductRequest updateProductRequest(final String name) {

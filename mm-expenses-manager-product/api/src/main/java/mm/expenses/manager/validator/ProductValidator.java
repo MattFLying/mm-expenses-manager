@@ -15,7 +15,7 @@ import static mm.expenses.manager.product.ProductCommonValidation.*;
 class ProductValidator implements ConstraintValidator<ValidateProduct, Object> {
 
     @Override
-    public boolean isValid(Object request, ConstraintValidatorContext context) {
+    public boolean isValid(final Object request, final ConstraintValidatorContext context) {
         if (request instanceof CreateProductRequest newRequest) {
             return isNewProductRequestValid(newRequest, context);
         }
