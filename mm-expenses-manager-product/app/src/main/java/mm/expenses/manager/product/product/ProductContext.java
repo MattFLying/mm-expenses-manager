@@ -34,28 +34,26 @@ public class ProductContext {
 
     public static Page<Product> findAll(final ProductQueryFilter queryFilter, final Pageable pageable) {
         final var filter = queryFilter.findFilter();
-        switch (filter) {
-            case NAME:
-                return RepositoryRegistry.productRepository().findByName(queryFilter.getName(), pageable);
-            case PRICE:
-                return RepositoryRegistry.productRepository().findByPrice_valueAndIsDeletedFalse(queryFilter.getPrice(), pageable);
-            case NAME_PRICE:
-                return RepositoryRegistry.productRepository().findByNameAndPrice_value(queryFilter.getName(), queryFilter.getPrice(), pageable);
-            case NAME_PRICE_LESS_THAN:
-                return RepositoryRegistry.productRepository().findByNameAndPrice_valueLessThan(queryFilter.getName(), queryFilter.getPrice(), pageable);
-            case NAME_PRICE_GREATER_THAN:
-                return RepositoryRegistry.productRepository().findByNameAndPrice_valueGreaterThan(queryFilter.getName(), queryFilter.getPrice(), pageable);
-            case NAME_PRICE_MIN_PRICE_MAX:
-                return RepositoryRegistry.productRepository().findByNameAndPrice_valueBetween(queryFilter.getName(), queryFilter.getPriceMin(), queryFilter.getPriceMax(), pageable);
-            case PRICE_LESS_THAN:
-                return RepositoryRegistry.productRepository().findByPrice_valueLessThanAndIsDeletedFalse(queryFilter.getPrice(), pageable);
-            case PRICE_GREATER_THAN:
-                return RepositoryRegistry.productRepository().findByPrice_valueGreaterThanAndIsDeletedFalse(queryFilter.getPrice(), pageable);
-            case PRICE_MIN_PRICE_MAX:
-                return RepositoryRegistry.productRepository().findByPrice_valueBetweenAndIsDeletedFalse(queryFilter.getPriceMin(), queryFilter.getPriceMax(), pageable);
-            default:
-                return RepositoryRegistry.productRepository().findAllByIsDeletedFalse(pageable);
-        }
+        return switch (filter) {
+            case NAME -> RepositoryRegistry.productRepository().findByName(queryFilter.name(), pageable);
+            case PRICE ->
+                    RepositoryRegistry.productRepository().findByPrice_valueAndIsDeletedFalse(queryFilter.price(), pageable);
+            case NAME_PRICE ->
+                    RepositoryRegistry.productRepository().findByNameAndPrice_value(queryFilter.name(), queryFilter.price(), pageable);
+            case NAME_PRICE_LESS_THAN ->
+                    RepositoryRegistry.productRepository().findByNameAndPrice_valueLessThan(queryFilter.name(), queryFilter.price(), pageable);
+            case NAME_PRICE_GREATER_THAN ->
+                    RepositoryRegistry.productRepository().findByNameAndPrice_valueGreaterThan(queryFilter.name(), queryFilter.price(), pageable);
+            case NAME_PRICE_MIN_PRICE_MAX ->
+                    RepositoryRegistry.productRepository().findByNameAndPrice_valueBetween(queryFilter.name(), queryFilter.priceMin(), queryFilter.priceMax(), pageable);
+            case PRICE_LESS_THAN ->
+                    RepositoryRegistry.productRepository().findByPrice_valueLessThanAndIsDeletedFalse(queryFilter.price(), pageable);
+            case PRICE_GREATER_THAN ->
+                    RepositoryRegistry.productRepository().findByPrice_valueGreaterThanAndIsDeletedFalse(queryFilter.price(), pageable);
+            case PRICE_MIN_PRICE_MAX ->
+                    RepositoryRegistry.productRepository().findByPrice_valueBetweenAndIsDeletedFalse(queryFilter.priceMin(), queryFilter.priceMax(), pageable);
+            default -> RepositoryRegistry.productRepository().findAllByIsDeletedFalse(pageable);
+        };
     }
 
 }

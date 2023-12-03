@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.product.ProductApplicationTest;
+import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.hamcrest.Matchers;
@@ -349,7 +350,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.status().isNotFound());
         }
 
-        /*@Test
+        @Test
         void shouldReturnConflict_whenNoDataToUpdateWasPassed() throws Exception {
             // given
             final var existed = createProduct();
@@ -362,7 +363,7 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isConflict())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
-        }*/
+        }
 
         @Test
         void shouldUpdateProduct() throws Exception {

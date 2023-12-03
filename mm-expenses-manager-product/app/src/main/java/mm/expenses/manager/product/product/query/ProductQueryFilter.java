@@ -1,8 +1,5 @@
 package mm.expenses.manager.product.product.query;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -12,10 +9,12 @@ import java.util.StringJoiner;
 /**
  * Filter for querying products.
  */
-@Data
-@Builder
-@RequiredArgsConstructor
-public class ProductQueryFilter {
+public record ProductQueryFilter(String name,
+                                 BigDecimal price,
+                                 BigDecimal priceMin,
+                                 BigDecimal priceMax,
+                                 Boolean lessThan,
+                                 Boolean greaterThan) {
 
     private static final String FILTER_DELIMITER = "_";
     private static final String NAME_FILTER = "name";
@@ -24,16 +23,6 @@ public class ProductQueryFilter {
     private static final String PRICE_MAX_FILTER = "price_max";
     private static final String PRICE_LESS_THAN_FILTER = "less_than";
     private static final String PRICE_GREATER_THAN_FILTER = "greater_than";
-
-    private final String name;
-
-    private final BigDecimal price;
-
-    private final BigDecimal priceMin;
-    private final BigDecimal priceMax;
-
-    private final Boolean lessThan;
-    private final Boolean greaterThan;
 
     /**
      * @return checks if price min is not null.
