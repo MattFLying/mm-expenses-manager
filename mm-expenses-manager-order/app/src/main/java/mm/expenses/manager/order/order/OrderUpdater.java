@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderedProductRequest;
+import mm.expenses.manager.order.order.OrderEntity.OrderedProductEntity;
 import mm.expenses.manager.order.order.exception.OrderUpdateException;
 import mm.expenses.manager.order.order.exception.OrderValidationException;
 import mm.expenses.manager.order.order.model.*;
@@ -59,7 +60,7 @@ class OrderUpdater {
         return mergeSameOrderedProducts(allOrderedProducts);
     }
 
-    private List<OrderedProduct> updateOrderedProducts(final List<OrderEntity.OrderedProductEntity> productsFromEntity, final List<UpdateOrderedProductRequest> updatedProducts) {
+    private List<OrderedProduct> updateOrderedProducts(final List<OrderedProductEntity> productsFromEntity, final List<UpdateOrderedProductRequest> updatedProducts) {
         final var updatedByIds = updatedProducts.stream().collect(Collectors.toMap(UpdateOrderedProductRequest::getId, Function.identity()));
         final var result = productsFromEntity.stream()
                 .filter(productFromEntity -> updatedByIds.containsKey(productFromEntity.getId()))
@@ -70,7 +71,7 @@ class OrderUpdater {
         return result;
     }
 
-    private OrderEntity.OrderedProductEntity update(final OrderEntity.OrderedProductEntity productFromEntity, final UpdateOrderedProductRequest updateOrderedProduct) {
+    private OrderedProductEntity update(final OrderedProductEntity productFromEntity, final UpdateOrderedProductRequest updateOrderedProduct) {
         if (productFromEntity.getQuantity().equals(updateOrderedProduct.getQuantity())) {
             return productFromEntity;
         }
@@ -95,7 +96,7 @@ class OrderUpdater {
                         .stream()
                         .map(Map.Entry::getValue)
                         .flatMap(Collection::stream)
-                        .collect(Collectors.toList())
+                        .toList()
         );
         allProducts.addAll(
                 groupedByProductId.getOrDefault(OrderForTheSameProduct.YES, Collections.emptyList())
@@ -103,7 +104,7 @@ class OrderUpdater {
                         .map(Map.Entry::getValue)
                         .map(this::mergeOrdersForTheSameProduct)
                         .flatMap(Collection::stream)
-                        .collect(Collectors.toList())
+                        .toList()
         );
         return allProducts;
     }
