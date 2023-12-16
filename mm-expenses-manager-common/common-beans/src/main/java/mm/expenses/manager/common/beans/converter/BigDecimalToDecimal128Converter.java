@@ -1,7 +1,7 @@
-package mm.expenses.manager.product.config.converter;
+package mm.expenses.manager.common.beans.converter;
 
-import mm.expenses.manager.product.exception.ConversionException;
-import mm.expenses.manager.product.exception.ProductExceptionMessage;
+import mm.expenses.manager.common.beans.exception.BeansExceptionMessage;
+import mm.expenses.manager.common.beans.exception.ConversionException;
 import org.bson.types.Decimal128;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.WritingConverter;
@@ -19,7 +19,7 @@ public class BigDecimalToDecimal128Converter implements Converter<BigDecimal, De
         try {
             return new Decimal128(source);
         } catch (final IllegalArgumentException | NullPointerException exception) {
-            throw new ConversionException(ProductExceptionMessage.CANNOT_CONVERT_BIG_DECIMAL_TO_DECIMAL128, exception);
+            throw new ConversionException(BeansExceptionMessage.CANNOT_CONVERT_BIG_DECIMAL_TO_DECIMAL128, exception);
         }
     }
 

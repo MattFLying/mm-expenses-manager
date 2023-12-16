@@ -1,35 +1,19 @@
 package mm.expenses.manager.product.config;
 
 import lombok.Data;
+import mm.expenses.manager.common.web.config.AppConfigProperties;
+import mm.expenses.manager.common.web.config.Contact;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app.configuration")
-class AppConfig {
+class AppConfig implements AppConfigProperties {
 
     private String name;
     private String description;
     private String version;
-
     private Contact contact;
-
-    String getDeveloperNameWithRole() {
-        return String.format("%s - %s", contact.getName(), contact.getRole());
-    }
-
-    String getDeveloperEmail() {
-        return contact.getEmail();
-    }
-
-    @Data
-    static class Contact {
-
-        private String name;
-        private String email;
-        private String role;
-
-    }
 
 }

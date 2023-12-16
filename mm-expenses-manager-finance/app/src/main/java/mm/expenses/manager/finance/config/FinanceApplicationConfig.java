@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.pagination.PaginationConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.web.config.ErrorHandlingConfig;
+import mm.expenses.manager.common.web.config.OpenApiConfig;
+import mm.expenses.manager.common.web.config.WebMvcConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,7 +24,9 @@ import java.util.Objects;
 @Generated
 @Configuration
 @RequiredArgsConstructor
-@Import({ErrorHandlingConfig.class, PaginationConfig.class})
+@Import({
+        ErrorHandlingConfig.class, PaginationConfig.class, WebMvcConfig.class, OpenApiConfig.class
+})
 class FinanceApplicationConfig {
 
     private static final int INITIAL_POOL_SIZE = 100;
@@ -61,6 +65,11 @@ class FinanceApplicationConfig {
     @Bean
     PaginationHelper paginationHelper(final PaginationConfig paginationConfig) {
         return new PaginationHelper(paginationConfig);
+    }
+
+    @Bean
+    OpenApiConfig openApiConfig(final AppConfig appConfig) {
+        return new OpenApiConfig(appConfig);
     }
 
 }

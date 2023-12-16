@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.config;
+package mm.expenses.manager.common.web.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-class OpenApiConfig {
+public class OpenApiConfig {
 
-    private final AppConfig appConfig;
+    private final AppConfigProperties appConfig;
 
     @Bean
     OpenAPI openApi() {
