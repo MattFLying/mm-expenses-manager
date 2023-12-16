@@ -45,10 +45,22 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- Mongodb Bson dependencies -->
+        <!-- Other dependencies -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
