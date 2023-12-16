@@ -27,7 +27,7 @@ class FinanceApplicationConfig {
 
     private static final int INITIAL_POOL_SIZE = 100;
 
-    private final AppConfig config;
+    private final ApplicationConfig config;
 
     @Bean
     ObjectMapper objectMapper() {
@@ -54,7 +54,7 @@ class FinanceApplicationConfig {
     }
 
     @Bean
-    OpenApiConfig openApiConfig(final AppConfig appConfig) {
+    OpenApiConfig openApiConfig(final ApplicationConfig appConfig) {
         return new OpenApiConfig(appConfig);
     }
 

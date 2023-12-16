@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Interface provides application default properties.
  */
-public interface AppConfigProperties {
+public interface ApplicationConfigProperties {
 
     /**
      * Gets application name.

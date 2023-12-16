@@ -11,20 +11,20 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class OpenApiConfig {
 
-    private final AppConfigProperties appConfig;
+    private final ApplicationConfigProperties applicationConfig;
 
     @Bean
     OpenAPI openApi() {
         return new OpenAPI().info(new Info()
-                .title(appConfig.getName())
-                .description(appConfig.getDescription())
-                .version(appConfig.getVersion())
+                .title(applicationConfig.getName())
+                .description(applicationConfig.getDescription())
+                .version(applicationConfig.getVersion())
                 .contact(buildContact())
         );
     }
 
     private Contact buildContact() {
-        return new Contact().name(appConfig.getDeveloperNameWithRole()).email(appConfig.getDeveloperEmail());
+        return new Contact().name(applicationConfig.getDeveloperNameWithRole()).email(applicationConfig.getDeveloperEmail());
     }
 
 }
