@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 @RequiredArgsConstructor
 public enum ValidationExceptionMessage implements ExceptionType {
-    VALIDATION_EXCEPTION("validation-exception", "So...?");
+    VALIDATION_EXCEPTION("validation-exception", "Validation exception.");
 
     private final String code;
     private final String message;
