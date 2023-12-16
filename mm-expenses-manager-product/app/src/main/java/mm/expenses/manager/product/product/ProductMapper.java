@@ -3,7 +3,6 @@ package mm.expenses.manager.product.product;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.product.api.product.model.*;
-import mm.expenses.manager.product.config.MapperImplNaming;
 import mm.expenses.manager.product.price.Price;
 import mm.expenses.manager.product.product.command.CreateProductCommand;
 import mm.expenses.manager.product.product.command.UpdateProductCommand;
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.PRODUCT_MAPPER,
         imports = {Collectors.class, StringUtils.class, DateUtils.class}
 )
 public interface ProductMapper extends AbstractMapper {

@@ -4,7 +4,6 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.api.exchangerate.model.*;
-import mm.expenses.manager.finance.config.MapperImplNaming;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate.Rate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
@@ -21,7 +20,6 @@ import java.util.stream.Stream;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.EXCHANGE_RATE_MAPPER,
         imports = {Collectors.class, List.class, DateUtils.class, Map.class, HashMap.class}
 )
 public abstract class ExchangeRateMapper implements AbstractMapper {

@@ -6,7 +6,6 @@ import mm.expenses.manager.order.api.product.model.CreateNewProductRequest;
 import mm.expenses.manager.order.api.product.model.ProductPage;
 import mm.expenses.manager.order.api.product.model.ProductResponse;
 import mm.expenses.manager.order.api.product.model.UpdateProductRequest;
-import mm.expenses.manager.order.config.MapperImplNaming;
 import mm.expenses.manager.order.product.model.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.PRODUCT_MAPPER,
         imports = {Collectors.class, StringUtils.class, DateUtils.class}
 )
 public interface ProductMapper extends AbstractMapper {

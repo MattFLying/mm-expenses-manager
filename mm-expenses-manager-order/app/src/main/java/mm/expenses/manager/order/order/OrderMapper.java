@@ -4,7 +4,6 @@ import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
 import mm.expenses.manager.order.api.order.model.*;
-import mm.expenses.manager.order.config.MapperImplNaming;
 import mm.expenses.manager.order.order.OrderEntity.OrderedProductEntity;
 import mm.expenses.manager.order.order.model.*;
 import mm.expenses.manager.order.order.model.Order.OrderedProduct;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.ORDER_MAPPER,
         imports = {StringUtils.class, Collectors.class, Order.class, DateUtils.class, IdUtils.class}
 )
 public interface OrderMapper extends AbstractMapper {

@@ -5,7 +5,6 @@ import mm.expenses.manager.finance.api.management.model.ExchangeRateTrailDto;
 import mm.expenses.manager.finance.api.management.model.ExchangeRatesTrailsPage;
 import mm.expenses.manager.finance.api.management.model.OperationType;
 import mm.expenses.manager.finance.api.management.model.StateType;
-import mm.expenses.manager.finance.config.MapperImplNaming;
 import mm.expenses.manager.finance.exchangerate.trail.ExchangeRateTrail;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation;
 import mm.expenses.manager.finance.exchangerate.trail.TrailOperation.State;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.TRAIL_MAPPER,
         imports = {Collectors.class}
 )
 public interface TrailMapper extends AbstractMapper {
