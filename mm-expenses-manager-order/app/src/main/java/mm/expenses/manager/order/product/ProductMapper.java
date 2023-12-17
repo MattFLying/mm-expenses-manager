@@ -25,6 +25,8 @@ public interface ProductMapper extends AbstractMapper {
     @Mapping(target = "name", expression = "java(StringUtils.trim(newProduct.getName()))")
     @Mapping(target = "createdAt", source = "creationTime")
     @Mapping(target = "lastModifiedAt", source = "creationTime")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     Product map(final CreateNewProductRequest newProduct, final Instant creationTime);
 
     @Mapping(target = "name", expression = "java(StringUtils.trim(updateProduct.getName()))")

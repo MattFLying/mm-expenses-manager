@@ -29,6 +29,7 @@ public interface OrderMapper extends AbstractMapper {
     @Mapping(target = "priceSummary", expression = "java(Order.calculatePriceSummary(productOrders))")
     @Mapping(target = "createdAt", source = "creationTime")
     @Mapping(target = "lastModifiedAt", source = "creationTime")
+    @Mapping(target = "id", ignore = true)
     Order map(final CreateNewOrderRequest newProduct, final List<OrderedProduct> productOrders, final Instant creationTime);
 
     @Mapping(target = "name", expression = "java(StringUtils.trim(updateProduct.getName()))")
