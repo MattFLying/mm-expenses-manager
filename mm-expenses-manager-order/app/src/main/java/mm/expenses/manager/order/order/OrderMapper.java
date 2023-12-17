@@ -4,7 +4,6 @@ import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
 import mm.expenses.manager.order.api.order.model.*;
-import mm.expenses.manager.order.config.MapperImplNaming;
 import mm.expenses.manager.order.order.OrderEntity.OrderedProductEntity;
 import mm.expenses.manager.order.order.model.*;
 import mm.expenses.manager.order.order.model.Order.OrderedProduct;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.ORDER_MAPPER,
         imports = {StringUtils.class, Collectors.class, Order.class, DateUtils.class, IdUtils.class}
 )
 public interface OrderMapper extends AbstractMapper {
@@ -31,6 +29,7 @@ public interface OrderMapper extends AbstractMapper {
     @Mapping(target = "priceSummary", expression = "java(Order.calculatePriceSummary(productOrders))")
     @Mapping(target = "createdAt", source = "creationTime")
     @Mapping(target = "lastModifiedAt", source = "creationTime")
+    @Mapping(target = "id", ignore = true)
     Order map(final CreateNewOrderRequest newProduct, final List<OrderedProduct> productOrders, final Instant creationTime);
 
     @Mapping(target = "name", expression = "java(StringUtils.trim(updateProduct.getName()))")

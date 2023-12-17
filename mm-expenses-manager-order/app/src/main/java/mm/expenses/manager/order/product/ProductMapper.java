@@ -6,7 +6,6 @@ import mm.expenses.manager.order.api.product.model.CreateNewProductRequest;
 import mm.expenses.manager.order.api.product.model.ProductPage;
 import mm.expenses.manager.order.api.product.model.ProductResponse;
 import mm.expenses.manager.order.api.product.model.UpdateProductRequest;
-import mm.expenses.manager.order.config.MapperImplNaming;
 import mm.expenses.manager.order.product.model.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.PRODUCT_MAPPER,
         imports = {Collectors.class, StringUtils.class, DateUtils.class}
 )
 public interface ProductMapper extends AbstractMapper {
@@ -27,6 +25,8 @@ public interface ProductMapper extends AbstractMapper {
     @Mapping(target = "name", expression = "java(StringUtils.trim(newProduct.getName()))")
     @Mapping(target = "createdAt", source = "creationTime")
     @Mapping(target = "lastModifiedAt", source = "creationTime")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     Product map(final CreateNewProductRequest newProduct, final Instant creationTime);
 
     @Mapping(target = "name", expression = "java(StringUtils.trim(updateProduct.getName()))")

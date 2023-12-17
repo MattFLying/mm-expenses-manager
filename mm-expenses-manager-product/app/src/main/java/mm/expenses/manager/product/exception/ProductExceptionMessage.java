@@ -25,15 +25,10 @@ public enum ProductExceptionMessage implements ExceptionType {
     PRODUCT_NAME_NOT_VALID(ProductsExceptionMessage.PRODUCT_NAME_EMPTY),
     PRODUCT_PRICE_CURRENCY_NOT_VALID(ProductsExceptionMessage.PRODUCT_PRICE_CURRENCY_UNDEFINED),
     PRODUCT_PRICE_VALUE_NOT_VALID(ProductsExceptionMessage.PRODUCT_PRICE_VALUE_LESS_THAN_0),
-    PRODUCT_DETAILS_NOT_VALID(ProductsExceptionMessage.PRODUCT_DETAILS_INVALID),
     PRODUCT_NO_UPDATE_DATA("product-no-update-data-passed-error", "Data to update product have no be passed. Nothing to update."),
 
     // rest
-    PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED("page-size-and-page-number-must-be-passed-error", "Both page number and page size must be filled"),
-
-    // conversion
-    CANNOT_CONVERT_BIG_DECIMAL_TO_DECIMAL128("conversion-error", "Conversion error."),
-    CANNOT_CONVERT_DECIMAL128_TO_BIG_DECIMAL("conversion-error", "Conversion error.");
+    PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED("page-size-and-page-number-must-be-passed-error", "Both page number and page size must be filled");
 
     private final String code;
     private final String message;

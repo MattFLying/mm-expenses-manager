@@ -1,9 +1,7 @@
-package mm.expenses.manager.product.config.converter;
+package mm.expenses.manager.common.beans.converter;
 
-import mm.expenses.manager.product.BaseInitTest;
-import mm.expenses.manager.product.exception.ConversionException;
-import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import org.assertj.core.api.Assertions;
+import mm.expenses.manager.common.beans.exception.BeansExceptionMessage;
+import mm.expenses.manager.common.beans.exception.ConversionException;
 import org.bson.types.Decimal128;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +10,7 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class Decimal128ToBigDecimalConverterTest extends BaseInitTest {
+class Decimal128ToBigDecimalConverterTest {
 
     private final Decimal128ToBigDecimalConverter converter = new Decimal128ToBigDecimalConverter();
 
@@ -31,8 +29,9 @@ class Decimal128ToBigDecimalConverterTest extends BaseInitTest {
 
     @Test
     void shouldThrowConversionException_whenSomethingWrong() {
-        Assertions.assertThatThrownBy(() -> converter.convert(null))
+        assertThatThrownBy(() -> converter.convert(null))
                 .isInstanceOf(ConversionException.class)
-                .hasMessage(ProductExceptionMessage.CANNOT_CONVERT_BIG_DECIMAL_TO_DECIMAL128.getMessage());
+                .hasMessage(BeansExceptionMessage.CANNOT_CONVERT_BIG_DECIMAL_TO_DECIMAL128.getMessage());
     }
+
 }

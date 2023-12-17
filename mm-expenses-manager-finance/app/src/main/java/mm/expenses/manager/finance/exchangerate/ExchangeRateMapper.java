@@ -4,7 +4,6 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.api.exchangerate.model.*;
-import mm.expenses.manager.finance.config.MapperImplNaming;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate.Rate;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
@@ -21,7 +20,6 @@ import java.util.stream.Stream;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.EXCHANGE_RATE_MAPPER,
         imports = {Collectors.class, List.class, DateUtils.class, Map.class, HashMap.class}
 )
 public abstract class ExchangeRateMapper implements AbstractMapper {
@@ -40,6 +38,8 @@ public abstract class ExchangeRateMapper implements AbstractMapper {
     @Mapping(target = "detailsByProvider", expression = "java(new HashMap<>(Map.of(providers.getProviderName(), domain.getDetails())))")
     @Mapping(target = "createdAt", source = "now")
     @Mapping(target = "modifiedAt", source = "now")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     abstract ExchangeRate map(final CurrencyRate domain, final Instant now);
 
     @Mapping(target = "currency", expression = "java(currency.getCode())")
@@ -53,6 +53,7 @@ public abstract class ExchangeRateMapper implements AbstractMapper {
     @Mapping(target = "content", expression = "java(map(getCurrencyForPage(page), sortByDateByTheNewest(page.getContent())))")
     @Mapping(target = "hasNext", expression = "java(page.hasNext())")
     @Mapping(target = "elements", source = "page.numberOfElements")
+    @Mapping(target = "page", source = "page.number")
     abstract ExchangeRatePage mapToPageResponse(final Page<ExchangeRate> page);
 
     abstract ExchangeRatesAccumulatePage mapAccumulatePage(final List<ExchangeRatePage> content, final Integer currencies, final Integer exchangeRates, final Long totalExchangeRates);

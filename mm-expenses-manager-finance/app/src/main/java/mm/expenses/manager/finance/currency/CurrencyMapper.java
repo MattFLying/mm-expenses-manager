@@ -7,7 +7,6 @@ import mm.expenses.manager.finance.api.currency.model.CountryDto;
 import mm.expenses.manager.finance.api.currency.model.CurrencyCodeDto;
 import mm.expenses.manager.finance.api.currency.model.CurrencyDto;
 import mm.expenses.manager.finance.api.currency.model.CurrencyInfoDto;
-import mm.expenses.manager.finance.config.MapperImplNaming;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.CURRENCY_MAPPER,
         imports = {Collectors.class, Comparator.class}
 )
 public interface CurrencyMapper extends AbstractMapper {

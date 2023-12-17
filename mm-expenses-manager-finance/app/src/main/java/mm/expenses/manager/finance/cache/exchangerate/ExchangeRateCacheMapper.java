@@ -7,7 +7,6 @@ import mm.expenses.manager.finance.api.exchangerate.model.ExchangeRateDto;
 import mm.expenses.manager.finance.api.exchangerate.model.ExchangeRatesDto;
 import mm.expenses.manager.finance.api.exchangerate.model.RateDto;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache.RateCache;
-import mm.expenses.manager.finance.config.MapperImplNaming;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,7 +20,6 @@ import java.util.stream.Stream;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.EXCHANGE_RATE_CACHE_MAPPER,
         imports = {Collectors.class, List.class}
 )
 public interface ExchangeRateCacheMapper extends AbstractMapper {

@@ -3,14 +3,12 @@ package mm.expenses.manager.product.price;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.product.api.product.model.*;
-import mm.expenses.manager.product.config.MapperImplNaming;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(
         componentModel = AbstractMapper.COMPONENT_MODEL, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        implementationName = MapperImplNaming.PRICE_MAPPER,
         imports = {CurrencyCode.class}
 )
 public interface PriceMapper extends AbstractMapper {

@@ -1,12 +1,14 @@
-package mm.expenses.manager.product.config;
+package mm.expenses.manager.common.web.config;
 
+import mm.expenses.manager.common.web.api.WebHttpMethod;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
+
 @Configuration
-class WebMvcConfig implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
@@ -18,10 +20,7 @@ class WebMvcConfig implements WebMvcConfigurer {
     }
 
     private String[] allowedCorsHttpMethods() {
-        return new String[]{
-                HttpMethod.DELETE.name(), HttpMethod.GET.name(), HttpMethod.OPTIONS.name(),
-                HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.PUT.name(), HttpMethod.PATCH.name()
-        };
+        return Arrays.stream(WebHttpMethod.values()).map(Enum::name).toArray(String[]::new);
     }
 
 }
