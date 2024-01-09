@@ -1,11 +1,11 @@
 package mm.expenses.manager.product;
 
 import junitparams.JUnitParamsRunner;
+import mm.expenses.manager.product.async.AsyncMessageSender;
 import mm.expenses.manager.product.repository.ProductRepository;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,9 +36,13 @@ public class ProductApplicationTest extends BaseInitTest {
     @MockBean
     protected ProductRepository productRepository;
 
+    @MockBean
+    protected AsyncMessageSender asyncProducer;
+
     @Override
     protected void setupAfterEachTest() {
-        Mockito.reset(productRepository);
+        reset(productRepository);
+        reset(asyncProducer);
     }
 
 }

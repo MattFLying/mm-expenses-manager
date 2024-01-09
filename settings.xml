@@ -5,4 +5,11 @@
     <localRepository>${HOME}/.m2/repository</localRepository>
     <interactiveMode>false</interactiveMode>
 
+    <offline/>
+    <pluginGroups/>
+    <servers/>
+    <mirrors/>
+    <proxies/>
+    <profiles/>
+    <activeProfiles/>
 </settings>

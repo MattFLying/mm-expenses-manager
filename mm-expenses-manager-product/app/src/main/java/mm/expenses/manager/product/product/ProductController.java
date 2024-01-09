@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -78,7 +79,7 @@ class ProductController implements ProductApi {
 
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ProductResponse findById(@PathVariable("id") final String id) {
+    public ProductResponse findById(@PathVariable("id") final UUID id) {
         final var product = Product.findById(id);
         return productMapper.map(product, priceMapper.map(product.getPrice()));
     }
@@ -95,7 +96,7 @@ class ProductController implements ProductApi {
     @Override
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ProductResponse update(@PathVariable("id") final String id, @RequestBody final UpdateProductRequest updateProductRequest) {
+    public ProductResponse update(@PathVariable("id") final UUID id, @RequestBody final UpdateProductRequest updateProductRequest) {
         if (!isAnyUpdateProduct(updateProductRequest)) {
             throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
         }
@@ -107,7 +108,7 @@ class ProductController implements ProductApi {
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void deleteById(@PathVariable("id") final String id) {
+    public void deleteById(@PathVariable("id") final UUID id) {
         Product.delete(id);
     }
 

@@ -25,8 +25,8 @@ class ProductSchedulerTest extends ProductApplicationTest {
     @Test
     void shouldDeleteMarkedAsDeleted() {
         // given
-        final var existed_1 = createProduct().toBuilder().id(UUID.randomUUID().toString()).isDeleted(true).build();
-        final var existed_2 = createProduct().toBuilder().id(UUID.randomUUID().toString()).isDeleted(true).build();
+        final var existed_1 = createProduct().toBuilder().id(UUID.randomUUID()).isDeleted(true).build();
+        final var existed_2 = createProduct().toBuilder().id(UUID.randomUUID()).isDeleted(true).build();
 
         // when
         Mockito.when(productRepository.findAllByIsDeletedTrue(eq(pagination.getPageRequest(0, 50)))).thenReturn(new PageImpl<>(List.of(existed_1, existed_2)));

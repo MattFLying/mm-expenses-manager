@@ -5,12 +5,16 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.product.ProductApplicationTest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
+import mm.expenses.manager.product.async.message.ProductMessage;
+import mm.expenses.manager.product.async.message.ProductMessage.Operation;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
@@ -25,7 +29,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static mm.expenses.manager.product.product.ProductHelper.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 class ProductControllerTest extends ProductApplicationTest {
@@ -34,6 +40,9 @@ class ProductControllerTest extends ProductApplicationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Captor
+    private ArgumentCaptor<ProductMessage> productMessageArgumentCaptor;
 
     @Nested
     class FindAll_ErrorCodes {
@@ -201,11 +210,21 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated())
-                    .andExpect(jsonPath("$.id", is(expectedResult.getId())))
+                    .andExpect(jsonPath("$.id", is(expectedResult.getId().toString())))
                     .andExpect(jsonPath("$.name", is(expectedResult.getName())))
                     .andExpect(jsonPath("$.price.value", is(expectedResult.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.price.currency", is(expectedResult.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.details", is(expectedResult.getDetails())));
+
+            verify(asyncProducer, times(1)).send(productMessageArgumentCaptor.capture());
+            final var event = productMessageArgumentCaptor.getValue();
+            assertThat(event).isNotNull();
+            assertThat(event.getId()).isEqualTo(expectedResult.getId());
+            assertThat(event.getName()).isEqualTo(expectedResult.getName());
+            assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expectedResult.getPrice().getValue().doubleValue());
+            assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expectedResult.getPrice().getCurrency().toString());
+            assertThat(event.getDetails()).isEqualTo(expectedResult.getDetails());
+            assertThat(event.getOperation()).isEqualTo(Operation.CREATE);
         }
 
         @Test
@@ -219,6 +238,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -230,6 +251,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -241,6 +264,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -252,6 +277,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -263,6 +290,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -274,6 +303,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -285,6 +316,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
+
+            verifyNoInteractions(asyncProducer);
         }
 
     }
@@ -307,6 +340,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -322,6 +357,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -337,6 +374,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -348,6 +387,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -363,6 +404,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.patch(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isConflict())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -386,11 +429,21 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID.toString())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.is(newName)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.price.value", Matchers.is(newPriceValue.doubleValue())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.price.currency", Matchers.is(newPriceCurrency.getCode())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.details", Matchers.is(newDetails)));
+
+            verify(asyncProducer, times(1)).send(productMessageArgumentCaptor.capture());
+            final var event = productMessageArgumentCaptor.getValue();
+            assertThat(event).isNotNull();
+            assertThat(event.getId()).isEqualTo(expected.getId());
+            assertThat(event.getName()).isEqualTo(expected.getName());
+            assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
+            assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
+            assertThat(event.getDetails()).isEqualTo(expected.getDetails());
+            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
         }
 
         @Test
@@ -411,11 +464,21 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID.toString())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.is(newName)))
                     .andExpect(jsonPath("$.price.value", is(existed.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.price.currency", is(existed.getPrice().getCurrency().getCode())))
                     .andExpect(jsonPath("$.details", is(existed.getDetails())));
+
+            verify(asyncProducer, times(1)).send(productMessageArgumentCaptor.capture());
+            final var event = productMessageArgumentCaptor.getValue();
+            assertThat(event).isNotNull();
+            assertThat(event.getId()).isEqualTo(expected.getId());
+            assertThat(event.getName()).isEqualTo(expected.getName());
+            assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
+            assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
+            assertThat(event.getDetails()).isEqualTo(expected.getDetails());
+            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
         }
 
         @Test
@@ -436,11 +499,21 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID.toString())))
                     .andExpect(jsonPath("$.name", is(existed.getName())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.price.value", Matchers.is(newPriceValue.doubleValue())))
                     .andExpect(jsonPath("$.price.currency", is(existed.getPrice().getCurrency().getCode())))
                     .andExpect(jsonPath("$.details", is(existed.getDetails())));
+
+            verify(asyncProducer, times(1)).send(productMessageArgumentCaptor.capture());
+            final var event = productMessageArgumentCaptor.getValue();
+            assertThat(event).isNotNull();
+            assertThat(event.getId()).isEqualTo(expected.getId());
+            assertThat(event.getName()).isEqualTo(expected.getName());
+            assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
+            assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
+            assertThat(event.getDetails()).isEqualTo(expected.getDetails());
+            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
         }
 
         @Test
@@ -461,11 +534,21 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(ID.toString())))
                     .andExpect(jsonPath("$.name", is(existed.getName())))
                     .andExpect(jsonPath("$.price.value", is(existed.getPrice().getValue().doubleValue())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.price.currency", Matchers.is(newPriceCurrency.getCode())))
                     .andExpect(jsonPath("$.details", is(existed.getDetails())));
+
+            verify(asyncProducer, times(1)).send(productMessageArgumentCaptor.capture());
+            final var event = productMessageArgumentCaptor.getValue();
+            assertThat(event).isNotNull();
+            assertThat(event.getId()).isEqualTo(expected.getId());
+            assertThat(event.getName()).isEqualTo(expected.getName());
+            assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
+            assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
+            assertThat(event.getDetails()).isEqualTo(expected.getDetails());
+            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
         }
 
     }
@@ -479,6 +562,8 @@ class ProductControllerTest extends ProductApplicationTest {
             mockMvc.perform(MockMvcRequestBuilders.delete(BASE_URL + "/" + ID))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+            verifyNoInteractions(asyncProducer);
         }
 
         @Test
@@ -493,6 +578,16 @@ class ProductControllerTest extends ProductApplicationTest {
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.delete(BASE_URL + "/" + ID)).andExpect(MockMvcResultMatchers.status().isNoContent());
+
+            verify(asyncProducer, times(1)).send(productMessageArgumentCaptor.capture());
+            final var event = productMessageArgumentCaptor.getValue();
+            assertThat(event).isNotNull();
+            assertThat(event.getId()).isEqualTo(expected.getId());
+            assertThat(event.getName()).isEqualTo(expected.getName());
+            assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
+            assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
+            assertThat(event.getDetails()).isEqualTo(expected.getDetails());
+            assertThat(event.getOperation()).isEqualTo(Operation.DELETE);
         }
 
     }
@@ -521,7 +616,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
-                    .andExpect(jsonPath("$.id", is(existed.getId())))
+                    .andExpect(jsonPath("$.id", is(existed.getId().toString())))
                     .andExpect(jsonPath("$.name", is(existed.getName())))
                     .andExpect(jsonPath("$.price.value", is(existed.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.price.currency", is(existed.getPrice().getCurrency().toString())))
@@ -540,7 +635,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.EUR);
 
             // when
-            Mockito.when(productRepository.findByName(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?name=" + PRODUCT_NAME).contentType(DATA_FORMAT_JSON))
@@ -554,7 +649,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -584,13 +679,13 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
 
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId())))
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
                     .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
                     .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
@@ -603,7 +698,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
 
             // when
-            Mockito.when(productRepository.findByNameAndPrice_value(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndPrice_valueAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME).contentType(DATA_FORMAT_JSON))
@@ -617,7 +712,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -630,7 +725,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
 
             // when
-            Mockito.when(productRepository.findByNameAndPrice_valueLessThan(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndPrice_valueLessThanAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME + "&lessThan=true").contentType(DATA_FORMAT_JSON))
@@ -644,7 +739,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -657,7 +752,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.NZD);
 
             // when
-            Mockito.when(productRepository.findByNameAndPrice_valueGreaterThan(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndPrice_valueGreaterThanAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME + "&greaterThan=true").contentType(DATA_FORMAT_JSON))
@@ -671,7 +766,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -684,7 +779,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.SEK);
 
             // when
-            Mockito.when(productRepository.findByNameAndPrice_valueBetween(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndPrice_valueBetweenAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=" + 1 + "&name=" + PRODUCT_NAME + "&priceMax=" + product.getPrice().getValue().doubleValue()).contentType(DATA_FORMAT_JSON))
@@ -698,7 +793,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -725,7 +820,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -752,7 +847,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -779,7 +874,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -808,7 +903,7 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
@@ -844,13 +939,13 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
 
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId())))
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
                     .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
                     .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
@@ -880,13 +975,13 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
 
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId())))
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
                     .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
                     .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
@@ -916,13 +1011,13 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
 
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId())))
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
                     .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
                     .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
@@ -952,13 +1047,13 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_2.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product_2.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product_2.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product_2.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product_2.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].details", is(product_2.getDetails())))
 
-                    .andExpect(jsonPath("$.content[1].id", is(product_1.getId())))
+                    .andExpect(jsonPath("$.content[1].id", is(product_1.getId().toString())))
                     .andExpect(jsonPath("$.content[1].name", is(product_1.getName())))
                     .andExpect(jsonPath("$.content[1].price.value", is(product_1.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].price.currency", is(product_1.getPrice().getCurrency().toString())))
@@ -988,13 +1083,13 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
 
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId())))
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
                     .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
                     .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
@@ -1024,13 +1119,13 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId())))
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
                     .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
                     .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
 
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId())))
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
                     .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
                     .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))

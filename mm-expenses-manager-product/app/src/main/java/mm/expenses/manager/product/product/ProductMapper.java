@@ -12,6 +12,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(
@@ -25,7 +26,7 @@ public interface ProductMapper extends AbstractMapper {
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "price", source = "price", conditionExpression = "java(price != null)")
-    UpdateProductCommand map(final String id, final UpdateProductRequest updateProductRequest, final Price price);
+    UpdateProductCommand map(final UUID id, final UpdateProductRequest updateProductRequest, final Price price);
 
     @Mapping(target = "price", source = "priceResponse")
     ProductResponse map(final Product product, final PriceResponse priceResponse);
