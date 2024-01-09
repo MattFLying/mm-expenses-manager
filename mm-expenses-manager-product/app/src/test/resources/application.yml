@@ -9,13 +9,84 @@ app:
       name: test
       email: test
       role: test
-    pageable:
+    pagination:
       min-page-number: 0
       default-page-size: 10
       max-page-size: 50
+    api:
+      url: /api
+      ui-url: ${app.configuration.api.url}/ui
+      disable-default-url: true
+    database:
+      liquibase:
+        enabled: true
+        master-changelog-path: classpath:/db/changelog-master.xml
+      postgres:
+        host: localhost
+        port: 5432
+        db-name: expenses_manager
+        username: admin
+        password: gP_h3cS!Lqu-4
+    kafka:
+      enabled: true
+      brokers: localhost:9092
+      type: kafka
+      protocol: PLAINTEXT
+      username: kafka
+      password: kafka
+      topic:
+        product-management: product-management
   product:
-    clear-deleted-cron: "0 * * * * *"
+    clear-deleted-cron: "0 0 0 ? * *" # every day at 12:00
+
+server:
+  port: ${app.configuration.port}
 
 spring:
+  application:
+    name: ${app.configuration.name}
   profiles:
-    active: test
+    active: ${app.configuration.active-profile}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${app.configuration.database.postgres.host}:${app.configuration.database.postgres.port}/${app.configuration.database.postgres.db-name}?createDatabaseIfNotExist=true
+    username: ${app.configuration.database.postgres.username}
+    password: ${app.configuration.database.postgres.password}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    enabled: ${app.configuration.database.liquibase.enabled}
+    change-log: ${app.configuration.database.liquibase.master-changelog-path}
+  data:
+    web:
+      pageable:
+        default-page-size: ${app.configuration.pagination.default-page-size}
+        max-page-size: ${app.configuration.pagination.max-page-size}
+  cloud:
+    stream:
+      default-binder: ${app.configuration.kafka.type}
+      kafka:
+        binder:
+          brokers:
+            - ${app.configuration.kafka.brokers}
+          configuration:
+            security.protocol: ${app.configuration.kafka.protocol}
+            sasl.mechanism: SCRAM-SHA-512
+            sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${app.configuration.kafka.username}' password='${app.configuration.kafka.password}';
+      bindings:
+        productManagement-out-0:
+          binder: ${app.configuration.kafka.type}
+          group: ${app.configuration.name}
+          content-type: application/json
+          destination: ${app.configuration.kafka.topic.product-management}
+
+springdoc:
+  swagger-ui:
+    path: ${app.configuration.api.ui-url}
+    disable-swagger-default-url: ${app.configuration.api.disable-default-url}
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: ${app.configuration.api.url}

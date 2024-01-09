@@ -151,6 +151,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
 
       responses:
         "200":
@@ -179,6 +180,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         x-constraints: "@ValidateProduct"
@@ -226,6 +228,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
 
       responses:
         "204":
@@ -344,6 +347,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           description: Product id.
         name:
           type: string

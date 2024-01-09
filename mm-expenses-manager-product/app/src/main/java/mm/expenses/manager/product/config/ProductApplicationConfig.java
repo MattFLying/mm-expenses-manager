@@ -9,14 +9,9 @@ import mm.expenses.manager.common.beans.pagination.PaginationConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.web.config.OpenApiConfig;
 import mm.expenses.manager.common.web.config.WebMvcConfig;
-import mm.expenses.manager.common.beans.converter.BigDecimalToDecimal128Converter;
-import mm.expenses.manager.common.beans.converter.Decimal128ToBigDecimalConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
-
-import java.util.Arrays;
 
 @Generated
 @Configuration
@@ -28,14 +23,6 @@ class ProductApplicationConfig {
     @Bean
     ObjectMapper objectMapper() {
         return ObjectMapperConfig.objectMapper();
-    }
-
-    @Bean
-    MongoCustomConversions mongoCustomConversions() {
-        return new MongoCustomConversions(Arrays.asList(
-                new BigDecimalToDecimal128Converter(),
-                new Decimal128ToBigDecimalConverter()
-        ));
     }
 
     @Bean

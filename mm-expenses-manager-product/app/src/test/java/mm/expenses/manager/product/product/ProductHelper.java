@@ -16,11 +16,10 @@ public class ProductHelper {
 
     private static final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
 
-    public static final String ID = UUID.randomUUID().toString();
+    public static final UUID ID = UUID.randomUUID();
     public static final String PRODUCT_NAME = UUID.randomUUID().toString();
     public static final CurrencyCode DEFAULT_CURRENCY = CurrencyCode.PLN;
     public static final Map<String, Object> PRODUCT_DETAILS = Map.of("key", "value");
-
 
     public static UpdateProductRequest createSimpleProduct(String name) {
         var request = new UpdateProductRequest();
