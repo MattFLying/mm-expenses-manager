@@ -2,8 +2,8 @@ package mm.expenses.manager.product.product;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import mm.expenses.manager.product.async.message.ProductMessage;
-import mm.expenses.manager.product.async.message.ProductMessage.Operation;
+import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
+import mm.expenses.manager.product.async.message.ProductManagementProducerMessage;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductContext {
 
-    public static Product saveProduct(final Product product, final Operation operation) {
+    public static Product saveProduct(final Product product, final AsyncKafkaOperation operation) {
         final var savedProduct = RepositoryRegistry.productRepository().save(product);
         return sendAsyncMessage(savedProduct, operation);
     }
@@ -60,8 +60,8 @@ public class ProductContext {
         };
     }
 
-    private static Product sendAsyncMessage(final Product product, final Operation operation) {
-        RepositoryRegistry.asyncProducer().send(ProductMessage.of(product, operation));
+    private static Product sendAsyncMessage(final Product product, final AsyncKafkaOperation operation) {
+        RepositoryRegistry.asyncProducer().send(ProductManagementProducerMessage.of(product, operation));
         return product;
     }
 

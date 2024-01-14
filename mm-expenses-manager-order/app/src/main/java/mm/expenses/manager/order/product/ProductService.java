@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.api.product.model.CreateNewProductRequest;
 import mm.expenses.manager.order.api.product.model.UpdateProductRequest;
+import mm.expenses.manager.order.async.message.ProductManagementConsumerMessage;
 import mm.expenses.manager.order.product.exception.ProductCreationException;
 import mm.expenses.manager.order.product.exception.ProductNotFoundException;
 import mm.expenses.manager.order.product.exception.ProductUpdateException;
@@ -135,6 +136,21 @@ public class ProductService {
         log.info("Deleting products of ids: {}", ids);
         final long removedCount = repository.deleteByIdIn(ids);
         log.info("{} products were removed", removedCount);
+    }
+
+    public void createProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
+        // TO-DO
+        log.info("Handling CREATE {} message skipped. Body: {}", message.getConsumerBindingName(), message);
+    }
+
+    public void updateProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
+        // TO-DO
+        log.info("Handling UPDATE {} message skipped. Body: {}", message.getConsumerBindingName(), message);
+    }
+
+    public void deleteProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
+        // TO-DO
+        log.info("Handling DELETE {} message skipped. Body: {}", message.getConsumerBindingName(), message);
     }
 
 }

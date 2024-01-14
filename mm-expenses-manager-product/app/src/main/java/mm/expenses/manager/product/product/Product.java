@@ -2,9 +2,9 @@ package mm.expenses.manager.product.product;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.product.ProductCommonValidation;
-import mm.expenses.manager.product.async.message.ProductMessage.Operation;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.exception.ProductNotFoundException;
 import mm.expenses.manager.product.exception.ProductValidationException;
@@ -82,7 +82,7 @@ public class Product implements Serializable {
 
     void delete() {
         setDeleted(true);
-        ProductContext.saveProduct(this, Operation.DELETE);
+        ProductContext.saveProduct(this, AsyncKafkaOperation.DELETE);
     }
 
     void updateName(final String newName) {
@@ -137,14 +137,14 @@ public class Product implements Serializable {
                 .details(createProductCommand.getDetails())
                 .build();
 
-        return ProductContext.saveProduct(newProduct, Operation.CREATE);
+        return ProductContext.saveProduct(newProduct, AsyncKafkaOperation.CREATE);
     }
 
     public static Product update(final UpdateProductCommand updateProductCommand) {
         final var productId = updateProductCommand.getId();
         final var existed = ProductContext.findProductById(UUID.fromString(productId)).orElseThrow(() -> new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId)));
 
-        return ProductContext.saveProduct(existed.partiallyUpdate(updateProductCommand), Operation.UPDATE);
+        return ProductContext.saveProduct(existed.partiallyUpdate(updateProductCommand), AsyncKafkaOperation.UPDATE);
     }
 
     public static Page<Product> findProducts(ProductQueryFilter queryFilter, PageRequest pageable) {

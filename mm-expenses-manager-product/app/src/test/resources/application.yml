@@ -27,14 +27,14 @@ app:
         db-name: expenses_manager
         username: admin
         password: gP_h3cS!Lqu-4
-    kafka:
+    message-broker:
+      type: kafka
       enabled: true
       brokers: localhost:9092
-      type: kafka
       protocol: PLAINTEXT
       username: kafka
       password: kafka
-      topic:
+      topics:
         product-management: product-management
   product:
     clear-deleted-cron: "0 0 0 ? * *" # every day at 12:00
@@ -66,21 +66,21 @@ spring:
         max-page-size: ${app.configuration.pagination.max-page-size}
   cloud:
     stream:
-      default-binder: ${app.configuration.kafka.type}
+      default-binder: ${app.configuration.message-broker.type}
       kafka:
         binder:
           brokers:
-            - ${app.configuration.kafka.brokers}
+            - ${app.configuration.message-broker.brokers}
           configuration:
-            security.protocol: ${app.configuration.kafka.protocol}
+            security.protocol: ${app.configuration.message-broker.protocol}
             sasl.mechanism: SCRAM-SHA-512
-            sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${app.configuration.kafka.username}' password='${app.configuration.kafka.password}';
+            sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${app.configuration.message-broker.username}' password='${app.configuration.message-broker.password}';
       bindings:
         productManagement-out-0:
-          binder: ${app.configuration.kafka.type}
+          binder: ${app.configuration.message-broker.type}
           group: ${app.configuration.name}
           content-type: application/json
-          destination: ${app.configuration.kafka.topic.product-management}
+          destination: ${app.configuration.message-broker.topics.product-management}
 
 springdoc:
   swagger-ui:

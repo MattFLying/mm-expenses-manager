@@ -1,12 +1,12 @@
 package mm.expenses.manager.product.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.product.ProductApplicationTest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
-import mm.expenses.manager.product.async.message.ProductMessage;
-import mm.expenses.manager.product.async.message.ProductMessage.Operation;
+import mm.expenses.manager.product.async.message.ProductManagementProducerMessage;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.hamcrest.Matchers;
@@ -42,7 +42,7 @@ class ProductControllerTest extends ProductApplicationTest {
     private ObjectMapper objectMapper;
 
     @Captor
-    private ArgumentCaptor<ProductMessage> productMessageArgumentCaptor;
+    private ArgumentCaptor<ProductManagementProducerMessage> productMessageArgumentCaptor;
 
     @Nested
     class FindAll_ErrorCodes {
@@ -224,7 +224,7 @@ class ProductControllerTest extends ProductApplicationTest {
             assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expectedResult.getPrice().getValue().doubleValue());
             assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expectedResult.getPrice().getCurrency().toString());
             assertThat(event.getDetails()).isEqualTo(expectedResult.getDetails());
-            assertThat(event.getOperation()).isEqualTo(Operation.CREATE);
+            assertThat(event.getOperation()).isEqualTo(AsyncKafkaOperation.CREATE);
         }
 
         @Test
@@ -443,7 +443,7 @@ class ProductControllerTest extends ProductApplicationTest {
             assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
             assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
             assertThat(event.getDetails()).isEqualTo(expected.getDetails());
-            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
+            assertThat(event.getOperation()).isEqualTo(AsyncKafkaOperation.UPDATE);
         }
 
         @Test
@@ -478,7 +478,7 @@ class ProductControllerTest extends ProductApplicationTest {
             assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
             assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
             assertThat(event.getDetails()).isEqualTo(expected.getDetails());
-            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
+            assertThat(event.getOperation()).isEqualTo(AsyncKafkaOperation.UPDATE);
         }
 
         @Test
@@ -513,7 +513,7 @@ class ProductControllerTest extends ProductApplicationTest {
             assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
             assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
             assertThat(event.getDetails()).isEqualTo(expected.getDetails());
-            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
+            assertThat(event.getOperation()).isEqualTo(AsyncKafkaOperation.UPDATE);
         }
 
         @Test
@@ -548,7 +548,7 @@ class ProductControllerTest extends ProductApplicationTest {
             assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
             assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
             assertThat(event.getDetails()).isEqualTo(expected.getDetails());
-            assertThat(event.getOperation()).isEqualTo(Operation.UPDATE);
+            assertThat(event.getOperation()).isEqualTo(AsyncKafkaOperation.UPDATE);
         }
 
     }
@@ -587,7 +587,7 @@ class ProductControllerTest extends ProductApplicationTest {
             assertThat(event.getPrice().getValue().doubleValue()).isEqualTo(expected.getPrice().getValue().doubleValue());
             assertThat(event.getPrice().getCurrency().toString()).isEqualTo(expected.getPrice().getCurrency().toString());
             assertThat(event.getDetails()).isEqualTo(expected.getDetails());
-            assertThat(event.getOperation()).isEqualTo(Operation.DELETE);
+            assertThat(event.getOperation()).isEqualTo(AsyncKafkaOperation.DELETE);
         }
 
     }

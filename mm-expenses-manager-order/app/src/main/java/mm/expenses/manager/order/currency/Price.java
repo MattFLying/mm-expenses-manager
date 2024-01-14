@@ -3,6 +3,8 @@ package mm.expenses.manager.order.currency;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.order.async.message.ProductManagementConsumerMessage.PriceMessage;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,7 +17,7 @@ public class Price {
 
     private static final int PRICE_DECIMAL_DIGIT = 2;
 
-    private final Currency currency;
+    private final CurrencyCode currency;
     private final BigDecimal amount;
 
     public BigDecimal getAmount() {
@@ -34,7 +36,7 @@ public class Price {
     }
 
     public static Price empty() {
-        return new Price(Currency.NONE, BigDecimal.ZERO);
+        return new Price(CurrencyCode.UNDEFINED, BigDecimal.ZERO);
     }
 
     public static Price multiply(final Price price, final Double quantity) {
@@ -46,6 +48,10 @@ public class Price {
 
     public static Price add(final Price first, final Price second) {
         return new Price(first.getCurrency(), first.getAmount().add(second.getAmount()));
+    }
+
+    public static Price of(final PriceMessage price) {
+        return new Price(price.getCurrency(), price.getValue());
     }
 
 }

@@ -29,6 +29,7 @@
         <module>common-utils</module>
         <module>common-exceptions</module>
         <module>common-beans</module>
+        <module>common-kafka</module>
         <module>common-web</module>
     </modules>
 
