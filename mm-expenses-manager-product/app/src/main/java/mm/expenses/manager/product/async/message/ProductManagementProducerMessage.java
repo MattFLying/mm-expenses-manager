@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
+import mm.expenses.manager.common.kafka.producer.AsyncKafkaProducerBinding;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.product.async.ProducerBinding;
 import mm.expenses.manager.product.price.Price;
 import mm.expenses.manager.product.product.Product;
 
@@ -19,7 +20,7 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductMessage implements ProducerBinding, Serializable {
+public class ProductManagementProducerMessage implements AsyncKafkaProducerBinding, Serializable {
 
     private UUID id;
 
@@ -33,15 +34,20 @@ public class ProductMessage implements ProducerBinding, Serializable {
 
     private Instant lastModifiedAt;
 
-    private Operation operation;
+    private AsyncKafkaOperation operation;
 
     @Override
-    public String binding() {
+    public String getProducerBindingName() {
         return "productManagement-out-0";
     }
 
-    public static ProductMessage of(final Product product, final Operation operation) {
-        return ProductMessage.builder()
+    @Override
+    public String getProducerTopicName() {
+        return "product-management";
+    }
+
+    public static ProductManagementProducerMessage of(final Product product, final AsyncKafkaOperation operation) {
+        return ProductManagementProducerMessage.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .price(PriceMessage.of(product.getPrice()))
@@ -69,10 +75,6 @@ public class ProductMessage implements ProducerBinding, Serializable {
                     .build();
         }
 
-    }
-
-    public enum Operation {
-        CREATE, UPDATE, DELETE;
     }
 
 }

@@ -25,6 +25,15 @@ app:
       min-page-number: 0
       default-page-size: 10
       max-page-size: 50
+    message-broker:
+      type: kafka
+      enabled: true
+      brokers: localhost:9092
+      protocol: PLAINTEXT
+      username: kafka
+      password: kafka
+      topics:
+        product-management: product-management
 
 server:
   port: ${app.configuration.port}
@@ -42,6 +51,25 @@ spring:
       pageable:
         default-page-size: ${app.configuration.pagination.default-page-size}
         max-page-size: ${app.configuration.pagination.max-page-size}
+  cloud:
+    stream:
+      default-binder: ${app.configuration.message-broker.type}
+      kafka:
+        binder:
+          brokers:
+            - ${app.configuration.message-broker.brokers}
+          configuration:
+            security.protocol: ${app.configuration.message-broker.protocol}
+            sasl.mechanism: SCRAM-SHA-512
+            sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${app.configuration.message-broker.username}' password='${app.configuration.message-broker.password}';
+      bindings:
+        productManagement-in-0:
+          binder: ${app.configuration.message-broker.type}
+          group: @project.name@
+          content-type: application/json
+          destination: ${app.configuration.message-broker.topics.product-management}
+    function:
+      definition: productManagement
 
 springdoc:
   swagger-ui:

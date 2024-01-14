@@ -69,12 +69,6 @@
             <artifactId>liquibase-core</artifactId>
         </dependency>
 
-        <!-- Kafka dependencies -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-kafka</artifactId>
-        </dependency>
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.assertj</groupId>

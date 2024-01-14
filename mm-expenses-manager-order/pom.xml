@@ -24,6 +24,7 @@
         <mm-expenses-manager-common-exceptions-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
         <mm-expenses-manager-common-utils-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-utils-version>
         <mm-expenses-manager-common-web-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-web-version>
+        <mm-expenses-manager-common-kafka-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-kafka-version>
     </properties>
 
     <modules>
@@ -76,6 +77,12 @@
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-web</artifactId>
             <version>${mm-expenses-manager-common-web-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-kafka</artifactId>
+            <version>${mm-expenses-manager-common-kafka-version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

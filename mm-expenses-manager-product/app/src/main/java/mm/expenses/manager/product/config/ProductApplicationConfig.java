@@ -9,6 +9,7 @@ import mm.expenses.manager.common.beans.pagination.PaginationConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.web.config.OpenApiConfig;
 import mm.expenses.manager.common.web.config.WebMvcConfig;
+import mm.expenses.manager.common.kafka.producer.AsyncKafkaProducer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -16,7 +17,8 @@ import org.springframework.context.annotation.Import;
 @Generated
 @Configuration
 @Import({
-        ErrorHandlingConfig.class, PaginationConfig.class, WebMvcConfig.class, OpenApiConfig.class, ApplicationConfig.class
+        ErrorHandlingConfig.class, PaginationConfig.class, WebMvcConfig.class, OpenApiConfig.class,
+        ApplicationConfig.class, AsyncKafkaProducer.class
 })
 class ProductApplicationConfig {
 

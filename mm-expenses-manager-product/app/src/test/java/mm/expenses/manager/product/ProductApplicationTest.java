@@ -1,7 +1,7 @@
 package mm.expenses.manager.product;
 
 import junitparams.JUnitParamsRunner;
-import mm.expenses.manager.product.async.AsyncMessageSender;
+import mm.expenses.manager.common.beans.async.AsyncMessageProducer;
 import mm.expenses.manager.product.repository.ProductRepository;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -37,7 +37,7 @@ public class ProductApplicationTest extends BaseInitTest {
     protected ProductRepository productRepository;
 
     @MockBean
-    protected AsyncMessageSender asyncProducer;
+    protected AsyncMessageProducer asyncProducer;
 
     @Override
     protected void setupAfterEachTest() {
