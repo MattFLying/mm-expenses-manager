@@ -8,7 +8,6 @@ import mm.expenses.manager.product.ProductApplicationTest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.product.async.message.ProductManagementProducerMessage;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -573,7 +572,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var expected = existed.toBuilder().isDeleted(true).build();
 
             // when
-            Mockito.when(productRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(existed));
+            Mockito.when(productRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), anyBoolean())).thenReturn(Optional.of(existed));
             Mockito.when(productRepository.save(ArgumentMatchers.any())).thenReturn(expected);
 
             // then
@@ -604,12 +603,12 @@ class ProductControllerTest extends ProductApplicationTest {
         }
 
         @Test
-        void shouldFindProductById() throws Exception {
+        void shouldFindProductById_defaultIsDeletedFalse() throws Exception {
             // given
             final var existed = createProduct();
 
             // when
-            Mockito.when(productRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(existed));
+            Mockito.when(productRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.anyBoolean())).thenReturn(Optional.of(existed));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON))
@@ -621,6 +620,20 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(jsonPath("$.price.value", is(existed.getPrice().getValue().doubleValue())))
                     .andExpect(jsonPath("$.price.currency", is(existed.getPrice().getCurrency().toString())))
                     .andExpect(jsonPath("$.details", is(existed.getDetails())));
+        }
+
+        @Test
+        void shouldNotFindProductById_isDeletedTrue() throws Exception {
+            // given
+            final var existed = createProductDeleted();
+
+            // when
+            Mockito.when(productRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.anyBoolean())).thenReturn(Optional.empty());
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + ID).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isNotFound());
         }
 
     }

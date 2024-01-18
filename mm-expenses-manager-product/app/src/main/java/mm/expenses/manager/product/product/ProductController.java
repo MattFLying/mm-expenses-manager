@@ -8,8 +8,6 @@ import mm.expenses.manager.common.web.exception.ApiConflictException;
 import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.*;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.price.PriceMapper;
-import mm.expenses.manager.product.product.query.ProductQueryFilter;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,16 +31,16 @@ import java.util.UUID;
 @RequestMapping("products")
 class ProductController implements ProductApi {
 
-    private final ProductMapper productMapper;
-    private final PriceMapper priceMapper;
     private final PaginationHelper pagination;
+    private final ProductMapper mapper;
+    private final ProductService service;
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ProductPage findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER_PROPERTY, required = false) final Integer pageNumber,
                                @RequestParam(value = PaginationConfig.PAGE_SIZE_PROPERTY, required = false) final Integer pageSize,
-                               @RequestParam(value = "sortOrder", required = false) final SortOrderRequest sortOrder,
-                               @RequestParam(value = "sortDesc", required = false) final Boolean sortDesc,
+                               @RequestParam(value = PaginationConfig.SORT_ORDER_PROPERTY, required = false) final SortOrderRequest sortOrder,
+                               @RequestParam(value = PaginationConfig.SORT_DESC_PROPERTY, required = false) final Boolean sortDesc,
                                @RequestParam(value = "name", required = false) final String name,
                                @RequestParam(value = "price", required = false) final BigDecimal price,
                                @RequestParam(value = "lessThan", required = false) final Boolean lessThan,
@@ -72,57 +70,53 @@ class ProductController implements ProductApi {
             }
         }
 
-        return productMapper.map(
-                Product.findProducts(queryFilter, pagination.getPageRequest(pageNumber, pageSize, ProductSortOrder.of(sortOrder, sortDesc)))
+        return mapper.map(
+                service.findProducts(queryFilter, pagination.getPageRequest(pageNumber, pageSize, ProductSortOrder.of(sortOrder, sortDesc)))
         );
     }
 
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ProductResponse findById(@PathVariable("id") final UUID id) {
-        final var product = Product.findById(id);
-        return productMapper.map(product, priceMapper.map(product.getPrice()));
+    public ProductResponse findById(@PathVariable("id") final UUID id, final Boolean isDeleted) {
+        final var product = service.findById(id, isDeleted);
+        return mapper.mapProductResponse(product);
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ProductResponse create(@RequestBody final CreateProductRequest createProductRequest) {
-        return productMapper.mapProductResponse(
-                Product.create(productMapper.map(createProductRequest, priceMapper.map(createProductRequest.getPrice())))
-        );
+    public ProductResponse create(@RequestBody final CreateProductRequest request) {
+        return mapper.mapProductResponse(service.create(request));
     }
 
     @Override
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ProductResponse update(@PathVariable("id") final UUID id, @RequestBody final UpdateProductRequest updateProductRequest) {
-        if (!isAnyUpdateProduct(updateProductRequest)) {
+    public ProductResponse update(@PathVariable("id") final UUID id, @RequestBody final UpdateProductRequest request) {
+        if (!isAnyUpdateProduct(request)) {
             throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
         }
-        return productMapper.mapProductResponse(
-                Product.update(productMapper.map(id, updateProductRequest, priceMapper.map(updateProductRequest.getPrice())))
-        );
+        return mapper.mapProductResponse(service.update(id, request));
     }
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public void deleteById(@PathVariable("id") final UUID id) {
-        Product.delete(id);
+        service.delete(id);
     }
 
-    private boolean isAnyUpdateProduct(final UpdateProductRequest updateProductRequest) {
-        final var isNameUpdated = Objects.nonNull(updateProductRequest.getName());
-        final var isPriceUpdated = Objects.nonNull(updateProductRequest.getPrice()) && isAnyUpdatePrice(updateProductRequest.getPrice());
-        final var isDetailsUpdated = MapUtils.isNotEmpty(updateProductRequest.getDetails());
+    private boolean isAnyUpdateProduct(final UpdateProductRequest request) {
+        final var isNameUpdated = Objects.nonNull(request.getName());
+        final var isPriceUpdated = Objects.nonNull(request.getPrice()) && isAnyUpdatePrice(request.getPrice());
+        final var isDetailsUpdated = MapUtils.isNotEmpty(request.getDetails());
 
         return isNameUpdated || isPriceUpdated || isDetailsUpdated;
     }
 
-    private boolean isAnyUpdatePrice(final UpdatePriceRequest updatePriceRequest) {
-        final var isCurrencyUpdated = Objects.nonNull(updatePriceRequest.getCurrency());
-        final var isValueUpdated = Objects.nonNull(updatePriceRequest.getValue());
+    private boolean isAnyUpdatePrice(final UpdatePriceRequest request) {
+        final var isCurrencyUpdated = Objects.nonNull(request.getCurrency());
+        final var isValueUpdated = Objects.nonNull(request.getValue());
 
         return isCurrencyUpdated || isValueUpdated;
     }

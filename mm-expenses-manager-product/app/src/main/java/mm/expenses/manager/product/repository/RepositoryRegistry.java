@@ -15,20 +15,14 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class RepositoryRegistry {
 
-    private static ProductRepository productRepository;
     private static AsyncMessageProducer producer;
-
-    public static ProductRepository productRepository() {
-        return productRepository;
-    }
 
     public static AsyncMessageProducer asyncProducer() {
         return producer;
     }
 
     @Bean
-    static Object initRepositoryRegistry(final ProductRepository productRepo, final AsyncMessageProducer asyncProducer) {
-        productRepository = productRepo;
+    static Object initRepositoryRegistry(final AsyncMessageProducer asyncProducer) {
         producer = asyncProducer;
         return null;
     }

@@ -152,6 +152,13 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: isDeleted
+          in: query
+          required: false
+          description: If true then retrieves product even if is marked as deleted otherwise not found.
+          schema:
+            type: boolean
+            default: false
 
       responses:
         "200":

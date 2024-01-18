@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.product.query;
+package mm.expenses.manager.product.product;
 
 import org.apache.commons.lang3.StringUtils;
 
