@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.product.query;
+package mm.expenses.manager.product.product;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,12 +17,12 @@ public record ProductQueryFilter(String name,
                                  Boolean greaterThan) {
 
     private static final String FILTER_DELIMITER = "_";
-    private static final String NAME_FILTER = "name";
-    private static final String PRICE_FILTER = "price";
-    private static final String PRICE_MIN_FILTER = "price_min";
-    private static final String PRICE_MAX_FILTER = "price_max";
-    private static final String PRICE_LESS_THAN_FILTER = "less_than";
-    private static final String PRICE_GREATER_THAN_FILTER = "greater_than";
+    static final String NAME_PROPERTY = "name";
+    static final String PRICE_PROPERTY = "price";
+    static final String PRICE_MIN_PROPERTY = "priceMin";
+    static final String PRICE_MAX_PROPERTY = "priceMax";
+    static final String PRICE_LESS_THAN_PROPERTY = "lessThan";
+    static final String PRICE_GREATER_THAN_PROPERTY = "greaterThan";
 
     /**
      * @return checks if price min is not null.
@@ -86,28 +86,30 @@ public record ProductQueryFilter(String name,
     public Filter findFilter() {
         final var joiner = new StringJoiner(FILTER_DELIMITER);
         try {
-            if (StringUtils.isNotBlank(name)) {
-                joiner.add(NAME_FILTER);
+            if (shouldBeAll()) {
+                return Filter.ALL;
             }
 
+            if (StringUtils.isNotBlank(name)) {
+                joiner.add(Filter.NAME.name());
+            }
             if (isPriceRangeOriented()) {
-                joiner.add(PRICE_MIN_FILTER);
-                joiner.add(PRICE_MAX_FILTER);
+                joiner.add(Filter.PRICE_RANGE.name());
             } else {
-                if (isPriceOriented()) {
-                    joiner.add(PRICE_FILTER);
-                }
-
                 if (isLessThan()) {
-                    joiner.add(PRICE_LESS_THAN_FILTER);
+                    joiner.add(Filter.PRICE_LESS_THAN.name());
                 } else if (isGreaterThan()) {
-                    joiner.add(PRICE_GREATER_THAN_FILTER);
+                    joiner.add(Filter.PRICE_GREATER_THAN.name());
                 }
             }
             return Filter.valueOf(joiner.toString().toUpperCase());
         } catch (final IllegalArgumentException exception) {
             return Filter.ALL;
         }
+    }
+
+    private boolean shouldBeAll() {
+        return StringUtils.isBlank(name) && Objects.isNull(priceMin) && Objects.isNull(priceMax) && Objects.isNull(price) && (Objects.isNull(lessThan) || !lessThan) && (Objects.isNull(greaterThan) || !greaterThan);
     }
 
     private boolean isLessThan() {
@@ -126,7 +128,7 @@ public record ProductQueryFilter(String name,
      * Simple filter enum of available filters for products.
      */
     public enum Filter {
-        ALL, NAME, PRICE, NAME_PRICE, NAME_PRICE_LESS_THAN, NAME_PRICE_GREATER_THAN, PRICE_LESS_THAN, PRICE_GREATER_THAN, NAME_PRICE_MIN_PRICE_MAX, PRICE_MIN_PRICE_MAX
+        ALL, NAME, PRICE_RANGE, PRICE_LESS_THAN, PRICE_GREATER_THAN, NAME_PRICE_RANGE, NAME_PRICE_LESS_THAN, NAME_PRICE_GREATER_THAN
     }
 
 }

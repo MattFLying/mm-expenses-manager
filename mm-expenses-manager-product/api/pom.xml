@@ -92,7 +92,7 @@
                                 <serializableModel>true</serializableModel>
                                 <skipDefaultInterface>true</skipDefaultInterface>
                                 <useTags>true</useTags>
-                                <useResponseEntity>false</useResponseEntity>
+                                <useResponseEntity>true</useResponseEntity>
                             </configOptions>
                         </configuration>
                     </execution>

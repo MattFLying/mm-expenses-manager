@@ -13,14 +13,7 @@ import org.mapstruct.Mapping;
 )
 public interface PriceMapper extends AbstractMapper {
 
-    @Mapping(target = "currency", expression = "java(price.getCurrency().getCode())")
-    @Mapping(target = "value", source = "price.value")
-    PriceResponse map(final Price price);
-
     @Mapping(target = "currency", expression = "java(CurrencyCode.getCurrencyFromString(createPriceRequest.getCurrency()))")
     Price map(final CreatePriceRequest createPriceRequest);
-
-    @Mapping(target = "currency", expression = "java(CurrencyCode.getCurrencyFromStringOrNull(updatePriceRequest.getCurrency()))")
-    Price map(final UpdatePriceRequest updatePriceRequest);
 
 }

@@ -1,5 +1,7 @@
 package mm.expenses.manager.common.beans.pagination.sort;
 
+import mm.expenses.manager.common.beans.exception.BeansExceptionMessage;
+import mm.expenses.manager.common.beans.exception.SortOrderException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
@@ -20,6 +22,14 @@ public interface SortOrder {
                 : getProperties().stream().map(SortProperty::getOrder).collect(Collectors.toList());
     }
 
+    default Order getOrder() {
+        final var orders = getOrders();
+        if (Objects.isNull(orders) || orders.size() != 1) {
+            throw new SortOrderException(BeansExceptionMessage.PAGINATION_SORT_ORDER_MULTIPLE_VALUES);
+        }
+        return orders.get(0);
+    }
+
     default Sort getSort() {
         return Sort.by(getOrders());
     }
@@ -27,9 +37,7 @@ public interface SortOrder {
     default SortOrder withDirectionsDesc(final Boolean isDescending) {
         if (Objects.nonNull(isDescending)) {
             for (var sortProperty : getProperties()) {
-                if (!sortProperty.getDirection().isDescending() && isDescending) {
-                    sortProperty = sortProperty.setDirectionDesc(true);
-                }
+                sortProperty.setDirectionDesc(isDescending);
             }
         }
         return this;
@@ -38,9 +46,7 @@ public interface SortOrder {
     default SortOrder withDirectionsAsc(final Boolean isAscending) {
         if (Objects.nonNull(isAscending)) {
             for (var sortProperty : getProperties()) {
-                if (!sortProperty.getDirection().isAscending() && isAscending) {
-                    sortProperty = sortProperty.setDirectionAsc(true);
-                }
+                sortProperty.setDirectionAsc(isAscending);
             }
         }
         return this;

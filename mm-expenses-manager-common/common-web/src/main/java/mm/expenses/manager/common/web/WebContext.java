@@ -7,7 +7,6 @@ import lombok.ToString;
 import mm.expenses.manager.common.web.api.WebApi;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Application context for any WEB action that can be shared between different objects related with any possible action.
@@ -19,13 +18,15 @@ public final class WebContext {
 
     private WebApi webApi;
 
-    private String requestId;
+    private UUID requestId;
 
     private Object requestBody;
 
-    private Collection<String> requestIds;
+    private Collection<UUID> requestIds;
 
-    private Map<String, String[]> parametersMap;
+    private WebUrlParameters parameters;
+
+    private Map<String, String> headers;
 
     /**
      * Creates context for specific {@link WebApi} path.
@@ -46,7 +47,7 @@ public final class WebContext {
      * @param requestId - request id
      * @return updated context
      */
-    public WebContext requestId(final String requestId) {
+    public WebContext requestId(final UUID requestId) {
         setRequestId(requestId);
         return this;
     }
@@ -57,7 +58,7 @@ public final class WebContext {
      * @param requestIds - multiple request ids
      * @return updated context
      */
-    public WebContext requestIds(final Collection<String> requestIds) {
+    public WebContext requestIds(final Collection<UUID> requestIds) {
         setRequestIds(requestIds);
         return this;
     }
@@ -79,24 +80,20 @@ public final class WebContext {
      * @param parameters - parameters map
      * @return updated context
      */
-    public WebContext parametersMap(final Map<String, String[]> parameters) {
-        setParametersMap(parameters);
+    public WebContext parameters(final WebUrlParameters parameters) {
+        setParameters(parameters);
         return this;
     }
 
     /**
-     * If any parameters are needed for specific web action with excluded null values they can be set by this method.
+     * If any headers are needed for specific web action they can be set by this method.
      *
-     * @param parameters - parameters map
-     * @return updated context with parameters without null values
+     * @param headers - headers map
+     * @return updated context
      */
-    public WebContext parametersMapSkipNullValues(final Map<String, String[]> parameters) {
-        return parametersMap(
-                parameters.entrySet()
-                        .stream()
-                        .filter(entry -> Objects.nonNull(entry.getValue()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-        );
+    public WebContext headersMap(final Map<String, String> headers) {
+        setHeaders(headers);
+        return this;
     }
 
 }

@@ -15,9 +15,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 enum ProductSortOrder implements SortOrder {
     DEFAULT_SORT(List.of(new SortProperty("name", Direction.ASC))),
-
-    PRICE_VALUE(List.of(new SortProperty("price.value", Direction.ASC))),
-    PRICE_CURRENCY(List.of(new SortProperty("price.currency", Direction.ASC)));
+    PRICE_VALUE(List.of(new SortProperty("cast(p.price -> 'value' as float)", Direction.ASC, true)));
 
     private final Collection<SortProperty> properties;
 
@@ -25,7 +23,6 @@ enum ProductSortOrder implements SortOrder {
         return Objects.isNull(request) ? ProductSortOrder.DEFAULT_SORT : switch (request) {
             case NAME -> ProductSortOrder.DEFAULT_SORT.withDirectionsDesc(isDescending);
             case PRICE_VALUE -> ProductSortOrder.PRICE_VALUE.withDirectionsDesc(isDescending);
-            case PRICE_CURRENCY -> ProductSortOrder.PRICE_CURRENCY.withDirectionsDesc(isDescending);
 
             // in case if any other request's value is not handled.
             default -> ProductSortOrder.DEFAULT_SORT;

@@ -15,7 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * API interceptor for every Web Api calls.
@@ -41,6 +42,7 @@ public final class WebInterceptor {
         final var method = WebHttpMethod.of(request.getMethod());
         validateHttpMethod(requestPath, method);
         validateParameters(request, context);
+        validateHeaders(request, context);
 
         log.debug("Web API call to: {} {}. ApiContext: {}", method.name(), request.getRequestURI(), context);
         try {
@@ -111,7 +113,25 @@ public final class WebInterceptor {
     private void validateParameters(final HttpServletRequest request, final WebContext context) {
         final var parameters = request.getParameterMap();
         if (MapUtils.isNotEmpty(parameters)) {
-            context.parametersMapSkipNullValues(parameters);
+            final var webParameters = new WebUrlParameters(parameters);
+            context.parameters(webParameters);
+        }
+    }
+
+    /**
+     * Validates if there are any headers and set them in current web context.
+     *
+     * @param request - current {@link HttpServletRequest} request
+     * @param context - current request's context
+     */
+    private void validateHeaders(final HttpServletRequest request, final WebContext context) {
+        final var headers = request.getHeaderNames();
+        if (Objects.nonNull(headers)) {
+            context.headersMap(
+                    Collections.list(headers)
+                            .stream()
+                            .collect(Collectors.toMap(header -> header, request::getHeader))
+            );
         }
     }
 

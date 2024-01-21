@@ -119,6 +119,10 @@ public class ProductHelper {
     }
 
     public static Product createProduct(final String name, final CurrencyCode currency, final BigDecimal price, final Instant createdAndModifiedDate) {
+        return createProduct(name, currency, price, createdAndModifiedDate, false);
+    }
+
+    public static Product createProduct(final String name, final CurrencyCode currency, final BigDecimal price, final Instant createdAndModifiedDate, final boolean isDeleted) {
         return Product.builder()
                 .id(ID)
                 .name(name)
@@ -127,12 +131,16 @@ public class ProductHelper {
                 .createdAt(createdAndModifiedDate)
                 .lastModifiedAt(createdAndModifiedDate)
                 .version(1L)
-                .isDeleted(false)
+                .isDeleted(isDeleted)
                 .build();
     }
 
     public static Product createProduct() {
         return createProduct(PRODUCT_NAME, DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), DateUtils.nowAsInstant());
+    }
+
+    public static Product createProductDeleted() {
+        return createProduct(PRODUCT_NAME, DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), DateUtils.nowAsInstant(), true);
     }
 
     public static Product createProduct(final String name, final CurrencyCode currency) {

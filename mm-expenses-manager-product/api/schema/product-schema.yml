@@ -38,7 +38,7 @@ paths:
             default: 10
             minimum: 1
             format: int32
-        - name: SortOrderRequest
+        - name: sortOrder
           in: query
           required: false
           description: Sort products by.
@@ -152,6 +152,13 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: isDeleted
+          in: query
+          required: false
+          description: If true then retrieves product even if is marked as deleted otherwise not found.
+          schema:
+            type: boolean
+            default: false
 
       responses:
         "200":
@@ -264,7 +271,7 @@ components:
 
     SortOrderRequest:
       type: string
-      enum: [ NAME, PRICE_VALUE, PRICE_CURRENCY ]
+      enum: [ NAME, PRICE_VALUE ]
       description: Sorting order for products.
 
     ProductDetailsRequest:

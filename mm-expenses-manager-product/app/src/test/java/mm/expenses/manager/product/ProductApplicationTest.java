@@ -2,7 +2,7 @@ package mm.expenses.manager.product;
 
 import junitparams.JUnitParamsRunner;
 import mm.expenses.manager.common.beans.async.AsyncMessageProducer;
-import mm.expenses.manager.product.repository.ProductRepository;
+import mm.expenses.manager.product.product.ProductRepository;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
