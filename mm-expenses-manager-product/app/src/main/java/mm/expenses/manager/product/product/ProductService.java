@@ -2,6 +2,7 @@ package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.async.AsyncMessageProducer;
+import mm.expenses.manager.common.beans.pagination.sort.SortOrder;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
@@ -15,6 +16,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -86,26 +88,28 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId)));
     }
 
-    public Page<Product> findProducts(final ProductQueryFilter queryFilter, final PageRequest pageable) {
+    public Page<Product> findProducts(final ProductQueryFilter queryFilter, final PageRequest pageable, final SortOrder sortOrder) {
         final var filter = queryFilter.findFilter();
+        final var sort = sortOrder.getOrder();
         return switch (filter) {
-            case NAME -> repository.findByNameAndIsDeletedFalse(queryFilter.name(), pageable);
-            case PRICE -> repository.findByPrice_valueAndIsDeletedFalse(queryFilter.price(), pageable);
-            case NAME_PRICE ->
-                    repository.findByNameAndPrice_valueAndIsDeletedFalse(queryFilter.name(), queryFilter.price(), pageable);
+            case NAME ->
+                    repository.findByNameAndNotDeleted(queryFilter.name(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
             case NAME_PRICE_LESS_THAN ->
-                    repository.findByNameAndPrice_valueLessThanAndIsDeletedFalse(queryFilter.name(), queryFilter.price(), pageable);
+                    repository.findByNameAndPriceLessThanAndNotDeleted(queryFilter.name(), queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
             case NAME_PRICE_GREATER_THAN ->
-                    repository.findByNameAndPrice_valueGreaterThanAndIsDeletedFalse(queryFilter.name(), queryFilter.price(), pageable);
-            case NAME_PRICE_MIN_PRICE_MAX ->
-                    repository.findByNameAndPrice_valueBetweenAndIsDeletedFalse(queryFilter.name(), queryFilter.priceMin(), queryFilter.priceMax(), pageable);
+                    repository.findByNameAndPriceGreaterThanAndNotDeleted(queryFilter.name(), queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
+            case NAME_PRICE_RANGE ->
+                    repository.findByNameAndPriceBetweenAndNotDeleted(queryFilter.name(), queryFilter.priceMin(), queryFilter.priceMax(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
+
             case PRICE_LESS_THAN ->
-                    repository.findByPrice_valueLessThanAndIsDeletedFalse(queryFilter.price(), pageable);
+                    repository.findByPriceLessThanAndNotDeleted(queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
             case PRICE_GREATER_THAN ->
-                    repository.findByPrice_valueGreaterThanAndIsDeletedFalse(queryFilter.price(), pageable);
-            case PRICE_MIN_PRICE_MAX ->
-                    repository.findByPrice_valueBetweenAndIsDeletedFalse(queryFilter.priceMin(), queryFilter.priceMax(), pageable);
-            default -> repository.findAllByIsDeletedFalse(pageable);
+                    repository.findByPriceGreaterThanAndNotDeleted(queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
+            case PRICE_RANGE ->
+                    repository.findByPriceBetweenAndNotDeleted(queryFilter.priceMin(), queryFilter.priceMax(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
+
+            default ->
+                    repository.findAllNotDeleted(pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
         };
     }
 

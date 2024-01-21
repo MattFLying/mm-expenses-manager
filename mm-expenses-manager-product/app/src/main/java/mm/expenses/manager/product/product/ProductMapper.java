@@ -17,9 +17,6 @@ import java.util.stream.Collectors;
 )
 public interface ProductMapper extends AbstractMapper {
 
-    @Mapping(target = "price", source = "priceResponse")
-    ProductResponse map(final Product product, final PriceResponse priceResponse);
-
     ProductResponse mapProductResponse(final Product product);
 
     @Mapping(target = "content", expression = "java(productPage.getContent().stream().map(product -> mapProductResponse(product)).collect(Collectors.toList()))")

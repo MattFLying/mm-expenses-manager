@@ -28,14 +28,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import static mm.expenses.manager.product.product.ProductHelper.*;
+import static mm.expenses.manager.product.product.ProductWebApi.BASE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 class ProductControllerTest extends ProductApplicationTest {
-
-    private static final String BASE_URL = "/products";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -648,7 +647,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.EUR);
 
             // when
-            Mockito.when(productRepository.findByNameAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?name=" + PRODUCT_NAME).contentType(DATA_FORMAT_JSON))
@@ -670,51 +669,17 @@ class ProductControllerTest extends ProductApplicationTest {
         }
 
         @Test
-        void shouldFindProductByPrice() throws Exception {
-            // given
-            final var priceRequest = 5.0d;
-
-            final var product_1 = createProduct(PRODUCT_NAME, CurrencyCode.JPY);
-            final var product_2 = createProduct(PRODUCT_NAME + " 2", CurrencyCode.AUD);
-
-            // when
-            Mockito.when(productRepository.findByPrice_valueAndIsDeletedFalse(ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + priceRequest).contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
-        }
-
-        @Test
-        void shouldFindProductByNameAndPrice() throws Exception {
+        void shouldFindProductByNameAndPriceRange() throws Exception {
             // given
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
+            final var priceMin = product.getPrice().getValue().subtract(BigDecimal.valueOf(1));
+            final var priceMax = product.getPrice().getValue().add(BigDecimal.valueOf(1));
 
             // when
-            Mockito.when(productRepository.findByNameAndPrice_valueAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndPriceBetweenAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?name=" + PRODUCT_NAME + "&priceMin=" + priceMin + "&priceMax=" + priceMax).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -738,7 +703,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
 
             // when
-            Mockito.when(productRepository.findByNameAndPrice_valueLessThanAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndPriceLessThanAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME + "&lessThan=true").contentType(DATA_FORMAT_JSON))
@@ -765,37 +730,10 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.NZD);
 
             // when
-            Mockito.when(productRepository.findByNameAndPrice_valueGreaterThanAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByNameAndPriceGreaterThanAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME + "&greaterThan=true").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
-
-        @Test
-        void shouldFindProductByNameAndPriceMinMax() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.SEK);
-
-            // when
-            Mockito.when(productRepository.findByNameAndPrice_valueBetweenAndIsDeletedFalse(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=" + 1 + "&name=" + PRODUCT_NAME + "&priceMax=" + product.getPrice().getValue().doubleValue()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -819,7 +757,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
 
             // when
-            Mockito.when(productRepository.findByPrice_valueLessThanAndIsDeletedFalse(ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByPriceLessThanAndNotDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&lessThan=true").contentType(DATA_FORMAT_JSON))
@@ -846,7 +784,7 @@ class ProductControllerTest extends ProductApplicationTest {
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.NZD);
 
             // when
-            Mockito.when(productRepository.findByPrice_valueGreaterThanAndIsDeletedFalse(ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByPriceGreaterThanAndNotDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&greaterThan=true").contentType(DATA_FORMAT_JSON))
@@ -868,12 +806,12 @@ class ProductControllerTest extends ProductApplicationTest {
         }
 
         @Test
-        void shouldFindProductByPriceMinMax() throws Exception {
+        void shouldFindProductByPriceRange() throws Exception {
             // given
             final var product = createProduct(PRODUCT_NAME, CurrencyCode.SEK);
 
             // when
-            Mockito.when(productRepository.findByPrice_valueBetweenAndIsDeletedFalse(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findByPriceBetweenAndNotDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=" + 1 + "&priceMax=" + product.getPrice().getValue().doubleValue()).contentType(DATA_FORMAT_JSON))
@@ -902,7 +840,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = Mockito.mock(ProductQueryFilter.class);
             Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllByIsDeletedFalse(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(DATA_FORMAT_JSON))
@@ -938,7 +876,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = Mockito.mock(ProductQueryFilter.class);
             Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllByIsDeletedFalse(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=NAME").contentType(DATA_FORMAT_JSON))
@@ -966,18 +904,18 @@ class ProductControllerTest extends ProductApplicationTest {
         }
 
         @Test
-        void shouldSortByPriceValue() throws Exception {
+        void shouldSortByNameDesc() throws Exception {
             // given
-            final var product_1 = createProduct("p1", BigDecimal.valueOf(2), CurrencyCode.PLN);
-            final var product_2 = createProduct("p2", BigDecimal.valueOf(2), CurrencyCode.PLN);
+            final var product_1 = createProduct("p1", CurrencyCode.PLN);
+            final var product_2 = createProduct("p2", CurrencyCode.PLN);
 
             // when
             final var queryFilter = Mockito.mock(ProductQueryFilter.class);
             Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllByIsDeletedFalse(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=PRICE_VALUE").contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=NAME&sortDesc=true").contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -1002,18 +940,54 @@ class ProductControllerTest extends ProductApplicationTest {
         }
 
         @Test
-        void shouldSortByPriceCurrency() throws Exception {
+        void shouldSortByNameAsc() throws Exception {
             // given
-            final var product_1 = createProduct("p1", CurrencyCode.AUD);
-            final var product_2 = createProduct("p2", CurrencyCode.GBP);
+            final var product_1 = createProduct("p1", CurrencyCode.PLN);
+            final var product_2 = createProduct("p2", CurrencyCode.PLN);
 
             // when
             final var queryFilter = Mockito.mock(ProductQueryFilter.class);
             Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllByIsDeletedFalse(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=PRICE_CURRENCY").contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=NAME&sortDesc=false").contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(product_2.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(product_2.getName())))
+                    .andExpect(jsonPath("$.content[0].price.value", is(product_2.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(product_2.getPrice().getCurrency().toString())))
+                    .andExpect(jsonPath("$.content[0].details", is(product_2.getDetails())))
+
+                    .andExpect(jsonPath("$.content[1].id", is(product_1.getId().toString())))
+                    .andExpect(jsonPath("$.content[1].name", is(product_1.getName())))
+                    .andExpect(jsonPath("$.content[1].price.value", is(product_1.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[1].price.currency", is(product_1.getPrice().getCurrency().toString())))
+                    .andExpect(jsonPath("$.content[1].details", is(product_1.getDetails())));
+        }
+
+        @Test
+        void shouldSortByPriceValue() throws Exception {
+            // given
+            final var product_1 = createProduct("p1", BigDecimal.valueOf(2), CurrencyCode.PLN);
+            final var product_2 = createProduct("p2", BigDecimal.valueOf(2), CurrencyCode.PLN);
+
+            // when
+            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
+            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=PRICE_VALUE").contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -1046,7 +1020,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = Mockito.mock(ProductQueryFilter.class);
             Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllByIsDeletedFalse(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortDesc=true").contentType(DATA_FORMAT_JSON))
@@ -1082,7 +1056,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = Mockito.mock(ProductQueryFilter.class);
             Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllByIsDeletedFalse(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortDesc=false").contentType(DATA_FORMAT_JSON))
@@ -1118,7 +1092,7 @@ class ProductControllerTest extends ProductApplicationTest {
             // when
             final var queryFilter = Mockito.mock(ProductQueryFilter.class);
             Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllByIsDeletedFalse(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
 
             // then
             mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(DATA_FORMAT_JSON))

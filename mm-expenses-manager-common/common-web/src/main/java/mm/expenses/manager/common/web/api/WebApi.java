@@ -10,6 +10,11 @@ import org.springframework.http.HttpStatus;
 public interface WebApi {
 
     /**
+     * Defines default path to be used to identify resource by its id.
+     */
+    String ID_URL = "/{id}";
+
+    /**
      * Default endpoints path as a main resource.
      *
      * @return default url path for specific resource eg. /examples

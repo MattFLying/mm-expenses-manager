@@ -16,7 +16,8 @@ public enum BeansExceptionMessage implements ExceptionType {
     CANNOT_CONVERT_BIG_DECIMAL_TO_DECIMAL128("conversion-error", "Conversion error."),
     CANNOT_CONVERT_DECIMAL128_TO_BIG_DECIMAL("conversion-error", "Conversion error."),
     ASYNC_CONSUMER_MESSAGE_IS_NULL("async-consumer-binding-error", "Consumer binding message is null."),
-    ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL("async-consumer-binding-error", "Consumer binding or topic is null what is not allowed. Binding: %s. Topic: %s.");
+    ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL("async-consumer-binding-error", "Consumer binding or topic is null what is not allowed. Binding: %s. Topic: %s."),
+    PAGINATION_SORT_ORDER_MULTIPLE_VALUES("pagination-sort-order-error", "Pagination sorting has different order values than expected.");
 
     private final String code;
     private final String message;

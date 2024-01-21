@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(OrderWebApi.BASE_URL)
@@ -46,11 +48,11 @@ class OrderController implements OrderApi {
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> findById(@PathVariable("id") final String id) {
-        final var context = WebContext.of(OrderWebApi.FIND_BY_ID).requestId(id);
+        final var context = WebContext.of(OrderWebApi.FIND_BY_ID).requestId(UUID.fromString(id));
         final RequestProcessor processor = webContext -> {
             final var orderId = webContext.getRequestId();
 
-            return service.findById(orderId)
+            return service.findById(orderId.toString())
                     .map(mapper::mapToResponse)
                     .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(orderId)));
         };
@@ -77,11 +79,11 @@ class OrderController implements OrderApi {
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> update(@PathVariable("id") final String id, @RequestBody final UpdateOrderRequest request) {
-        final var context = WebContext.of(OrderWebApi.UPDATE).requestId(id).requestBody(request);
+        final var context = WebContext.of(OrderWebApi.UPDATE).requestId(UUID.fromString(id)).requestBody(request);
         final RequestProcessor processor = webContext -> {
             try {
                 final var updateOrderRequest = (UpdateOrderRequest) webContext.getRequestBody();
-                return service.update(webContext.getRequestId(), updateOrderRequest)
+                return service.update(webContext.getRequestId().toString(), updateOrderRequest)
                         .map(mapper::mapToResponse)
                         .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(webContext.getRequestId())));
             } catch (final OrderUpdateException exception) {
@@ -95,9 +97,9 @@ class OrderController implements OrderApi {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable("id") final String id) {
-        final var context = WebContext.of(OrderWebApi.DELETE).requestId(id);
+        final var context = WebContext.of(OrderWebApi.DELETE).requestId(UUID.fromString(id));
         final RequestProcessor processor = webContext -> {
-            service.remove(webContext.getRequestId());
+            service.remove(webContext.getRequestId().toString());
             return true;
         };
         return interceptor.processRequest(processor, context);
@@ -107,9 +109,9 @@ class OrderController implements OrderApi {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteByIds(@RequestBody final OrderIds request) {
-        final var context = WebContext.of(OrderWebApi.DELETE_BY_IDS).requestIds(request.getIds());
+        final var context = WebContext.of(OrderWebApi.DELETE_BY_IDS).requestIds(request.getIds().stream().map(UUID::fromString).collect(Collectors.toList()));
         final RequestProcessor processor = webContext -> {
-            service.removeByIds(new HashSet<>(webContext.getRequestIds()));
+            service.removeByIds(new HashSet<>(webContext.getRequestIds().stream().map(UUID::toString).collect(Collectors.toSet())));
             return true;
         };
         return interceptor.processRequest(processor, context);

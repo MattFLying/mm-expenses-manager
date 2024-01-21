@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(ProductWebApi.BASE_URL)
@@ -66,11 +68,11 @@ class ProductController implements ProductApi {
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> findById(@PathVariable("id") final String id) {
-        final var context = WebContext.of(ProductWebApi.FIND_BY_ID).requestId(id);
+        final var context = WebContext.of(ProductWebApi.FIND_BY_ID).requestId(UUID.fromString(id));
         final RequestProcessor processor = webContext -> {
             final var productId = webContext.getRequestId();
 
-            return productService.findById(productId)
+            return productService.findById(productId.toString())
                     .map(mapper::mapToResponse)
                     .orElseThrow(() -> new ApiNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId)));
         };
@@ -97,11 +99,11 @@ class ProductController implements ProductApi {
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> update(@PathVariable("id") final String id, @RequestBody final UpdateProductRequest request) {
-        final var context = WebContext.of(ProductWebApi.UPDATE).requestId(id).requestBody(request);
+        final var context = WebContext.of(ProductWebApi.UPDATE).requestId(UUID.fromString(id)).requestBody(request);
         final RequestProcessor processor = webContext -> {
             try {
                 final var updateProductRequest = (UpdateProductRequest) webContext.getRequestBody();
-                return productService.update(webContext.getRequestId(), updateProductRequest)
+                return productService.update(webContext.getRequestId().toString(), updateProductRequest)
                         .map(mapper::mapToResponse)
                         .orElseThrow(() -> new ApiNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(webContext.getRequestId())));
             } catch (final ProductUpdateException exception) {
@@ -115,9 +117,9 @@ class ProductController implements ProductApi {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable("id") final String id) {
-        final var context = WebContext.of(ProductWebApi.DELETE).requestId(id);
+        final var context = WebContext.of(ProductWebApi.DELETE).requestId(UUID.fromString(id));
         final RequestProcessor processor = webContext -> {
-            productService.remove(webContext.getRequestId());
+            productService.remove(webContext.getRequestId().toString());
             return true;
         };
         return interceptor.processRequest(processor, context);
@@ -127,9 +129,9 @@ class ProductController implements ProductApi {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteByIds(@RequestBody final ProductIds request) {
-        final var context = WebContext.of(ProductWebApi.DELETE_BY_IDS).requestIds(request.getIds());
+        final var context = WebContext.of(ProductWebApi.DELETE_BY_IDS).requestIds(request.getIds().stream().map(UUID::fromString).collect(Collectors.toList()));
         final RequestProcessor processor = webContext -> {
-            productService.removeByIds(new HashSet<>(webContext.getRequestIds()));
+            productService.removeByIds(new HashSet<>(webContext.getRequestIds().stream().map(UUID::toString).collect(Collectors.toSet())));
             return true;
         };
         return interceptor.processRequest(processor, context);

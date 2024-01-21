@@ -38,7 +38,7 @@ paths:
             default: 10
             minimum: 1
             format: int32
-        - name: SortOrderRequest
+        - name: sortOrder
           in: query
           required: false
           description: Sort products by.
@@ -271,7 +271,7 @@ components:
 
     SortOrderRequest:
       type: string
-      enum: [ NAME, PRICE_VALUE, PRICE_CURRENCY ]
+      enum: [ NAME, PRICE_VALUE ]
       description: Sorting order for products.
 
     ProductDetailsRequest:
