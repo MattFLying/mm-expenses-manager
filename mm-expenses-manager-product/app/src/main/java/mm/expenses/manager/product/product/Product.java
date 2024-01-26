@@ -22,7 +22,7 @@ import java.util.UUID;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product")
+@Table(name = "p_product")
 @Builder(toBuilder = true)
 @EntityListeners({
         AuditingEntityListener.class

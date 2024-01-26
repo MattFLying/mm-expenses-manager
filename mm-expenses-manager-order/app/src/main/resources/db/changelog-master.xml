@@ -15,6 +15,7 @@
     <property name="now" value="current_timestamp" dbms="postgresql"/>
     <property name="uuidType" value="uuid" dbms="postgresql"/>
 
-    <include file="changelog/01_p_create_product.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/01_o_create_product.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/02_o_create_order.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

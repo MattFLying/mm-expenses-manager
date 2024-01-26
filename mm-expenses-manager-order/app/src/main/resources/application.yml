@@ -14,13 +14,15 @@ app:
       ui-url: ${app.configuration.api.url}/ui
       disable-default-url: true
     database:
-      mongodb:
-        user: admin
-        password: gP_h3cS!Lqu-4
-        name: expenses-manager-order
+      liquibase:
+        enabled: true
+        master-changelog-path: classpath:/db/changelog-master.xml
+      postgres:
         host: localhost
-        port: 27017
-        uri: mongodb://${app.configuration.database.mongodb.user}:${app.configuration.database.mongodb.password}@${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}?authSource=admin
+        port: 5432
+        db-name: expenses_manager
+        username: admin
+        password: gP_h3cS!Lqu-4
     pagination:
       min-page-number: 0
       default-page-size: 10
@@ -43,10 +45,19 @@ spring:
     name: ${app.configuration.name}
   profiles:
     active: ${app.configuration.active-profile}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${app.configuration.database.postgres.host}:${app.configuration.database.postgres.port}/${app.configuration.database.postgres.db-name}?createDatabaseIfNotExist=true
+    username: ${app.configuration.database.postgres.username}
+    password: ${app.configuration.database.postgres.password}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    enabled: ${app.configuration.database.liquibase.enabled}
+    change-log: ${app.configuration.database.liquibase.master-changelog-path}
   data:
-    mongodb:
-      uri: ${app.configuration.database.mongodb.uri}
-      auto-index-creation: true
     web:
       pageable:
         default-page-size: ${app.configuration.pagination.default-page-size}

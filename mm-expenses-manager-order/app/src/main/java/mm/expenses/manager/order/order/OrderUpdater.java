@@ -49,7 +49,7 @@ class OrderUpdater {
     }
 
     private List<OrderedProduct> updateOrderedProducts(final OrderEntity entity, final UpdateOrderRequest updateOrder) {
-        final var updatedOrderedProducts = updateOrderedProducts(entity.getOrderedProducts(), updateOrder.getOrderedProducts());
+        final var updatedOrderedProducts = updateOrderedProducts(entity.getProducts(), updateOrder.getOrderedProducts());
         final var allOrderedProducts = new ArrayList<>(updatedOrderedProducts);
 
         final var newOrders = updateOrder.getNewProducts();
