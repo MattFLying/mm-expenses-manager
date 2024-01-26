@@ -4,8 +4,8 @@
 
     <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
 
-    <changeSet id="01-create-product" author="mateusz.mucha">
-        <createTable tableName="product">
+    <changeSet id="01-p-create-product" author="mateusz.mucha">
+        <createTable tableName="p_product">
             <column name="id" type="uuid">
                 <constraints nullable="false" unique="true"/>
             </column>
@@ -39,8 +39,8 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="id" tableName="product"/>
-        <addUniqueConstraint columnNames="id" tableName="product"/>
+        <addPrimaryKey columnNames="id" tableName="p_product"/>
+        <addUniqueConstraint columnNames="id" tableName="p_product"/>
     </changeSet>
 
 </databaseChangeLog>
