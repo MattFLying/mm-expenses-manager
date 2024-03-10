@@ -7,7 +7,6 @@ import mm.expenses.manager.common.exceptions.base.EmCheckedException;
 import mm.expenses.manager.common.exceptions.base.EmUncheckedException;
 import mm.expenses.manager.common.web.exception.*;
 import org.hibernate.validator.internal.engine.path.PathImpl;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -109,9 +108,13 @@ public class AppExceptionHandler {
 
     private ResponseEntity<ExceptionMessage> messageMethodArgumentNotValidException(final MethodArgumentNotValidException methodArgumentNotValidException) {
         final var message = methodArgumentNotValidException.getBindingResult()
-                .getAllErrors()
+                .getFieldErrors()
                 .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .map(error -> {
+                    var field = error.getField();
+                    var errorMessage = error.getDefaultMessage();
+                    return String.format("%s %s", field, errorMessage);
+                })
                 .collect(Collectors.joining(" "));
         return new ResponseEntity<>(ExceptionMessage.of(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }

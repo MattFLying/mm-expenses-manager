@@ -38,6 +38,70 @@ paths:
             default: 10
             minimum: 1
             format: int32
+        - name: sortOrder
+          in: query
+          required: false
+          description: Sort orders by.
+          schema:
+            $ref: "#/components/schemas/SortOrderRequest"
+        - name: sortDesc
+          in: query
+          required: false
+          description: Ascending sorting by default or descending if false.
+          schema:
+            type: boolean
+            default: true
+        - name: name
+          in: query
+          required: false
+          description: Specific name of the product.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: priceSummary
+          in: query
+          required: false
+          description: Specific price summary for orders.
+          schema:
+            type: BigDecimal
+            minimum: 0
+        - name: priceSummaryLessThan
+          in: query
+          required: false
+          description: If price summary is passed then could be used to specify if price summary should be less than.
+          schema:
+            type: boolean
+            default: false
+        - name: priceSummaryGreaterThan
+          in: query
+          required: false
+          description: If price summary is passed then could be used to specify if price summary should be greater than.
+          schema:
+            type: boolean
+            default: false
+        - name: productsCount
+          in: query
+          required: false
+          description: Specifies how many ordered products are available for the order.
+          example: 15
+          schema:
+            type: integer
+            format: int32
+        - name: productsCountLessThan
+          in: query
+          required: false
+          description: If products count is passed then could be used to specify if products count should be less than.
+          schema:
+            type: boolean
+            default: false
+        - name: productsCountGreaterThan
+          in: query
+          required: false
+          description: If products count is passed then could be used to specify if products count should be greater than.
+          schema:
+            type: boolean
+            default: false
 
       responses:
         "200":
@@ -94,6 +158,14 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
+        - name: isDeleted
+          in: query
+          required: false
+          description: If true then retrieves order even if is marked as deleted otherwise not found.
+          schema:
+            type: boolean
+            default: false
 
       responses:
         "200":
@@ -109,7 +181,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiErrorMessage"
 
-    put:
+    patch:
       tags:
         - Order
       summary: Update order.
@@ -122,6 +194,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -162,6 +235,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
 
       responses:
         "204":
@@ -229,8 +303,14 @@ components:
           description: Orders ids.
           items:
             type: string
+            format: uuid
       additionalProperties: false
       description: Request with ids of orders.
+
+    SortOrderRequest:
+      type: string
+      enum: [ NAME, PRICE_SUMMARY, PRODUCTS_COUNT ]
+      description: Sorting order for orders.
 
     CreateNewOrderedProductRequest:
       type: object
@@ -240,9 +320,11 @@ components:
       properties:
         productId:
           type: string
+          format: uuid
           description: Ordered product id.
         quantity:
           type: double
+          minimum: 0
           description: Ordered product quantity.
       additionalProperties: false
       description: New ordered product request data.
@@ -267,11 +349,12 @@ components:
     UpdateOrderedProductRequest:
       type: object
       required:
-        - id
+        - productId
         - quantity
       properties:
-        id:
+        productId:
           type: string
+          format: uuid
           description: Ordered product id.
         quantity:
           type: double
@@ -281,10 +364,6 @@ components:
 
     UpdateOrderRequest:
       type: object
-      required:
-        - name
-        - orderedProducts
-        - newProducts
       properties:
         name:
           type: string
@@ -299,6 +378,12 @@ components:
           description: New products in the order.
           items:
             $ref: '#/components/schemas/CreateNewOrderedProductRequest'
+        removeProducts:
+          type: array
+          description: Products to remove from order.
+          items:
+            type: string
+            format: uuid
       additionalProperties: false
       description: Order to be updated request data.
 
@@ -314,33 +399,19 @@ components:
       additionalProperties: false
       description: Price response data.
 
-    BoughtProductResponse:
-      type: object
-      properties:
-        productId:
-          type: string
-          description: Product id.
-        name:
-          type: string
-          description: Product name.
-        price:
-          $ref: '#/components/schemas/PriceResponse'
-          description: Product price.
-      additionalProperties: false
-      description: Bought product response data.
-
     OrderedProductResponse:
       type: object
       properties:
         id:
           type: string
+          format: uuid
           description: Product id.
-        boughtProduct:
-          $ref: '#/components/schemas/BoughtProductResponse'
-          description: Bought product.
         quantity:
           type: double
           description: Ordered product quantity.
+        price:
+          $ref: '#/components/schemas/PriceResponse'
+          description: Product price when it has been bought.
         priceSummary:
           $ref: '#/components/schemas/PriceResponse'
           description: Summary price for all related products.
@@ -352,6 +423,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           description: Order id.
         name:
           type: string

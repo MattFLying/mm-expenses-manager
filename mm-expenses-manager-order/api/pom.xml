@@ -54,49 +54,6 @@
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
                 <executions>
-                    <!-- Products API -->
-                    <execution>
-                        <id>product-schema</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-
-                        <configuration>
-                            <generatorName>spring</generatorName>
-                            <generateSupportingFiles>false</generateSupportingFiles>
-
-                            <inputSpec>${api-generation-path}/product-schema.yml</inputSpec>
-                            <packageName>${api-package}.product</packageName>
-                            <invokerPackage>${api-package}.product</invokerPackage>
-                            <apiPackage>${api-package}.product</apiPackage>
-                            <modelPackage>${api-package}.product.model</modelPackage>
-
-                            <typeMappings>
-                                <typeMapping>OffsetDateTime=Instant</typeMapping>
-                            </typeMappings>
-
-                            <importMappings>
-                                <importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
-                                <importMapping>BigDecimal=java.math.BigDecimal</importMapping>
-                            </importMappings>
-
-                            <templateDirectory>
-                                ${project.basedir}/src/main/resources/templates
-                            </templateDirectory>
-
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <interfaceOnly>true</interfaceOnly>
-                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                                <openApiNullable>false</openApiNullable>
-                                <serializableModel>true</serializableModel>
-                                <skipDefaultInterface>true</skipDefaultInterface>
-                                <useTags>true</useTags>
-                                <useResponseEntity>true</useResponseEntity>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-
                     <!-- Orders API -->
                     <execution>
                         <id>order-schema</id>
