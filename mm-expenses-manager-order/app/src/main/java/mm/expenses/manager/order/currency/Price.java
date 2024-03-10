@@ -1,27 +1,40 @@
 package mm.expenses.manager.order.currency;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.order.async.message.ProductManagementConsumerMessage.PriceMessage;
+import mm.expenses.manager.order.async.message.PriceMessage;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Objects;
 
 @Data
-@Builder(toBuilder = true)
+@AllArgsConstructor
 @RequiredArgsConstructor
+@Builder(toBuilder = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Price {
 
-    private static final int PRICE_DECIMAL_DIGIT = 2;
+    public static final MathContext DECIMAL_DIGITS = MathContext.DECIMAL32;
+    public static final RoundingMode ROUND_PRICE_VALUE_MODE = RoundingMode.HALF_EVEN;
+    public static final int ROUND_PRICE_VALUE_DIGITS = 2;
 
-    private final CurrencyCode currency;
-    private final BigDecimal amount;
+    @JsonProperty("currency")
+    private CurrencyCode currency;
+
+    @JsonProperty("amount")
+    private BigDecimal amount;
 
     public BigDecimal getAmount() {
-        return Objects.nonNull(amount) ? amount.setScale(PRICE_DECIMAL_DIGIT, RoundingMode.CEILING) : BigDecimal.ZERO.setScale(PRICE_DECIMAL_DIGIT, RoundingMode.CEILING);
+        return Objects.nonNull(amount) ? withScale(amount) : withScale(BigDecimal.ZERO);
+    }
+
+    public CurrencyCode getCurrency() {
+        return Objects.nonNull(currency) ? currency : CurrencyCode.UNDEFINED;
     }
 
     public Price add(final Price price) {
@@ -31,10 +44,12 @@ public class Price {
         return this;
     }
 
+    @JsonIgnore
     public boolean isPriceFormatValid() {
-        return Math.max(amount.stripTrailingZeros().scale(), 0) <= PRICE_DECIMAL_DIGIT;
+        return Math.max(amount.stripTrailingZeros().scale(), 0) <= ROUND_PRICE_VALUE_DIGITS;
     }
 
+    @JsonIgnore
     public static Price empty() {
         return new Price(CurrencyCode.UNDEFINED, BigDecimal.ZERO);
     }
@@ -52,6 +67,10 @@ public class Price {
 
     public static Price of(final PriceMessage price) {
         return new Price(price.getCurrency(), price.getValue());
+    }
+
+    private BigDecimal withScale(final BigDecimal value) {
+        return value.setScale(ROUND_PRICE_VALUE_DIGITS, ROUND_PRICE_VALUE_MODE);
     }
 
 }

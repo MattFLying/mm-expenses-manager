@@ -30,6 +30,10 @@ public final class PaginationHelper {
         return getPageable(findCorrectPageNumber(pageNumber), findCorrectPageSize(pageSize), config.getMaxPageSize());
     }
 
+    public boolean isPageNumberAndPageSizePresent(final Integer pageNumber, final Integer pageSize) {
+        return (Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize));
+    }
+
     private Pageable getPageable(final Integer page, final Integer size, final Integer maxPageSize) {
         if ((Objects.nonNull(page)) && (Objects.nonNull(size)) && (size > 0)) {
             return pageRequestOf(page, size);

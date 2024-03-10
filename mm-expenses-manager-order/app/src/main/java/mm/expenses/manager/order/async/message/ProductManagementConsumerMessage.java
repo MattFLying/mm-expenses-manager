@@ -6,10 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.kafka.consumer.AsyncKafkaConsumerBinding;
-import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +26,9 @@ public class ProductManagementConsumerMessage implements AsyncKafkaConsumerBindi
 
     private Map<String, Object> details;
 
-    private boolean isDeleted;
+    private Boolean isDeleted;
+
+    private Instant createdAt;
 
     private Instant lastModifiedAt;
 
@@ -42,18 +42,6 @@ public class ProductManagementConsumerMessage implements AsyncKafkaConsumerBindi
     @Override
     public String getConsumerTopicName() {
         return "product-management";
-    }
-
-    @Data
-    @SuperBuilder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PriceMessage {
-
-        private CurrencyCode currency;
-
-        private BigDecimal value;
-
     }
 
 }

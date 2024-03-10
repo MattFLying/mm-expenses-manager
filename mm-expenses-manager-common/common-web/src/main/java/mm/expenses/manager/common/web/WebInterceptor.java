@@ -52,7 +52,7 @@ public final class WebInterceptor {
             return switch (method) {
                 case GET, POST, PUT, PATCH -> Objects.nonNull(result)
                         ? ResponseEntity.status(requestPath.getExpectedSuccessfulStatus()).body(result)
-                        : ResponseEntity.status(requestPath.getExpectedSuccessfulStatus()).build();
+                        : ResponseEntity.status(requestPath.getExpectedSuccessfulStatus()).contentType(context.contentType()).build();
 
                 case DELETE -> ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 

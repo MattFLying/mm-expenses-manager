@@ -1,9 +1,12 @@
-package mm.expenses.manager.product.product;
+package mm.expenses.manager.order.product;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.product.price.Price;
+import mm.expenses.manager.order.currency.Price;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -21,7 +24,7 @@ import java.util.UUID;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "p_product")
+@Table(name = "o_product")
 @Builder(toBuilder = true)
 @EntityListeners({
         AuditingEntityListener.class
@@ -29,12 +32,8 @@ import java.util.UUID;
 public class Product implements Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
-
-    @Column(name = "name")
-    private String name;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "price", columnDefinition = "jsonb")
@@ -56,11 +55,6 @@ public class Product implements Serializable {
     @Version
     @Column(name = "version")
     private Long version;
-
-    @PreUpdate
-    private void beforeUpdate() {
-        setLastModifiedAt(DateUtils.nowAsInstant());
-    }
 
     @PrePersist
     private void beforeSave() {

@@ -5,8 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import mm.expenses.manager.common.web.api.WebApi;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.http.MediaType;
 
 import java.util.*;
+
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * Application context for any WEB action that can be shared between different objects related with any possible action.
@@ -94,6 +98,35 @@ public final class WebContext {
     public WebContext headersMap(final Map<String, String> headers) {
         setHeaders(headers);
         return this;
+    }
+
+    /**
+     * Sets content type.
+     *
+     * @param contentType - expected content type
+     * @return updated context
+     */
+    public WebContext contentType(final MediaType contentType) {
+        if (MapUtils.isNotEmpty(headers)) {
+            headers.put(CONTENT_TYPE, contentType.toString());
+        }
+        return this;
+    }
+
+    /**
+     * Gets content type of current context.
+     *
+     * @return content type of current context
+     */
+    public MediaType contentType() {
+        if (MapUtils.isNotEmpty(headers)) {
+            final var contentType = headers.get(CONTENT_TYPE);
+
+            if (Objects.nonNull(contentType)) {
+                return MediaType.valueOf(contentType);
+            }
+        }
+        return MediaType.APPLICATION_JSON;
     }
 
 }
