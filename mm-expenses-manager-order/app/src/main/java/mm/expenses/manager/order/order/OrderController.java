@@ -3,9 +3,6 @@ package mm.expenses.manager.order.order;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.beans.pagination.PaginationConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
-import mm.expenses.manager.common.web.RequestProcessor;
-import mm.expenses.manager.common.web.WebInterceptor;
-import mm.expenses.manager.common.web.WebContext;
 import mm.expenses.manager.common.web.exception.ApiBadRequestException;
 import mm.expenses.manager.common.web.exception.ApiConflictException;
 import mm.expenses.manager.order.api.order.OrderApi;
@@ -30,7 +27,6 @@ import static mm.expenses.manager.common.web.api.WebApi.ID_URL;
 class OrderController implements OrderApi {
 
     private final PaginationHelper pagination;
-    private final WebInterceptor interceptor;
 
     private final OrderMapper mapper;
     private final OrderService service;
@@ -48,85 +44,67 @@ class OrderController implements OrderApi {
                                              @RequestParam(value = OrderQueryFilter.PRODUCTS_COUNT_PROPERTY, required = false) final Integer productsCount,
                                              @RequestParam(value = OrderQueryFilter.PRODUCTS_COUNT_LESS_THAN_PROPERTY, required = false) final Boolean productsCountLessThan,
                                              @RequestParam(value = OrderQueryFilter.PRODUCTS_COUNT_GREATER_THAN_PROPERTY, required = false) final Boolean productsCountGreaterThan) {
-        final var context = WebContext.of(OrderWebApi.FIND_ALL);
-        final RequestProcessor processor = webContext -> {
-            if (pagination.isPageNumberAndPageSizePresent(pageNumber, pageSize)) {
-                throw new ApiBadRequestException(OrderExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
-            }
+        if (pagination.isPageNumberAndPageSizePresent(pageNumber, pageSize)) {
+            throw new ApiBadRequestException(OrderExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
+        }
 
-            final var queryFilter = new OrderQueryFilter(name, priceSummary, productsCount, priceSummaryLessThan, priceSummaryGreaterThan, productsCountLessThan, productsCountGreaterThan);
-            if (queryFilter.isPriceSummaryOriented()) {
-                if (queryFilter.isPriceSummaryLessAndGreaterUsed()) {
-                    throw new ApiBadRequestException(OrderExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
-                }
-                if (!queryFilter.isPriceSummaryLessOrGreaterOriented()) {
-                    throw new ApiBadRequestException(OrderExceptionMessage.PRICE_MUST_BE_LESS_THAN_OR_GREATER_THAN);
-                }
+        final var queryFilter = new OrderQueryFilter(name, priceSummary, productsCount, priceSummaryLessThan, priceSummaryGreaterThan, productsCountLessThan, productsCountGreaterThan);
+        if (queryFilter.isPriceSummaryOriented()) {
+            if (queryFilter.isPriceSummaryLessAndGreaterUsed()) {
+                throw new ApiBadRequestException(OrderExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
             }
-            if (queryFilter.isProductsCountOriented()) {
-                if (queryFilter.isProductsCountLessAndGreaterUsed()) {
-                    throw new ApiBadRequestException(OrderExceptionMessage.PRODUCTS_COUNT_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
-                }
+            if (!queryFilter.isPriceSummaryLessOrGreaterOriented()) {
+                throw new ApiBadRequestException(OrderExceptionMessage.PRICE_MUST_BE_LESS_THAN_OR_GREATER_THAN);
             }
-            return mapper.mapToPageResponse(service.findOrders(queryFilter, pagination.getPageRequest(pageNumber, pageSize), OrderSortOrder.of(sortOrder, sortDesc)));
-        };
-        return interceptor.processRequest(processor, context);
+        }
+        if (queryFilter.isProductsCountOriented()) {
+            if (queryFilter.isProductsCountLessAndGreaterUsed()) {
+                throw new ApiBadRequestException(OrderExceptionMessage.PRODUCTS_COUNT_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
+            }
+        }
+        return ResponseEntity.ok(mapper.mapToPageResponse(service.findOrders(queryFilter, pagination.getPageRequest(pageNumber, pageSize), OrderSortOrder.of(sortOrder, sortDesc))));
     }
 
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> findById(@PathVariable("id") final UUID id,
                                                   @RequestParam(value = OrderQueryFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted) {
-        final var context = WebContext.of(OrderWebApi.FIND_BY_ID).requestId(id);
-        final RequestProcessor processor = webContext -> mapper.mapToResponse(service.findById(id, isDeleted));
-        return interceptor.processRequest(processor, context);
+        return ResponseEntity.ok(mapper.mapToResponse(service.findById(id, isDeleted)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> create(@RequestBody final CreateNewOrderRequest request) {
-        final var context = WebContext.of(OrderWebApi.CREATE).requestBody(request);
-        final RequestProcessor processor = webContext -> mapper.mapToResponse(service.create(request));
-        return interceptor.processRequest(processor, context);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.mapToResponse(service.create(request)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = ID_URL, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> update(@PathVariable("id") final UUID id, @RequestBody final UpdateOrderRequest request) {
-        final var context = WebContext.of(OrderWebApi.UPDATE).requestId(id).requestBody(request);
-        final RequestProcessor processor = webContext -> {
-            if (!isAnyUpdateOrder(request)) {
-                throw new ApiConflictException(OrderExceptionMessage.ORDER_NO_UPDATE_DATA);
-            }
-            return mapper.mapToResponse(service.update(webContext.getRequestId(), request));
-        };
-        return interceptor.processRequest(processor, context);
+        if (!isAnyUpdateOrder(request)) {
+            throw new ApiConflictException(OrderExceptionMessage.ORDER_NO_UPDATE_DATA);
+        }
+        return ResponseEntity.ok(mapper.mapToResponse(service.update(id, request)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable("id") final UUID id) {
-        final var context = WebContext.of(OrderWebApi.DELETE).requestId(id);
-        final RequestProcessor processor = webContext -> {
-            service.delete(webContext.getRequestId());
-            return true;
-        };
-        return interceptor.processRequest(processor, context);
+        service.delete(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteByIds(@RequestBody final OrderIds request) {
-        final var context = WebContext.of(OrderWebApi.DELETE_BY_IDS).requestIds(request.getIds());
-        final RequestProcessor processor = webContext -> {
-            service.removeByIds(new HashSet<>(webContext.getRequestIds()));
-            return true;
-        };
-        return interceptor.processRequest(processor, context);
+        service.removeByIds(new HashSet<>(request.getIds()));
+
+        return ResponseEntity.noContent().build();
     }
 
     private boolean isAnyUpdateOrder(final UpdateOrderRequest request) {

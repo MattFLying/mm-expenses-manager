@@ -3,7 +3,6 @@ package mm.expenses.manager.product.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Generated;
 import mm.expenses.manager.common.beans.ObjectMapperConfig;
-import mm.expenses.manager.common.web.WebInterceptor;
 import mm.expenses.manager.common.web.config.ApplicationConfig;
 import mm.expenses.manager.common.web.config.ErrorHandlingConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationConfig;
@@ -19,7 +18,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
         ErrorHandlingConfig.class, PaginationConfig.class, WebMvcConfig.class, OpenApiConfig.class,
-        ApplicationConfig.class, WebInterceptor.class, AsyncKafkaProducer.class
+        ApplicationConfig.class, AsyncKafkaProducer.class
 })
 class ProductApplicationConfig {
 
