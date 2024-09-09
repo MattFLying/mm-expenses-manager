@@ -1,6 +1,7 @@
 package mm.expenses.manager.common.web.exception;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.exceptions.base.EmAppException;
 import org.springframework.http.HttpStatus;
 
@@ -44,6 +45,10 @@ public record ExceptionMessage(@Schema(description = "Exception code.") String c
 
     public static String formatStatus(final HttpStatus status) {
         return String.format("%d(%s)", status.value(), status.getReasonPhrase());
+    }
+
+    public static String formatStatus(final int statusCode) {
+        return formatStatus(HttpStatus.valueOf(statusCode));
     }
 
 }

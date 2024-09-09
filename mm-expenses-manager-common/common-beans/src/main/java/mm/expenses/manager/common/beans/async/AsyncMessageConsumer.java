@@ -1,6 +1,6 @@
 package mm.expenses.manager.common.beans.async;
 
-import mm.expenses.manager.common.beans.exception.AsyncException;
+import mm.expenses.manager.common.exceptions.async.AsyncException;
 import mm.expenses.manager.common.beans.exception.BeansExceptionMessage;
 
 import java.util.Objects;

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.beans.async.AsyncMessageProducer;
 import mm.expenses.manager.common.beans.async.AsyncProducerBinding;
-import mm.expenses.manager.common.beans.exception.AsyncException;
+import mm.expenses.manager.common.exceptions.async.AsyncException;
 import mm.expenses.manager.common.kafka.exception.KafkaExceptionMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;

@@ -2,10 +2,12 @@ package mm.expenses.manager.common.web.exception.handler;
 
 import jakarta.validation.Path;
 import lombok.extern.slf4j.Slf4j;
+import mm.expenses.manager.common.exceptions.api.*;
 import mm.expenses.manager.common.exceptions.base.EmAppException;
 import mm.expenses.manager.common.exceptions.base.EmCheckedException;
 import mm.expenses.manager.common.exceptions.base.EmUncheckedException;
-import mm.expenses.manager.common.web.exception.*;
+import mm.expenses.manager.common.web.exception.ExceptionMessage;
+import mm.expenses.manager.common.web.exception.ValidationExceptionMessage;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,7 +77,7 @@ public class AppExceptionHandler {
     }
 
     private ResponseEntity<ExceptionMessage> messageApiException(final ApiException exception) {
-        return new ResponseEntity<>(ExceptionMessage.fromApiException(exception), exception.httpStatus());
+        return new ResponseEntity<>(ExceptionMessage.fromApiException(exception), HttpStatus.valueOf(exception.httpStatus()));
     }
 
     private ResponseEntity<ExceptionMessage> messageValidationException(final RuntimeException exception) {

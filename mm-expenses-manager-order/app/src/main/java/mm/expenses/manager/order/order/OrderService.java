@@ -3,13 +3,13 @@ package mm.expenses.manager.order.order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.beans.pagination.sort.SortOrder;
+import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
+import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderRequest;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
-import mm.expenses.manager.order.exception.OrderNotFoundException;
-import mm.expenses.manager.order.exception.OrderValidationException;
 import mm.expenses.manager.order.product.Product;
 import mm.expenses.manager.order.product.ProductService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -79,7 +79,7 @@ public class OrderService {
     Order findById(final UUID id, final Boolean isDeleted) {
         final var isDeletedFlag = Objects.nonNull(isDeleted) ? isDeleted : false;
         return repository.findByIdAndIsDeleted(id, isDeletedFlag)
-                .orElseThrow(() -> new OrderNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
+                .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
     }
 
     Order create(final CreateNewOrderRequest request) {
@@ -100,7 +100,7 @@ public class OrderService {
                             saveOrder(order);
                         },
                         () -> {
-                            throw new OrderNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(orderId));
+                            throw new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(orderId));
                         });
     }
 
@@ -111,7 +111,7 @@ public class OrderService {
                     .map(Order::getId)
                     .filter(orderId -> !ids.contains(orderId))
                     .collect(Collectors.toSet());
-            throw new OrderNotFoundException(OrderExceptionMessage.ORDERS_NOT_FOUND.withParameters(notFoundIds));
+            throw new ApiNotFoundException(OrderExceptionMessage.ORDERS_NOT_FOUND.withParameters(notFoundIds));
         }
         final var removed = toRemove.stream()
                 .peek(order -> order.setDeleted(true))
@@ -121,7 +121,7 @@ public class OrderService {
 
     Order update(final UUID id, final UpdateOrderRequest updateOrder) {
         var existedOrder = repository.findByIdAndIsDeleted(id, false)
-                .orElseThrow(() -> new OrderNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
+                .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
 
         final var allProductsAfterUpdate = new OrderProductsUpdater(existedOrder);
         allProductsAfterUpdate.update(updateOrder, this::createOrderedProducts);
@@ -131,10 +131,10 @@ public class OrderService {
 
     private List<OrderedProduct> createOrderedProducts(final Collection<CreateNewOrderedProductRequest> newProductOrders) {
         if (CollectionUtils.isEmpty(newProductOrders)) {
-            throw new OrderValidationException(OrderExceptionMessage.ORDER_PRODUCTS_CANNOT_BE_EMPTY);
+            throw new ApiValidationException(OrderExceptionMessage.ORDER_PRODUCTS_CANNOT_BE_EMPTY);
         }
         if (!newProductOrders.stream().allMatch(product -> product.getQuantity() > 0.0)) {
-            throw new OrderValidationException(OrderExceptionMessage.ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO);
+            throw new ApiValidationException(OrderExceptionMessage.ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO);
         }
         final var productIds = newProductOrders.stream().map(CreateNewOrderedProductRequest::getProductId).collect(Collectors.toSet());
         final var foundProductsByIds = productService.findAllByIds(productIds).stream().collect(Collectors.toMap(Product::getId, Function.identity(), (a, b) -> a));
@@ -143,7 +143,7 @@ public class OrderService {
                     .filter(id -> !foundProductsByIds.containsKey(id))
                     .collect(Collectors.toSet());
             log.error("Not all products were found and cannot finalize the ordered products. Missing products ids: {}", missingIds);
-            throw new OrderValidationException(OrderExceptionMessage.ORDER_NOT_ALL_PRODUCTS_FOUND.withParameters(missingIds));
+            throw new ApiValidationException(OrderExceptionMessage.ORDER_NOT_ALL_PRODUCTS_FOUND.withParameters(missingIds));
         }
 
         final var preparedProductOrders = newProductOrders.stream()

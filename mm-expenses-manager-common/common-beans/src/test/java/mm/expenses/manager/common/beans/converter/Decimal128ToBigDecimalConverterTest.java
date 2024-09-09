@@ -1,7 +1,7 @@
 package mm.expenses.manager.common.beans.converter;
 
 import mm.expenses.manager.common.beans.exception.BeansExceptionMessage;
-import mm.expenses.manager.common.beans.exception.ConversionException;
+import mm.expenses.manager.common.exceptions.conversion.ConversionException;
 import org.bson.types.Decimal128;
 import org.junit.jupiter.api.Test;
 

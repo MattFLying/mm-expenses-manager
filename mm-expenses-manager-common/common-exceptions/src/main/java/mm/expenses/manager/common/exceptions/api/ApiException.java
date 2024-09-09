@@ -1,8 +1,7 @@
-package mm.expenses.manager.common.web.exception;
+package mm.expenses.manager.common.exceptions.api;
 
 import mm.expenses.manager.common.exceptions.base.EmUncheckedException;
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
-import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 
@@ -20,7 +19,7 @@ public abstract class ApiException extends EmUncheckedException {
         this.occurred = timeNow();
     }
 
-    public abstract HttpStatus httpStatus();
+    public abstract int httpStatus();
 
     /**
      * UTC

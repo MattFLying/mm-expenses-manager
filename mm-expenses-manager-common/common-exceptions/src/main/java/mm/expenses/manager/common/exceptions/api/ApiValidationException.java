@@ -1,7 +1,6 @@
-package mm.expenses.manager.common.web.exception;
+package mm.expenses.manager.common.exceptions.api;
 
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
-import org.springframework.http.HttpStatus;
 
 import java.util.Objects;
 
@@ -11,6 +10,11 @@ public class ApiValidationException extends ApiException {
 
     public ApiValidationException(final ExceptionType exceptionType) {
         super(exceptionType);
+        this.validationCause = null;
+    }
+
+    public ApiValidationException(final ExceptionType exceptionType, final Throwable cause) {
+        super(exceptionType, cause);
         this.validationCause = null;
     }
 
@@ -31,8 +35,8 @@ public class ApiValidationException extends ApiException {
     }
 
     @Override
-    public HttpStatus httpStatus() {
-        return HttpStatus.BAD_REQUEST;
+    public int httpStatus() {
+        return 400;
     }
 
 }

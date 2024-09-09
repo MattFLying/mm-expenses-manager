@@ -1,7 +1,6 @@
-package mm.expenses.manager.common.web.exception;
+package mm.expenses.manager.common.exceptions.api;
 
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
-import org.springframework.http.HttpStatus;
 
 public class ApiBadRequestException extends ApiException {
 
@@ -14,8 +13,8 @@ public class ApiBadRequestException extends ApiException {
     }
 
     @Override
-    public HttpStatus httpStatus() {
-        return HttpStatus.BAD_REQUEST;
+    public int httpStatus() {
+        return 400;
     }
 
 }

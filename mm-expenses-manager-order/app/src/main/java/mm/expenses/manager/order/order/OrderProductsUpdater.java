@@ -1,10 +1,10 @@
 package mm.expenses.manager.order.order;
 
+import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderedProductRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
-import mm.expenses.manager.order.exception.OrderValidationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
@@ -82,7 +82,7 @@ class OrderProductsUpdater extends HashMap<UUID, OrderedProduct> {
 
     private void validateAfterUpdate() {
         if (!values().stream().allMatch(product -> product.getQuantity() > 0.0)) {
-            throw new OrderValidationException(OrderExceptionMessage.ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO);
+            throw new ApiValidationException(OrderExceptionMessage.ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO);
         }
     }
 

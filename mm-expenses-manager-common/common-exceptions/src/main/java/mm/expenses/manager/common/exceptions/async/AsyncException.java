@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.beans.exception;
+package mm.expenses.manager.common.exceptions.async;
 
 import mm.expenses.manager.common.exceptions.base.EmUncheckedException;
 import mm.expenses.manager.common.exceptions.base.ExceptionType;

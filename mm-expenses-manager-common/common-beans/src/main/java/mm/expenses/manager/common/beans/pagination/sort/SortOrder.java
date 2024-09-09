@@ -1,7 +1,7 @@
 package mm.expenses.manager.common.beans.pagination.sort;
 
 import mm.expenses.manager.common.beans.exception.BeansExceptionMessage;
-import mm.expenses.manager.common.beans.exception.SortOrderException;
+import mm.expenses.manager.common.exceptions.sort.SortOrderException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 

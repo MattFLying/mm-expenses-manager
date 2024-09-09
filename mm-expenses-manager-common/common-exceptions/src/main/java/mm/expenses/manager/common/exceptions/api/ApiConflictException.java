@@ -1,7 +1,6 @@
-package mm.expenses.manager.common.web.exception;
+package mm.expenses.manager.common.exceptions.api;
 
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
-import org.springframework.http.HttpStatus;
 
 public class ApiConflictException extends ApiException {
 
@@ -10,8 +9,8 @@ public class ApiConflictException extends ApiException {
     }
 
     @Override
-    public HttpStatus httpStatus() {
-        return HttpStatus.CONFLICT;
+    public int httpStatus() {
+        return 409;
     }
 
 }
