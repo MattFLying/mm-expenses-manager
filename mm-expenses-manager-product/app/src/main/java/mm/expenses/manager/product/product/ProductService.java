@@ -1,7 +1,7 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.async.AsyncMessageProducer;
+import mm.expenses.manager.common.kafka.async.AsyncMessageProducer;
 import mm.expenses.manager.common.beans.pagination.sort.SortOrder;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;

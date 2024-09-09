@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.beans.async;
+package mm.expenses.manager.common.kafka.async;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

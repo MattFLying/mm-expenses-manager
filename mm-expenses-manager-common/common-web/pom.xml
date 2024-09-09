@@ -29,12 +29,6 @@
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-exceptions</artifactId>
-            <version>${mm-expenses-manager-common-exceptions-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
             <artifactId>common-utils</artifactId>
             <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>

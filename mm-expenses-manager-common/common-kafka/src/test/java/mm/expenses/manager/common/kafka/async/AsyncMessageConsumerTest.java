@@ -1,7 +1,7 @@
-package mm.expenses.manager.common.beans.async;
+package mm.expenses.manager.common.kafka.async;
 
 import mm.expenses.manager.common.exceptions.async.AsyncException;
-import mm.expenses.manager.common.beans.exception.BeansExceptionMessage;
+import mm.expenses.manager.common.kafka.exception.KafkaExceptionMessage;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
@@ -39,7 +39,7 @@ class AsyncMessageConsumerTest {
         // when& then
         assertThatThrownBy(() -> consumer.logMessage(null))
                 .isInstanceOf(AsyncException.class)
-                .hasMessage(BeansExceptionMessage.ASYNC_CONSUMER_MESSAGE_IS_NULL.getMessage());
+                .hasMessage(KafkaExceptionMessage.ASYNC_CONSUMER_MESSAGE_IS_NULL.getMessage());
     }
 
     @Test
@@ -52,7 +52,7 @@ class AsyncMessageConsumerTest {
         // when& then
         assertThatThrownBy(() -> consumer.logMessage(consumerBinding))
                 .isInstanceOf(AsyncException.class)
-                .hasMessage(BeansExceptionMessage.ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL.getMessage());
+                .hasMessage(KafkaExceptionMessage.ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL.getMessage());
     }
 
     @Test
@@ -65,7 +65,7 @@ class AsyncMessageConsumerTest {
         // when& then
         assertThatThrownBy(() -> consumer.logMessage(consumerBinding))
                 .isInstanceOf(AsyncException.class)
-                .hasMessage(BeansExceptionMessage.ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL.getMessage());
+                .hasMessage(KafkaExceptionMessage.ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL.getMessage());
     }
 
 }

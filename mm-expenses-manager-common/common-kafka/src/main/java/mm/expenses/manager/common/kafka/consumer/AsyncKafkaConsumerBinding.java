@@ -1,7 +1,7 @@
 package mm.expenses.manager.common.kafka.consumer;
 
-import mm.expenses.manager.common.beans.async.AsyncConsumerBinding;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
+import mm.expenses.manager.common.kafka.async.AsyncConsumerBinding;
 
 /**
  * Interface for kafka consumer binding implementation to define from where the message should be received.

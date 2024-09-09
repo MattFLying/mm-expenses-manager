@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.beans.async;
+package mm.expenses.manager.common.kafka.async;
 
 /**
  * Interface for asynchronous consumer's binding implementation to define from where the message should be received.

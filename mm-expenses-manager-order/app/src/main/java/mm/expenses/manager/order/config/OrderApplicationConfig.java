@@ -3,7 +3,7 @@ package mm.expenses.manager.order.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Generated;
 import mm.expenses.manager.common.beans.ObjectMapperConfig;
-import mm.expenses.manager.common.beans.async.AsyncMessageConsumer;
+import mm.expenses.manager.common.kafka.async.AsyncMessageConsumer;
 import mm.expenses.manager.common.beans.pagination.PaginationConfig;
 import mm.expenses.manager.common.beans.pagination.PaginationHelper;
 import mm.expenses.manager.common.kafka.producer.AsyncKafkaProducer;
