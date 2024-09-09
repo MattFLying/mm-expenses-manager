@@ -31,6 +31,7 @@
         <module>common-beans</module>
         <module>common-kafka</module>
         <module>common-web</module>
+        <module>common-async</module>
     </modules>
 
 </project>

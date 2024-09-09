@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.kafka.async;
+package mm.expenses.manager.common.async;
 
 /**
  * Interface for asynchronous producer implementation to send message via expected brokers.

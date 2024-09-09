@@ -1,7 +1,7 @@
-package mm.expenses.manager.common.kafka.async;
+package mm.expenses.manager.common.async;
 
+import mm.expenses.manager.common.async.exception.AsyncExceptionMessage;
 import mm.expenses.manager.common.exceptions.async.AsyncException;
-import mm.expenses.manager.common.kafka.exception.KafkaExceptionMessage;
 
 import java.util.Objects;
 
@@ -19,13 +19,13 @@ public interface AsyncMessageConsumer {
      */
     default <T extends AsyncConsumerBinding> String logMessage(final T consumerMessage) {
         if (Objects.isNull(consumerMessage)) {
-            throw new AsyncException(KafkaExceptionMessage.ASYNC_CONSUMER_MESSAGE_IS_NULL);
+            throw new AsyncException(AsyncExceptionMessage.ASYNC_CONSUMER_MESSAGE_IS_NULL);
         }
         final var classType = consumerMessage.getClass();
         final var binding = consumerMessage.getConsumerBindingName();
         final var topic = consumerMessage.getConsumerTopicName();
         if (Objects.isNull(binding) || Objects.isNull(topic)) {
-            throw new AsyncException(KafkaExceptionMessage.ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL.withParameters(binding, topic));
+            throw new AsyncException(AsyncExceptionMessage.ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL.withParameters(binding, topic));
         }
         return String.format("Received message on binding: %s, topic: %s, mapped to: %s. Message body: %s", binding, topic, classType, consumerMessage);
     }

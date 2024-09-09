@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.kafka.exception;
+package mm.expenses.manager.common.async.exception;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
@@ -11,10 +11,9 @@ import java.util.Objects;
  * Provides all available exceptions codes and messages.
  */
 @RequiredArgsConstructor
-public enum KafkaExceptionMessage implements ExceptionType {
-    ASYNC_PRODUCER_MESSAGE_SEND_FAILED("async-producer-message-error", "Sending event to binding: %s on topic: %s failed. Body: %s"),
-    ASYNC_PRODUCER_MESSAGE_IS_NULL("async-producer-message-error", "Cannot send asynchronous message because the message is null."),
-    ASYNC_PRODUCER_BINDING_OR_TOPIC_IS_NULL("async-producer-binding-error", "Producer binding or topic is null what is not allowed. Binding: %s. Topic: %s.");
+public enum AsyncExceptionMessage implements ExceptionType {
+    ASYNC_CONSUMER_MESSAGE_IS_NULL("async-consumer-binding-error", "Consumer binding message is null."),
+    ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL("async-consumer-binding-error", "Consumer binding or topic is null what is not allowed. Binding: %s. Topic: %s.");
 
     private final String code;
     private final String message;

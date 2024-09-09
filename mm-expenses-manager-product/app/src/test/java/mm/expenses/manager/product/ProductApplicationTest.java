@@ -1,7 +1,7 @@
 package mm.expenses.manager.product;
 
 import junitparams.JUnitParamsRunner;
-import mm.expenses.manager.common.kafka.async.AsyncMessageProducer;
+import mm.expenses.manager.common.async.AsyncMessageProducer;
 import mm.expenses.manager.product.product.ProductRepository;
 import org.junit.ClassRule;
 import org.junit.Rule;

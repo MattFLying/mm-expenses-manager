@@ -11,32 +11,25 @@
         <version>0.2.6-SNAPSHOT</version>
     </parent>
 
-    <name>Expenses Manager Common Kafka</name>
-    <description>Expenses Manager common kafka module to work with Kafka Message Broker.</description>
+    <name>Expenses Manager Common Async</name>
+    <description>Expenses Manager common async module to work with any asynchronous mechanism.</description>
 
-    <artifactId>common-kafka</artifactId>
+    <artifactId>common-async</artifactId>
     <version>0.2.6-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-async</artifactId>
+            <artifactId>common-utils</artifactId>
             <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>
-        </dependency>
-
-        <!-- Spring dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Kafka dependencies -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-kafka</artifactId>
         </dependency>
 
         <!-- Test dependencies -->

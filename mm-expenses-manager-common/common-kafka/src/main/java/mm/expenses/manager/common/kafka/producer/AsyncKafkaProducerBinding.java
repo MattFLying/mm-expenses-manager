@@ -1,7 +1,7 @@
 package mm.expenses.manager.common.kafka.producer;
 
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
-import mm.expenses.manager.common.kafka.async.AsyncProducerBinding;
+import mm.expenses.manager.common.async.AsyncProducerBinding;
 
 /**
  * Interface for kafka producer binding implementation to define from where the message should be received.
