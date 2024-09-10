@@ -22,6 +22,7 @@
         <!-- ExpensesManager dependency versions -->
         <mm-expenses-manager-common-exceptions-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
         <mm-expenses-manager-common-utils-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-utils-version>
+        <mm-expenses-manager-common-mongodb-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-mongodb-version>
         <mm-expenses-manager-common-web-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-web-version>
     </properties>
 
@@ -30,27 +31,6 @@
         <module>app</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <!-- MongoDB dependencies -->
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-sync</artifactId>
-                <version>${mongodb-driver-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-core</artifactId>
-                <version>${mongodb-driver-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-reactivestreams</artifactId>
-                <version>${mongodb-driver-version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!-- ExpensesManager dependencies -->
         <dependency>
@@ -58,6 +38,11 @@
             <artifactId>common-utils</artifactId>
             <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-mongodb</artifactId>
+            <version>${mm-expenses-manager-common-mongodb-version}</version>
         </dependency>
         <dependency>
             <groupId>mm-expenses-manager</groupId>

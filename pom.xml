@@ -29,7 +29,6 @@
         <module>mm-expenses-manager-product</module>
 
         <module>mm-expenses-manager-order</module>
-        <module>mm-expenses-manager-common/common-postgresql</module>
     </modules>
 
     <properties>
