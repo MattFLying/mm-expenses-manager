@@ -1,7 +1,7 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;

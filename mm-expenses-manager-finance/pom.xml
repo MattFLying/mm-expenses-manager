@@ -20,7 +20,6 @@
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-beans-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-beans-version>
         <mm-expenses-manager-common-exceptions-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
         <mm-expenses-manager-common-utils-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-utils-version>
         <mm-expenses-manager-common-web-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-web-version>
@@ -58,12 +57,6 @@
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-utils</artifactId>
             <version>${mm-expenses-manager-common-utils-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-beans</artifactId>
-            <version>${mm-expenses-manager-common-beans-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

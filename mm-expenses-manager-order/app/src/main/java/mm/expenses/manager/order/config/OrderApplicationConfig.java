@@ -2,10 +2,10 @@ package mm.expenses.manager.order.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Generated;
-import mm.expenses.manager.common.beans.ObjectMapperConfig;
+import mm.expenses.manager.common.web.ObjectMapperConfig;
 import mm.expenses.manager.common.async.AsyncMessageConsumer;
-import mm.expenses.manager.common.beans.pagination.PaginationConfig;
-import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.pagination.PaginationConfig;
+import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.kafka.producer.AsyncKafkaProducer;
 import mm.expenses.manager.common.web.config.ApplicationConfig;
 import mm.expenses.manager.common.web.config.ErrorHandlingConfig;

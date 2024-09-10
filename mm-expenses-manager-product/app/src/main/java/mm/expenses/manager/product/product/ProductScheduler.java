@@ -2,7 +2,7 @@ package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

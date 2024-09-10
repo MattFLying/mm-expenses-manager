@@ -1,6 +1,6 @@
 package mm.expenses.manager.order.order;
 
-import mm.expenses.manager.common.beans.pagination.PaginationConfig;
+import mm.expenses.manager.common.web.pagination.PaginationConfig;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.order.OrderApplicationTest;
 import mm.expenses.manager.order.api.order.model.OrderIds;

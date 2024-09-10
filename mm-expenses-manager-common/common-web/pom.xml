@@ -33,12 +33,6 @@
             <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-beans</artifactId>
-            <version>${mm-expenses-manager-common-beans-version}</version>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- Spring dependencies -->
         <dependency>

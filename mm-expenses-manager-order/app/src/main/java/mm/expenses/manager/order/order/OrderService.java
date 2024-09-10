@@ -2,7 +2,7 @@ package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.common.beans.pagination.sort.SortOrder;
+import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.utils.util.DateUtils;

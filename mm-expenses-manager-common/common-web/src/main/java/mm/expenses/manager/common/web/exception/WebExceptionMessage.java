@@ -15,7 +15,8 @@ import java.util.Objects;
 public enum WebExceptionMessage implements ExceptionType {
     METHOD_NOT_ALLOWED("http-method-not-allowed", "Method '%s' is not allowed."),
     REQUIRED_REQUEST_PROCESSOR_AND_CONTEXT("request-processor-context-required", "Request processor and context are required but %s"),
-    HTTP_METHOD_NULL("http-method-is-null", "Http method cannot be null.");
+    HTTP_METHOD_NULL("http-method-is-null", "Http method cannot be null."),
+    PAGINATION_SORT_ORDER_MULTIPLE_VALUES("pagination-sort-order-error", "Pagination sorting has different order values than expected.");
 
     private final String code;
     private final String message;

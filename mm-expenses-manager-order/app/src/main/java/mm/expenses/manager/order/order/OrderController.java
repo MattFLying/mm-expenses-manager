@@ -1,8 +1,8 @@
 package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.pagination.PaginationConfig;
-import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.pagination.PaginationConfig;
+import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.order.api.order.OrderApi;
