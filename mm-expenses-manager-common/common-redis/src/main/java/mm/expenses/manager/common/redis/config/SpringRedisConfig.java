@@ -1,4 +1,4 @@
-package mm.expenses.manager.finance.cache.config;
+package mm.expenses.manager.common.redis.config;
 
 import lombok.Data;
 import lombok.Generated;
@@ -13,7 +13,7 @@ import java.util.Objects;
 @Configuration
 @ConfigurationProperties(prefix = "app.configuration.cache.redis")
 @ConditionalOnProperty(prefix = "app.configuration.cache", name = "type", havingValue = "redis")
-class SpringRedisConfig {
+public class SpringRedisConfig {
 
     private static final int DEFAULT_PORT = 6379;
 

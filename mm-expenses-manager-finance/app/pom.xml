@@ -24,10 +24,6 @@
         <mm-expenses-manager-common-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-version>
         <mm-expenses-manager-exception-version>0.2.6-SNAPSHOT</mm-expenses-manager-exception-version>
         <mm-expenses-manager-finance-api-version>0.2.6-SNAPSHOT</mm-expenses-manager-finance-api-version>
-
-        <!-- Other dependency versions -->
-        <apache-commons-pool-version>2.12.0</apache-commons-pool-version>
-        <redis-client-jedis-version>5.0.2</redis-client-jedis-version>
     </properties>
 
     <dependencies>
@@ -55,17 +51,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-
-        <!-- Redis dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>${redis-client-jedis-version}</version>
         </dependency>
 
         <!-- Test dependencies -->

@@ -27,7 +27,6 @@
         <module>mm-expenses-manager-common</module>
         <module>mm-expenses-manager-finance</module>
         <module>mm-expenses-manager-product</module>
-
         <module>mm-expenses-manager-order</module>
     </modules>
 

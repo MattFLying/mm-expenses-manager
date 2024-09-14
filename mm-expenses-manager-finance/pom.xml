@@ -24,6 +24,7 @@
         <mm-expenses-manager-common-utils-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-utils-version>
         <mm-expenses-manager-common-mongodb-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-mongodb-version>
         <mm-expenses-manager-common-kafka-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-kafka-version>
+        <mm-expenses-manager-common-redis-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-redis-version>
         <mm-expenses-manager-common-web-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-web-version>
     </properties>
 
@@ -49,6 +50,11 @@
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-kafka</artifactId>
             <version>${mm-expenses-manager-common-kafka-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-redis</artifactId>
+            <version>${mm-expenses-manager-common-redis-version}</version>
         </dependency>
         <dependency>
             <groupId>mm-expenses-manager</groupId>
