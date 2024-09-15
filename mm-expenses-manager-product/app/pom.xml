@@ -8,7 +8,7 @@
     <parent>
         <artifactId>mm-expenses-manager-product</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.7-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Product App</name>
@@ -17,13 +17,13 @@
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-product-app</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
+    <version>0.2.7-SNAPSHOT</version>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>0.2.6-SNAPSHOT</mm-expenses-manager-exception-version>
-        <mm-expenses-manager-product-api-version>0.2.6-SNAPSHOT</mm-expenses-manager-product-api-version>
+        <mm-expenses-manager-common-version>${project-version}</mm-expenses-manager-common-version>
+        <mm-expenses-manager-exception-version>${project-version}</mm-expenses-manager-exception-version>
+        <mm-expenses-manager-product-api-version>${project-version}</mm-expenses-manager-product-api-version>
     </properties>
 
     <dependencies>
@@ -33,8 +33,6 @@
             <artifactId>mm-expenses-manager-product-api</artifactId>
             <version>${mm-expenses-manager-product-api-version}</version>
         </dependency>
-
-        <!-- Spring dependencies -->
 
         <!-- PostgreSQL dependencies -->
         <dependency>

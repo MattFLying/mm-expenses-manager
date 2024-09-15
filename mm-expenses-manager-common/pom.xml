@@ -8,20 +8,20 @@
     <parent>
         <artifactId>mm-expenses-manager-parent</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.7-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Library</name>
     <description>Expenses Manager common functionalities.</description>
 
     <artifactId>mm-expenses-manager-common</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
+    <version>0.2.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-exceptions-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
-        <mm-expenses-manager-common-utils-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-utils-version>
+        <mm-expenses-manager-common-exceptions-version>${project-version}</mm-expenses-manager-common-exceptions-version>
+        <mm-expenses-manager-common-utils-version>${project-version}</mm-expenses-manager-common-utils-version>
     </properties>
 
     <dependencies>

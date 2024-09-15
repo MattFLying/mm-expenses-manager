@@ -8,14 +8,14 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.7-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Async</name>
     <description>Expenses Manager common async module to work with any asynchronous mechanism.</description>
 
     <artifactId>common-async</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
+    <version>0.2.7-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

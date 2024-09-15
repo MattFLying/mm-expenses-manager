@@ -8,22 +8,22 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.7-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Utils</name>
     <description>Expenses Manager common utils with utilities components.</description>
 
     <artifactId>common-utils</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
+    <version>0.2.7-SNAPSHOT</version>
 
     <properties>
         <!-- Apache commons version -->
-        <apache-commons-lang3-version>3.13.0</apache-commons-lang3-version>
+        <apache-commons-lang3-version>3.16.0</apache-commons-lang3-version>
         <apache-commons-collections4-version>4.4</apache-commons-collections4-version>
         <apache-commons-math3>3.6.1</apache-commons-math3>
-        <apache-commons-fileupload>1.5</apache-commons-fileupload>
-        <apache-commons-validator-version>1.7</apache-commons-validator-version>
+        <apache-commons-validator-version>1.9.0</apache-commons-validator-version>
+        <apache-commons-fileupload>2.0.0-M2</apache-commons-fileupload>
     </properties>
 
     <dependencies>
@@ -63,8 +63,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-fileupload2-javax</artifactId>
             <version>${apache-commons-fileupload}</version>
         </dependency>
 
