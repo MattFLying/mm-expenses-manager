@@ -51,7 +51,7 @@
         <maven.compiler.target>${java-version}</maven.compiler.target>
         <maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
         <maven-resources-plugin-version>3.3.1</maven-resources-plugin-version>
-        <maven-surefire-version>3.1.2</maven-surefire-version>
+        <maven-surefire-version>3.2.5</maven-surefire-version>
 
         <!-- Project related version -->
         <lombok-version>1.18.32</lombok-version>
@@ -78,12 +78,12 @@
         <openapi-generator-plugin-version>7.8.0</openapi-generator-plugin-version>
 
         <!-- Tests version -->
-        <junit-jupiter-version>5.10.0</junit-jupiter-version>
-        <assertj-core-version>3.24.2</assertj-core-version>
-        <junit-platform-runner-version>1.10.0</junit-platform-runner-version>
+        <junit-jupiter-version>5.11.0</junit-jupiter-version>
+        <assertj-core-version>3.26.3</assertj-core-version>
+        <junit-platform-runner-version>1.11.0</junit-platform-runner-version>
         <junit-params-version>1.1.1</junit-params-version>
         <org-awaitility-version>4.2.0</org-awaitility-version>
-        <nl-jqno-equalsverifier-version>3.15.2</nl-jqno-equalsverifier-version>
+        <nl-jqno-equalsverifier-version>3.16.2</nl-jqno-equalsverifier-version>
 
         <!-- Vulnerabilities fixes versions -->
         <snakeyaml-version>2.3</snakeyaml-version>
