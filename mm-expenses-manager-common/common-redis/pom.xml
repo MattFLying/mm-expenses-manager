@@ -18,10 +18,6 @@
     <version>0.2.7-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <!-- Other dependency versions -->
         <redis-client-jedis-version>5.1.3</redis-client-jedis-version>
     </properties>

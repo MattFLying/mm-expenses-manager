@@ -18,12 +18,6 @@
     <version>0.2.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-exceptions-version>${project-version}</mm-expenses-manager-common-exceptions-version>
-        <mm-expenses-manager-common-utils-version>${project-version}</mm-expenses-manager-common-utils-version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -53,13 +53,21 @@
         <maven-resources-plugin-version>3.3.1</maven-resources-plugin-version>
         <maven-surefire-version>3.2.5</maven-surefire-version>
 
+        <!-- ExpensesManager commons dependency versions -->
+        <mm-expenses-manager-common-async-version>${project-version}</mm-expenses-manager-common-async-version>
+        <mm-expenses-manager-common-exceptions-version>${project-version}</mm-expenses-manager-common-exceptions-version>
+        <mm-expenses-manager-common-kafka-version>${project-version}</mm-expenses-manager-common-kafka-version>
+        <mm-expenses-manager-common-mongodb-version>${project-version}</mm-expenses-manager-common-mongodb-version>
+        <mm-expenses-manager-common-postgresql-version>${project-version}</mm-expenses-manager-common-postgresql-version>
+        <mm-expenses-manager-common-redis-version>${project-version}</mm-expenses-manager-common-redis-version>
+        <mm-expenses-manager-common-utils-version>${project-version}</mm-expenses-manager-common-utils-version>
+        <mm-expenses-manager-common-web-version>${project-version}</mm-expenses-manager-common-web-version>
+
         <!-- Project related version -->
         <lombok-version>1.18.32</lombok-version>
         <mapstruct-version>1.5.5.Final</mapstruct-version>
         <lombok-mapstruct-binding-version>0.2.0</lombok-mapstruct-binding-version>
         <jacoco-version>0.8.12</jacoco-version>
-        <mongodb-driver-version>4.11.1</mongodb-driver-version>
-        <hibernate-core-version>6.5.2.Final</hibernate-core-version>
 
         <!-- Javax/Jakarta related version -->
         <javax-activation-version>1.1.1</javax-activation-version>
@@ -127,11 +135,6 @@
 
             <!-- Other dependencies -->
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j-api-version}</version>
-            </dependency>
-            <dependency>
                 <groupId>nl.jqno.equalsverifier</groupId>
                 <artifactId>equalsverifier</artifactId>
                 <version>${nl-jqno-equalsverifier-version}</version>
@@ -197,6 +200,13 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${com-google-guava-version}</version>
+        </dependency>
+
+        <!-- Other dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api-version}</version>
         </dependency>
     </dependencies>
 

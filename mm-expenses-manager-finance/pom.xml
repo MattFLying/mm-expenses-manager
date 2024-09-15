@@ -18,16 +18,6 @@
     <version>0.2.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-exceptions-version>${project-version}</mm-expenses-manager-common-exceptions-version>
-        <mm-expenses-manager-common-utils-version>${project-version}</mm-expenses-manager-common-utils-version>
-        <mm-expenses-manager-common-mongodb-version>${project-version}</mm-expenses-manager-common-mongodb-version>
-        <mm-expenses-manager-common-kafka-version>${project-version}</mm-expenses-manager-common-kafka-version>
-        <mm-expenses-manager-common-redis-version>${project-version}</mm-expenses-manager-common-redis-version>
-        <mm-expenses-manager-common-web-version>${project-version}</mm-expenses-manager-common-web-version>
-    </properties>
-
     <modules>
         <module>api</module>
         <module>app</module>
@@ -35,27 +25,24 @@
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-utils</artifactId>
-            <version>${mm-expenses-manager-common-utils-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
+         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-mongodb</artifactId>
             <version>${mm-expenses-manager-common-mongodb-version}</version>
         </dependency>
+
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-kafka</artifactId>
             <version>${mm-expenses-manager-common-kafka-version}</version>
         </dependency>
+
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-redis</artifactId>
             <version>${mm-expenses-manager-common-redis-version}</version>
         </dependency>
+
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-web</artifactId>

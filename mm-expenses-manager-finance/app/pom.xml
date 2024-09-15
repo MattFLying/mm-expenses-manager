@@ -21,8 +21,6 @@
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>${project-version}</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>${project-version}</mm-expenses-manager-exception-version>
         <mm-expenses-manager-finance-api-version>${project-version}</mm-expenses-manager-finance-api-version>
     </properties>
 

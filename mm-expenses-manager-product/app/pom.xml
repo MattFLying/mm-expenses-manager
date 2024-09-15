@@ -21,8 +21,6 @@
 
     <properties>
         <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>${project-version}</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>${project-version}</mm-expenses-manager-exception-version>
         <mm-expenses-manager-product-api-version>${project-version}</mm-expenses-manager-product-api-version>
     </properties>
 
@@ -32,12 +30,6 @@
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-product-api</artifactId>
             <version>${mm-expenses-manager-product-api-version}</version>
-        </dependency>
-
-        <!-- PostgreSQL dependencies -->
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
         </dependency>
     </dependencies>
 
