@@ -12,17 +12,12 @@
     </parent>
 
     <name>Expenses Manager Finance App</name>
-    <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
+    <description>Finance service that handles the whole behaviour of the financial operations.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-finance-app</artifactId>
     <version>0.2.7-SNAPSHOT</version>
-
-    <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-finance-api-version>${project-version}</mm-expenses-manager-finance-api-version>
-    </properties>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
@@ -36,10 +31,10 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${app-resource-directory}</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*.yml</include>
+                    <include>${app-resource-include-yml}</include>
                 </includes>
             </resource>
         </resources>
@@ -154,7 +149,7 @@
                             <limits>
                                 <limit>
                                     <counter>INSTRUCTION</counter>
-                                    <minimum>80.0%</minimum>
+                                    <minimum>${app-jacoco-coverage-minimum}</minimum>
                                 </limit>
                             </limits>
                         </rule>

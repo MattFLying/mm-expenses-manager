@@ -12,7 +12,7 @@
     </parent>
 
     <name>Expenses Manager Product Api</name>
-    <description>Product service responsible for products preparation and management.</description>
+    <description>Product API that serves the API definition.</description>
 
     <packaging>jar</packaging>
 

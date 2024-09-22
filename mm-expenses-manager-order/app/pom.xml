@@ -12,17 +12,12 @@
     </parent>
 
     <name>Expenses Manager Order App</name>
-    <description>Order service responsible for orders preparation and management.</description>
+    <description>Order service that handles the whole behaviour of the ordering operations.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-order-app</artifactId>
     <version>0.2.7-SNAPSHOT</version>
-
-    <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-order-api-version>${project-version}</mm-expenses-manager-order-api-version>
-    </properties>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
@@ -36,11 +31,11 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${app-resource-directory}</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*.yml</include>
-                    <include>**/*.xml</include>
+                    <include>${app-resource-include-yml}</include>
+                    <include>${app-resource-include-xml}</include>
                 </includes>
             </resource>
         </resources>
@@ -143,7 +138,7 @@
                             <limits>
                                 <limit>
                                     <counter>INSTRUCTION</counter>
-                                    <minimum>80.0%</minimum>
+                                    <minimum>${app-jacoco-coverage-minimum}</minimum>
                                 </limit>
                             </limits>
                         </rule>

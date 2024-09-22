@@ -12,7 +12,7 @@
     </parent>
 
     <name>Expenses Manager Finance Api</name>
-    <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
+    <description>Finance API that serves the API definition.</description>
 
     <packaging>jar</packaging>
 

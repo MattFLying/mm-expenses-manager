@@ -63,6 +63,19 @@
         <mm-expenses-manager-common-utils-version>${project-version}</mm-expenses-manager-common-utils-version>
         <mm-expenses-manager-common-web-version>${project-version}</mm-expenses-manager-common-web-version>
 
+        <!-- ExpensesManager API versions -->
+        <mm-expenses-manager-finance-api-version>${project-version}</mm-expenses-manager-finance-api-version>
+        <mm-expenses-manager-order-api-version>${project-version}</mm-expenses-manager-order-api-version>
+        <mm-expenses-manager-product-api-version>${project-version}</mm-expenses-manager-product-api-version>
+
+        <!-- ExpensesManager resources path -->
+        <app-resource-directory>src/main/resources</app-resource-directory>
+        <app-resource-include-yml>**/*.yml</app-resource-include-yml>
+        <app-resource-include-xml>**/*.xml</app-resource-include-xml>
+
+        <!-- ExpensesManager Jacoco -->
+        <app-jacoco-coverage-minimum>80%</app-jacoco-coverage-minimum>
+
         <!-- Project related version -->
         <lombok-version>1.18.32</lombok-version>
         <mapstruct-version>1.5.5.Final</mapstruct-version>

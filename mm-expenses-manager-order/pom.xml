@@ -27,15 +27,15 @@
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-kafka</artifactId>
-            <version>${mm-expenses-manager-common-kafka-version}</version>
+            <artifactId>common-postgresql</artifactId>
+            <version>${mm-expenses-manager-common-postgresql-version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-postgresql</artifactId>
-            <version>${mm-expenses-manager-common-postgresql-version}</version>
+            <artifactId>common-kafka</artifactId>
+            <version>${mm-expenses-manager-common-kafka-version}</version>
             <scope>compile</scope>
         </dependency>
 

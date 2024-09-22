@@ -12,7 +12,7 @@
     </parent>
 
     <name>Expenses Manager Order Api</name>
-    <description>Order service responsible for orders preparation and management.</description>
+    <description>Order API that serves the API definition.</description>
 
     <packaging>jar</packaging>
 

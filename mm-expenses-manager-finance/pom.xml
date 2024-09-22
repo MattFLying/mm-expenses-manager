@@ -33,14 +33,14 @@
 
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-kafka</artifactId>
-            <version>${mm-expenses-manager-common-kafka-version}</version>
+            <artifactId>common-redis</artifactId>
+            <version>${mm-expenses-manager-common-redis-version}</version>
         </dependency>
 
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-redis</artifactId>
-            <version>${mm-expenses-manager-common-redis-version}</version>
+            <artifactId>common-kafka</artifactId>
+            <version>${mm-expenses-manager-common-kafka-version}</version>
         </dependency>
 
         <dependency>
