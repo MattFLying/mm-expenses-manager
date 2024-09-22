@@ -1,16 +1,16 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.async.AsyncMessageProducer;
-import mm.expenses.manager.common.beans.pagination.sort.SortOrder;
+import mm.expenses.manager.common.async.AsyncMessageProducer;
+import mm.expenses.manager.common.web.pagination.sort.SortOrder;
+import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
+import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.product.async.message.ProductManagementProducerMessage;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.exception.ProductNotFoundException;
-import mm.expenses.manager.product.exception.ProductValidationException;
 import mm.expenses.manager.product.price.PriceService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.data.domain.Page;
@@ -44,12 +44,12 @@ public class ProductService {
 
     public Product update(final UUID id, final UpdateProductRequest request) {
         var existedProduct = repository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(id)));
+                .orElseThrow(() -> new ApiNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(id)));
 
         final var newName = request.getName();
         if (Objects.nonNull(request.getName())) {
             if (ProductCommonValidation.isNameEmpty(newName)) {
-                throw new ProductValidationException(ProductExceptionMessage.PRODUCT_NAME_NOT_VALID.withParameters(newName));
+                throw new ApiValidationException(ProductExceptionMessage.PRODUCT_NAME_NOT_VALID.withParameters(newName));
             }
             existedProduct.setName(newName);
         }
@@ -75,7 +75,7 @@ public class ProductService {
                             saveProduct(product, AsyncKafkaOperation.DELETE);
                         },
                         () -> {
-                            throw new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId));
+                            throw new ApiNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId));
                         });
     }
 
@@ -85,7 +85,7 @@ public class ProductService {
 
     public Product findById(final UUID productId, final boolean isDeleted) {
         return repository.findByIdAndIsDeleted(productId, isDeleted)
-                .orElseThrow(() -> new ProductNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId)));
+                .orElseThrow(() -> new ApiNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId)));
     }
 
     public Page<Product> findProducts(final ProductQueryFilter queryFilter, final PageRequest pageable, final SortOrder sortOrder) {

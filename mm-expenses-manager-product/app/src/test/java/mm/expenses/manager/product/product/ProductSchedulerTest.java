@@ -1,6 +1,6 @@
 package mm.expenses.manager.product.product;
 
-import mm.expenses.manager.common.beans.pagination.PaginationHelper;
+import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.product.ProductApplicationTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

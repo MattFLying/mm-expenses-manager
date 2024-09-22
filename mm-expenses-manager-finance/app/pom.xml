@@ -8,27 +8,16 @@
     <parent>
         <artifactId>mm-expenses-manager-finance</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.9-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Finance App</name>
-    <description>Finance service responsible for prepare exchange rates and provide some operations on exchange rates.</description>
+    <description>Finance service that handles the whole behaviour of the financial operations.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-finance-app</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
-
-    <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>0.2.6-SNAPSHOT</mm-expenses-manager-exception-version>
-        <mm-expenses-manager-finance-api-version>0.2.6-SNAPSHOT</mm-expenses-manager-finance-api-version>
-
-        <!-- Other dependency versions -->
-        <apache-commons-pool-version>2.12.0</apache-commons-pool-version>
-        <redis-client-jedis-version>5.0.2</redis-client-jedis-version>
-    </properties>
+    <version>0.2.9-SNAPSHOT</version>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
@@ -37,143 +26,15 @@
             <artifactId>mm-expenses-manager-finance-api</artifactId>
             <version>${mm-expenses-manager-finance-api-version}</version>
         </dependency>
-
-        <!-- Spring dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-kafka</artifactId>
-        </dependency>
-
-        <!-- Spring Kafka dependencies -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream-binder-kafka</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream-binder-kafka-streams</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- MongoDB dependencies -->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-reactivestreams</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-        </dependency>
-
-        <!-- Redis dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>${redis-client-jedis-version}</version>
-        </dependency>
-
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>pl.pragmatists</groupId>
-            <artifactId>JUnitParams</artifactId>
-            <version>${junit-params-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.jqno.equalsverifier</groupId>
-            <artifactId>equalsverifier</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${app-resource-directory}</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*.yml</include>
+                    <include>${app-resource-include-yml}</include>
                 </includes>
             </resource>
         </resources>
@@ -288,7 +149,7 @@
                             <limits>
                                 <limit>
                                     <counter>INSTRUCTION</counter>
-                                    <minimum>80.0%</minimum>
+                                    <minimum>${app-jacoco-coverage-minimum}</minimum>
                                 </limit>
                             </limits>
                         </rule>

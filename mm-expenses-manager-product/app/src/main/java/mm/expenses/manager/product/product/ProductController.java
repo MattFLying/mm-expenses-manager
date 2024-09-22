@@ -1,14 +1,11 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.beans.pagination.PaginationConfig;
-import mm.expenses.manager.common.beans.pagination.PaginationHelper;
-import mm.expenses.manager.common.web.RequestProcessor;
-import mm.expenses.manager.common.web.WebContext;
-import mm.expenses.manager.common.web.WebInterceptor;
+import mm.expenses.manager.common.web.pagination.PaginationConfig;
+import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.web.api.WebApi;
-import mm.expenses.manager.common.web.exception.ApiBadRequestException;
-import mm.expenses.manager.common.web.exception.ApiConflictException;
+import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
+import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.*;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
@@ -37,7 +34,6 @@ import java.util.UUID;
 class ProductController implements ProductApi {
 
     private final PaginationHelper pagination;
-    private final WebInterceptor interceptor;
 
     private final ProductMapper mapper;
     private final ProductService service;
@@ -54,79 +50,63 @@ class ProductController implements ProductApi {
                                                @RequestParam(value = ProductQueryFilter.PRICE_GREATER_THAN_PROPERTY, required = false) final Boolean greaterThan,
                                                @RequestParam(value = ProductQueryFilter.PRICE_MIN_PROPERTY, required = false) final BigDecimal priceMin,
                                                @RequestParam(value = ProductQueryFilter.PRICE_MAX_PROPERTY, required = false) final BigDecimal priceMax) {
-        final var context = WebContext.of(ProductWebApi.FIND_ALL);
-        final RequestProcessor processor = webContext -> {
-            final var queryFilter = new ProductQueryFilter(name, price, priceMin, priceMax, lessThan, greaterThan);
+        final var queryFilter = new ProductQueryFilter(name, price, priceMin, priceMax, lessThan, greaterThan);
 
-            if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
-                throw new ApiBadRequestException(ProductExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
+        if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
+            throw new ApiBadRequestException(ProductExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
+        }
+
+        if (queryFilter.isPriceAndPriceRangeOriented()) {
+            throw new ApiBadRequestException(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED);
+        }
+
+        if (queryFilter.isPriceOriented()) {
+            if (queryFilter.isPriceLessAndGreaterUsed()) {
+                throw new ApiBadRequestException(ProductExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
             }
-
-            if (queryFilter.isPriceAndPriceRangeOriented()) {
-                throw new ApiBadRequestException(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED);
+        } else if (queryFilter.isAnyOfPriceRangeUsed()) {
+            if (!queryFilter.isPriceRangeOriented()) {
+                throw new ApiBadRequestException(ProductExceptionMessage.PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED.withParameters(queryFilter.priceMin(), queryFilter.priceMax()));
             }
-
-            if (queryFilter.isPriceOriented()) {
-                if (queryFilter.isPriceLessAndGreaterUsed()) {
-                    throw new ApiBadRequestException(ProductExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
-                }
-            } else if (queryFilter.isAnyOfPriceRangeUsed()) {
-                if (!queryFilter.isPriceRangeOriented()) {
-                    throw new ApiBadRequestException(ProductExceptionMessage.PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED.withParameters(queryFilter.priceMin(), queryFilter.priceMax()));
-                }
-                if (queryFilter.isPriceLessOrGreaterUsed()) {
-                    throw new ApiBadRequestException(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE);
-                }
+            if (queryFilter.isPriceLessOrGreaterUsed()) {
+                throw new ApiBadRequestException(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE);
             }
+        }
 
-            return mapper.map(
-                    service.findProducts(queryFilter, pagination.getPageRequest(pageNumber, pageSize), ProductSortOrder.of(sortOrder, sortDesc))
-            );
-        };
-        return interceptor.processRequest(processor, context);
+        return ResponseEntity.ok(mapper.map(
+                service.findProducts(queryFilter, pagination.getPageRequest(pageNumber, pageSize), ProductSortOrder.of(sortOrder, sortDesc))
+        ));
     }
 
     @Override
     @GetMapping(value = WebApi.ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> findById(@PathVariable("id") final UUID id, final Boolean isDeleted) {
-        final var context = WebContext.of(ProductWebApi.FIND_BY_ID).requestId(id);
-        final RequestProcessor processor = webContext -> mapper.mapProductResponse(service.findById(webContext.getRequestId(), isDeleted));
-        return interceptor.processRequest(processor, context);
+        return ResponseEntity.ok(mapper.mapProductResponse(service.findById(id, isDeleted)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> create(@RequestBody final CreateProductRequest request) {
-        final var context = WebContext.of(ProductWebApi.CREATE).requestBody(request);
-        final RequestProcessor processor = webContext -> mapper.mapProductResponse(service.create(request));
-        return interceptor.processRequest(processor, context);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.mapProductResponse(service.create(request)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = WebApi.ID_URL, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> update(@PathVariable("id") final UUID id, @RequestBody final UpdateProductRequest request) {
-        final var context = WebContext.of(ProductWebApi.UPDATE).requestId(id).requestBody(request);
-        final RequestProcessor processor = webContext -> {
-            if (!isAnyUpdateProduct(request)) {
-                throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
-            }
-            return mapper.mapProductResponse(service.update(webContext.getRequestId(), request));
-        };
-        return interceptor.processRequest(processor, context);
+        if (!isAnyUpdateProduct(request)) {
+            throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
+        }
+        return ResponseEntity.ok(mapper.mapProductResponse(service.update(id, request)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = WebApi.ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable("id") final UUID id) {
-        final var context = WebContext.of(ProductWebApi.DELETE).requestId(id);
-        final RequestProcessor processor = webContext -> {
-            service.delete(webContext.getRequestId());
-            return true;
-        };
-        return interceptor.processRequest(processor, context);
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     private boolean isAnyUpdateProduct(final UpdateProductRequest request) {

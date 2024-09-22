@@ -8,16 +8,16 @@
     <parent>
         <artifactId>mm-expenses-manager-order</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.9-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Order Api</name>
-    <description>Order service responsible for orders preparation and management.</description>
+    <description>Order API that serves the API definition.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-order-api</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
+    <version>0.2.9-SNAPSHOT</version>
 
     <properties>
         <!-- API config -->

@@ -8,23 +8,16 @@
     <parent>
         <artifactId>mm-expenses-manager-order</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.9-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Order App</name>
-    <description>Order service responsible for orders preparation and management.</description>
+    <description>Order service that handles the whole behaviour of the ordering operations.</description>
 
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-order-app</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
-
-    <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-version>
-        <mm-expenses-manager-exception-version>0.2.6-SNAPSHOT</mm-expenses-manager-exception-version>
-        <mm-expenses-manager-order-api-version>0.2.6-SNAPSHOT</mm-expenses-manager-order-api-version>
-    </properties>
+    <version>0.2.9-SNAPSHOT</version>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
@@ -33,79 +26,16 @@
             <artifactId>mm-expenses-manager-order-api</artifactId>
             <version>${mm-expenses-manager-order-api-version}</version>
         </dependency>
-
-        <!-- Spring dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <!-- PostgreSQL dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate-core-version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-        </dependency>
-
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>pl.pragmatists</groupId>
-            <artifactId>JUnitParams</artifactId>
-            <version>${junit-params-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.jqno.equalsverifier</groupId>
-            <artifactId>equalsverifier</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${app-resource-directory}</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*.yml</include>
-                    <include>**/*.xml</include>
+                    <include>${app-resource-include-yml}</include>
+                    <include>${app-resource-include-xml}</include>
                 </includes>
             </resource>
         </resources>
@@ -208,7 +138,7 @@
                             <limits>
                                 <limit>
                                     <counter>INSTRUCTION</counter>
-                                    <minimum>80.0%</minimum>
+                                    <minimum>${app-jacoco-coverage-minimum}</minimum>
                                 </limit>
                             </limits>
                         </rule>

@@ -8,81 +8,41 @@
     <parent>
         <artifactId>mm-expenses-manager-parent</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.6-SNAPSHOT</version>
+        <version>0.2.9-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Order Service</name>
     <description>Order service responsible for orders preparation and management.</description>
 
     <artifactId>mm-expenses-manager-order</artifactId>
-    <version>0.2.6-SNAPSHOT</version>
+    <version>0.2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <properties>
-        <!-- ExpensesManager dependency versions -->
-        <mm-expenses-manager-common-beans-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-beans-version>
-        <mm-expenses-manager-common-exceptions-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-exceptions-version>
-        <mm-expenses-manager-common-utils-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-utils-version>
-        <mm-expenses-manager-common-web-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-web-version>
-        <mm-expenses-manager-common-kafka-version>0.2.6-SNAPSHOT</mm-expenses-manager-common-kafka-version>
-    </properties>
 
     <modules>
         <module>api</module>
         <module>app</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <!-- MongoDB dependencies -->
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-sync</artifactId>
-                <version>${mongodb-driver-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-core</artifactId>
-                <version>${mongodb-driver-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-reactivestreams</artifactId>
-                <version>${mongodb-driver-version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-exceptions</artifactId>
-            <version>${mm-expenses-manager-common-exceptions-version}</version>
+            <artifactId>common-postgresql</artifactId>
+            <version>${mm-expenses-manager-common-postgresql-version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-utils</artifactId>
-            <version>${mm-expenses-manager-common-utils-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-beans</artifactId>
-            <version>${mm-expenses-manager-common-beans-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mm-expenses-manager</groupId>
-            <artifactId>common-web</artifactId>
-            <version>${mm-expenses-manager-common-web-version}</version>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-kafka</artifactId>
             <version>${mm-expenses-manager-common-kafka-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-web</artifactId>
+            <version>${mm-expenses-manager-common-web-version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

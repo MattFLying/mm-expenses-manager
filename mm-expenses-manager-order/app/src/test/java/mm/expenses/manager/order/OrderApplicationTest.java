@@ -2,7 +2,7 @@ package mm.expenses.manager.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junitparams.JUnitParamsRunner;
-import mm.expenses.manager.common.beans.async.AsyncMessageProducer;
+import mm.expenses.manager.common.async.AsyncMessageProducer;
 import mm.expenses.manager.order.order.OrderRepository;
 import mm.expenses.manager.order.product.ProductRepository;
 import org.junit.ClassRule;

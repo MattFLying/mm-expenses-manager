@@ -1,9 +1,9 @@
 package mm.expenses.manager.common.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.common.beans.async.AsyncConsumerBinding;
-import mm.expenses.manager.common.beans.async.AsyncMessageConsumer;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
+import mm.expenses.manager.common.async.AsyncConsumerBinding;
+import mm.expenses.manager.common.async.AsyncMessageConsumer;
 
 /**
  * Basic implementation of {@link AsyncMessageConsumer} for Kafka consumer.
