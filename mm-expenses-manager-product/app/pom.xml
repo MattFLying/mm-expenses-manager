@@ -8,7 +8,7 @@
     <parent>
         <artifactId>mm-expenses-manager-product</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.7-SNAPSHOT</version>
+        <version>0.2.8-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Product App</name>
@@ -17,7 +17,7 @@
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-product-app</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.2.8-SNAPSHOT</version>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
