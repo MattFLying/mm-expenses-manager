@@ -10,13 +10,13 @@ public interface AsyncProducerBinding {
      *
      * @return binding name of the message
      */
-    String getProducerBindingName();
+    String producerBindingName();
 
     /**
      * The topic name where the message should be sent related directly with the binding in getBindingName().
      *
      * @return topic name of the message
      */
-    String getProducerTopicName();
+    String producerTopicName();
 
 }

@@ -17,19 +17,19 @@ public class AsyncConsumerBindingTest implements AsyncConsumerBinding {
     private String value;
 
     @Override
-    public String getConsumerBindingName() {
+    public String consumerBindingName() {
         return BINDING;
     }
 
     @Override
-    public String getConsumerTopicName() {
+    public String consumerTopicName() {
         return TOPIC;
     }
 
     public static AsyncConsumerBindingTest bindingNull() {
         return new AsyncConsumerBindingTest() {
             @Override
-            public String getConsumerBindingName() {
+            public String consumerBindingName() {
                 return null;
             }
         };
@@ -38,7 +38,7 @@ public class AsyncConsumerBindingTest implements AsyncConsumerBinding {
     public static AsyncConsumerBindingTest topicNull() {
         return new AsyncConsumerBindingTest() {
             @Override
-            public String getConsumerTopicName() {
+            public String consumerTopicName() {
                 return null;
             }
         };

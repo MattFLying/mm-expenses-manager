@@ -36,12 +36,12 @@ public class ProductManagementProducerMessage implements AsyncKafkaProducerBindi
     private AsyncKafkaOperation operation;
 
     @Override
-    public String getProducerBindingName() {
+    public String producerBindingName() {
         return "productManagement-out-0";
     }
 
     @Override
-    public String getProducerTopicName() {
+    public String producerTopicName() {
         return "product-management";
     }
 

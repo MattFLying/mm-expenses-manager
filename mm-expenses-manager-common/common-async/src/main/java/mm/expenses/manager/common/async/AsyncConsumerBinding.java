@@ -10,13 +10,13 @@ public interface AsyncConsumerBinding {
      *
      * @return binding name of the message
      */
-    String getConsumerBindingName();
+    String consumerBindingName();
 
     /**
      * The topic name from where the message should be received related directly with the binding in getBindingName().
      *
      * @return topic name of the message
      */
-    String getConsumerTopicName();
+    String consumerTopicName();
 
 }

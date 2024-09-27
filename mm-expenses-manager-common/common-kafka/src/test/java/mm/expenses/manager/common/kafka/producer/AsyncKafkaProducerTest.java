@@ -21,11 +21,11 @@ class AsyncKafkaProducerTest extends BaseInitTest {
         final var message = new TestProducerBindingMessage(value, AsyncKafkaOperation.CREATE);
 
         // then
-        when(streamBridge.send(message.getProducerBindingName(), message)).thenReturn(true);
+        when(streamBridge.send(message.producerBindingName(), message)).thenReturn(true);
         producer.send(message);
 
         // then
-        verify(streamBridge, times(1)).send(message.getProducerBindingName(), message);
+        verify(streamBridge, times(1)).send(message.producerBindingName(), message);
     }
 
     @Test
@@ -35,7 +35,7 @@ class AsyncKafkaProducerTest extends BaseInitTest {
         final var message = new TestProducerBindingMessage(value, AsyncKafkaOperation.CREATE);
 
         // then
-        when(streamBridge.send(message.getProducerBindingName(), message)).thenReturn(false);
+        when(streamBridge.send(message.producerBindingName(), message)).thenReturn(false);
 
         // then
         assertThatThrownBy(() -> producer.send(message))

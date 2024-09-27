@@ -25,10 +25,10 @@ public class ProductService {
     public void createProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
         final var productId = message.getId();
         repository.findById(productId).ifPresentOrElse(product -> {
-                    log.info("Received CREATE {} message for product id {} that already exists. Body: {}", message.getConsumerBindingName(), message.getId(), message);
+                    log.info("Received CREATE {} message for product id {} that already exists. Body: {}", message.consumerBindingName(), message.getId(), message);
                 },
                 () -> {
-                    log.info("Received CREATE {} message. Body: {}", message.getConsumerBindingName(), message);
+                    log.info("Received CREATE {} message. Body: {}", message.consumerBindingName(), message);
                     var product = repository.save(mapper.mapCreate(message));
                     log.info("Product created: {}", product);
                 });
@@ -37,26 +37,26 @@ public class ProductService {
     public void updateProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
         final var productId = message.getId();
         repository.findById(productId).ifPresentOrElse(product -> {
-                    log.info("Received UPDATE {} message. Body: {}", message.getConsumerBindingName(), message);
+                    log.info("Received UPDATE {} message. Body: {}", message.consumerBindingName(), message);
                     product = repository.save(mapper.mapUpdate(product, message));
                     log.info("Product updated: {}", product);
                 },
                 () -> {
-                    log.info("Received UPDATE {} message for product id {} that does not exists. Body: {}", message.getConsumerBindingName(), message.getId(), message);
+                    log.info("Received UPDATE {} message for product id {} that does not exists. Body: {}", message.consumerBindingName(), message.getId(), message);
                 });
     }
 
     public void deleteProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
         final var productId = message.getId();
         repository.findById(productId).ifPresentOrElse(product -> {
-                    log.info("Received DELETE {} message. Body: {}", message.getConsumerBindingName(), message);
+                    log.info("Received DELETE {} message. Body: {}", message.consumerBindingName(), message);
                     product.setDeleted(message.getIsDeleted());
                     product.setLastModifiedAt(message.getLastModifiedAt());
                     product = repository.save(product);
                     log.info("Product deleted: {}", product);
                 },
                 () -> {
-                    log.info("Received DELETE {} message for product id {} that does not exists. Body: {}", message.getConsumerBindingName(), message.getId(), message);
+                    log.info("Received DELETE {} message for product id {} that does not exists. Body: {}", message.consumerBindingName(), message.getId(), message);
                 });
     }
 

@@ -23,19 +23,19 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     private AsyncKafkaOperation operation;
 
     @Override
-    public String getProducerBindingName() {
+    public String producerBindingName() {
         return BINDING;
     }
 
     @Override
-    public String getProducerTopicName() {
+    public String producerTopicName() {
         return TOPIC;
     }
 
     public static TestProducerBindingMessage bindingNull() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerBindingName() {
+            public String producerBindingName() {
                 return null;
             }
         };
@@ -44,7 +44,7 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     public static TestProducerBindingMessage bindingEmptyString() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerBindingName() {
+            public String producerBindingName() {
                 return StringUtils.EMPTY;
             }
         };
@@ -53,7 +53,7 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     public static TestProducerBindingMessage topicNull() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerTopicName() {
+            public String producerTopicName() {
                 return null;
             }
         };
@@ -62,7 +62,7 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     public static TestProducerBindingMessage topicEmptyString() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerTopicName() {
+            public String producerTopicName() {
                 return StringUtils.EMPTY;
             }
         };

@@ -24,8 +24,8 @@ public class OrderKafkaConsumer extends AsyncKafkaConsumer {
         return message -> {
             logReceivedMessage(message);
 
-            final var binding = message.getConsumerBindingName();
-            final var topic = message.getConsumerTopicName();
+            final var binding = message.consumerBindingName();
+            final var topic = message.consumerTopicName();
             final var operation = getOperationOrUndefined(message.getOperation());
             switch (operation) {
                 case CREATE -> productService.createProductFromKafkaTopic(message);

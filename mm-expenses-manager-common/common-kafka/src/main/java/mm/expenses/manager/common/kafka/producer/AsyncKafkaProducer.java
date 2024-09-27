@@ -34,8 +34,8 @@ public class AsyncKafkaProducer implements AsyncMessageProducer {
     }
 
     private void logMessageSent(final boolean hasBeenSent, final AsyncProducerBinding message) {
-        final var binding = message.getProducerBindingName();
-        final var topic = message.getProducerTopicName();
+        final var binding = message.producerBindingName();
+        final var topic = message.producerTopicName();
         if (hasBeenSent) {
             log.info("Message sent to binding: {} on topic: {}. Body: {}", binding, topic, message);
         } else {
@@ -44,7 +44,7 @@ public class AsyncKafkaProducer implements AsyncMessageProducer {
     }
 
     private boolean isMessageSent(final AsyncProducerBinding message) {
-        return stream.send(message.getProducerBindingName(), message);
+        return stream.send(message.producerBindingName(), message);
     }
 
     private void validateMessage(final AsyncProducerBinding message) {
@@ -59,7 +59,7 @@ public class AsyncKafkaProducer implements AsyncMessageProducer {
     }
 
     private void checkIfBindingOrTopicIsNullOrEmpty(final AsyncProducerBinding message) {
-        if (StringUtils.isEmpty(message.getProducerBindingName()) || StringUtils.isEmpty(message.getProducerTopicName())) {
+        if (StringUtils.isEmpty(message.producerBindingName()) || StringUtils.isEmpty(message.producerTopicName())) {
             throw new AsyncException(KafkaExceptionMessage.ASYNC_PRODUCER_BINDING_OR_TOPIC_IS_NULL);
         }
     }

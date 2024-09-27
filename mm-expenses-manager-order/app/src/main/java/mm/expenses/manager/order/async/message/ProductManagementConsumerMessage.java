@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.async.message;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -15,7 +14,6 @@ import java.util.UUID;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 public class ProductManagementConsumerMessage implements AsyncKafkaConsumerBinding, Serializable {
 
     private UUID id;
@@ -35,12 +33,12 @@ public class ProductManagementConsumerMessage implements AsyncKafkaConsumerBindi
     private AsyncKafkaOperation operation;
 
     @Override
-    public String getConsumerBindingName() {
+    public String consumerBindingName() {
         return "productManagement-in-0";
     }
 
     @Override
-    public String getConsumerTopicName() {
+    public String consumerTopicName() {
         return "product-management";
     }
 
