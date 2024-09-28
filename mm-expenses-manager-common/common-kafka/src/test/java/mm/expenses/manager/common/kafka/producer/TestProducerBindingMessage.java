@@ -4,16 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import mm.expenses.manager.common.async.AsyncBinding;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import org.apache.commons.lang3.StringUtils;
-
-import java.io.Serializable;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Serializable {
+public class TestProducerBindingMessage implements AsyncBinding {
 
     public static final String BINDING = "testBinding-out-0";
     public static final String TOPIC = "test-topic";
@@ -23,19 +22,24 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     private AsyncKafkaOperation operation;
 
     @Override
-    public String getProducerBindingName() {
+    public String producerBindingName() {
         return BINDING;
     }
 
     @Override
-    public String getProducerTopicName() {
+    public String consumerBindingName() {
+        return null;
+    }
+
+    @Override
+    public String topicName() {
         return TOPIC;
     }
 
     public static TestProducerBindingMessage bindingNull() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerBindingName() {
+            public String producerBindingName() {
                 return null;
             }
         };
@@ -44,7 +48,7 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     public static TestProducerBindingMessage bindingEmptyString() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerBindingName() {
+            public String producerBindingName() {
                 return StringUtils.EMPTY;
             }
         };
@@ -53,7 +57,7 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     public static TestProducerBindingMessage topicNull() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerTopicName() {
+            public String topicName() {
                 return null;
             }
         };
@@ -62,7 +66,7 @@ public class TestProducerBindingMessage implements AsyncKafkaProducerBinding, Se
     public static TestProducerBindingMessage topicEmptyString() {
         return new TestProducerBindingMessage() {
             @Override
-            public String getProducerTopicName() {
+            public String topicName() {
                 return StringUtils.EMPTY;
             }
         };

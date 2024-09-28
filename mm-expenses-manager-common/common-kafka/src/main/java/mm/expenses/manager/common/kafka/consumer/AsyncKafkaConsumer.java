@@ -1,8 +1,8 @@
 package mm.expenses.manager.common.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
+import mm.expenses.manager.common.async.AsyncBinding;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
-import mm.expenses.manager.common.async.AsyncConsumerBinding;
 import mm.expenses.manager.common.async.AsyncMessageConsumer;
 
 /**
@@ -23,11 +23,11 @@ public abstract class AsyncKafkaConsumer implements AsyncMessageConsumer {
     }
 
     /**
-     * Logs message {@link AsyncConsumerBinding} of received kafka event.
+     * Logs message {@link AsyncBinding} of received kafka event.
      *
      * @param message - kafka consumer message
      */
-    protected void logReceivedMessage(final AsyncConsumerBinding message) {
+    protected void logReceivedMessage(final AsyncBinding message) {
         log.info("{}", logMessage(message));
     }
 
@@ -38,7 +38,7 @@ public abstract class AsyncKafkaConsumer implements AsyncMessageConsumer {
      * @param topic   - kafka consumer message topic name
      * @param message - kafka consumer message
      */
-    protected void logUndefinedOperation(final String binding, final String topic, final AsyncConsumerBinding message) {
+    protected void logUndefinedOperation(final String binding, final String topic, final AsyncBinding message) {
         log.warn("Operation for binding: {} and topic: {} is not defined. Message: {}", binding, topic, message);
     }
 
@@ -49,7 +49,7 @@ public abstract class AsyncKafkaConsumer implements AsyncMessageConsumer {
      * @param topic   - kafka consumer message topic name
      * @param message - kafka consumer message
      */
-    protected void logUnknownOperation(final String binding, final String topic, final AsyncConsumerBinding message) {
+    protected void logUnknownOperation(final String binding, final String topic, final AsyncBinding message) {
         log.debug("Unknown operation for binding: {} and topic: {}. Message: {}", binding, topic, message);
     }
 

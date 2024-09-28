@@ -1,8 +1,12 @@
 package mm.expenses.manager.product.product;
 
+import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
+import mm.expenses.manager.common.kafka.message.PriceMessage;
+import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.product.api.product.model.*;
+import mm.expenses.manager.product.price.Price;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -24,5 +28,12 @@ public interface ProductMapper extends AbstractMapper {
     @Mapping(target = "elements", source = "productPage.numberOfElements")
     @Mapping(target = "page", source = "productPage.number")
     ProductPage map(final Page<Product> productPage);
+
+    @Mapping(target = "price", expression = "java(map(product.getPrice()))")
+    @Mapping(target = "isDeleted", source = "product.deleted")
+    @Mapping(target = "operation", source = "operation")
+    ProductManagementMessage map(final Product product, final AsyncKafkaOperation operation);
+
+    PriceMessage map(final Price price);
 
 }

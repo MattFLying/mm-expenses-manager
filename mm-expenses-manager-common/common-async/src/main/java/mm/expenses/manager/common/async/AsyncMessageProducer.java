@@ -10,6 +10,6 @@ public interface AsyncMessageProducer {
      *
      * @param message - message to be sent
      */
-    void send(final AsyncProducerBinding message);
+    void send(final AsyncBinding message);
 
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.order.async.message.PriceMessage;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -63,10 +62,6 @@ public class Price {
 
     public static Price add(final Price first, final Price second) {
         return new Price(first.getCurrency(), first.getAmount().add(second.getAmount()));
-    }
-
-    public static Price of(final PriceMessage price) {
-        return new Price(price.getCurrency(), price.getValue());
     }
 
     private BigDecimal withScale(final BigDecimal value) {
