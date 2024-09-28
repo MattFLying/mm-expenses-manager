@@ -3,7 +3,7 @@ package mm.expenses.manager.order.async;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.kafka.consumer.AsyncKafkaConsumer;
-import mm.expenses.manager.order.async.message.ProductManagementConsumerMessage;
+import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.order.product.ProductService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -20,12 +20,12 @@ public class OrderKafkaConsumer extends AsyncKafkaConsumer {
     private final ProductService productService;
 
     @Bean
-    Consumer<ProductManagementConsumerMessage> productManagement() {
+    Consumer<ProductManagementMessage> productManagement() {
         return message -> {
             logReceivedMessage(message);
 
             final var binding = message.consumerBindingName();
-            final var topic = message.consumerTopicName();
+            final var topic = message.topicName();
             final var operation = getOperationOrUndefined(message.getOperation());
             switch (operation) {
                 case CREATE -> productService.createProductFromKafkaTopic(message);

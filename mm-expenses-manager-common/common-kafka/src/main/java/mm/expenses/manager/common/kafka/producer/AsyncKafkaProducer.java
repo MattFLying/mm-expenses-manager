@@ -2,9 +2,9 @@ package mm.expenses.manager.common.kafka.producer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mm.expenses.manager.common.async.AsyncBinding;
 import mm.expenses.manager.common.exceptions.async.AsyncException;
 import mm.expenses.manager.common.async.AsyncMessageProducer;
-import mm.expenses.manager.common.async.AsyncProducerBinding;
 import mm.expenses.manager.common.kafka.exception.KafkaExceptionMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -15,7 +15,7 @@ import java.util.Objects;
 
 /**
  * Generic implementation of kafka producer {@link AsyncMessageProducer} to send event on specific topic.
- * Topic and binding is defined by message implementation {@link AsyncProducerBinding}.
+ * Topic and binding is defined by message implementation {@link AsyncBinding}.
  * There is no need for custom implementation as it is in functional approach that can be handled this way.
  */
 @Slf4j
@@ -27,15 +27,15 @@ public class AsyncKafkaProducer implements AsyncMessageProducer {
     private final StreamBridge stream;
 
     @Override
-    public void send(final AsyncProducerBinding message) {
+    public void send(final AsyncBinding message) {
         validateMessage(message);
         final var hasBeenSent = isMessageSent(message);
         logMessageSent(hasBeenSent, message);
     }
 
-    private void logMessageSent(final boolean hasBeenSent, final AsyncProducerBinding message) {
+    private void logMessageSent(final boolean hasBeenSent, final AsyncBinding message) {
         final var binding = message.producerBindingName();
-        final var topic = message.producerTopicName();
+        final var topic = message.topicName();
         if (hasBeenSent) {
             log.info("Message sent to binding: {} on topic: {}. Body: {}", binding, topic, message);
         } else {
@@ -43,23 +43,23 @@ public class AsyncKafkaProducer implements AsyncMessageProducer {
         }
     }
 
-    private boolean isMessageSent(final AsyncProducerBinding message) {
+    private boolean isMessageSent(final AsyncBinding message) {
         return stream.send(message.producerBindingName(), message);
     }
 
-    private void validateMessage(final AsyncProducerBinding message) {
+    private void validateMessage(final AsyncBinding message) {
         checkIfMessageIsNull(message);
         checkIfBindingOrTopicIsNullOrEmpty(message);
     }
 
-    private void checkIfMessageIsNull(final AsyncProducerBinding message) {
+    private void checkIfMessageIsNull(final AsyncBinding message) {
         if (Objects.isNull(message)) {
             throw new AsyncException(KafkaExceptionMessage.ASYNC_PRODUCER_MESSAGE_IS_NULL);
         }
     }
 
-    private void checkIfBindingOrTopicIsNullOrEmpty(final AsyncProducerBinding message) {
-        if (StringUtils.isEmpty(message.producerBindingName()) || StringUtils.isEmpty(message.producerTopicName())) {
+    private void checkIfBindingOrTopicIsNullOrEmpty(final AsyncBinding message) {
+        if (StringUtils.isEmpty(message.producerBindingName()) || StringUtils.isEmpty(message.topicName())) {
             throw new AsyncException(KafkaExceptionMessage.ASYNC_PRODUCER_BINDING_OR_TOPIC_IS_NULL);
         }
     }

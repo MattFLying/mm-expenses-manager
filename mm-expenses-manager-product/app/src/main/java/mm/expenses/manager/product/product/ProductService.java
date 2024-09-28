@@ -9,7 +9,6 @@ import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
-import mm.expenses.manager.product.async.message.ProductManagementProducerMessage;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.price.PriceService;
 import org.apache.commons.collections4.MapUtils;
@@ -30,6 +29,7 @@ public class ProductService {
     private final ProductRepository repository;
     private final AsyncMessageProducer producer;
     private final PriceService priceService;
+    private final ProductMapper mapper;
 
     public Product create(final CreateProductRequest request) {
         final var newPrice = priceService.create(request.getPrice());
@@ -119,7 +119,7 @@ public class ProductService {
 
     private Product saveProduct(final Product product, final AsyncKafkaOperation operation) {
         final var savedProduct = repository.save(product);
-        producer.send(ProductManagementProducerMessage.of(savedProduct, operation));
+        producer.send(mapper.map(savedProduct, operation));
         return savedProduct;
     }
 

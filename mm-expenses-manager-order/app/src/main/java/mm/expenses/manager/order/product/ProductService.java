@@ -2,7 +2,7 @@ package mm.expenses.manager.order.product;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mm.expenses.manager.order.async.message.ProductManagementConsumerMessage;
+import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,7 +22,7 @@ public class ProductService {
         return products;
     }
 
-    public void createProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
+    public void createProductFromKafkaTopic(final ProductManagementMessage message) {
         final var productId = message.getId();
         repository.findById(productId).ifPresentOrElse(product -> {
                     log.info("Received CREATE {} message for product id {} that already exists. Body: {}", message.consumerBindingName(), message.getId(), message);
@@ -34,7 +34,7 @@ public class ProductService {
                 });
     }
 
-    public void updateProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
+    public void updateProductFromKafkaTopic(final ProductManagementMessage message) {
         final var productId = message.getId();
         repository.findById(productId).ifPresentOrElse(product -> {
                     log.info("Received UPDATE {} message. Body: {}", message.consumerBindingName(), message);
@@ -46,7 +46,7 @@ public class ProductService {
                 });
     }
 
-    public void deleteProductFromKafkaTopic(final ProductManagementConsumerMessage message) {
+    public void deleteProductFromKafkaTopic(final ProductManagementMessage message) {
         final var productId = message.getId();
         repository.findById(productId).ifPresentOrElse(product -> {
                     log.info("Received DELETE {} message. Body: {}", message.consumerBindingName(), message);

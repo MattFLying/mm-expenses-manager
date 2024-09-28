@@ -1,9 +1,9 @@
 package mm.expenses.manager.order.product;
 
+import mm.expenses.manager.common.kafka.message.PriceMessage;
+import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.order.async.message.PriceMessage;
-import mm.expenses.manager.order.async.message.ProductManagementConsumerMessage;
 import mm.expenses.manager.order.currency.Price;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 public interface ProductMapper extends AbstractMapper {
 
     @Mapping(target = "price", expression = "java(mapPrice(message.getPrice()))")
-    Product mapCreate(final ProductManagementConsumerMessage message);
+    Product mapCreate(final ProductManagementMessage message);
 
-    default Product mapUpdate(Product product, final ProductManagementConsumerMessage message) {
+    default Product mapUpdate(Product product, final ProductManagementMessage message) {
         if (MapUtils.isNotEmpty(message.getDetails())) {
             product.setDetails(message.getDetails());
         }

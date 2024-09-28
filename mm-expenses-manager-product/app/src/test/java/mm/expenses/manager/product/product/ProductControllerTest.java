@@ -2,11 +2,11 @@ package mm.expenses.manager.product.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
+import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.product.ProductApplicationTest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
-import mm.expenses.manager.product.async.message.ProductManagementProducerMessage;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
@@ -40,7 +40,7 @@ class ProductControllerTest extends ProductApplicationTest {
     private ObjectMapper objectMapper;
 
     @Captor
-    private ArgumentCaptor<ProductManagementProducerMessage> productMessageArgumentCaptor;
+    private ArgumentCaptor<ProductManagementMessage> productMessageArgumentCaptor;
 
     @Nested
     class FindAll_ErrorCodes {

@@ -14,16 +14,16 @@ public interface AsyncMessageConsumer {
      * Prepares received message details as simple string to be logged.
      *
      * @param message - message received on specific topic
-     * @param <T>     - specific message implementation of {@link AsyncConsumerBinding}
+     * @param <T>     - specific message implementation of {@link AsyncBinding}
      * @return received message details
      */
-    default <T extends AsyncConsumerBinding> String logMessage(final T message) {
+    default <T extends AsyncBinding> String logMessage(final T message) {
         if (Objects.isNull(message)) {
             throw new AsyncException(AsyncExceptionMessage.ASYNC_CONSUMER_MESSAGE_IS_NULL);
         }
         final var classType = message.getClass();
         final var binding = message.consumerBindingName();
-        final var topic = message.consumerTopicName();
+        final var topic = message.topicName();
         if (Objects.isNull(binding) || Objects.isNull(topic)) {
             throw new AsyncException(AsyncExceptionMessage.ASYNC_CONSUMER_BINDING_OR_TOPIC_IS_NULL.withParameters(binding, topic));
         }

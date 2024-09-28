@@ -1,20 +1,24 @@
-package mm.expenses.manager.order.async.message;
+package mm.expenses.manager.common.kafka.message;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import mm.expenses.manager.common.async.AsyncBinding;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
-import mm.expenses.manager.common.kafka.consumer.AsyncKafkaConsumerBinding;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Common representation of product management async message.
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class ProductManagementConsumerMessage implements AsyncKafkaConsumerBinding, Serializable {
+@AllArgsConstructor
+public class ProductManagementMessage implements AsyncBinding {
 
     private UUID id;
 
@@ -33,12 +37,17 @@ public class ProductManagementConsumerMessage implements AsyncKafkaConsumerBindi
     private AsyncKafkaOperation operation;
 
     @Override
+    public String producerBindingName() {
+        return "productManagement-out-0";
+    }
+
+    @Override
     public String consumerBindingName() {
         return "productManagement-in-0";
     }
 
     @Override
-    public String consumerTopicName() {
+    public String topicName() {
         return "product-management";
     }
 
