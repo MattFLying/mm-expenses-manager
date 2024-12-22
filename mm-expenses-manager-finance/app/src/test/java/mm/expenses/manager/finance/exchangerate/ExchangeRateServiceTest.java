@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -548,7 +549,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             final var dateNow = Instant.now();
 
             final var date = LocalDate.now().minusDays(9);
-            final var rate = 5.8d;
+            final var rate = BigDecimal.valueOf(5.8d);
             final var tableNumber = "test/table/number/02";
 
             final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
@@ -581,7 +582,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             final var dateNow = Instant.now();
 
             final var date = LocalDate.now().minusDays(3);
-            final var rate = 2.7d;
+            final var rate = BigDecimal.valueOf(2.7d);
             final var tableNumber = "test/table/number/03";
 
             final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
@@ -615,7 +616,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             final var dateNow = Instant.now();
 
             final var date = LocalDate.now().minusDays(7);
-            final var rate = 3.7d;
+            final var rate = BigDecimal.valueOf(3.7d);
             final var tableNumber = "test/table/number/04";
 
             final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
@@ -650,16 +651,16 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
             final var currency_1 = CurrencyCode.AUD;
             final var date_1 = LocalDate.now().minusDays(8);
-            final var rate_1 = 6.5d;
+            final var rate_1 = BigDecimal.valueOf(6.5d);
             final var tableNumber_1 = "test/table/number/04";
 
             final var currency_2 = CurrencyCode.GBP;
             final var date_2 = LocalDate.now().minusDays(5);
-            final var rate_2 = 3.8d;
+            final var rate_2 = BigDecimal.valueOf(3.8d);
             final var tableNumber_2 = "test/table/number/04";
 
             final var date_3 = LocalDate.now().minusDays(3);
-            final var rate_3 = 7.8d;
+            final var rate_3 = BigDecimal.valueOf(7.8d);
             final var tableNumber_3 = "test/table/number/05";
 
             final var currencyRateToSave_1 = createCurrencyRate(currency_1, date_1, rate_1, TABLE_TYPE, tableNumber_1);
@@ -690,7 +691,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         @ArgumentsSource(CurrencyCodeArgument.class)
         void shouldThrowExchangeRateException_whenDatesAreIncorrect(final CurrencyCode currency) {
             // given
-            final var rate = 5.8d;
+            final var rate = BigDecimal.valueOf(5.8d);
             final var tableNumber = "test/table/number/02";
 
             final var currencyRateToSave = createCurrencyRate(currency, null, rate, TABLE_TYPE, tableNumber);
@@ -706,7 +707,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         void shouldThrowExchangeRateException_whenSomethingWentWrong(final CurrencyCode currency) {
             // given
             final var date = LocalDate.now().minusDays(5);
-            final var rate = 5.8d;
+            final var rate = BigDecimal.valueOf(5.8d);
             final var tableNumber = "test/table/number/02";
 
             final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
@@ -731,7 +732,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
 
             final var currency = CurrencyCode.GBP;
             final var date = LocalDate.now().minusDays(4);
-            final var rate = 3.3d;
+            final var rate = BigDecimal.valueOf(3.3d);
             final var tableNumber = "test/table/number/05";
 
             final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);
@@ -761,7 +762,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
         void shouldThrowExchangeRateException_whenDatesAreIncorrect() {
             // given
             final var currency = CurrencyCode.AUD;
-            final var rate = 2.8d;
+            final var rate = BigDecimal.valueOf(2.8d);
             final var tableNumber = "test/table/number/07";
 
             final var currencyRateToSave = createCurrencyRate(currency, null, rate, TABLE_TYPE, tableNumber);
@@ -777,7 +778,7 @@ class ExchangeRateServiceTest extends FinanceApplicationTest {
             // given
             final var currency = CurrencyCode.SEK;
             final var date = LocalDate.now().minusDays(7);
-            final var rate = 4.3d;
+            final var rate = BigDecimal.valueOf(4.3d);
             final var tableNumber = "test/table/number/08";
 
             final var currencyRateToSave = createCurrencyRate(currency, date, rate, TABLE_TYPE, tableNumber);

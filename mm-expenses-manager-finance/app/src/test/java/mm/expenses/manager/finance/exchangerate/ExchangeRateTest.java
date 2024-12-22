@@ -189,7 +189,7 @@ class ExchangeRateTest extends BaseInitTest {
     void shouldVerifyEqualsForCurrencyValue() {
         EqualsVerifier.simple()
                 .forClass(ExchangeRate.CurrencyValue.class)
-                .suppress(Warning.STRICT_INHERITANCE)
+                .suppress(Warning.BIGDECIMAL_EQUALITY, Warning.ALL_FIELDS_SHOULD_BE_USED)
                 .verify();
     }
 

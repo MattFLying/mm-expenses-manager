@@ -3,12 +3,9 @@ package mm.expenses.manager.order.order;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import mm.expenses.manager.order.config.DefaultInstantDeserializer;
-import mm.expenses.manager.order.currency.Price;
+import mm.expenses.manager.order.currency.Prices;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -32,14 +29,14 @@ public class OrderedProduct {
 
     private Double quantity;
 
-    private Price price;
+    private Prices price;
 
-    private Price priceSummary;
+    private Prices priceSummary;
 
-    public Price getPriceSummary() {
+    public Prices getPriceSummary() {
         return Objects.nonNull(price)
-                ? Price.multiply(price, quantity)
-                : Price.empty();
+                ? Prices.multiply(price, quantity)
+                : new Prices();
     }
 
 }

@@ -51,6 +51,13 @@ paths:
           schema:
             type: boolean
             default: true
+        - name: shouldConvertCurrency
+          in: query
+          required: false
+          description: Defines if prices currencies of ordered products and the final price of order should be converted to the default currency. By default it will not be converted.
+          schema:
+            type: boolean
+            default: false
         - name: name
           in: query
           required: false
@@ -123,6 +130,14 @@ paths:
       summary: Creates new order.
       description: Create a new order.
       operationId: create
+      parameters:
+        - name: shouldConvertCurrency
+          in: query
+          required: false
+          description: Defines if prices currencies of ordered products and the final price of order should be converted to the default currency. By default it will not be converted.
+          schema:
+            type: boolean
+            default: false
       requestBody:
         required: true
         content:
@@ -166,6 +181,13 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: shouldConvertCurrency
+          in: query
+          required: false
+          description: Defines if prices currencies of ordered products and the final price of order should be converted to the default currency. By default it will not be converted.
+          schema:
+            type: boolean
+            default: false
 
       responses:
         "200":
@@ -195,6 +217,13 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: shouldConvertCurrency
+          in: query
+          required: false
+          description: Defines if prices currencies of ordered products and the final price of order should be converted to the default currency. By default it will not be converted.
+          schema:
+            type: boolean
+            default: false
       requestBody:
         required: true
         content:
@@ -398,6 +427,16 @@ components:
           description: Price value.
       additionalProperties: false
       description: Price response data.
+      example: |
+        {"currency": "PLN", "amount": 1.15}
+
+    MultiPricesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/PriceResponse'
+      description: Price response data distinguished by currency.
+      example: |
+        [{"currency": "PLN", "amount": 2.30}, {"currency": "EUR", "amount": 7.14}]
 
     OrderedProductResponse:
       type: object
@@ -410,10 +449,10 @@ components:
           type: double
           description: Ordered product quantity.
         price:
-          $ref: '#/components/schemas/PriceResponse'
+          $ref: '#/components/schemas/MultiPricesResponse'
           description: Product price when it has been bought.
         priceSummary:
-          $ref: '#/components/schemas/PriceResponse'
+          $ref: '#/components/schemas/MultiPricesResponse'
           description: Summary price for all related products.
       additionalProperties: false
       description: Ordered product response data.
@@ -428,8 +467,11 @@ components:
         name:
           type: string
           description: Order name.
+        createdAt:
+          type: string
+          description: Date when order has been created.
         priceSummary:
-          $ref: '#/components/schemas/PriceResponse'
+          $ref: '#/components/schemas/MultiPricesResponse'
           description: Order summary price for all products.
         orderedProducts:
           type: array

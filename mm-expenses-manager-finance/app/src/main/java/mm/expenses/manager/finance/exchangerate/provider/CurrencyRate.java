@@ -2,7 +2,9 @@ package mm.expenses.manager.finance.exchangerate.provider;
 
 import lombok.Data;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,14 +22,14 @@ public abstract class CurrencyRate {
 
     private final LocalDate date;
 
-    private final Double rate;
+    private final BigDecimal rate;
 
     private final Map<String, Object> details;
 
-    protected CurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final Map<String, Object> details) {
+    protected CurrencyRate(final CurrencyCode currency, final LocalDate date, final BigDecimal rate, final Map<String, Object> details) {
         this.currency = CurrencyCode.of(currency);
         this.date = date;
-        this.rate = Objects.nonNull(rate) ? rate : 0.0;
+        this.rate = BigDecimalWrapper.of(rate);
         this.details = Objects.nonNull(details) ? details : new HashMap<>();
     }
 

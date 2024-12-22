@@ -1,16 +1,14 @@
 package mm.expenses.manager.order;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import junitparams.JUnitParamsRunner;
 import mm.expenses.manager.common.async.AsyncMessageProducer;
+import mm.expenses.manager.order.client.FinanceApiClient;
+import mm.expenses.manager.order.currency.PriceConverter;
 import mm.expenses.manager.order.order.OrderRepository;
 import mm.expenses.manager.order.product.ProductRepository;
 import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
@@ -20,9 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.Mockito.reset;
 
 @AutoConfigureMockMvc
-@RunWith(JUnitParamsRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = OrderApplication.class)
-public class OrderApplicationTest extends BaseInitTest {
+public class OrderApplicationTest extends OrderApplicationSpringTest {
 
     public static final MediaType DATA_FORMAT_JSON = MediaType.APPLICATION_JSON;
 
@@ -33,10 +29,10 @@ public class OrderApplicationTest extends BaseInitTest {
     public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
-    protected ObjectMapper objectMapper;
+    protected MockMvc mockMvc;
 
     @Autowired
-    protected MockMvc mockMvc;
+    protected PriceConverter priceConverter;
 
     @MockBean
     protected ProductRepository productRepository;
@@ -46,6 +42,9 @@ public class OrderApplicationTest extends BaseInitTest {
 
     @MockBean
     protected AsyncMessageProducer asyncProducer;
+
+    @MockBean
+    protected FinanceApiClient financeApiClient;
 
     @Override
     protected void setupAfterEachTest() {

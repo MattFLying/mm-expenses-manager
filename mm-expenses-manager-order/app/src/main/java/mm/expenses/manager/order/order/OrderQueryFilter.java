@@ -12,12 +12,14 @@ import java.util.StringJoiner;
 public record OrderQueryFilter(String name,
                                BigDecimal priceSummary,
                                Integer productsCount,
+                               Boolean shouldConvertCurrency,
                                Boolean priceSummaryLessThan,
                                Boolean priceSummaryGreaterThan,
                                Boolean productsCountLessThan,
                                Boolean productsCountGreaterThan) {
 
     private static final String FILTER_DELIMITER = "_";
+    static final String SHOULD_CONVERT_CURRENCY_PROPERTY = "shouldConvertCurrency";
     static final String IS_DELETED_PROPERTY = "isDeleted";
     static final String NAME_PROPERTY = "name";
     static final String PRODUCTS_COUNT_PROPERTY = "productsCount";
@@ -67,6 +69,13 @@ public record OrderQueryFilter(String name,
      */
     public boolean isProductsCountLessOrGreaterUsed() {
         return (Objects.nonNull(productsCountLessThan) && productsCountLessThan) || (Objects.nonNull(productsCountGreaterThan) && productsCountGreaterThan);
+    }
+
+    /**
+     * @return checks if all prices should be converted to the default currency or not.
+     */
+    public boolean shouldConvertPricesToDefault() {
+        return Objects.nonNull(shouldConvertCurrency) && shouldConvertCurrency;
     }
 
     /**

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -80,8 +81,8 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
             final var date = LocalDate.now();
             final var tableNumber = "test/table/number/06";
 
-            final var rate_1 = 1.3d;
-            final var rate_2 = 2.5d;
+            final var rate_1 = BigDecimal.valueOf(1.3d);
+            final var rate_2 = BigDecimal.valueOf(2.5d);
 
             final var tableRateDto_1 = createTableRateDto(CurrencyCode.EUR, rate_1);
             final var tableRateDto_2 = createTableRateDto(CurrencyCode.GBP, rate_2);
@@ -139,9 +140,9 @@ class NbpCurrencyProviderTest extends FinanceApplicationTest {
 
             final var tableNumber = "test/table/number/08";
 
-            final var rate_1 = 3.6d;
-            final var rate_2 = 9.5d;
-            final var rate_3 = 2.4d;
+            final var rate_1 = BigDecimal.valueOf(3.6d);
+            final var rate_2 = BigDecimal.valueOf(9.5d);
+            final var rate_3 = BigDecimal.valueOf(2.4d);
 
             final var tableRateDto_1 = createTableRateDto(CurrencyCode.CHF, rate_1);
             final var tableRateDto_2 = createTableRateDto(CurrencyCode.JPY, rate_2);

@@ -37,6 +37,7 @@ class OrderController implements OrderApi {
                                              @RequestParam(value = PaginationConfig.PAGE_SIZE_PROPERTY, required = false) final Integer pageSize,
                                              @RequestParam(value = PaginationConfig.SORT_ORDER_PROPERTY, required = false) final SortOrderRequest sortOrder,
                                              @RequestParam(value = PaginationConfig.SORT_DESC_PROPERTY, required = false) final Boolean sortDesc,
+                                             @RequestParam(value = OrderQueryFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency,
                                              @RequestParam(value = OrderQueryFilter.NAME_PROPERTY, required = false) final String name,
                                              @RequestParam(value = OrderQueryFilter.PRICE_SUMMARY_PROPERTY, required = false) final BigDecimal priceSummary,
                                              @RequestParam(value = OrderQueryFilter.PRICE_SUMMARY_LESS_THAN_PROPERTY, required = false) final Boolean priceSummaryLessThan,
@@ -48,7 +49,7 @@ class OrderController implements OrderApi {
             throw new ApiBadRequestException(OrderExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
         }
 
-        final var queryFilter = new OrderQueryFilter(name, priceSummary, productsCount, priceSummaryLessThan, priceSummaryGreaterThan, productsCountLessThan, productsCountGreaterThan);
+        final var queryFilter = new OrderQueryFilter(name, priceSummary, productsCount, shouldConvertCurrency, priceSummaryLessThan, priceSummaryGreaterThan, productsCountLessThan, productsCountGreaterThan);
         if (queryFilter.isPriceSummaryOriented()) {
             if (queryFilter.isPriceSummaryLessAndGreaterUsed()) {
                 throw new ApiBadRequestException(OrderExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
@@ -68,25 +69,29 @@ class OrderController implements OrderApi {
     @Override
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> findById(@PathVariable("id") final UUID id,
-                                                  @RequestParam(value = OrderQueryFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted) {
-        return ResponseEntity.ok(mapper.mapToResponse(service.findById(id, isDeleted)));
+                                                  @RequestParam(value = OrderQueryFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted,
+                                                  @RequestParam(value = OrderQueryFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
+        return ResponseEntity.ok(mapper.mapToResponse(service.findById(id, isDeleted, shouldConvertCurrency)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OrderResponse> create(@RequestBody final CreateNewOrderRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.mapToResponse(service.create(request)));
+    public ResponseEntity<OrderResponse> create(@RequestBody final CreateNewOrderRequest request,
+                                                @RequestParam(value = OrderQueryFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.mapToResponse(service.create(request, shouldConvertCurrency)));
     }
 
     @Override
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = ID_URL, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OrderResponse> update(@PathVariable("id") final UUID id, @RequestBody final UpdateOrderRequest request) {
+    public ResponseEntity<OrderResponse> update(@PathVariable("id") final UUID id,
+                                                @RequestBody final UpdateOrderRequest request,
+                                                @RequestParam(value = OrderQueryFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
         if (!isAnyUpdateOrder(request)) {
             throw new ApiConflictException(OrderExceptionMessage.ORDER_NO_UPDATE_DATA);
         }
-        return ResponseEntity.ok(mapper.mapToResponse(service.update(id, request)));
+        return ResponseEntity.ok(mapper.mapToResponse(service.update(id, request, shouldConvertCurrency)));
     }
 
     @Override

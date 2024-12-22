@@ -13,6 +13,7 @@ import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +29,10 @@ public abstract class ExchangeRateMapper implements AbstractMapper {
     protected CurrencyProviders providers;
 
     abstract RateDto map(final Rate rate);
+
+    @Mapping(target = "currency", expression = "java(currencyValue.getCurrency() != null ? currencyValue.getCurrency().name() : null)")
+    @Mapping(target = "value", expression = "java(mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper.of(currencyValue.getValue()))")
+    abstract CurrencyValueDto currencyValueToCurrencyValueDto(ExchangeRate.CurrencyValue currencyValue);
 
     @Mapping(target = "date", expression = "java(DateUtils.instantToLocalDate(exchangeRate.getDate()))")
     @Mapping(target = "rate", expression = "java(map(exchangeRate.getRateByProvider(providers.getProviderName(), true)))")
@@ -73,7 +78,7 @@ public abstract class ExchangeRateMapper implements AbstractMapper {
         return map(content, content.size());
     }
 
-    protected Rate map(final CurrencyCode currencyFrom, final CurrencyCode currencyTo, final Double currencyValueTo) {
+    protected Rate map(final CurrencyCode currencyFrom, final CurrencyCode currencyTo, final BigDecimal currencyValueTo) {
         return Rate.of(currencyFrom, currencyTo, currencyValueTo);
     }
 
@@ -94,4 +99,3 @@ public abstract class ExchangeRateMapper implements AbstractMapper {
     }
 
 }
-

@@ -39,7 +39,7 @@ paths:
           description: Value of currency from which will be made conversion.
           required: true
           schema:
-            type: double
+            type: BigDecimal
         - name: date
           in: query
           description: Specific date of exchange rate.
@@ -60,7 +60,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CurrencyConversionDto"
+                $ref: "#/components/schemas/CurrencyConversionResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+    post:
+      tags:
+        - Calculations
+      summary: Convert multiple currencies with latest exchange rate or with given date.
+      description: Allow to calculate exchange rate for multiple currency codes and for specific date otherwise use the latest..
+      operationId: convertMultipleRates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CurrencyConversionRequest"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CurrencyConversionResponse"
         "400":
           description: Bad Request
           content:
@@ -100,14 +131,33 @@ components:
           type: string
           description: Conversion currency code.
       additionalProperties: false
-      description: Currency conversion value.
+      description: Currency conversion.
 
-    CurrencyConversionDto:
+    CurrencyConversionRequest:
       type: object
       properties:
         id:
           type: string
-          description: Id to be used for calculated result and retrieved with it. Just for recognition purposes, id won't be processed.
+          description: Correlation id to be used for calculation.
+        date:
+          type: string
+          format: date
+          description: Specific date for which calculation should be done.
+        from:
+          $ref: '#/components/schemas/CurrencyConversionValueDto'
+          description: Convert from.
+        to:
+          $ref: '#/components/schemas/CurrencyConversionValueDto'
+          description: Convert to.
+      additionalProperties: false
+      description: Currency conversion request.
+
+    CurrencyConversionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Correlation id to be used for calculated result and retrieved with it.
         date:
           type: string
           format: date

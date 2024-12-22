@@ -17,7 +17,7 @@ public class DefaultSortProperty extends SortProperty<Order> {
     }
 
     public Order getOrder() {
-        return Order.by(getProperty()).with(getSpringDirection());
+        return Order.by(getProperty()).with(getDirection() == null ? getSpringDirection() : Direction.fromString(getDirection().name()));
     }
 
     public static SortDirection of(final Direction direction) {

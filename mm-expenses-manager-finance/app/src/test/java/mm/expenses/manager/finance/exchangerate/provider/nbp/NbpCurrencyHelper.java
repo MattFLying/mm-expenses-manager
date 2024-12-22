@@ -3,6 +3,7 @@ package mm.expenses.manager.finance.exchangerate.provider.nbp;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class NbpCurrencyHelper {
     public static final int MAX_DAYS_TO_FETCH = 30;
     public static final int HISTORY_FROM_YEAR = 2021;
 
-    public static NbpClient.TableRateDto createTableRateDto(final CurrencyCode currencyCode, final Double rate) {
+    public static NbpClient.TableRateDto createTableRateDto(final CurrencyCode currencyCode, final BigDecimal rate) {
         final var tableRateDto = new NbpClient.TableRateDto();
         tableRateDto.setCode(currencyCode.getCode());
         tableRateDto.setMid(rate);
@@ -30,11 +31,11 @@ public class NbpCurrencyHelper {
         return tableExchangeRatesDto;
     }
 
-    public static NbpCurrencyRate createNbpCurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final TableType tableType, final String tableNumber) {
+    public static NbpCurrencyRate createNbpCurrencyRate(final CurrencyCode currency, final LocalDate date, final BigDecimal rate, final TableType tableType, final String tableNumber) {
         return new NbpCurrencyRate(currency, date, rate, tableType, tableNumber);
     }
 
-    public static CurrencyRate createCurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final TableType tableType, final String tableNumber) {
+    public static CurrencyRate createCurrencyRate(final CurrencyCode currency, final LocalDate date, final BigDecimal rate, final TableType tableType, final String tableNumber) {
         return new NbpCurrencyRate(currency, date, rate, tableType, tableNumber);
     }
 

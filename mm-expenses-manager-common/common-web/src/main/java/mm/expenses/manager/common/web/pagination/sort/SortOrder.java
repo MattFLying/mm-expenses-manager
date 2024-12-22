@@ -38,10 +38,11 @@ public interface SortOrder {
     default SortOrder withDirectionsDesc(final Boolean isDescending) {
         if (Objects.nonNull(isDescending)) {
             for (var sortProperty : getProperties()) {
-                sortProperty.setDirectionDesc(isDescending);
+                sortProperty.setDirectionDesc(!isDescending);
             }
+            return this;
         }
-        return this;
+        return withDirectionsAsc(true);
     }
 
     default SortOrder withDirectionsAsc(final Boolean isAscending) {
@@ -49,8 +50,9 @@ public interface SortOrder {
             for (var sortProperty : getProperties()) {
                 sortProperty.setDirectionAsc(isAscending);
             }
+            return this;
         }
-        return this;
+        return withDirectionsDesc(false);
     }
 
 }

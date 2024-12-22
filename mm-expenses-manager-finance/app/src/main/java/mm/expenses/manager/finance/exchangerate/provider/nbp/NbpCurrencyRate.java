@@ -7,6 +7,7 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 class NbpCurrencyRate extends CurrencyRate {
 
-    NbpCurrencyRate(final CurrencyCode currency, final LocalDate date, final Double rate, final TableType tableType, final String tableNumber) {
+    NbpCurrencyRate(final CurrencyCode currency, final LocalDate date, final BigDecimal rate, final TableType tableType, final String tableNumber) {
         super(currency, date, rate, Map.of(
                 Details.TABLE_TYPE.getProperty(), tableType,
                 Details.TABLE_NUMBER.getProperty(), tableNumber

@@ -36,6 +36,13 @@ app:
       password: kafka
       topics:
         product-management: product-management
+  currency:
+    default-currency: PLN
+  feign-client:
+    finance:
+      name: finance-client
+      port: 8185
+      url: http://localhost:${app.feign-client.finance.port}
 
 server:
   port: ${app.configuration.port}

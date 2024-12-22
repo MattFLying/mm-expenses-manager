@@ -1,27 +1,14 @@
 package mm.expenses.manager.finance.converter;
 
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.Objects;
 
-@Data
-@EqualsAndHashCode
-@RequiredArgsConstructor
 @Builder(toBuilder = true)
-public class CurrencyConversion {
-
-    private final String id;
-    private final LocalDate date;
-
-    private final CurrencyRate from;
-    private final CurrencyRate to;
+public record CurrencyConversion(String id, LocalDate date, CurrencyRate from, CurrencyRate to) {
 
     public static CurrencyConversion of(final String id, final LocalDate date, final CurrencyRate from, final CurrencyRate to) {
         return CurrencyConversion.builder()
@@ -32,32 +19,20 @@ public class CurrencyConversion {
                 .build();
     }
 
-    @Data
-    @EqualsAndHashCode
-    @RequiredArgsConstructor
     @Builder(toBuilder = true)
-    public static class CurrencyRate {
+    public record CurrencyRate(CurrencyCode code, BigDecimal value, LocalDate date) {
 
-        public static final RoundingMode ROUND_CURRENCY_VALUE_MODE = RoundingMode.HALF_EVEN;
-        public static final int ROUND_CURRENCY_VALUE_DIGITS = 2;
-
-        private final CurrencyCode code;
-        private final BigDecimal value;
-
-        private final LocalDate date;
-
-        public BigDecimal getValue() {
-            return Objects.nonNull(value)
-                    ? value.setScale(ROUND_CURRENCY_VALUE_DIGITS, ROUND_CURRENCY_VALUE_MODE)
-                    : BigDecimal.ZERO;
+        @Override
+        public BigDecimal value() {
+            return BigDecimalWrapper.of(value);
         }
 
         public static CurrencyRate of(final CurrencyCode code, final BigDecimal value) {
-            return CurrencyRate.builder().code(code).value(value).build();
+            return CurrencyRate.builder().code(code).value(BigDecimalWrapper.of(value)).build();
         }
 
         public static CurrencyRate of(final LocalDate date, final CurrencyCode code, final BigDecimal value) {
-            return CurrencyRate.builder().code(code).value(value).date(date).build();
+            return CurrencyRate.builder().code(code).value(BigDecimalWrapper.of(value)).date(date).build();
         }
 
     }

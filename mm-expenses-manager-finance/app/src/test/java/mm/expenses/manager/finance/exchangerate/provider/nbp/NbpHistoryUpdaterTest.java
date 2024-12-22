@@ -10,6 +10,7 @@ import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -65,9 +66,9 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
         final var dateOfFirstAvailableRate = LocalDate.of(2021, 3, 15);
         final var tableNumber = "test/table/number/01";
 
-        final var rate_1 = 3.6d;
-        final var rate_2 = 9.5d;
-        final var rate_3 = 2.4d;
+        final var rate_1 = BigDecimal.valueOf(3.6d);
+        final var rate_2 = BigDecimal.valueOf(9.5d);
+        final var rate_3 = BigDecimal.valueOf(2.4d);
 
         final var expected_1 = createNbpCurrencyRate(CurrencyCode.CHF, dateOfFirstAvailableRate, rate_1, TABLE_TYPE, tableNumber);
         final var expected_2 = createNbpCurrencyRate(CurrencyCode.JPY, dateOfFirstAvailableRate, rate_2, TABLE_TYPE, tableNumber);

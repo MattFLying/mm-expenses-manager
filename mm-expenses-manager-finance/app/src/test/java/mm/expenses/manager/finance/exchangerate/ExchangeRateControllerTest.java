@@ -89,15 +89,15 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
                     .andExpect(jsonPath("$.content[0].content.rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.currency", is(rate_1.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.currency", is(rate_1.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue().doubleValue())))
 
                     .andExpect(jsonPath("$.content[0].content.rates[1].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.currency", is(rate_2.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.currency", is(rate_2.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue())));
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue().doubleValue())));
         }
 
         @ParameterizedTest
@@ -135,15 +135,15 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
                     .andExpect(jsonPath("$.content[0].content.rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.currency", is(rate_1.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.currency", is(rate_1.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue().doubleValue())))
 
                     .andExpect(jsonPath("$.content[0].content.rates[1].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.currency", is(rate_2.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.currency", is(rate_2.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue())));
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue().doubleValue())));
         }
 
         @Test
@@ -245,17 +245,17 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
                     .andExpect(jsonPath("$.content[0].rates", hasSize(expectedContentSize)))
                     .andExpect(jsonPath("$.content[0].rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].rates[0].rate.from.currency", is(rate_1.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].rates[0].rate.from.value", is(rate_1.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].rates[0].rate.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].rates[0].rate.to.currency", is(rate_1.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].rates[0].rate.to.value", is(rate_1.getTo().getValue())))
+                    .andExpect(jsonPath("$.content[0].rates[0].rate.to.value", is(rate_1.getTo().getValue().doubleValue())))
 
                     .andExpect(jsonPath("$.content[1].currency", is(currency_2.toString())))
                     .andExpect(jsonPath("$.content[1].rates", hasSize(expectedContentSize)))
                     .andExpect(jsonPath("$.content[1].rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[1].rates[0].rate.from.currency", is(rate_2.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].rates[0].rate.from.value", is(rate_2.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[1].rates[0].rate.from.value", is(rate_2.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[1].rates[0].rate.to.currency", is(rate_2.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].rates[0].rate.to.value", is(rate_2.getTo().getValue())));
+                    .andExpect(jsonPath("$.content[1].rates[0].rate.to.value", is(rate_2.getTo().getValue().doubleValue())));
         }
 
     }
@@ -298,15 +298,15 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
                     .andExpect(jsonPath("$.content[0].content.rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.currency", is(rate_1.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.currency", is(rate_1.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue().doubleValue())))
 
                     .andExpect(jsonPath("$.content[0].content.rates[1].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.currency", is(rate_2.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.currency", is(rate_2.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue())));
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue().doubleValue())));
         }
 
         @ParameterizedTest
@@ -346,15 +346,15 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
                     .andExpect(jsonPath("$.content[0].content.rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.currency", is(rate_1.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.currency", is(rate_1.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[0].rate.to.value", is(rate_1.getTo().getValue().doubleValue())))
 
                     .andExpect(jsonPath("$.content[0].content.rates[1].date", is(date.toString())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.currency", is(rate_2.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue())))
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.from.value", is(rate_2.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.currency", is(rate_2.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue())));
+                    .andExpect(jsonPath("$.content[0].content.rates[1].rate.to.value", is(rate_2.getTo().getValue().doubleValue())));
         }
 
         @ParameterizedTest
@@ -438,9 +438,9 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
                     .andExpect(jsonPath("$.rates", hasSize(expectedContentSize)))
                     .andExpect(jsonPath("$.rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.rates[0].rate.from.currency", is(rate_1.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.rates[0].rate.from.value", is(rate_1.getFrom().getValue())))
+                    .andExpect(jsonPath("$.rates[0].rate.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.rates[0].rate.to.currency", is(rate_1.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.rates[0].rate.to.value", is(rate_1.getTo().getValue())));
+                    .andExpect(jsonPath("$.rates[0].rate.to.value", is(rate_1.getTo().getValue().doubleValue())));
         }
 
         @Test
@@ -509,9 +509,9 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
                     .andExpect(jsonPath("$.rates", hasSize(expectedContentSize)))
                     .andExpect(jsonPath("$.rates[0].date", is(date.toString())))
                     .andExpect(jsonPath("$.rates[0].rate.from.currency", is(rate_1.getFrom().getCurrency().toString())))
-                    .andExpect(jsonPath("$.rates[0].rate.from.value", is(rate_1.getFrom().getValue())))
+                    .andExpect(jsonPath("$.rates[0].rate.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.rates[0].rate.to.currency", is(rate_1.getTo().getCurrency().toString())))
-                    .andExpect(jsonPath("$.rates[0].rate.to.value", is(rate_1.getTo().getValue())));
+                    .andExpect(jsonPath("$.rates[0].rate.to.value", is(rate_1.getTo().getValue().doubleValue())));
         }
 
         @Test

@@ -2,23 +2,28 @@ package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderRequest;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
+import mm.expenses.manager.order.api.order.model.SortOrderRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
+import mm.expenses.manager.order.currency.PriceConverter;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
 import mm.expenses.manager.order.product.Product;
 import mm.expenses.manager.order.product.ProductService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,11 +36,12 @@ public class OrderService {
     private final OrderRepository repository;
     private final OrderMapper mapper;
     private final ProductService productService;
+    private final PriceConverter priceConverter;
 
     Page<Order> findOrders(final OrderQueryFilter queryFilter, final PageRequest pageable, final SortOrder sortOrder) {
-        final var filter = queryFilter.findFilter();
-        final var sort = sortOrder.getOrder();
-        return switch (filter) {
+        val filter = queryFilter.findFilter();
+        val sort = sortOrder.getOrder();
+        val pagedOrders = switch (filter) {
             case NAME -> repository.findByNameAndNotDeleted(queryFilter.name(), pageable.withSort(jpaSort(sort)));
             case NAME_PRICE_LESS_THAN ->
                     repository.findByNameAndPriceSummaryLessThanAndNotDeleted(queryFilter.name(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
@@ -74,22 +80,59 @@ public class OrderService {
 
             default -> repository.findAllNotDeleted(pageable.withSort(jpaSort(sort)));
         };
+
+        if (queryFilter.shouldConvertPricesToDefault()) {
+            val productsByOrderId = pagedOrders.getContent()
+                    .stream()
+                    .collect(Collectors.groupingBy(
+                            Order::getId,
+                            Collectors.flatMapping(order -> order.getProducts().stream(), Collectors.toList())
+                    ));
+
+            // calculate prices if different currencies
+            val isCurrencyConversionNeeded = productsByOrderId.values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .anyMatch(orderedProduct -> !orderedProduct.getPrice().containsCurrency(priceConverter.getDefaultCurrency()));
+            if (isCurrencyConversionNeeded) {
+                val convertedOrders = priceConverter.convertPricesByOrderId(productsByOrderId);
+                pagedOrders.getContent()
+                        .forEach(order -> {
+                            val orderId = order.getId();
+                            val productsByOrder = convertedOrders.getOrDefault(orderId, order.getProducts());
+
+                            order.setProducts(productsByOrder);
+                            order.setPriceSummary(Order.calculatePriceSummary(productsByOrder));
+                        });
+
+                if (sort.getProperty().contains(SortOrderRequest.PRICE_SUMMARY.getValue().toLowerCase())) {
+                    return sortByOrderPriceSummary(pagedOrders, sort.getDirection());
+                }
+            }
+        }
+        return pagedOrders;
     }
 
-    Order findById(final UUID id, final Boolean isDeleted) {
-        final var isDeletedFlag = Objects.nonNull(isDeleted) ? isDeleted : false;
-        return repository.findByIdAndIsDeleted(id, isDeletedFlag)
+    Order findById(final UUID id, final Boolean isDeleted, final Boolean shouldConvertCurrency) {
+        val isDeletedFlag = Objects.nonNull(isDeleted) ? isDeleted : false;
+        val foundOrder = repository.findByIdAndIsDeleted(id, isDeletedFlag)
                 .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
+
+        pricesConversion(shouldConvertCurrency, foundOrder);
+        return foundOrder;
     }
 
-    Order create(final CreateNewOrderRequest request) {
+    Order create(final CreateNewOrderRequest request, final Boolean shouldConvertCurrency) {
         log.info("Creating a new order");
 
-        return saveOrder(mapper.map(
+        val creationTime = DateUtils.nowAsInstant();
+        val savedOrder = saveOrder(mapper.map(
                 request,
-                createOrderedProducts(request.getOrderedProducts()),
-                DateUtils.nowAsInstant()
+                createOrderedProducts(request.getOrderedProducts(), creationTime),
+                creationTime
         ));
+        pricesConversion(shouldConvertCurrency, savedOrder);
+        return savedOrder;
     }
 
     void delete(final UUID orderId) {
@@ -105,52 +148,103 @@ public class OrderService {
     }
 
     void removeByIds(final Set<UUID> ids) {
-        final var toRemove = repository.findAllByIdInAndIsDeleted(ids, false);
+        val toRemove = repository.findAllByIdInAndIsDeleted(ids, false);
         if (toRemove.size() != ids.size()) {
-            final var notFoundIds = toRemove.stream()
+            val notFoundIds = toRemove.stream()
                     .map(Order::getId)
                     .filter(orderId -> !ids.contains(orderId))
                     .collect(Collectors.toSet());
             throw new ApiNotFoundException(OrderExceptionMessage.ORDERS_NOT_FOUND.withParameters(notFoundIds));
         }
-        final var removed = toRemove.stream()
+        val removed = toRemove.stream()
                 .peek(order -> order.setDeleted(true))
                 .collect(Collectors.toList());
         repository.saveAll(removed);
     }
 
-    Order update(final UUID id, final UpdateOrderRequest updateOrder) {
+    Order update(final UUID id, final UpdateOrderRequest updateOrder, final Boolean shouldConvertCurrency) {
         var existedOrder = repository.findByIdAndIsDeleted(id, false)
                 .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
 
-        final var allProductsAfterUpdate = new OrderProductsUpdater(existedOrder);
-        allProductsAfterUpdate.update(updateOrder, this::createOrderedProducts);
+        val modifiedAt = DateUtils.nowAsInstant();
+        val allProductsAfterUpdate = new OrderProductsUpdater(existedOrder);
+        allProductsAfterUpdate.update(updateOrder, newProductOrders -> createOrderedProducts(newProductOrders, modifiedAt));
 
-        return saveOrder(mapper.map(updateOrder, existedOrder, allProductsAfterUpdate.values()));
+        val updatedOrder = saveOrder(mapper.map(
+                updateOrder,
+                existedOrder,
+                allProductsAfterUpdate.values(),
+                modifiedAt
+        ));
+        pricesConversion(shouldConvertCurrency, updatedOrder);
+        return updatedOrder;
     }
 
-    private List<OrderedProduct> createOrderedProducts(final Collection<CreateNewOrderedProductRequest> newProductOrders) {
+    private List<OrderedProduct> createOrderedProducts(final Collection<CreateNewOrderedProductRequest> newProductOrders, final Instant creationTime) {
         if (CollectionUtils.isEmpty(newProductOrders)) {
             throw new ApiValidationException(OrderExceptionMessage.ORDER_PRODUCTS_CANNOT_BE_EMPTY);
         }
         if (!newProductOrders.stream().allMatch(product -> product.getQuantity() > 0.0)) {
             throw new ApiValidationException(OrderExceptionMessage.ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO);
         }
-        final var productIds = newProductOrders.stream().map(CreateNewOrderedProductRequest::getProductId).collect(Collectors.toSet());
-        final var foundProductsByIds = productService.findAllByIds(productIds).stream().collect(Collectors.toMap(Product::getId, Function.identity(), (a, b) -> a));
+        val productIds = newProductOrders.stream().map(CreateNewOrderedProductRequest::getProductId).collect(Collectors.toSet());
+        val foundProductsByIds = productService.findAllByIds(productIds).stream().collect(Collectors.toMap(Product::getId, Function.identity(), (a, b) -> a));
         if (foundProductsByIds.size() != productIds.size()) {
-            final var missingIds = productIds.stream()
+            val missingIds = productIds.stream()
                     .filter(id -> !foundProductsByIds.containsKey(id))
                     .collect(Collectors.toSet());
             log.error("Not all products were found and cannot finalize the ordered products. Missing products ids: {}", missingIds);
             throw new ApiValidationException(OrderExceptionMessage.ORDER_NOT_ALL_PRODUCTS_FOUND.withParameters(missingIds));
         }
 
-        final var preparedProductOrders = newProductOrders.stream()
-                .map(orderedProduct -> mapper.map(orderedProduct, foundProductsByIds.get(orderedProduct.getProductId())))
+        val preparedProductOrders = newProductOrders.stream()
+                .map(orderedProduct -> mapper.map(orderedProduct, foundProductsByIds.get(orderedProduct.getProductId()), creationTime))
                 .collect(Collectors.toList());
+
         log.info("{} ordered products has been created", preparedProductOrders.size());
         return preparedProductOrders;
+    }
+
+    private void pricesConversion(final Boolean shouldConvertCurrency, final Order order) {
+        if (Objects.nonNull(shouldConvertCurrency) && shouldConvertCurrency) {
+            // calculate prices if different currencies to default currency
+            val defaultCurrency = priceConverter.getDefaultCurrency();
+            val isCurrencyConversionNeeded = order.getProducts()
+                    .stream()
+                    .anyMatch(orderedProduct -> !orderedProduct.getPrice().containsCurrency(defaultCurrency) || !orderedProduct.getPriceSummary().containsCurrency(defaultCurrency));
+            if (isCurrencyConversionNeeded) {
+                val convertedProducts = priceConverter.convertPrices(order.getProducts());
+                order.setProducts(convertedProducts);
+                order.setPriceSummary(Order.calculatePriceSummary(convertedProducts));
+            }
+        }
+    }
+
+    private Page<Order> sortByOrderPriceSummary(final Page<Order> pagedOrders, final Sort.Direction direction) {
+        if (Sort.Direction.DESC.equals(direction)) {
+            return asPagedOrder(
+                    pagedOrders,
+                    pagedOrders.getContent()
+                            .stream()
+                            .collect(Collectors.collectingAndThen(
+                                    Collectors.toList(),
+                                    toReverseOrderList -> {
+                                        Collections.reverse(toReverseOrderList);
+                                        return toReverseOrderList;
+                                    }
+                            ))
+            );
+        }
+        return asPagedOrder(
+                pagedOrders,
+                pagedOrders.getContent()
+                        .stream()
+                        .toList()
+        );
+    }
+
+    private Page<Order> asPagedOrder(final Page<Order> pagedOrders, final List<Order> content) {
+        return new PageImpl<>(content, pagedOrders.getPageable(), pagedOrders.getTotalPages());
     }
 
     private JpaSort jpaSort(final Sort.Order sort) {

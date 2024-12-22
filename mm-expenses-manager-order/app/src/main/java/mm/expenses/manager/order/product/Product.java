@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.order.currency.Price;
+import mm.expenses.manager.order.currency.Prices;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -37,7 +37,7 @@ public class Product implements Serializable {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "price", columnDefinition = "jsonb")
-    private Price price;
+    private Prices price;
 
     @Column(name = "created_at")
     private Instant createdAt;

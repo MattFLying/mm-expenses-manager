@@ -2,6 +2,7 @@ package mm.expenses.manager.finance.converter.strategy;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache.RateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
@@ -14,7 +15,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Slice;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -31,11 +31,6 @@ import static mm.expenses.manager.common.utils.util.DateUtils.instantToLocalDate
  */
 @RequiredArgsConstructor
 abstract class BaseConversion implements ConversionStrategy {
-
-    /**
-     * A MathContext object with a precision setting matching the IEEE 754R Decimal32 format, 7 digits, and a rounding mode of HALF_EVEN, the IEEE 754R default.
-     */
-    protected static final MathContext DECIMAL_DIGITS = MathContext.DECIMAL32;
 
     protected final ExchangeRateService exchangeRateService;
     protected final ExchangeRateCacheService exchangeRateCacheService;
@@ -99,8 +94,8 @@ abstract class BaseConversion implements ConversionStrategy {
                 ));
     }
 
-    protected BigDecimal valueOf(final double value) {
-        return BigDecimal.valueOf(value);
+    protected BigDecimal valueOf(final BigDecimal value) {
+        return BigDecimalWrapper.of(value);
     }
 
     protected BigDecimal valueOf(final RateCache value) {

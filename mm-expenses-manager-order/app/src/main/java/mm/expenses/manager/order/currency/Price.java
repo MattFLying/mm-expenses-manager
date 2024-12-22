@@ -5,22 +5,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @Data
-@AllArgsConstructor
-@RequiredArgsConstructor
 @Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Price {
-
-    public static final MathContext DECIMAL_DIGITS = MathContext.DECIMAL32;
-    public static final RoundingMode ROUND_PRICE_VALUE_MODE = RoundingMode.HALF_EVEN;
-    public static final int ROUND_PRICE_VALUE_DIGITS = 2;
+public class Price implements Serializable {
 
     @JsonProperty("currency")
     private CurrencyCode currency;
@@ -28,44 +27,54 @@ public class Price {
     @JsonProperty("amount")
     private BigDecimal amount;
 
+    @JsonProperty("date")
+    private Instant date;
+
+    public Price(CurrencyCode currency, BigDecimal amount) {
+        this(currency, amount, null);
+    }
+
     public BigDecimal getAmount() {
-        return Objects.nonNull(amount) ? withScale(amount) : withScale(BigDecimal.ZERO);
+        return BigDecimalWrapper.of(amount);
     }
 
     public CurrencyCode getCurrency() {
         return Objects.nonNull(currency) ? currency : CurrencyCode.UNDEFINED;
     }
 
-    public Price add(final Price price) {
-        if (Objects.nonNull(price)) {
-            return new Price(price.getCurrency(), amount.add(price.amount));
-        }
-        return this;
-    }
-
     @JsonIgnore
     public boolean isPriceFormatValid() {
-        return Math.max(amount.stripTrailingZeros().scale(), 0) <= ROUND_PRICE_VALUE_DIGITS;
+        return Math.max(getAmount().stripTrailingZeros().scale(), 0) <= BigDecimalWrapper.ROUND_CURRENCY_VALUE_DIGITS;
     }
 
     @JsonIgnore
     public static Price empty() {
-        return new Price(CurrencyCode.UNDEFINED, BigDecimal.ZERO);
+        return new Price(CurrencyCode.UNDEFINED, BigDecimalWrapper.zero());
+    }
+
+    public static Price multiply(final CurrencyCode currency, final BigDecimal value, final Double quantity, final Instant date) {
+        if (Objects.nonNull(value) && Objects.nonNull(quantity)) {
+            return new Price(currency, BigDecimalWrapper.of(BigDecimalWrapper.of(value).multiply(BigDecimalWrapper.of(quantity))), date);
+        }
+        return Price.empty();
     }
 
     public static Price multiply(final Price price, final Double quantity) {
         if (Objects.nonNull(price) && Objects.nonNull(quantity)) {
-            return new Price(price.getCurrency(), price.amount.multiply(BigDecimal.valueOf(quantity)));
+            return multiply(price.getCurrency(), BigDecimalWrapper.of(price.getAmount()), quantity, price.getDate());
         }
         return Price.empty();
     }
 
     public static Price add(final Price first, final Price second) {
-        return new Price(first.getCurrency(), first.getAmount().add(second.getAmount()));
-    }
-
-    private BigDecimal withScale(final BigDecimal value) {
-        return value.setScale(ROUND_PRICE_VALUE_DIGITS, ROUND_PRICE_VALUE_MODE);
+        if (Objects.nonNull(first) && Objects.nonNull(second)) {
+            val latestDate = Stream.of(first.getDate(), second.getDate())
+                    .filter(Objects::nonNull)
+                    .max(Instant::compareTo)
+                    .orElse(DateUtils.nowAsInstant());
+            return new Price(first.getCurrency(), BigDecimalWrapper.of(BigDecimalWrapper.of(first.getAmount()).add(BigDecimalWrapper.of(second.getAmount()))), latestDate);
+        }
+        return Price.empty();
     }
 
 }
