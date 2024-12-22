@@ -5,12 +5,14 @@ import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.currency.Price;
+import mm.expenses.manager.order.currency.Prices;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 )
 public interface ProductMapper extends AbstractMapper {
 
-    @Mapping(target = "price", expression = "java(mapPrice(message.getPrice()))")
+    @Mapping(target = "price", expression = "java(mapPrice(message.getPrice(), message.getLastModifiedAt()))")
     Product mapCreate(final ProductManagementMessage message);
 
     default Product mapUpdate(Product product, final ProductManagementMessage message) {
@@ -40,26 +42,32 @@ public interface ProductMapper extends AbstractMapper {
         return product;
     }
 
-    default Price mapPrice(final Product product, final PriceMessage message) {
+    default Prices mapPrice(final Product product, final PriceMessage message) {
         var originalPrice = product.getPrice();
         if (Objects.isNull(message)) {
             return originalPrice;
         }
         if (Objects.nonNull(message.getValue())) {
-            originalPrice.setAmount(message.getValue());
+            if (originalPrice.size() == 1) {
+                originalPrice.get(0).setAmount(message.getValue());
+            }
         }
         if (Objects.nonNull(message.getCurrency())) {
-            originalPrice.setCurrency(message.getCurrency());
+            if (originalPrice.size() == 1) {
+                originalPrice.get(0).setCurrency(message.getCurrency());
+            }
         }
         return originalPrice;
     }
 
-    default Price mapPrice(final PriceMessage message) {
-        var price = Price.builder();
+    default Prices mapPrice(final PriceMessage message, final Instant date) {
+        var price = new Price();
         if (Objects.nonNull(message)) {
-            price.amount(message.getValue()).currency(message.getCurrency());
+            price.setAmount(message.getValue());
+            price.setCurrency(message.getCurrency());
+            price.setDate(date);
         }
-        return price.build();
+        return new Prices(price);
     }
 
 }

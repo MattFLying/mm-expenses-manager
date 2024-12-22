@@ -1,24 +1,25 @@
 package mm.expenses.manager.finance.exchangerate;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @EqualsAndHashCode
 @Builder(toBuilder = true)
@@ -31,22 +32,29 @@ import java.util.Optional;
 public class ExchangeRate implements Serializable {
 
     @Id
-    private final String id;
+    private String id;
 
-    private final CurrencyCode currency;
+    @Field(value="currency")
+    private CurrencyCode currency;
 
-    private final Instant date;
+    @Field(value="date")
+    private Instant date;
 
-    private final Instant createdAt;
+    @Field(value="createdAt")
+    private Instant createdAt;
 
-    private final Instant modifiedAt;
+    @Field(value="modifiedAt")
+    private Instant modifiedAt;
 
+    @Field(value="ratesByProvider")
     private Map<String, Rate> ratesByProvider;
 
+    @Field(value="detailsByProvider")
     private Map<String, Map<String, Object>> detailsByProvider;
 
     @Version
-    private final Long version;
+    @Field(value="version")
+    private Long version;
 
     void addRateForProvider(final String providerName, final Rate rate) {
         if (Objects.isNull(ratesByProvider)) {
@@ -94,14 +102,15 @@ public class ExchangeRate implements Serializable {
         return modified.toBuilder().modifiedAt(modifiedDate).build();
     }
 
-    @Getter
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @EqualsAndHashCode
-    @RequiredArgsConstructor
-    @Builder(toBuilder = true)
     public static class Rate implements Serializable {
 
-        private final CurrencyValue from;
-        private final CurrencyValue to;
+        private CurrencyValue from;
+        private CurrencyValue to;
 
         public static Rate empty() {
             return ExchangeRate.Rate.builder()
@@ -110,7 +119,7 @@ public class ExchangeRate implements Serializable {
                     .build();
         }
 
-        static Rate of(final CurrencyCode currencyFrom, final CurrencyCode currencyTo, final Double currencyValueTo) {
+        static Rate of(final CurrencyCode currencyFrom, final CurrencyCode currencyTo, final BigDecimal currencyValueTo) {
             return ExchangeRate.Rate.builder()
                     .from(ExchangeRate.CurrencyValue.of(currencyFrom))
                     .to(ExchangeRate.CurrencyValue.of(currencyTo, currencyValueTo))
@@ -119,28 +128,30 @@ public class ExchangeRate implements Serializable {
 
     }
 
-    @Getter
+    @Data
+    @Builder
     @EqualsAndHashCode
-    @RequiredArgsConstructor
-    @Builder(toBuilder = true)
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CurrencyValue implements Serializable {
 
-        private static final Double UNKNOWN_CURRENCY_VALUE = 0.0;
-        private static final Double INITIAL_CURRENCY_VALUE = 1.0;
+        private CurrencyCode currency;
+        private BigDecimal value;
 
-        private final CurrencyCode currency;
-        private final Double value;
+        public BigDecimal getValue() {
+            return BigDecimalWrapper.of(value);
+        }
 
         static CurrencyValue empty() {
-            return ExchangeRate.CurrencyValue.builder().currency(CurrencyCode.UNDEFINED).value(UNKNOWN_CURRENCY_VALUE).build();
+            return ExchangeRate.CurrencyValue.builder().currency(CurrencyCode.UNDEFINED).value(BigDecimalWrapper.zero()).build();
         }
 
         static CurrencyValue of(final CurrencyCode currency) {
-            return of(currency, INITIAL_CURRENCY_VALUE);
+            return of(currency, BigDecimalWrapper.one());
         }
 
-        static CurrencyValue of(final CurrencyCode currency, final Double value) {
-            return ExchangeRate.CurrencyValue.builder().currency(currency).value(value).build();
+        static CurrencyValue of(final CurrencyCode currency, final BigDecimal value) {
+            return ExchangeRate.CurrencyValue.builder().currency(currency).value(BigDecimalWrapper.of(value)).build();
         }
 
     }

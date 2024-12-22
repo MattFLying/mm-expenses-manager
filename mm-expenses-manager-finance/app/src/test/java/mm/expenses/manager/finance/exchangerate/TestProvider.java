@@ -12,6 +12,7 @@ import mm.expenses.manager.finance.exchangerate.provider.HistoricCurrencies;
 import mm.expenses.manager.finance.exchangerate.provider.ProviderConfig;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +67,7 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
         if (shouldReturnEmptyCurrentCurrencies) {
             return Collections.emptyList();
         }
-        return List.of(new TestProvider.TestRate(CurrencyCode.CAD, LocalDate.now(), 5.2, Map.of()));
+        return List.of(new TestProvider.TestRate(CurrencyCode.CAD, LocalDate.now(), BigDecimal.valueOf(5.2), Map.of()));
     }
 
     @Override
@@ -83,7 +84,7 @@ class TestProvider implements CurrencyRateProvider<TestProvider.TestRate> {
 
     static class TestRate extends CurrencyRate {
 
-        TestRate(final CurrencyCode currency, final LocalDate date, final Double rate, final Map<String, Object> details) {
+        TestRate(final CurrencyCode currency, final LocalDate date, final BigDecimal rate, final Map<String, Object> details) {
             super(currency, date, rate, details);
         }
     }

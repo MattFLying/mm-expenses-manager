@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate;
 import mm.expenses.manager.finance.exchangerate.ExchangeRate.CurrencyValue;
 import org.springframework.data.annotation.Id;
@@ -13,6 +14,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -61,8 +63,8 @@ public class ExchangeRateCache implements Serializable {
     public static ExchangeRateCache empty(final CurrencyCode code) {
         return ExchangeRateCache.builder()
                 .currency(code)
-                .from(RateCache.of(code, 0.0))
-                .to(RateCache.of(code, 0.0))
+                .from(RateCache.of(code, BigDecimalWrapper.zero()))
+                .to(RateCache.of(code, BigDecimalWrapper.zero()))
                 .isLatest(false)
                 .build();
     }
@@ -74,14 +76,18 @@ public class ExchangeRateCache implements Serializable {
 
         private final CurrencyCode currency;
 
-        private final Double rate;
+        private final BigDecimal rate;
+
+        public BigDecimal getRate() {
+            return BigDecimalWrapper.of(rate);
+        }
 
         public static RateCache of(final CurrencyValue currencyValue) {
             return RateCache.of(currencyValue.getCurrency(), currencyValue.getValue());
         }
 
-        public static RateCache of(final CurrencyCode currency, final Double rate) {
-            return RateCache.builder().currency(currency).rate(rate).build();
+        public static RateCache of(final CurrencyCode currency, final BigDecimal rate) {
+            return RateCache.builder().currency(currency).rate(BigDecimalWrapper.of(rate)).build();
         }
 
     }

@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.converter.strategy;
 
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate;
 import mm.expenses.manager.finance.currency.CurrenciesService;
@@ -26,7 +27,7 @@ class ConvertDifferentCurrencies extends BaseConversion {
 
     @Override
     protected BigDecimal calculate(final BigDecimal from, final BigDecimal to, final BigDecimal value) {
-        return from.multiply(value, DECIMAL_DIGITS).divide(to, DECIMAL_DIGITS);
+        return valueOf(valueOf(from).multiply(valueOf(value), BigDecimalWrapper.DECIMAL_DIGITS).divide(valueOf(to), BigDecimalWrapper.DECIMAL_DIGITS));
     }
 
     @Override

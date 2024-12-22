@@ -4,6 +4,7 @@ import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
 import mm.expenses.manager.order.api.order.model.*;
+import mm.expenses.manager.order.currency.*;
 import mm.expenses.manager.order.product.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
@@ -13,7 +14,9 @@ import org.springframework.data.domain.Page;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Mapper(
@@ -24,7 +27,7 @@ public interface OrderMapper extends AbstractMapper {
 
     @Mapping(target = "name", expression = "java(StringUtils.trim(newProduct.getName()))")
     @Mapping(target = "products", source = "productOrders")
-    @Mapping(target = "priceSummary", expression = "java(Order.calculatePriceSummary(productOrders))")
+    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.order.order.Order.calculatePriceSummary(productOrders))")
     @Mapping(target = "createdAt", source = "creationTime")
     @Mapping(target = "lastModifiedAt", source = "creationTime")
     @Mapping(target = "id", ignore = true)
@@ -32,18 +35,19 @@ public interface OrderMapper extends AbstractMapper {
 
     @Mapping(target = "name", expression = "java(updateProduct.getName() != null ? StringUtils.trim(updateProduct.getName()) : entity.getName())")
     @Mapping(target = "products", source = "updatedProductOrders")
-    @Mapping(target = "priceSummary", expression = "java(Order.calculatePriceSummary(updatedProductOrders))")
+    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.order.order.Order.calculatePriceSummary(updatedProductOrders))")
     @Mapping(target = "createdAt", source = "entity.createdAt")
-    @Mapping(target = "lastModifiedAt", expression = "java(DateUtils.nowAsInstant())")
-    Order map(final UpdateOrderRequest updateProduct, final Order entity, final Collection<OrderedProduct> updatedProductOrders);
+    @Mapping(target = "lastModifiedAt", source = "modifiedAt")
+    Order map(final UpdateOrderRequest updateProduct, final Order entity, final Collection<OrderedProduct> updatedProductOrders, final Instant modifiedAt);
 
     @Mapping(target = "id", source = "product.id")
     @Mapping(target = "quantity", source = "newProduct.quantity")
-    @Mapping(target = "createdAt", expression = "java(DateUtils.nowAsInstant())")
-    @Mapping(target = "lastModifiedAt", expression = "java(DateUtils.nowAsInstant())")
+    @Mapping(target = "createdAt", source = "creationTime")
+    @Mapping(target = "lastModifiedAt", source = "creationTime")
     @Mapping(target = "price", source = "product.price")
-    OrderedProduct map(final CreateNewOrderedProductRequest newProduct, final Product product);
+    OrderedProduct map(final CreateNewOrderedProductRequest newProduct, final Product product, final Instant creationTime);
 
+    @Mapping(target = "priceSummary", expression = "java(mapPriceToResponse(order.getPriceSummary()))")
     @Mapping(target = "orderedProducts", source = "order.products")
     OrderResponse mapToResponse(final Order order);
 
@@ -52,6 +56,14 @@ public interface OrderMapper extends AbstractMapper {
     @Mapping(target = "elements", source = "orderPage.numberOfElements")
     @Mapping(target = "page", source = "orderPage.number")
     OrderPage mapToPageResponse(final Page<Order> orderPage);
+
+    @Mapping(target = "currency", expression = "java(value.getCurrency().getCode())")
+    @Mapping(target = "amount", expression = "java(mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper.of(value.getAmount()))")
+    PriceResponse mapPriceToResponse(final Price value);
+
+    default List<PriceResponse> mapPriceToResponse(final Prices value) {
+        return Objects.nonNull(value) ? value.stream().map(this::mapPriceToResponse).toList() : Collections.emptyList();
+    }
 
 }
 

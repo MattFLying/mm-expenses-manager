@@ -254,7 +254,7 @@ components:
           type: string
           description: Exchange rate currency code.
         value:
-          type: double
+          type: BigDecimal
           description: Exchange rate value.
       additionalProperties: false
       description: Exchange rate value.

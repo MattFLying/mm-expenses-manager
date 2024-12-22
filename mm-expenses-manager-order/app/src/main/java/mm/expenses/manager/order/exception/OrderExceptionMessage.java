@@ -22,7 +22,8 @@ public enum OrderExceptionMessage implements ExceptionType {
     PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED("page-size-and-page-number-must-be-passed-error", "Both page number and page size must be filled"),
     PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE("order-price-summary-can-be-less-or-grater-at-once-error", "Price summary can be less or greater, not both."),
     PRICE_MUST_BE_LESS_THAN_OR_GREATER_THAN("order-price-summary-must-be-less-or-grater-error", "Price summary must be less or greater."),
-    PRODUCTS_COUNT_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE("products-count-price-summary-can-be-less-or-grater-at-once-error", "Products count can be less or greater, not both.");
+    PRODUCTS_COUNT_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE("products-count-price-summary-can-be-less-or-grater-at-once-error", "Products count can be less or greater, not both."),
+    ORDER_PRODUCTS_PRICE_CURRENCY_NOT_DISTINCT("order-products-price-currency-not-distinct", "There are different products currencies not calculated into one.");
 
     private final String code;
     private final String message;

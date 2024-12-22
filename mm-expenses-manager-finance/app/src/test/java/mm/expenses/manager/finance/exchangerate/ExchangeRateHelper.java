@@ -2,9 +2,11 @@ package mm.expenses.manager.finance.exchangerate;
 
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyRate;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -40,7 +42,7 @@ public class ExchangeRateHelper {
         return createNewExchangeRate(id, currency, date, createdModifiedAt, createdModifiedAt, ratesByProvider, detailsByProvider);
     }
 
-    public static ExchangeRate.Rate createNewRate(final CurrencyCode currencyFrom, final Double valueFrom, final CurrencyCode currencyTo, final Double valueTo) {
+    public static ExchangeRate.Rate createNewRate(final CurrencyCode currencyFrom, final BigDecimal valueFrom, final CurrencyCode currencyTo, final BigDecimal valueTo) {
         return ExchangeRate.Rate.builder()
                 .from(ExchangeRate.CurrencyValue.of(currencyFrom, valueFrom))
                 .to(ExchangeRate.CurrencyValue.of(currencyTo, valueTo))
@@ -48,13 +50,13 @@ public class ExchangeRateHelper {
     }
 
     public static ExchangeRate.Rate createNewRandomRateToPLN(final CurrencyCode currencyFrom) {
-        return createNewRate(currencyFrom, 1.0, DEFAULT_CURRENCY, getRandomCurrencyValue());
+        return createNewRate(currencyFrom, BigDecimal.ONE, DEFAULT_CURRENCY, getRandomCurrencyValue());
     }
 
     public static ExchangeRate currencyRateToExchangeRate(final CurrencyRate domain, final Instant now) {
         return createNewExchangeRate(
                 ID, domain.getCurrency(), Objects.nonNull(domain.getDate()) ? DateUtils.localDateToInstant(domain.getDate()) : null, now,
-                new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(domain.getCurrency(), DEFAULT_CURRENCY, domain.getRate()))),
+                new HashMap<>(Map.of(PROVIDER_NAME, ExchangeRate.Rate.of(domain.getCurrency(), DEFAULT_CURRENCY, BigDecimalWrapper.of(domain.getRate())))),
                 new HashMap<>(Map.of(PROVIDER_NAME, domain.getDetails()))
         );
     }
@@ -71,8 +73,8 @@ public class ExchangeRateHelper {
         return createNewExchangeRate(currency, DateUtils.localDateToInstant(date));
     }
 
-    private static double getRandomCurrencyValue() {
-        return randomDataGenerator.nextUniform(1, 10);
+    private static BigDecimal getRandomCurrencyValue() {
+        return BigDecimalWrapper.of(randomDataGenerator.nextUniform(1, 10));
     }
 
 }

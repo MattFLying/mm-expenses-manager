@@ -1,12 +1,9 @@
 package mm.expenses.manager.order.order;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.order.currency.Price;
+import mm.expenses.manager.order.currency.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -15,7 +12,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -54,7 +50,7 @@ public class Order implements Serializable {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "price_summary", columnDefinition = "jsonb")
-    private Price priceSummary;
+    private Prices priceSummary;
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
@@ -62,23 +58,6 @@ public class Order implements Serializable {
     @Version
     @Column(name = "version")
     private Long version;
-
-    public static Price calculatePriceSummary(final Collection<OrderedProduct> products) {
-        return CollectionUtils.isEmpty(products)
-                ? Price.empty()
-                : products.stream().findFirst()
-                .map(firstForCurrency -> {
-                    final var currency = firstForCurrency.getPriceSummary().getCurrency();
-                    return products.stream()
-                            .map(OrderedProduct::getPriceSummary)
-                            .reduce(new Price(currency, BigDecimal.ZERO), Order::accumulatePrices);
-                })
-                .orElse(Price.empty());
-    }
-
-    private static Price accumulatePrices(final Price first, final Price second) {
-        return Price.add(first, second);
-    }
 
     @PreUpdate
     private void beforeUpdate() {
@@ -88,6 +67,19 @@ public class Order implements Serializable {
     @PrePersist
     private void beforeSave() {
         setCreatedAt(DateUtils.nowAsInstant());
+        setLastModifiedAt(getCreatedAt());
+    }
+
+    public static Prices calculatePriceSummary(final Collection<OrderedProduct> products) {
+        if (CollectionUtils.isEmpty(products)) {
+            return new Prices();
+        }
+        return Prices.of(
+                products.stream()
+                        .map(OrderedProduct::getPriceSummary)
+                        .flatMap(Collection::stream)
+                        .toList()
+        );
     }
 
 }

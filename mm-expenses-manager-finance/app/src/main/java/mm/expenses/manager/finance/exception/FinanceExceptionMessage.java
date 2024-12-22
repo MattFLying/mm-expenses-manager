@@ -50,7 +50,9 @@ public enum FinanceExceptionMessage implements ExceptionType {
     LATEST_CURRENCY_FOR_CODE_NOT_FOUND("latest-currency-for-code-not-found-error", "Latest currency for: %s not found."),
 
     // conversion
-    CURRENCY_CONVERSION_VALUE_MUST_BE_GREATER_THAN_ZERO("converted-currency-value-must-be-grater-than-zero", "Passed value for currency conversion must be greater than 0.");
+    CURRENCY_CONVERSION_VALUE_MUST_BE_GREATER_THAN_ZERO("converted-currency-value-must-be-grater-than-zero", "Passed value for currency conversion must be greater than 0."),
+    CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST("converted-currency-bad-request", "Cannot convert multiple currencies because of bad request. Incorrect request data: %s"),
+    CURRENCY_MULTIPLE_CONVERSION_NULL_REQUEST("converted-currency-empty-request", "Request body for multiple currencies conversion is required");
 
     private final String code;
     private final String message;

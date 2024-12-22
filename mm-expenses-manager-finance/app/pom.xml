@@ -8,7 +8,7 @@
     <parent>
         <artifactId>mm-expenses-manager-finance</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.2.9-SNAPSHOT</version>
+        <version>0.3.0-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Finance App</name>
@@ -17,7 +17,7 @@
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-finance-app</artifactId>
-    <version>0.2.9-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
 
     <dependencies>
         <!-- ExpensesManager dependencies -->
@@ -64,6 +64,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
+                    <parameters>true</parameters>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.springframework.boot</groupId>

@@ -1,5 +1,6 @@
 package mm.expenses.manager.finance;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import junitparams.JUnitParamsRunner;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -29,5 +30,8 @@ public class FinanceApplicationTest extends BaseInitTest {
 
     @Autowired
     protected MockMvc mockMvc;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
 
 }

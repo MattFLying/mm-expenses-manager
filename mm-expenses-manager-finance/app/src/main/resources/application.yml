@@ -72,7 +72,11 @@ spring:
     port: ${app.configuration.cache.redis.port}
   data:
     mongodb:
-      uri: ${app.configuration.database.mongodb.uri}
+      host: ${app.configuration.database.mongodb.host}
+      port: ${app.configuration.database.mongodb.port}
+      database: ${app.configuration.database.mongodb.name}
+      username: root
+      password: ${app.configuration.database.mongodb.password}
       auto-index-creation: true
     web:
       pageable:

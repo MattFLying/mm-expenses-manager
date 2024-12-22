@@ -1,10 +1,14 @@
 package mm.expenses.manager.finance.converter;
 
+import lombok.val;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
 import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheService;
 import mm.expenses.manager.finance.cache.exchangerate.latest.LatestCacheServiceTest;
@@ -33,20 +37,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate.ROUND_CURRENCY_VALUE_DIGITS;
-import static mm.expenses.manager.finance.converter.CurrencyConversion.CurrencyRate.ROUND_CURRENCY_VALUE_MODE;
-import static mm.expenses.manager.finance.exception.FinanceExceptionMessage.CURRENCY_CONVERSION_VALUE_MUST_BE_GREATER_THAN_ZERO;
-import static mm.expenses.manager.finance.exception.FinanceExceptionMessage.CURRENCY_NOT_ALLOWED;
+import static mm.expenses.manager.finance.exception.FinanceExceptionMessage.*;
 import static mm.expenses.manager.finance.exchangerate.ExchangeRateHelper.createNewExchangeRate;
 import static mm.expenses.manager.finance.exchangerate.provider.nbp.NbpCurrencyHelper.PROVIDER_NAME;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -69,6 +69,9 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
 
     @Autowired
     private PaginationHelper pagination;
+
+    @Autowired
+    private CurrencyConverterService currencyConverterService;
 
     @Override
     protected void setupBeforeEachTest() {
@@ -315,7 +318,7 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.date", is(date.toString())))
                     .andExpect(jsonPath("$.id", is(idOfResult)))
-                    .andExpect(jsonPath("$.from.value", is(1.0)))
+                    .andExpect(jsonPath("$.from.value", is(rate_1.getFrom().getValue().doubleValue())))
                     .andExpect(jsonPath("$.from.code", is(from.toString())))
                     .andExpect(jsonPath("$.to.value", is(convert(expectedConversionValue))))
                     .andExpect(jsonPath("$.to.code", is(to.toString())));
@@ -373,8 +376,155 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
 
     }
 
+    @Nested
+    class ConvertMultipleRates {
+
+        @Test
+        void shouldReturnBadRequest_whenRequestBodyIsEmpty() throws Exception {
+            mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content("[]"))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_MULTIPLE_CONVERSION_NULL_REQUEST.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_MULTIPLE_CONVERSION_NULL_REQUEST.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyCodeArgument.class)
+        void shouldReturnBadRequest_whenFromIsMissing(final CurrencyCode currency) throws Exception {
+            // given
+            val toDto = new CurrencyConversionValueDto();
+            toDto.setCode(currency.getCode());
+
+            val conversionDto = new CurrencyConversionRequest();
+            conversionDto.setTo(toDto);
+
+            val request = List.of(conversionDto);
+
+            // when & then
+            mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyCodeArgument.class)
+        void shouldReturnBadRequest_whenFromValueIsMissing(final CurrencyCode currency) throws Exception {
+            // given
+            val fromDto = new CurrencyConversionValueDto();
+            fromDto.setCode(currency.getCode());
+
+            val conversionDto = new CurrencyConversionRequest();
+            conversionDto.setFrom(fromDto);
+
+            val request = List.of(conversionDto);
+
+            // when & then
+            mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyCodeArgument.class)
+        void shouldReturnBadRequest_whenFromValueIsZero(final CurrencyCode currency) throws Exception {
+            // given
+            val fromDto = new CurrencyConversionValueDto();
+            fromDto.setCode(currency.getCode());
+            fromDto.setValue(0.0);
+
+            val conversionDto = new CurrencyConversionRequest();
+            conversionDto.setFrom(fromDto);
+
+            val request = List.of(conversionDto);
+
+            // when & then
+            mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @Test
+        void shouldReturnBadRequest_whenFromCodeIsNull() throws Exception {
+            // given
+            val fromDto = new CurrencyConversionValueDto();
+            fromDto.setValue(1.0);
+
+            val conversionDto = new CurrencyConversionRequest();
+            conversionDto.setFrom(fromDto);
+
+            val request = List.of(conversionDto);
+
+            // when & then
+            mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isBadRequest())
+
+                    .andExpect(jsonPath("$.code", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getCode())))
+                    .andExpect(jsonPath("$.message", is(CURRENCY_MULTIPLE_CONVERSION_BAD_REQUEST.getMessage())))
+                    .andExpect(jsonPath("$.status", is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
+                    .andExpect(jsonPath("$.occurredAt", notNullValue()));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyCodeArgument.class)
+        void shouldReturnConvertedCurrency(final CurrencyCode currency) throws Exception {
+            // given
+            val date = LocalDate.now();
+
+            val expected = createNewExchangeRate(currency, date);
+            val rate = expected.getRateByProvider(PROVIDER_NAME);
+            latestCacheTest.saveInMemory(currency, expected);
+
+            val fromDto = new CurrencyConversionValueDto();
+            fromDto.setCode(currency.getCode());
+            fromDto.setValue(rate.getFrom().getValue().doubleValue());
+
+            val toDto = new CurrencyConversionValueDto();
+            toDto.setCode(DEFAULT_CURRENCY.getCode());
+
+            val conversionDto = new CurrencyConversionRequest();
+            conversionDto.setFrom(fromDto);
+            conversionDto.setTo(toDto);
+            conversionDto.setDate(date);
+            conversionDto.setId(UUID.randomUUID().toString());
+
+            val request = List.of(conversionDto);
+
+            // when && then
+            mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+
+                    .andExpect(jsonPath("$[0].id", is(conversionDto.getId())))
+                    .andExpect(jsonPath("$[0].date", is(date.toString())))
+                    .andExpect(jsonPath("$[0].from.value", is(fromDto.getValue())))
+                    .andExpect(jsonPath("$[0].from.code", is(fromDto.getCode())))
+                    .andExpect(jsonPath("$[0].to.value", is(rate.getTo().getValue().doubleValue())))
+                    .andExpect(jsonPath("$[0].to.code", is(toDto.getCode())));
+        }
+
+    }
+
     private double convert(final BigDecimal value) {
-        return value.setScale(ROUND_CURRENCY_VALUE_DIGITS, ROUND_CURRENCY_VALUE_MODE).doubleValue();
+        return BigDecimalWrapper.of(value).doubleValue();
     }
 
     private String fromDifferentToDefault(final CurrencyCode from, final double value) {
@@ -401,15 +551,12 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
         return BASE_URL + "?from=" + from + "&to=" + to + "&value=" + value + "&date=" + date + "&id=" + id;
     }
 
-    private BigDecimal convertForStrategy(final ConversionStrategyType type, final Double from, final Double to) {
-        switch (type) {
-            case TO_DEFAULT:
-                return BigDecimal.valueOf(to).multiply(BigDecimal.ONE, MathContext.DECIMAL32);
-            case FROM_DEFAULT:
-                return BigDecimal.ONE.multiply(BigDecimal.ONE, MathContext.DECIMAL32).divide(BigDecimal.valueOf(to), MathContext.DECIMAL32);
-            default:
-                return BigDecimal.valueOf(from).multiply(BigDecimal.ONE, MathContext.DECIMAL32).divide(BigDecimal.valueOf(to), MathContext.DECIMAL32);
-        }
+    private BigDecimal convertForStrategy(final ConversionStrategyType type, final BigDecimal from, final BigDecimal to) {
+        return switch (type) {
+            case TO_DEFAULT -> BigDecimalWrapper.of(to.multiply(BigDecimal.ONE, MathContext.DECIMAL32));
+            case FROM_DEFAULT -> BigDecimalWrapper.of(BigDecimal.ONE.multiply(BigDecimal.ONE, MathContext.DECIMAL32).divide(to, MathContext.DECIMAL32));
+            default -> BigDecimalWrapper.of(from.multiply(BigDecimal.ONE, MathContext.DECIMAL32).divide(to, MathContext.DECIMAL32));
+        };
     }
 
 }
