@@ -2,6 +2,8 @@ package mm.expenses.manager.order.order;
 
 import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.price.Price;
+import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
@@ -9,8 +11,6 @@ import mm.expenses.manager.order.api.order.model.CreateNewOrderRequest;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderedProductRequest;
-import mm.expenses.manager.order.currency.Price;
-import mm.expenses.manager.order.currency.Prices;
 import mm.expenses.manager.order.product.Product;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
@@ -121,11 +121,11 @@ public class OrderHelper {
     public static CurrencyConversionResponse createCurrencyConversionResponse(final Product product) {
         val from = new CurrencyConversionValueDto();
         from.setCode(product.getPrice().get(0).getCurrency().getCode());
-        from.setValue(product.getPrice().get(0).getAmount().doubleValue());
+        from.setValue(product.getPrice().get(0).getValue().doubleValue());
 
         val to = new CurrencyConversionValueDto();
         to.setCode(DEFAULT_CURRENCY.getCode());
-        to.setValue(product.getPrice().get(0).getAmount().doubleValue());
+        to.setValue(product.getPrice().get(0).getValue().doubleValue());
 
         val response = new CurrencyConversionResponse();
         response.setId(product.getId().toString());

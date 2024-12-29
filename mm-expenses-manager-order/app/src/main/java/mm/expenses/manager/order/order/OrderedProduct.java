@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.*;
+import mm.expenses.manager.common.utils.price.PriceSummary;
+import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.order.config.DefaultInstantDeserializer;
-import mm.expenses.manager.order.currency.Prices;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class OrderedProduct {
+public class OrderedProduct implements PriceSummary {
 
     private UUID id;
 
@@ -34,9 +35,7 @@ public class OrderedProduct {
     private Prices priceSummary;
 
     public Prices getPriceSummary() {
-        return Objects.nonNull(price)
-                ? Prices.multiply(price, quantity)
-                : new Prices();
+        return Objects.nonNull(price) ? Prices.multiply(price, quantity) : new Prices();
     }
 
 }

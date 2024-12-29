@@ -2,8 +2,8 @@ package mm.expenses.manager.product.product;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.product.price.Price;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -65,6 +65,7 @@ public class Product implements Serializable {
     @PrePersist
     private void beforeSave() {
         setCreatedAt(DateUtils.nowAsInstant());
+        setLastModifiedAt(getCreatedAt());
     }
 
 }

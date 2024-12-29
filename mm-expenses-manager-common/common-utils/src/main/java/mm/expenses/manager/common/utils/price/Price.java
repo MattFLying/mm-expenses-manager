@@ -1,4 +1,4 @@
-package mm.expenses.manager.order.currency;
+package mm.expenses.manager.common.utils.price;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -14,28 +14,38 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+/**
+ * Common implementation of price to be reused whereas is needed with expected possible operations.
+ */
 @Data
-@Builder(toBuilder = true)
-@NoArgsConstructor
 @AllArgsConstructor
+@Builder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Price implements Serializable {
 
     @JsonProperty("currency")
     private CurrencyCode currency;
 
-    @JsonProperty("amount")
-    private BigDecimal amount;
+    @JsonProperty("value")
+    private BigDecimal value;
 
     @JsonProperty("date")
     private Instant date;
 
-    public Price(CurrencyCode currency, BigDecimal amount) {
-        this(currency, amount, null);
+    public Price() {
+        this(null, null, null);
     }
 
-    public BigDecimal getAmount() {
-        return BigDecimalWrapper.of(amount);
+    public Price(final CurrencyCode currency, final BigDecimal value) {
+        this(currency, value, null);
+    }
+
+    public Price(final Double value, final CurrencyCode currency) {
+        this(currency, BigDecimal.valueOf(value));
+    }
+
+    public BigDecimal getValue() {
+        return BigDecimalWrapper.of(value);
     }
 
     public CurrencyCode getCurrency() {
@@ -44,7 +54,7 @@ public class Price implements Serializable {
 
     @JsonIgnore
     public boolean isPriceFormatValid() {
-        return Math.max(getAmount().stripTrailingZeros().scale(), 0) <= BigDecimalWrapper.ROUND_CURRENCY_VALUE_DIGITS;
+        return Math.max(getValue().stripTrailingZeros().scale(), 0) <= BigDecimalWrapper.ROUND_CURRENCY_VALUE_DIGITS;
     }
 
     @JsonIgnore
@@ -52,6 +62,12 @@ public class Price implements Serializable {
         return new Price(CurrencyCode.UNDEFINED, BigDecimalWrapper.zero());
     }
 
+    @JsonIgnore
+    public static Price empty(final CurrencyCode currency) {
+        return new Price(currency, BigDecimalWrapper.zero());
+    }
+
+    @JsonIgnore
     public static Price multiply(final CurrencyCode currency, final BigDecimal value, final Double quantity, final Instant date) {
         if (Objects.nonNull(value) && Objects.nonNull(quantity)) {
             return new Price(currency, BigDecimalWrapper.of(BigDecimalWrapper.of(value).multiply(BigDecimalWrapper.of(quantity))), date);
@@ -59,20 +75,22 @@ public class Price implements Serializable {
         return Price.empty();
     }
 
+    @JsonIgnore
     public static Price multiply(final Price price, final Double quantity) {
         if (Objects.nonNull(price) && Objects.nonNull(quantity)) {
-            return multiply(price.getCurrency(), BigDecimalWrapper.of(price.getAmount()), quantity, price.getDate());
+            return multiply(price.getCurrency(), BigDecimalWrapper.of(price.getValue()), quantity, price.getDate());
         }
         return Price.empty();
     }
 
+    @JsonIgnore
     public static Price add(final Price first, final Price second) {
         if (Objects.nonNull(first) && Objects.nonNull(second)) {
             val latestDate = Stream.of(first.getDate(), second.getDate())
                     .filter(Objects::nonNull)
                     .max(Instant::compareTo)
                     .orElse(DateUtils.nowAsInstant());
-            return new Price(first.getCurrency(), BigDecimalWrapper.of(BigDecimalWrapper.of(first.getAmount()).add(BigDecimalWrapper.of(second.getAmount()))), latestDate);
+            return new Price(first.getCurrency(), BigDecimalWrapper.of(BigDecimalWrapper.of(first.getValue()).add(BigDecimalWrapper.of(second.getValue()))), latestDate);
         }
         return Price.empty();
     }

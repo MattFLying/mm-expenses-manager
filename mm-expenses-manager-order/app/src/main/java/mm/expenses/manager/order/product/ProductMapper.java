@@ -3,9 +3,9 @@ package mm.expenses.manager.order.product;
 import mm.expenses.manager.common.kafka.message.PriceMessage;
 import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.price.Price;
+import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.order.currency.Price;
-import mm.expenses.manager.order.currency.Prices;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
@@ -49,7 +49,7 @@ public interface ProductMapper extends AbstractMapper {
         }
         if (Objects.nonNull(message.getValue())) {
             if (originalPrice.size() == 1) {
-                originalPrice.get(0).setAmount(message.getValue());
+                originalPrice.get(0).setValue(message.getValue());
             }
         }
         if (Objects.nonNull(message.getCurrency())) {
@@ -63,7 +63,7 @@ public interface ProductMapper extends AbstractMapper {
     default Prices mapPrice(final PriceMessage message, final Instant date) {
         var price = new Price();
         if (Objects.nonNull(message)) {
-            price.setAmount(message.getValue());
+            price.setValue(message.getValue());
             price.setCurrency(message.getCurrency());
             price.setDate(date);
         }

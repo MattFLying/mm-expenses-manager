@@ -2,6 +2,7 @@ package mm.expenses.manager.product.price;
 
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.product.api.product.model.*;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;

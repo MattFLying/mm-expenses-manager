@@ -1,10 +1,11 @@
 package mm.expenses.manager.order.order;
 
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.price.Price;
+import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
 import mm.expenses.manager.order.api.order.model.*;
-import mm.expenses.manager.order.currency.*;
 import mm.expenses.manager.order.product.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
@@ -27,7 +28,7 @@ public interface OrderMapper extends AbstractMapper {
 
     @Mapping(target = "name", expression = "java(StringUtils.trim(newProduct.getName()))")
     @Mapping(target = "products", source = "productOrders")
-    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.order.order.Order.calculatePriceSummary(productOrders))")
+    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.common.utils.price.Prices.calculatePriceSummary(productOrders))")
     @Mapping(target = "createdAt", source = "creationTime")
     @Mapping(target = "lastModifiedAt", source = "creationTime")
     @Mapping(target = "id", ignore = true)
@@ -35,7 +36,7 @@ public interface OrderMapper extends AbstractMapper {
 
     @Mapping(target = "name", expression = "java(updateProduct.getName() != null ? StringUtils.trim(updateProduct.getName()) : entity.getName())")
     @Mapping(target = "products", source = "updatedProductOrders")
-    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.order.order.Order.calculatePriceSummary(updatedProductOrders))")
+    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.common.utils.price.Prices.calculatePriceSummary(updatedProductOrders))")
     @Mapping(target = "createdAt", source = "entity.createdAt")
     @Mapping(target = "lastModifiedAt", source = "modifiedAt")
     Order map(final UpdateOrderRequest updateProduct, final Order entity, final Collection<OrderedProduct> updatedProductOrders, final Instant modifiedAt);
@@ -58,7 +59,7 @@ public interface OrderMapper extends AbstractMapper {
     OrderPage mapToPageResponse(final Page<Order> orderPage);
 
     @Mapping(target = "currency", expression = "java(value.getCurrency().getCode())")
-    @Mapping(target = "amount", expression = "java(mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper.of(value.getAmount()))")
+    @Mapping(target = "amount", expression = "java(mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper.of(value.getValue()))")
     PriceResponse mapPriceToResponse(final Price value);
 
     default List<PriceResponse> mapPriceToResponse(final Prices value) {

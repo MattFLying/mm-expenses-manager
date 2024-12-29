@@ -41,7 +41,7 @@ app:
   feign-client:
     finance:
       name: finance-client
-      port: 8185
+      port: 8888
       url: http://localhost:${app.feign-client.finance.port}
 
 server:

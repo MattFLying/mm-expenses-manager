@@ -3,6 +3,7 @@ package mm.expenses.manager.order.order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
@@ -102,7 +103,7 @@ public class OrderService {
                             val productsByOrder = convertedOrders.getOrDefault(orderId, order.getProducts());
 
                             order.setProducts(productsByOrder);
-                            order.setPriceSummary(Order.calculatePriceSummary(productsByOrder));
+                            order.setPriceSummary(Prices.calculatePriceSummary(productsByOrder));
                         });
 
                 if (sort.getProperty().contains(SortOrderRequest.PRICE_SUMMARY.getValue().toLowerCase())) {
@@ -215,7 +216,7 @@ public class OrderService {
             if (isCurrencyConversionNeeded) {
                 val convertedProducts = priceConverter.convertPrices(order.getProducts());
                 order.setProducts(convertedProducts);
-                order.setPriceSummary(Order.calculatePriceSummary(convertedProducts));
+                order.setPriceSummary(Prices.calculatePriceSummary(convertedProducts));
             }
         }
     }
