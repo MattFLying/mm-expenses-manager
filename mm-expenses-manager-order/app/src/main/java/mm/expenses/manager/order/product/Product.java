@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.order.currency.Prices;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -56,9 +56,15 @@ public class Product implements Serializable {
     @Column(name = "version")
     private Long version;
 
+    @PreUpdate
+    private void beforeUpdate() {
+        setLastModifiedAt(DateUtils.nowAsInstant());
+    }
+
     @PrePersist
     private void beforeSave() {
         setCreatedAt(DateUtils.nowAsInstant());
+        setLastModifiedAt(getCreatedAt());
     }
 
 }

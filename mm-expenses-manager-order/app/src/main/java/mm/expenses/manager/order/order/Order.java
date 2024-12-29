@@ -2,18 +2,16 @@ package mm.expenses.manager.order.order;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.order.currency.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,18 +66,6 @@ public class Order implements Serializable {
     private void beforeSave() {
         setCreatedAt(DateUtils.nowAsInstant());
         setLastModifiedAt(getCreatedAt());
-    }
-
-    public static Prices calculatePriceSummary(final Collection<OrderedProduct> products) {
-        if (CollectionUtils.isEmpty(products)) {
-            return new Prices();
-        }
-        return Prices.of(
-                products.stream()
-                        .map(OrderedProduct::getPriceSummary)
-                        .flatMap(Collection::stream)
-                        .toList()
-        );
     }
 
 }

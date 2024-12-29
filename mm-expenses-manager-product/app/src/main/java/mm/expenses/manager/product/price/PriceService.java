@@ -3,6 +3,8 @@ package mm.expenses.manager.product.price;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.price.Price;
+import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreatePriceRequest;
 import mm.expenses.manager.product.api.product.model.UpdatePriceRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
@@ -26,10 +28,10 @@ public class PriceService {
                 .value(getUpdatedOrOriginalValue(oldPrice, newPrice))
                 .currency(getUpdatedOrOriginalCurrency(oldPrice, newPrice))
                 .build();
-        if (!price.isValueValid()) {
+        if (!ProductCommonValidation.isPriceValueValid(price.getValue())) {
             throw new ApiValidationException(ProductExceptionMessage.PRODUCT_PRICE_VALUE_NOT_VALID.withParameters(newPrice.getValue()));
         }
-        if (!price.isCurrencyCodeValid()) {
+        if (!ProductCommonValidation.isPriceCurrencyCodeValid(price.getCurrency())) {
             throw new ApiValidationException(ProductExceptionMessage.PRODUCT_PRICE_CURRENCY_NOT_VALID);
         }
         return price;

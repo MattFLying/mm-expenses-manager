@@ -3,6 +3,7 @@ package mm.expenses.manager.order.currency;
 import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
+import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
 public interface CurrencyMapper extends AbstractMapper {
 
     @Mapping(target = "code", source = "price.currency.code")
-    @Mapping(target = "value", source = "price.amount")
+    @Mapping(target = "value", source = "price.value")
     CurrencyConversionValueDto map(final Price price);
 
     @Mapping(target = "code", source = "toCode")
