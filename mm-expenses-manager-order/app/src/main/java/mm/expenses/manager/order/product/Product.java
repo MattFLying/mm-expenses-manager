@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import mm.expenses.manager.common.postgresql.specification.SpecificationScanner;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import org.hibernate.annotations.DynamicInsert;
@@ -36,7 +37,7 @@ public class Product implements Serializable {
     private UUID id;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "price", columnDefinition = "jsonb")
+    @Column(name = "price", columnDefinition = SpecificationScanner.JSONB_TYPE)
     private Prices price;
 
     @Column(name = "created_at")
@@ -46,7 +47,7 @@ public class Product implements Serializable {
     private Instant lastModifiedAt;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "details", columnDefinition = "jsonb")
+    @Column(name = "details", columnDefinition = SpecificationScanner.JSONB_TYPE)
     private Map<String, Object> details;
 
     @Column(name = "is_deleted")

@@ -2,6 +2,8 @@ package mm.expenses.manager.order.order;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mm.expenses.manager.common.postgresql.specification.SpecificationScanner;
+import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import org.hibernate.annotations.DynamicInsert;
@@ -34,23 +36,28 @@ public class Order implements Serializable {
     private UUID id;
 
     @Column(name = "name")
+    @SpecificationDetailsAnnotation(canBeFiltered = true, canBeSorted = true)
     private String name;
 
     @Column(name = "created_at")
+    @SpecificationDetailsAnnotation(canBeSorted = true)
     private Instant createdAt;
 
     @Column(name = "last_modified_at")
     private Instant lastModifiedAt;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "products", columnDefinition = "jsonb")
+    @SpecificationDetailsAnnotation(canBeFiltered = true, canBeSorted = true)
+    @Column(name = "products", columnDefinition = SpecificationScanner.JSONB_TYPE)
     private List<OrderedProduct> products;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "price_summary", columnDefinition = "jsonb")
+    @SpecificationDetailsAnnotation(canBeFiltered = true)
+    @Column(name = "price_summary", columnDefinition = SpecificationScanner.JSONB_TYPE)
     private Prices priceSummary;
 
     @Column(name = "is_deleted")
+    @SpecificationDetailsAnnotation(canBeFiltered = true)
     private boolean isDeleted;
 
     @Version

@@ -14,20 +14,36 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Defines sorting for {@link Order}.
+ */
 @Getter
 @RequiredArgsConstructor
 enum OrderSortOrder implements SortOrder {
-    DEFAULT_SORT(List.of(new DefaultSortProperty("name", Direction.ASC))),
-    PRICE_SUMMARY(List.of(new SortJsonBProperty("cast(o.price_summary -> 'amount' as float)", Direction.ASC))),
-    PRODUCTS_COUNT(List.of(new SortJsonBProperty("jsonb_array_length(o.products)", Direction.ASC)));
+    NAME_ASC(List.of(new DefaultSortProperty("name", Direction.ASC))),
+    NAME_DESC(List.of(new DefaultSortProperty("name", Direction.DESC))),
+
+    CREATED_AT_ASC(List.of(new DefaultSortProperty("createdAt", Direction.ASC))),
+    CREATED_AT_DESC(List.of(new DefaultSortProperty("createdAt", Direction.DESC))),
+
+    PRODUCTS_COUNT_ASC(List.of(new SortJsonBProperty("products", Direction.ASC))),
+    PRODUCTS_COUNT_DESC(List.of(new SortJsonBProperty("products", Direction.DESC))),
+
+    DEFAULT_SORT(List.of(new DefaultSortProperty("name", Direction.ASC)));
 
     private final Collection<SortProperty<Sort.Order>> properties;
 
-    public static SortOrder of(final SortOrderRequest request, final Boolean isDescending) {
+    /**
+     * @return proper sorting for {@link Order} based on passed requested sorting.
+     */
+    public static SortOrder of(final SortOrderRequest request) {
         return Objects.isNull(request) ? OrderSortOrder.DEFAULT_SORT : switch (request) {
-            case NAME -> OrderSortOrder.DEFAULT_SORT.withDirectionsDesc(isDescending);
-            case PRICE_SUMMARY -> OrderSortOrder.PRICE_SUMMARY.withDirectionsDesc(isDescending);
-            case PRODUCTS_COUNT -> OrderSortOrder.PRODUCTS_COUNT.withDirectionsDesc(isDescending);
+            case NAME_ASC -> OrderSortOrder.NAME_ASC;
+            case NAME_DESC -> OrderSortOrder.NAME_DESC;
+            case CREATED_AT_ASC -> OrderSortOrder.CREATED_AT_ASC;
+            case CREATED_AT_DESC -> OrderSortOrder.CREATED_AT_DESC;
+            case PRODUCTS_COUNT_ASC -> OrderSortOrder.PRODUCTS_COUNT_ASC;
+            case PRODUCTS_COUNT_DESC -> OrderSortOrder.PRODUCTS_COUNT_DESC;
 
             // in case if any other request's value is not handled.
             default -> OrderSortOrder.DEFAULT_SORT;

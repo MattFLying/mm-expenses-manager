@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 
@@ -27,6 +28,7 @@ public class Price implements Serializable {
     private CurrencyCode currency;
 
     @JsonProperty("value")
+    @SpecificationDetailsAnnotation(canBeFiltered = true)
     private BigDecimal value;
 
     @JsonProperty("date")

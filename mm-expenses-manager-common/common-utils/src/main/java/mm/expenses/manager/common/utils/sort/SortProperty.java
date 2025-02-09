@@ -35,6 +35,15 @@ public abstract class SortProperty<Order> {
 
     public enum SortDirection {
         ASC, DESC;
+
+        public String toLowerCase() {
+            return name().toLowerCase();
+        }
+
+        public static SortDirection of(final String direction) {
+            return SortDirection.valueOf(direction);
+        }
+
     }
 
 }

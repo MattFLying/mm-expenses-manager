@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.web;
+package mm.expenses.manager.common.utils.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;

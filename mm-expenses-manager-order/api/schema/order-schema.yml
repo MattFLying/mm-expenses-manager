@@ -38,19 +38,19 @@ paths:
             default: 10
             minimum: 1
             format: int32
-        - name: sortOrder
+        - name: sort
           in: query
           required: false
           description: Sort orders by.
           schema:
             $ref: "#/components/schemas/SortOrderRequest"
-        - name: sortDesc
+        - name: isDeleted
           in: query
           required: false
-          description: Ascending sorting by default or descending if false.
+          description: If true then retrieves orders even if they are marked as deleted otherwise not found.
           schema:
             type: boolean
-            default: true
+            default: false
         - name: shouldConvertCurrency
           in: query
           required: false
@@ -66,49 +66,29 @@ paths:
             type: string
             minLength: 1
             maxLength: 200
-        - name: priceSummary
+        - name: nameOperation
           in: query
           required: false
-          description: Specific price summary for orders.
+          description: Expected operation for name if present.
           schema:
-            type: BigDecimal
-            minimum: 0
-        - name: priceSummaryLessThan
-          in: query
-          required: false
-          description: If price summary is passed then could be used to specify if price summary should be less than.
-          schema:
-            type: boolean
-            default: false
-        - name: priceSummaryGreaterThan
-          in: query
-          required: false
-          description: If price summary is passed then could be used to specify if price summary should be greater than.
-          schema:
-            type: boolean
-            default: false
+            allOf:
+              - $ref: "#/components/schemas/TextOperationRequest"
+              - default: equal
         - name: productsCount
           in: query
           required: false
           description: Specifies how many ordered products are available for the order.
-          example: 15
           schema:
             type: integer
             format: int32
-        - name: productsCountLessThan
+        - name: productsCountOperation
           in: query
           required: false
-          description: If products count is passed then could be used to specify if products count should be less than.
+          description: Expected operation for products count if present.
           schema:
-            type: boolean
-            default: false
-        - name: productsCountGreaterThan
-          in: query
-          required: false
-          description: If products count is passed then could be used to specify if products count should be greater than.
-          schema:
-            type: boolean
-            default: false
+            allOf:
+              - $ref: "#/components/schemas/NumberOperationRequest"
+              - default: greaterThanOrEqual
 
       responses:
         "200":
@@ -338,8 +318,21 @@ components:
 
     SortOrderRequest:
       type: string
-      enum: [ NAME, PRICE_SUMMARY, PRODUCTS_COUNT ]
+      enum: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, PRODUCTS_COUNT_ASC, PRODUCTS_COUNT_DESC ]
+      x-enum-varnames: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, PRODUCTS_COUNT_ASC, PRODUCTS_COUNT_DESC ]
       description: Sorting order for orders.
+
+    TextOperationRequest:
+      type: string
+      enum: [ isNull, equal, notEqual, startsWith, endsWith, contains ]
+      x-enum-varnames: [ isNull, equal, notEqual, startsWith, endsWith, contains ]
+      description: Possible text operation types for specific query parameter.
+
+    NumberOperationRequest:
+      type: string
+      enum: [ isNull, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual ]
+      x-enum-varnames: [ isNull, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual ]
+      description: Possible number operation types for specific query parameter.
 
     CreateNewOrderedProductRequest:
       type: object
@@ -535,4 +528,3 @@ components:
           description: Total available orders.
           format: int64
       description: Page with orders data.
-

@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import mm.expenses.manager.common.utils.price.Prices;
-import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderRequest;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
-import mm.expenses.manager.order.api.order.model.SortOrderRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.currency.PriceConverter;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
@@ -18,10 +16,6 @@ import mm.expenses.manager.order.product.Product;
 import mm.expenses.manager.order.product.ProductService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -38,50 +32,14 @@ public class OrderService {
     private final OrderMapper mapper;
     private final ProductService productService;
     private final PriceConverter priceConverter;
+    private final OrderSpecificationHandler specificationHandler;
 
-    Page<Order> findOrders(final OrderQueryFilter queryFilter, final PageRequest pageable, final SortOrder sortOrder) {
-        val filter = queryFilter.findFilter();
-        val sort = sortOrder.getOrder();
-        val pagedOrders = switch (filter) {
-            case NAME -> repository.findByNameAndNotDeleted(queryFilter.name(), pageable.withSort(jpaSort(sort)));
-            case NAME_PRICE_LESS_THAN ->
-                    repository.findByNameAndPriceSummaryLessThanAndNotDeleted(queryFilter.name(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case NAME_PRICE_GREATER_THAN ->
-                    repository.findByNameAndPriceSummaryGreaterThanAndNotDeleted(queryFilter.name(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case NAME_PRODUCTS_COUNT ->
-                    repository.findByNameAndProductsCountAndNotDeleted(queryFilter.name(), queryFilter.productsCount(), pageable.withSort(jpaSort(sort)));
-            case NAME_PRODUCTS_COUNT_PRICE_LESS_THAN ->
-                    repository.findByNameAndProductsCountAndPriceSummaryLessThanAndNotDeleted(queryFilter.name(), queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case NAME_PRODUCTS_COUNT_PRICE_GREATER_THAN ->
-                    repository.findByNameAndProductsCountAndPriceSummaryGreaterThanAndNotDeleted(queryFilter.name(), queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
+    Page<Order> findOrders(final OrderFilter queryFilter) {
+        Objects.requireNonNull(queryFilter, "Query filter cannot be null.");
 
-            case PRODUCTS_COUNT ->
-                    repository.findByProductsCountAndNotDeleted(queryFilter.productsCount(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_LESS_THAN ->
-                    repository.findByProductsCountLessThanAndNotDeleted(queryFilter.productsCount(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_GREATER_THAN ->
-                    repository.findByProductsCountGreaterThanAndNotDeleted(queryFilter.productsCount(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_PRICE_LESS_THAN ->
-                    repository.findByProductsCountAndPriceSummaryLessThanAndNotDeleted(queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_PRICE_GREATER_THAN ->
-                    repository.findByProductsCountAndPriceSummaryGreaterThanAndNotDeleted(queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_LESS_THAN_PRICE_LESS_THAN ->
-                    repository.findByProductsCountLessThanAndPriceSummaryLessThanAndNotDeleted(queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_GREATER_THAN_PRICE_LESS_THAN ->
-                    repository.findByProductsCountGreaterThanAndPriceSummaryLessThanAndNotDeleted(queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_LESS_THAN_PRICE_GREATER_THAN ->
-                    repository.findByProductsCountLessThanAndPriceSummaryGreaterThanAndNotDeleted(queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case PRODUCTS_COUNT_GREATER_THAN_PRICE_GREATER_THAN ->
-                    repository.findByProductsCountGreaterThanAndPriceSummaryGreaterThanAndNotDeleted(queryFilter.productsCount(), queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-
-            case PRICE_LESS_THAN ->
-                    repository.findByPriceSummaryLessThanAndNotDeleted(queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-            case PRICE_GREATER_THAN ->
-                    repository.findByPriceSummaryGreaterThanAndNotDeleted(queryFilter.priceSummary(), pageable.withSort(jpaSort(sort)));
-
-            default -> repository.findAllNotDeleted(pageable.withSort(jpaSort(sort)));
-        };
-
+        val filterParameters = queryFilter.buildQueryParams();
+        val specificationResult = specificationHandler.handle(filterParameters);
+        val pagedOrders = repository.findAll(specificationResult.specification(), specificationResult.pageable());
         if (queryFilter.shouldConvertPricesToDefault()) {
             val productsByOrderId = pagedOrders.getContent()
                     .stream()
@@ -105,10 +63,6 @@ public class OrderService {
                             order.setProducts(productsByOrder);
                             order.setPriceSummary(Prices.calculatePriceSummary(productsByOrder));
                         });
-
-                if (sort.getProperty().contains(SortOrderRequest.PRICE_SUMMARY.getValue().toLowerCase())) {
-                    return sortByOrderPriceSummary(pagedOrders, sort.getDirection());
-                }
             }
         }
         return pagedOrders;
@@ -219,37 +173,6 @@ public class OrderService {
                 order.setPriceSummary(Prices.calculatePriceSummary(convertedProducts));
             }
         }
-    }
-
-    private Page<Order> sortByOrderPriceSummary(final Page<Order> pagedOrders, final Sort.Direction direction) {
-        if (Sort.Direction.DESC.equals(direction)) {
-            return asPagedOrder(
-                    pagedOrders,
-                    pagedOrders.getContent()
-                            .stream()
-                            .collect(Collectors.collectingAndThen(
-                                    Collectors.toList(),
-                                    toReverseOrderList -> {
-                                        Collections.reverse(toReverseOrderList);
-                                        return toReverseOrderList;
-                                    }
-                            ))
-            );
-        }
-        return asPagedOrder(
-                pagedOrders,
-                pagedOrders.getContent()
-                        .stream()
-                        .toList()
-        );
-    }
-
-    private Page<Order> asPagedOrder(final Page<Order> pagedOrders, final List<Order> content) {
-        return new PageImpl<>(content, pagedOrders.getPageable(), pagedOrders.getTotalPages());
-    }
-
-    private JpaSort jpaSort(final Sort.Order sort) {
-        return JpaSort.unsafe(sort.getDirection(), sort.getProperty());
     }
 
     private Order saveOrder(final Order order) {

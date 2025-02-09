@@ -1,6 +1,6 @@
 package mm.expenses.manager.common.web.pagination;
 
-import lombok.RequiredArgsConstructor;
+import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,10 +13,13 @@ import java.util.Objects;
 import static java.lang.String.format;
 
 @Component
-@RequiredArgsConstructor
 public final class PaginationHelper {
 
     private final PaginationConfig config;
+
+    public PaginationHelper(final PaginationConfig config) {
+        this.config = config;
+    }
 
     public PageRequest getPageRequest(final Integer pageNumber, final Integer pageSize, final SortOrder sort) {
         return getPageRequest(findCorrectPageNumber(pageNumber), findCorrectPageSize(pageSize), findCorrectSort(sort), config.getMaxPageSize());

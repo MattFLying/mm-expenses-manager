@@ -164,6 +164,20 @@ public class OrderHelper {
                 .build();
     }
 
+    public static Product createProduct(final boolean isDeleted) {
+        final var now = DateUtils.nowAsInstant();
+
+        return Product.builder()
+                .id(UUID.randomUUID())
+                .price(new Prices(new Price(DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), now)))
+                .details(PRODUCT_DETAILS)
+                .isDeleted(isDeleted)
+                .createdAt(now)
+                .lastModifiedAt(now)
+                .version(1L)
+                .build();
+    }
+
     public static UpdateOrderRequest updateOrderRequestEmpty() {
         return new UpdateOrderRequest();
     }

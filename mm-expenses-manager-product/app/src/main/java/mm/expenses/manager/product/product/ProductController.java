@@ -1,7 +1,7 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.web.pagination.PaginationConfig;
+import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.web.api.WebApi;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
@@ -40,8 +40,8 @@ class ProductController implements ProductApi {
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProductPage> findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER_PROPERTY, required = false) final Integer pageNumber,
-                                               @RequestParam(value = PaginationConfig.PAGE_SIZE_PROPERTY, required = false) final Integer pageSize,
+    public ResponseEntity<ProductPage> findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER, required = false) final Integer pageNumber,
+                                               @RequestParam(value = PaginationConfig.PAGE_SIZE, required = false) final Integer pageSize,
                                                @RequestParam(value = PaginationConfig.SORT_ORDER_PROPERTY, required = false) final SortOrderRequest sortOrder,
                                                @RequestParam(value = PaginationConfig.SORT_DESC_PROPERTY, required = false) final Boolean sortDesc,
                                                @RequestParam(value = ProductQueryFilter.NAME_PROPERTY, required = false) final String name,
