@@ -8,6 +8,7 @@ import mm.expenses.manager.common.utils.price.PriceSummary;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.order.config.DefaultInstantDeserializer;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class OrderedProduct implements PriceSummary {
+public class OrderedProduct implements Serializable, PriceSummary {
 
     private UUID id;
 

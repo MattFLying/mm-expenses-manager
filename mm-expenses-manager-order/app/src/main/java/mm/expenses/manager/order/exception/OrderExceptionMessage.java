@@ -18,12 +18,9 @@ public enum OrderExceptionMessage implements ExceptionType {
     ORDER_NO_UPDATE_DATA("order-no-update-data-passed-error", "Data to update order have no be passed. Nothing to update."),
     ORDER_NOT_ALL_PRODUCTS_FOUND("order-products-not-all-found", "Not all products were found to create ordered products: %s"),
     ORDER_PRODUCTS_CANNOT_BE_EMPTY("order-products-cannot-be-empty", "Order must contains at least 1 product."),
-    ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO("order-product-quantity-must-be-greater-than-zero", "Ordered product quantity must be greater than 0.0."),
-    PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED("page-size-and-page-number-must-be-passed-error", "Both page number and page size must be filled"),
-    PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE("order-price-summary-can-be-less-or-grater-at-once-error", "Price summary can be less or greater, not both."),
-    PRICE_MUST_BE_LESS_THAN_OR_GREATER_THAN("order-price-summary-must-be-less-or-grater-error", "Price summary must be less or greater."),
-    PRODUCTS_COUNT_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE("products-count-price-summary-can-be-less-or-grater-at-once-error", "Products count can be less or greater, not both."),
-    ORDER_PRODUCTS_PRICE_CURRENCY_NOT_DISTINCT("order-products-price-currency-not-distinct", "There are different products currencies not calculated into one.");
+    ORDER_NAME_MISSING_OPERATOR("order-missing-operator-for-name", "Missing operator for orders filtering by name."),
+    ORDER_PRODUCTS_COUNT_MISSING_OPERATOR("order-missing-operator-for-products-count", "Missing operator for orders filtering by products count."),
+    ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO("order-product-quantity-must-be-greater-than-zero", "Ordered product quantity must be greater than 0.0.");
 
     private final String code;
     private final String message;
