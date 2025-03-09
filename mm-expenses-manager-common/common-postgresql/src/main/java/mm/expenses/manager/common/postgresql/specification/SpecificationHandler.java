@@ -1,15 +1,9 @@
 package mm.expenses.manager.common.postgresql.specification;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import lombok.val;
 import mm.expenses.manager.common.postgresql.exception.SpecificationParseException;
-import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCriteriaParameter;
-import mm.expenses.manager.common.postgresql.specification.criteria.CriteriaParameterConverters;
-import mm.expenses.manager.common.postgresql.specification.criteria.CriteriaParameter;
-import mm.expenses.manager.common.postgresql.specification.criteria.SpecificationCriteria;
+import mm.expenses.manager.common.postgresql.specification.criteria.*;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.utils.sort.SortProperty;
 import org.apache.commons.collections4.CollectionUtils;
@@ -32,6 +26,7 @@ import java.util.stream.Collectors;
 public abstract class SpecificationHandler<T> {
 
     protected final CriteriaParameterConverters converters = new CriteriaParameterConverters();
+    protected final JsonBCriteriaParameterConverter jsonBConverter = new JsonBCriteriaParameterConverter();
 
     /**
      * @return {@link SpecificationCriteria} for specified object type
@@ -51,7 +46,7 @@ public abstract class SpecificationHandler<T> {
     /**
      * Defines specification criteria to be handled by JPA for specific data type.
      *
-     * @param queryParameters          expected parameters defined in query to be handled
+     * @param queryParameters              expected parameters defined in query to be handled
      * @param additionalCriteriaParameters additional criteria parameters that were not defined as query params but requires to be handled
      * @return result of specification
      */
@@ -65,6 +60,23 @@ public abstract class SpecificationHandler<T> {
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue)),
                 additionalCriteriaParameters
         );
+    }
+
+    /**
+     * @return additional {@link AdditionalPredicate} based on passed criteria parameters if needed. By default, there is no definition.
+     */
+    protected AdditionalPredicate<T> additionalPredicateDefinition() {
+        return (criteriaParameters, root, query, builder) -> null;
+    }
+
+    /**
+     * Creates predicate for specific field if this is a JsonB field type.
+     */
+    protected void handleJsonBParameter(final List<Predicate> predicates, final CriteriaBuilder builder, final From<?, ?> fromTable, final CriteriaParameter criteriaParameter, final String rootParameterName, final String expectedParameterName) {
+        val predicate = jsonBConverter.convertToPredicateBasedOnFieldType(builder, fromTable, rootParameterName, expectedParameterName, criteriaParameter);
+        if (Objects.nonNull(predicate)) {
+            predicates.add(predicate);
+        }
     }
 
     /**
@@ -215,15 +227,15 @@ public abstract class SpecificationHandler<T> {
 
     private Specification<T> parseCriteriaParametersToSpecification(final List<CriteriaParameter> criteriaParameters) {
         return (root, query, builder) -> {
-            val customPredicate = customPredicate(criteriaParameters, root, query, builder);
+            val additionalPredicate = additionalPredicateDefinition().handle(criteriaParameters, root, query, builder);
             val parsedParamsAsPredicates = criteriaParameters.stream()
                     .map(param -> convertCriteriaParameterToPredicate(param, root, query, builder))
                     .filter(Objects::nonNull)
                     .toArray(Predicate[]::new);
             val standard = builder.and(parsedParamsAsPredicates);
 
-            return Objects.nonNull(customPredicate)
-                    ? builder.and(standard, customPredicate)
+            return Objects.nonNull(additionalPredicate)
+                    ? builder.and(standard, additionalPredicate)
                     : standard;
         };
     }
@@ -234,13 +246,6 @@ public abstract class SpecificationHandler<T> {
             throw SpecificationParseException.converterNotFound(criteriaParameter);
         }
         return converter.restrict(criteriaParameter, root, builder);
-    }
-
-    /**
-     * @return additional {@link Predicate} based on passed criteria parameters if needed.
-     */
-    protected Predicate customPredicate(final List<CriteriaParameter> criteriaParameters, final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
-        return null;
     }
 
 }

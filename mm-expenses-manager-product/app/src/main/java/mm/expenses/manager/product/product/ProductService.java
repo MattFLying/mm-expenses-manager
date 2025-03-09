@@ -1,26 +1,27 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import mm.expenses.manager.common.async.AsyncMessageProducer;
-import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
+import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.price.PriceService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -30,6 +31,8 @@ public class ProductService {
     private final AsyncMessageProducer producer;
     private final PriceService priceService;
     private final ProductMapper mapper;
+    private final ProductSpecificationHandler specificationHandler;
+    private final PriceConverter priceConverter;
 
     public Product create(final CreateProductRequest request) {
         final var newPrice = priceService.create(request.getPrice());
@@ -88,31 +91,6 @@ public class ProductService {
                 .orElseThrow(() -> new ApiNotFoundException(ProductExceptionMessage.PRODUCT_NOT_FOUND.withParameters(productId)));
     }
 
-    public Page<Product> findProducts(final ProductQueryFilter queryFilter, final PageRequest pageable, final SortOrder sortOrder) {
-        final var filter = queryFilter.findFilter();
-        final var sort = sortOrder.getOrder();
-        return switch (filter) {
-            case NAME ->
-                    repository.findByNameAndNotDeleted(queryFilter.name(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-            case NAME_PRICE_LESS_THAN ->
-                    repository.findByNameAndPriceLessThanAndNotDeleted(queryFilter.name(), queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-            case NAME_PRICE_GREATER_THAN ->
-                    repository.findByNameAndPriceGreaterThanAndNotDeleted(queryFilter.name(), queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-            case NAME_PRICE_RANGE ->
-                    repository.findByNameAndPriceBetweenAndNotDeleted(queryFilter.name(), queryFilter.priceMin(), queryFilter.priceMax(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-
-            case PRICE_LESS_THAN ->
-                    repository.findByPriceLessThanAndNotDeleted(queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-            case PRICE_GREATER_THAN ->
-                    repository.findByPriceGreaterThanAndNotDeleted(queryFilter.price(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-            case PRICE_RANGE ->
-                    repository.findByPriceBetweenAndNotDeleted(queryFilter.priceMin(), queryFilter.priceMax(), pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-
-            default ->
-                    repository.findAllNotDeleted(pageable.withSort(JpaSort.unsafe(sort.getDirection(), sort.getProperty())));
-        };
-    }
-
     public Page<Product> findDeleted(final Pageable pageable) {
         return repository.findAllByIsDeletedTrue(pageable);
     }
@@ -121,6 +99,35 @@ public class ProductService {
         final var savedProduct = repository.save(product);
         producer.send(mapper.map(savedProduct, operation));
         return savedProduct;
+    }
+
+    public Page<Product> findProducts(final ProductFilter queryFilter) {
+        Objects.requireNonNull(queryFilter, "Query filter cannot be null.");
+
+        val filterParameters = queryFilter.buildQueryParams();
+        val specificationResult = specificationHandler.handle(filterParameters);
+        val pagedOrders = repository.findAll(specificationResult.specification(), specificationResult.pageable());
+        if (queryFilter.shouldConvertPricesToDefault()) {
+            // calculate prices if there are different currencies than default
+            val isCurrencyConversionNeeded = pagedOrders.getContent()
+                    .stream()
+                    .anyMatch(product -> !product.getPrice().hasCurrency(priceConverter.getDefaultCurrency()));
+            if (isCurrencyConversionNeeded) {
+                val convertedProducts = priceConverter.convertPrices(pagedOrders.getContent())
+                        .stream()
+                        .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+                pagedOrders.getContent()
+                        .forEach(product -> {
+                            val convertedProduct = convertedProducts.get(product.getId());
+                            if (Objects.isNull(convertedProduct)) {
+                                return;
+                            }
+                            product.setPrice(convertedProduct.getPrice());
+                        });
+            }
+        }
+        return pagedOrders;
     }
 
 }

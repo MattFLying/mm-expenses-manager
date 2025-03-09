@@ -1,13 +1,17 @@
 package mm.expenses.manager.product.product;
 
+import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.product.api.product.model.*;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -177,9 +181,26 @@ public class ProductHelper {
                 .build();
     }
 
+    public static CurrencyConversionResponse createCurrencyConversionResponse(final Product product) {
+        val from = new CurrencyConversionValueDto();
+        from.setCode(product.getPrice().getCurrency().getCode());
+        from.setValue(product.getPrice().getValue().doubleValue());
+
+        val to = new CurrencyConversionValueDto();
+        to.setCode(DEFAULT_CURRENCY.getCode());
+        to.setValue(product.getPrice().getValue().doubleValue());
+
+        val response = new CurrencyConversionResponse();
+        response.setId(product.getId().toString());
+        response.setDate(LocalDate.now());
+        response.setFrom(from);
+        response.setTo(to);
+
+        return response;
+    }
+
     private static double getRandomPriceValue() {
         return randomDataGenerator.nextUniform(1, 100);
     }
-
 
 }

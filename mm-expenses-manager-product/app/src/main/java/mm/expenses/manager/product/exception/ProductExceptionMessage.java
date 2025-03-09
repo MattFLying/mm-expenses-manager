@@ -15,10 +15,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public enum ProductExceptionMessage implements ExceptionType {
     // price
-    PRICE_AND_PRICE_RANGE_NOT_ALLOWED("product-price-and-price-range-passed-error", "Only price or price range can be used."),
-    PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE("product-price-can-be-less-or-grater-at-once-error", "Price can be less or greater, not both."),
-    PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE("product-price-less-or-greater-not-allowed-for-price-range-error", "Price range cannot be set as less or greater than."),
-    PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED("product-price-max-and-price-min-must-be-passed-error", "Both price min and price max must be passed. Price min: {}, price max: {}"),
+    PRICE_VALUE_MISSING_OPERATOR("product-price-missing-operator-for-products-price-value", "Missing operator for products price filtering by products price value."),
+    PRICE_CURRENCY_MISSING_OPERATOR("product-price-missing-operator-for-products-price-currency", "Missing operator for products price filtering by products price currency."),
 
     // product
     PRODUCT_NOT_FOUND("product-not-found-error", "Product of id '%s' not found."),
@@ -26,9 +24,11 @@ public enum ProductExceptionMessage implements ExceptionType {
     PRODUCT_PRICE_CURRENCY_NOT_VALID(ProductsExceptionMessage.PRODUCT_PRICE_CURRENCY_UNDEFINED),
     PRODUCT_PRICE_VALUE_NOT_VALID(ProductsExceptionMessage.PRODUCT_PRICE_VALUE_LESS_THAN_0),
     PRODUCT_NO_UPDATE_DATA("product-no-update-data-passed-error", "Data to update product have no be passed. Nothing to update."),
+    PRODUCT_NAME_MISSING_OPERATOR("product-missing-operator-for-name", "Missing operator for product filtering by name."),
 
-    // rest
-    PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED("page-size-and-page-number-must-be-passed-error", "Both page number and page size must be filled");
+    // filter
+    PRODUCT_FILTERING_PATH_SIZE_EXCEEDED("product-filtering-path-too-big", "Path of filtered property is too big"),
+    PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY("product-filtering-explicit-query-only-expected", "Explicit query for products filtering have been used. Use of another parameters is not allowed.");
 
     private final String code;
     private final String message;

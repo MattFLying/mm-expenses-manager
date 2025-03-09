@@ -19,6 +19,9 @@ import java.util.Set;
  */
 public final class CriteriaParameterConverters extends HashMap<Operation, CriteriaParameterConverter> {
 
+    public static final String JSONB_EXTRACT_PATH_TEXT_FUNCTION = "jsonb_extract_path_text";
+    public static final String JSONB_ARRAY_LENGTH_FUNCTION = "jsonb_array_length";
+
     /**
      * Default constructor that initializes a storage of available converters for available operations.
      */
@@ -59,10 +62,6 @@ public final class CriteriaParameterConverters extends HashMap<Operation, Criter
     private static class Converters {
 
         private static final String ANY_VALUE_SYMBOL = "%";
-
-        private static final String JSONB_ARRAY_LENGTH_FUNCTION = "jsonb_array_length";
-
-        private static final String JSONB_EXTRACT_PATH_TEXT_FUNCTION = "jsonb_extract_path_text";
 
         /**
          * Returns values of passed {@link CriteriaParameter}.

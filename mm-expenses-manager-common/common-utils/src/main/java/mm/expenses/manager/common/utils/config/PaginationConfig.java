@@ -20,11 +20,6 @@ public class PaginationConfig {
     public static final String PAGE_SIZE = "pageSize";
     public static final String SORT = "sort";
 
-    // to delete later
-    public static final String SORT_ORDER_PROPERTY = "sortOrder";
-    // to delete later
-    public static final String SORT_DESC_PROPERTY = "sortDesc";
-
     private Integer defaultPageSize = DEFAULT_PAGE_SIZE;
     private Integer minPageNumber = DEFAULT_PAGE_NUMBER;
     private Integer maxPageSize = DEFAULT_MAX_PAGE_SIZE;

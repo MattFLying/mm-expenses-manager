@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 public class Price implements Serializable {
 
     @JsonProperty("currency")
+    @SpecificationDetailsAnnotation(canBeFiltered = true)
     private CurrencyCode currency;
 
     @JsonProperty("value")
@@ -95,6 +96,16 @@ public class Price implements Serializable {
             return new Price(first.getCurrency(), BigDecimalWrapper.of(BigDecimalWrapper.of(first.getValue()).add(BigDecimalWrapper.of(second.getValue()))), latestDate);
         }
         return Price.empty();
+    }
+
+    @JsonIgnore
+    public boolean hasCurrency(final CurrencyCode currency) {
+        return Objects.equals(getCurrency(), currency);
+    }
+
+    @JsonIgnore
+    public boolean hasCurrency(final String currencyCode) {
+        return hasCurrency(CurrencyCode.getCurrencyFromString(currencyCode));
     }
 
 }

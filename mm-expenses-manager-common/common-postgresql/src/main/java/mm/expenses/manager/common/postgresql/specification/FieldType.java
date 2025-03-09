@@ -6,9 +6,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import mm.expenses.manager.common.utils.config.ObjectMapperConfig;
+import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -20,6 +22,8 @@ import java.util.Objects;
 @Getter
 @RequiredArgsConstructor
 public enum FieldType {
+    Object(Object.class, "Object"),
+    JsonB(Object.class, "jsonb"),
     String(String.class, "String"),
     Boolean(Boolean.class, "boolean"),
     Long(Long.class, "long"),
@@ -37,6 +41,15 @@ public enum FieldType {
     }
 
     /**
+     * @return checks if field type is any of passed types.
+     */
+    public boolean isOfType(final FieldType... types) {
+        Objects.requireNonNull(types, "Field types cannot be null");
+
+        return Arrays.asList(types).contains(this);
+    }
+
+    /**
      * @return {@link FieldType} of given {@link Field} based on the original field type.
      */
     public static FieldType of(final Field field) {
@@ -49,9 +62,20 @@ public enum FieldType {
                         yield Long.getName();
                     case "boolean":
                         yield Boolean.getName();
+                    case "String":
+                        yield String.getName();
+                    case "Instant":
+                        yield Instant.getName();
                     default:
                         if (Collection.class.isAssignableFrom(field.getType())) {
                             yield List.getName();
+                        }
+
+                        val specificationDetails = field.getAnnotation(SpecificationDetailsAnnotation.class);
+                        if (Objects.nonNull(specificationDetails) && specificationDetails.isJsonB()) {
+                            yield JsonB.getName();
+                        } else if (Object.class.isAssignableFrom(field.getType())) {
+                            yield Object.getName();
                         }
                         yield fieldType;
                 }
@@ -79,6 +103,13 @@ public enum FieldType {
                     yield objectMapper.readValue(value, java.util.List.class);
                 } catch (final JsonProcessingException exception) {
                     yield new ArrayList<>(java.util.List.of(value));
+                }
+            case JsonB:
+            case Object:
+                try {
+                    yield objectMapper.readValue(value, java.lang.Object.class);
+                } catch (final JsonProcessingException exception) {
+                    yield (Object) value;
                 }
             default:
                 yield value;

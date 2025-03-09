@@ -1,16 +1,28 @@
 package mm.expenses.manager.product.product;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
+import mm.expenses.manager.common.postgresql.specification.Operation;
+import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
 import mm.expenses.manager.product.ProductApplicationTest;
+import mm.expenses.manager.product.api.product.model.SortProductRequest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
@@ -18,14 +30,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static mm.expenses.manager.product.product.ProductHelper.*;
 import static mm.expenses.manager.product.product.ProductWebApi.BASE_URL;
@@ -37,154 +49,681 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProductControllerTest extends ProductApplicationTest {
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ProductSpecificationHandler specificationHandler;
 
     @Captor
     private ArgumentCaptor<ProductManagementMessage> productMessageArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<List<CurrencyConversionRequest>> currencyConversionRequestCaptor;
+
+    @Nested
+    class FindAll {
+
+        @Test
+        void shouldFindAll() throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, CurrencyCode.EUR);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TextOperationRequest.class)
+        void shouldFindAll_byGeneralQueryParameter(final TextOperationRequest operation) throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, CurrencyCode.EUR);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.GENERAL_QUERY_PROPERTY, String.format("name:%s=%s", operation, PRODUCT_NAME)).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @Test
+        void shouldFindAll_onlyDeleted() throws Exception {
+            // given
+            final var expectedProductDeleted = createProductDeleted();
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProductDeleted)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.IS_DELETED_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProductDeleted.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProductDeleted.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProductDeleted.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProductDeleted.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProductDeleted.getDetails())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyDifferentThanDefault.class)
+        void shouldFindAll_shouldConvertCurrencyFlag(final CurrencyCode currencyCode) throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, currencyCode);
+            final var expectedConvertedCurrencyResponse = createCurrencyConversionResponse(expectedProduct);
+            val convertedCurrenciesResponse = List.of(expectedConvertedCurrencyResponse);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+            Mockito.when(financeApiClient.convertMultipleRates(currencyConversionRequestCaptor.capture())).thenReturn(convertedCurrenciesResponse);
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+
+            val convertedCurrenciesRequestList = currencyConversionRequestCaptor.getValue();
+            verify(financeApiClient).convertMultipleRates(convertedCurrenciesRequestList);
+            assertThat(convertedCurrenciesRequestList).isNotNull()
+                    .isNotEmpty()
+                    .hasSize(1);
+
+            val convertedCurrencyRequest = convertedCurrenciesRequestList.get(0);
+            assertThat(convertedCurrencyRequest.getId()).isEqualTo(expectedProduct.getId().toString());
+            assertThat(convertedCurrencyRequest.getDate()).isEqualTo(expectedConvertedCurrencyResponse.getDate());
+            assertThat(convertedCurrencyRequest.getFrom().getCode()).isEqualTo(currencyCode.getCode());
+            assertThat(convertedCurrencyRequest.getFrom().getValue()).isEqualTo(expectedProduct.getPrice().getValue().doubleValue());
+            assertThat(convertedCurrencyRequest.getTo().getCode()).isEqualTo(DEFAULT_CURRENCY.getCode());
+
+            verify(financeApiClient).convertMultipleRates(convertedCurrenciesRequestList);
+        }
+
+        @Test
+        void shouldFindAll_shouldConvertCurrencyFlagButConversionIsNotNeeded() throws Exception {
+            // given
+            final var expectedProduct = createProduct();
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+
+            verifyNoInteractions(financeApiClient);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TextOperationRequest.class)
+        void shouldFindAll_byName(final TextOperationRequest operation) throws Exception {
+            // given
+            final var expectedProduct = createProduct();
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.NAME_PROPERTY, PRODUCT_NAME).param(ProductFilter.NAME_OPERATION_PROPERTY, operation.name()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @ParameterizedTest
+        @EnumSource(PriceValueArguments.class)
+        void shouldFindAll_byPriceValue(final PriceValueArguments operation) throws Exception {
+            // given
+            final var expectedProduct = createProduct();
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.PRICE_VALUE_PROPERTY, expectedProduct.getPrice().getValue().toString()).param(ProductFilter.PRICE_VALUE_OPERATION_PROPERTY, operation.name()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PriceCurrencyArguments.class)
+        void shouldFindAll_byPriceCurrency(final TextOperationRequest operation, final CurrencyCode currencyCode) throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, currencyCode);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.PRICE_CURRENCY_PROPERTY, expectedProduct.getPrice().getCurrency().toString()).param(ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, operation.name()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(FullPriceArguments.class)
+        void shouldFindAll_byPriceValueAndCurrency(final TextOperationRequest textOperation, final PriceValueArguments numberOperation, final CurrencyCode currencyCode) throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, currencyCode);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(
+                            MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.PRICE_VALUE_PROPERTY, expectedProduct.getPrice().getValue().toString()).param(ProductFilter.PRICE_VALUE_OPERATION_PROPERTY, numberOperation.name())
+                                    .param(ProductFilter.PRICE_CURRENCY_PROPERTY, expectedProduct.getPrice().getCurrency().toString()).param(ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, textOperation.name())
+                                    .contentType(DATA_FORMAT_JSON)
+                    )
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(ProductNameAndPriceValueArguments.class)
+        void shouldFindAll_byNameAndPriceValue(final TextOperationRequest nameTextOperation, final PriceValueArguments priceValueNumberOperation) throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, CurrencyCode.PLN);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(
+                            MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.NAME_PROPERTY, PRODUCT_NAME).param(ProductFilter.NAME_OPERATION_PROPERTY, nameTextOperation.name())
+                                    .param(ProductFilter.PRICE_VALUE_PROPERTY, expectedProduct.getPrice().getValue().toString()).param(ProductFilter.PRICE_VALUE_OPERATION_PROPERTY, priceValueNumberOperation.name())
+                                    .contentType(DATA_FORMAT_JSON)
+                    )
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(ProductNameAndPriceCurrencyArguments.class)
+        void shouldFindAll_byNameAndPriceCurrency(final TextOperationRequest nameTextOperation, final TextOperationRequest priceCurrencyTextOperation, final CurrencyCode currencyCode) throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, currencyCode);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(
+                            MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.NAME_PROPERTY, PRODUCT_NAME).param(ProductFilter.NAME_OPERATION_PROPERTY, nameTextOperation.name())
+                                    .param(ProductFilter.PRICE_CURRENCY_PROPERTY, expectedProduct.getPrice().getCurrency().toString()).param(ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, priceCurrencyTextOperation.name())
+                                    .contentType(DATA_FORMAT_JSON)
+                    )
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(ProductNameAndFullPriceArguments.class)
+        void shouldFindAll_byNameAndPriceValueAndCurrency(final TextOperationRequest nameTextOperation, final TextOperationRequest priceCurrencyTextOperation, final PriceValueArguments priceValueNumberOperation, final CurrencyCode currencyCode) throws Exception {
+            // given
+            final var expectedProduct = createProduct(PRODUCT_NAME, currencyCode);
+
+            // when
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedProduct)));
+
+            // then
+            mockMvc.perform(
+                            MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.NAME_PROPERTY, PRODUCT_NAME).param(ProductFilter.NAME_OPERATION_PROPERTY, nameTextOperation.name())
+                                    .param(ProductFilter.PRICE_VALUE_PROPERTY, expectedProduct.getPrice().getValue().toString()).param(ProductFilter.PRICE_VALUE_OPERATION_PROPERTY, priceValueNumberOperation.name())
+                                    .param(ProductFilter.PRICE_CURRENCY_PROPERTY, expectedProduct.getPrice().getCurrency().toString()).param(ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, priceCurrencyTextOperation.name())
+                                    .contentType(DATA_FORMAT_JSON)
+                    )
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(expectedProduct.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(expectedProduct.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(expectedProduct.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(expectedProduct.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(expectedProduct.getDetails())));
+        }
+
+        @Test
+        void shouldSortByNameAsc() throws Exception {
+            // given
+            final var product_1 = createProduct("p1", CurrencyCode.PLN);
+            final var product_2 = createProduct("p2", CurrencyCode.PLN);
+
+            // when
+            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
+            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(PaginationConfig.SORT, SortProductRequest.NAME_ASC.name()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
+
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
+                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
+
+                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
+        }
+
+        @Test
+        void shouldSortByNameDesc() throws Exception {
+            // given
+            final var product_1 = createProduct("p1", CurrencyCode.PLN);
+            final var product_2 = createProduct("p2", CurrencyCode.PLN);
+
+            // when
+            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
+            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(PaginationConfig.SORT, SortProductRequest.NAME_DESC.name()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(product_2.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(product_2.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(product_2.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(product_2.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(product_2.getDetails())))
+
+                    .andExpect(jsonPath("$.content[1].id", is(product_1.getId().toString())))
+                    .andExpect(jsonPath("$.content[1].name", is(product_1.getName())))
+
+                    .andExpect(jsonPath("$.content[1].price.value", is(product_1.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[1].price.currency", is(product_1.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[1].details", is(product_1.getDetails())));
+        }
+
+        @Test
+        void shouldSortByPriceValueAsc() throws Exception {
+            // given
+            final var product_1 = createProduct("p1", BigDecimal.valueOf(2.31), CurrencyCode.PLN);
+            final var product_2 = createProduct("p2", BigDecimal.valueOf(4.35), CurrencyCode.PLN);
+
+            // when
+            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
+            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(PaginationConfig.SORT, SortProductRequest.PRICE_ASC.name()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
+
+                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
+                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
+
+                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
+        }
+
+        @Test
+        void shouldSortByPriceValueDesc() throws Exception {
+            // given
+            final var product_1 = createProduct("p1", BigDecimal.valueOf(3.17), CurrencyCode.PLN);
+            final var product_2 = createProduct("p2", BigDecimal.valueOf(5.12), CurrencyCode.PLN);
+
+            // when
+            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
+            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
+            when(productRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
+
+            // then
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(PaginationConfig.SORT, SortProductRequest.PRICE_DESC.name()).contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
+
+                    .andExpect(jsonPath("$.content[0].id", is(product_2.getId().toString())))
+                    .andExpect(jsonPath("$.content[0].name", is(product_2.getName())))
+
+                    .andExpect(jsonPath("$.content[0].price.value", is(product_2.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].price.currency", is(product_2.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[0].details", is(product_2.getDetails())))
+
+                    .andExpect(jsonPath("$.content[1].id", is(product_1.getId().toString())))
+                    .andExpect(jsonPath("$.content[1].name", is(product_1.getName())))
+
+                    .andExpect(jsonPath("$.content[1].price.value", is(product_1.getPrice().getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[1].price.currency", is(product_1.getPrice().getCurrency().toString())))
+
+                    .andExpect(jsonPath("$.content[1].details", is(product_1.getDetails())));
+        }
+
+    }
+
 
     @Nested
     class FindAll_ErrorCodes {
 
         @Test
-        void shouldReturnBadRequest_whenPageSizeIsMissed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?pageNumber=" + 0))
+        void shouldReturnBadRequest_whenNameIsPassedButNameOperationIsMissing() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.NAME_PROPERTY, PRODUCT_NAME))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_NAME_MISSING_OPERATOR.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_NAME_MISSING_OPERATOR.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPageNumberIsMissed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?pageSize=" + 1))
+        void shouldReturnBadRequest_whenPriceValueIsPassedButPriceValueIsMissing() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.PRICE_VALUE_PROPERTY, "2.31"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_VALUE_MISSING_OPERATOR.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_VALUE_MISSING_OPERATOR.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPriceAndPriceRangeIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=5&priceMin=1&priceMax=10"))
+        void shouldReturnBadRequest_whenPriceCurrencyIsPassedButPriceCurrencyIsMissing() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.PRICE_CURRENCY_PROPERTY, "PLN"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_CURRENCY_MISSING_OPERATOR.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_CURRENCY_MISSING_OPERATOR.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPriceAndPriceRangeMinIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=5&priceMin=1"))
+        void shouldReturnBadRequest_whenGeneralQueryPassedWithSpecificNameParameter() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.GENERAL_QUERY_PROPERTY, "name:equal=test").param(ProductFilter.NAME_PROPERTY, "test2"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPriceAndPriceRangeMaxIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=5&priceMax=10"))
+        void shouldReturnBadRequest_whenGeneralQueryPassedWithSpecificNameOperatorParameter() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.GENERAL_QUERY_PROPERTY, "name:equal=test").param(ProductFilter.NAME_OPERATION_PROPERTY, "equal"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPriceAndLessThanAndGreaterThanIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=5&lessThan=true&greaterThan=true"))
+        void shouldReturnBadRequest_whenGeneralQueryPassedWithSpecificPriceValueParameter() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.GENERAL_QUERY_PROPERTY, "price.value:equal=1.21").param(ProductFilter.PRICE_VALUE_PROPERTY, "3.55"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPriceMinIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=1"))
+        void shouldReturnBadRequest_whenGeneralQueryPassedWithSpecificPriceValueOperatorParameter() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.GENERAL_QUERY_PROPERTY, "price.value:equal=2.11").param(ProductFilter.PRICE_VALUE_OPERATION_PROPERTY, "equal"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPriceMaxIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMax=10"))
+        void shouldReturnBadRequest_whenGeneralQueryPassedWithSpecificPriceCurrencyParameter() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.GENERAL_QUERY_PROPERTY, "price.currency:equal=PLN").param(ProductFilter.PRICE_CURRENCY_PROPERTY, "EUR"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
 
         @Test
-        void shouldReturnBadRequest_whenPriceMinAndLessThanIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=5&priceMax=20&lessThan=true"))
+        void shouldReturnBadRequest_whenGeneralQueryPassedWithSpecificPriceCurrencyOperatorParameter() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param(ProductFilter.GENERAL_QUERY_PROPERTY, "price.currency:equal=USD").param(ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, "equal"))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getMessage())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
-        }
-
-        @Test
-        void shouldReturnBadRequest_whenPriceMinAndGreaterThanIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=5&priceMax=20&greaterThan=true"))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
-
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getMessage())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
-        }
-
-        @Test
-        void shouldReturnBadRequest_whenPriceMaxAndLessThanIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=3&priceMax=15&lessThan=true"))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
-
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getMessage())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
-        }
-
-        @Test
-        void shouldReturnBadRequest_whenPriceMaxAndGreaterThanIsPassed() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=3&priceMax=15&greaterThan=true"))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
-
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE.getMessage())))
+                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
+                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
@@ -637,486 +1176,155 @@ class ProductControllerTest extends ProductApplicationTest {
 
     }
 
+    @Getter
+    @RequiredArgsConstructor
+    public enum TextOperationRequest {
 
-    @Nested
-    class FindProducts {
+        equal("equal"),
 
-        @Test
-        void shouldFindProductByName() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.EUR);
+        notEqual("notEqual"),
 
-            // when
-            Mockito.when(productRepository.findByNameAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+        startsWith("startsWith"),
 
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?name=" + PRODUCT_NAME).contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+        endsWith("endsWith"),
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+        contains("contains");
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
+        private final String value;
 
-        @Test
-        void shouldFindProductByNameAndPriceRange() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
-            final var priceMin = product.getPrice().getValue().subtract(BigDecimal.valueOf(1));
-            final var priceMax = product.getPrice().getValue().add(BigDecimal.valueOf(1));
+    }
 
-            // when
-            Mockito.when(productRepository.findByNameAndPriceBetweenAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+    @Getter
+    @RequiredArgsConstructor
+    public enum PriceValueArguments {
 
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?name=" + PRODUCT_NAME + "&priceMin=" + priceMin + "&priceMax=" + priceMax).contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+        equal("equal"),
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+        notEqual("notEqual"),
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
+        lessThan("lessThan"),
 
-        @Test
-        void shouldFindProductByNameAndPriceLessThan() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
+        lessThanOrEqual("lessThanOrEqual"),
 
-            // when
-            Mockito.when(productRepository.findByNameAndPriceLessThanAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+        greaterThan("greaterThan"),
 
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME + "&lessThan=true").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+        greaterThanOrEqual("greaterThanOrEqual");
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
+        private final String value;
 
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
+    }
 
-        @Test
-        void shouldFindProductByNameAndPriceGreaterThan() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.NZD);
+    public static class CurrencyDifferentThanDefault implements ArgumentsProvider {
 
-            // when
-            Mockito.when(productRepository.findByNameAndPriceGreaterThanAndNotDeleted(ArgumentMatchers.eq(PRODUCT_NAME), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&name=" + PRODUCT_NAME + "&greaterThan=true").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
-
-        @Test
-        void shouldFindProductByPriceLessThan() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.USD);
-
-            // when
-            Mockito.when(productRepository.findByPriceLessThanAndNotDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&lessThan=true").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
-
-        @Test
-        void shouldFindProductByPriceGreaterThan() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.NZD);
-
-            // when
-            Mockito.when(productRepository.findByPriceGreaterThanAndNotDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?price=" + product.getPrice().getValue().doubleValue() + "&greaterThan=true").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
-
-        @Test
-        void shouldFindProductByPriceRange() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.SEK);
-
-            // when
-            Mockito.when(productRepository.findByPriceBetweenAndNotDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?priceMin=" + 1 + "&priceMax=" + product.getPrice().getValue().doubleValue()).contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
-        }
-
-        @Test
-        void shouldFindAll() throws Exception {
-            // given
-            final var product = createProduct(PRODUCT_NAME, CurrencyCode.PLN);
-
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(1)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product.getDetails())));
+        @Override
+        public Stream<Arguments> provideArguments(final ExtensionContext context) {
+            val currencies = Arrays.asList(CurrencyCode.values());
+            return currencies.stream()
+                    .filter(currencyCode -> !DEFAULT_CURRENCY.equals(currencyCode))
+                    .map(Arguments::of);
         }
 
     }
 
+    public static class PriceCurrencyArguments implements ArgumentsProvider {
 
-    @Nested
-    class FindProductsWithSorting {
+        @Override
+        public Stream<Arguments> provideArguments(final ExtensionContext context) {
+            val textOperations = Arrays.asList(TextOperationRequest.values());
+            val currencies = Arrays.asList(CurrencyCode.values());
+            val result = new ArrayList<Arguments>();
 
-        @Test
-        void shouldSortByName() throws Exception {
-            // given
-            final var product_1 = createProduct("p1", CurrencyCode.PLN);
-            final var product_2 = createProduct("p2", CurrencyCode.PLN);
-
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=NAME").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
+            textOperations.forEach(textOperation -> {
+                currencies.forEach(currencyCode -> {
+                    result.add(Arguments.of(textOperation, currencyCode));
+                });
+            });
+            return result.stream();
         }
 
-        @Test
-        void shouldSortByNameDesc() throws Exception {
-            // given
-            final var product_1 = createProduct("p1", CurrencyCode.PLN);
-            final var product_2 = createProduct("p2", CurrencyCode.PLN);
+    }
 
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+    public static class FullPriceArguments implements ArgumentsProvider {
 
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=NAME&sortDesc=true").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+        @Override
+        public Stream<Arguments> provideArguments(final ExtensionContext context) {
+            val textOperations = Arrays.asList(TextOperationRequest.values());
+            val numberOperations = Arrays.asList(PriceValueArguments.values());
+            val currencies = Arrays.asList(CurrencyCode.values());
+            val result = new ArrayList<Arguments>();
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
+            textOperations.forEach(textOperation -> {
+                numberOperations.forEach(numberOperation -> {
+                    currencies.forEach(currencyCode -> {
+                        result.add(Arguments.of(textOperation, numberOperation, currencyCode));
+                    });
+                });
+            });
+            return result.stream();
         }
 
-        @Test
-        void shouldSortByNameAsc() throws Exception {
-            // given
-            final var product_1 = createProduct("p1", CurrencyCode.PLN);
-            final var product_2 = createProduct("p2", CurrencyCode.PLN);
+    }
 
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
+    public static class ProductNameAndPriceValueArguments implements ArgumentsProvider {
 
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=NAME&sortDesc=false").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+        @Override
+        public Stream<Arguments> provideArguments(final ExtensionContext context) {
+            val nameTextOperations = Arrays.asList(TextOperationRequest.values());
+            val numberOperations = Arrays.asList(PriceValueArguments.values());
+            val result = new ArrayList<Arguments>();
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
+            nameTextOperations.forEach(nameTextOperation -> {
+                numberOperations.forEach(numberOperation -> {
 
-                    .andExpect(jsonPath("$.content[0].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_2.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_1.getDetails())));
+                    result.add(Arguments.of(nameTextOperation, numberOperation));
+                });
+            });
+            return result.stream();
         }
 
-        @Test
-        void shouldSortByPriceValue() throws Exception {
-            // given
-            final var product_1 = createProduct("p1", BigDecimal.valueOf(2), CurrencyCode.PLN);
-            final var product_2 = createProduct("p2", BigDecimal.valueOf(2), CurrencyCode.PLN);
+    }
 
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
+    public static class ProductNameAndPriceCurrencyArguments implements ArgumentsProvider {
 
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortOrder=PRICE_VALUE").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+        @Override
+        public Stream<Arguments> provideArguments(final ExtensionContext context) {
+            val nameTextOperations = Arrays.asList(TextOperationRequest.values());
+            val textOperations = Arrays.asList(TextOperationRequest.values());
+            val currencies = Arrays.asList(CurrencyCode.values());
+            val result = new ArrayList<Arguments>();
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
+            nameTextOperations.forEach(nameTextOperation -> {
+                textOperations.forEach(textOperation -> {
+                    currencies.forEach(currencyCode -> {
+                        result.add(Arguments.of(nameTextOperation, textOperation, currencyCode));
+                    });
+                });
+            });
+            return result.stream();
         }
 
-        @Test
-        void shouldSortDescending() throws Exception {
-            // given
-            final var product_1 = createProduct("p1", CurrencyCode.SEK);
-            final var product_2 = createProduct("p2", CurrencyCode.USD);
+    }
 
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_2, product_1)));
+    public static class ProductNameAndFullPriceArguments implements ArgumentsProvider {
 
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortDesc=true").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+        @Override
+        public Stream<Arguments> provideArguments(final ExtensionContext context) {
+            val nameTextOperations = Arrays.asList(TextOperationRequest.values());
+            val textOperations = Arrays.asList(TextOperationRequest.values());
+            val numberOperations = Arrays.asList(PriceValueArguments.values());
+            val currencies = Arrays.asList(CurrencyCode.values());
+            val result = new ArrayList<Arguments>();
 
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_2.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_1.getDetails())));
-        }
-
-        @Test
-        void shouldSortAscending() throws Exception {
-            // given
-            final var product_1 = createProduct("p1", CurrencyCode.CAD);
-            final var product_2 = createProduct("p2", CurrencyCode.AUD);
-
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "?sortDesc=false").contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
-        }
-
-        @Test
-        void shouldSortAscendingByDefault() throws Exception {
-            // given
-            final var product_1 = createProduct("p1", CurrencyCode.CAD);
-            final var product_2 = createProduct("p2", CurrencyCode.AUD);
-
-            // when
-            final var queryFilter = Mockito.mock(ProductQueryFilter.class);
-            Mockito.when(queryFilter.findFilter()).thenReturn(ProductQueryFilter.Filter.ALL);
-            Mockito.when(productRepository.findAllNotDeleted(ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product_1, product_2)));
-
-            // then
-            mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements", Matchers.is(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.hasNext", Matchers.is(false)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.first", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.last", Matchers.is(true)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.hasSize(2)))
-
-                    .andExpect(jsonPath("$.content[0].id", is(product_1.getId().toString())))
-                    .andExpect(jsonPath("$.content[0].name", is(product_1.getName())))
-                    .andExpect(jsonPath("$.content[0].price.value", is(product_1.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[0].price.currency", is(product_1.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[0].details", is(product_1.getDetails())))
-
-                    .andExpect(jsonPath("$.content[1].id", is(product_2.getId().toString())))
-                    .andExpect(jsonPath("$.content[1].name", is(product_2.getName())))
-                    .andExpect(jsonPath("$.content[1].price.value", is(product_2.getPrice().getValue().doubleValue())))
-                    .andExpect(jsonPath("$.content[1].price.currency", is(product_2.getPrice().getCurrency().toString())))
-                    .andExpect(jsonPath("$.content[1].details", is(product_2.getDetails())));
+            nameTextOperations.forEach(nameTextOperation -> {
+                textOperations.forEach(textOperation -> {
+                    numberOperations.forEach(numberOperation -> {
+                        currencies.forEach(currencyCode -> {
+                            result.add(Arguments.of(nameTextOperation, textOperation, numberOperation, currencyCode));
+                        });
+                    });
+                });
+            });
+            return result.stream();
         }
 
     }

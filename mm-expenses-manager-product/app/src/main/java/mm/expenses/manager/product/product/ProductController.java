@@ -1,10 +1,10 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.web.api.WebApi;
-import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.*;
@@ -42,40 +42,36 @@ class ProductController implements ProductApi {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductPage> findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER, required = false) final Integer pageNumber,
                                                @RequestParam(value = PaginationConfig.PAGE_SIZE, required = false) final Integer pageSize,
-                                               @RequestParam(value = PaginationConfig.SORT_ORDER_PROPERTY, required = false) final SortOrderRequest sortOrder,
-                                               @RequestParam(value = PaginationConfig.SORT_DESC_PROPERTY, required = false) final Boolean sortDesc,
-                                               @RequestParam(value = ProductQueryFilter.NAME_PROPERTY, required = false) final String name,
-                                               @RequestParam(value = ProductQueryFilter.PRICE_PROPERTY, required = false) final BigDecimal price,
-                                               @RequestParam(value = ProductQueryFilter.PRICE_LESS_THAN_PROPERTY, required = false) final Boolean lessThan,
-                                               @RequestParam(value = ProductQueryFilter.PRICE_GREATER_THAN_PROPERTY, required = false) final Boolean greaterThan,
-                                               @RequestParam(value = ProductQueryFilter.PRICE_MIN_PROPERTY, required = false) final BigDecimal priceMin,
-                                               @RequestParam(value = ProductQueryFilter.PRICE_MAX_PROPERTY, required = false) final BigDecimal priceMax) {
-        final var queryFilter = new ProductQueryFilter(name, price, priceMin, priceMax, lessThan, greaterThan);
+                                               @RequestParam(value = PaginationConfig.SORT, required = false) final SortProductRequest sortOrder,
 
-        if ((Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize))) {
-            throw new ApiBadRequestException(ProductExceptionMessage.PAGE_SIZE_AND_PAGE_NUMBER_MUST_BE_FILLED);
-        }
+                                               @RequestParam(value = ProductFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted,
+                                               @RequestParam(value = ProductFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency,
 
-        if (queryFilter.isPriceAndPriceRangeOriented()) {
-            throw new ApiBadRequestException(ProductExceptionMessage.PRICE_AND_PRICE_RANGE_NOT_ALLOWED);
-        }
+                                               @RequestParam(value = ProductFilter.NAME_PROPERTY, required = false) final String name,
+                                               @RequestParam(value = ProductFilter.NAME_OPERATION_PROPERTY, required = false) final TextOperationRequest nameOperation,
 
-        if (queryFilter.isPriceOriented()) {
-            if (queryFilter.isPriceLessAndGreaterUsed()) {
-                throw new ApiBadRequestException(ProductExceptionMessage.PRICE_CAN_BE_LESS_THAN_OR_GREATER_THAN_AT_ONCE);
-            }
-        } else if (queryFilter.isAnyOfPriceRangeUsed()) {
-            if (!queryFilter.isPriceRangeOriented()) {
-                throw new ApiBadRequestException(ProductExceptionMessage.PRICE_MIN_AND_PRICE_MAX_MUST_BE_PASSED.withParameters(queryFilter.priceMin(), queryFilter.priceMax()));
-            }
-            if (queryFilter.isPriceLessOrGreaterUsed()) {
-                throw new ApiBadRequestException(ProductExceptionMessage.PRICE_LESS_THAN_OR_GREATER_THAN_NOT_ALLOWED_FOR_PRICE_RANGE);
-            }
-        }
+                                               @RequestParam(value = ProductFilter.PRICE_VALUE_PROPERTY, required = false) final BigDecimal priceValue,
+                                               @RequestParam(value = ProductFilter.PRICE_VALUE_OPERATION_PROPERTY, required = false) final NumberOperationRequest priceValueOperation,
 
-        return ResponseEntity.ok(mapper.map(
-                service.findProducts(queryFilter, pagination.getPageRequest(pageNumber, pageSize), ProductSortOrder.of(sortOrder, sortDesc))
-        ));
+                                               @RequestParam(value = ProductFilter.PRICE_CURRENCY_PROPERTY, required = false) final String priceCurrency,
+                                               @RequestParam(value = ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, required = false) final TextOperationRequest priceCurrencyOperation,
+
+                                               @RequestParam(value = ProductFilter.GENERAL_QUERY_PROPERTY, required = false) final String query) {
+        val queryFilter = ProductFilter.builder()
+                .isDeleted(isDeleted)
+                .shouldConvertCurrency(shouldConvertCurrency)
+                .paginationConfig(pagination.getPageRequest(pageNumber, pageSize))
+                .sortConfig(ProductSortOrder.of(sortOrder))
+                .name(name)
+                .nameOperation(nameOperation)
+                .priceValue(priceValue)
+                .priceValueOperation(priceValueOperation)
+                .priceCurrency(priceCurrency)
+                .priceCurrencyOperation(priceCurrencyOperation)
+                .query(query)
+                .build();
+
+        return ResponseEntity.ok(mapper.map(service.findProducts(queryFilter)));
     }
 
     @Override

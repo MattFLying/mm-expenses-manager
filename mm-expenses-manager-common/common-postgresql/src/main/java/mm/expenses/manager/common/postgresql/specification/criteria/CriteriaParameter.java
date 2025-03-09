@@ -41,6 +41,20 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
         }
 
         /**
+         * @return converts passed value to {@link Boolean} value. Allowed values respects traditional true/false value and additionally
+         * respects binary 0/1 values where 0 - false, 1 - true.
+         * In any other cases throws {@link SpecificationCriteriaException} for not supported value as boolean.
+         */
+        public static Boolean parseToBoolean(String value) {
+            if (StringUtils.equalsAnyIgnoreCase(value, BOOLEAN_TRUE_TEXT, BOOLEAN_TRUE_NUMBER)) {
+                return Boolean.TRUE;
+            } else if (StringUtils.equalsAnyIgnoreCase(value, BOOLEAN_FALSE_TEXT, BOOLEAN_FALSE_NUMBER)) {
+                return Boolean.FALSE;
+            }
+            throw new SpecificationCriteriaException(SpecificationCriteriaException.BOOLEAN_INVALID_VALUE_MESSAGE, BOOLEAN_TRUE_TEXT, BOOLEAN_TRUE_NUMBER, BOOLEAN_FALSE_TEXT, BOOLEAN_FALSE_NUMBER);
+        }
+
+        /**
          * Builds specification criteria for specific parameter.
          */
         public CriteriaParameter build() {
@@ -52,12 +66,12 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.INCORRECT_FILTERABLE_FIELD_NAME_MESSAGE, name);
             }
 
-            if (Objects.equals(filteredField.getType(), FieldType.Boolean) && !Objects.equals(operation, Operation.equal)) {
+            if (filteredField.isOfType(FieldType.Boolean) && !Objects.equals(operation, Operation.equal)) {
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.OPERATION_IS_UNAVAILABLE_FOR_BOOLEAN_FIELD_MESSAGE, operation, name);
             }
 
             val isIncorrectOperation = operation.isIn(Operation.startsWith, Operation.endsWith, Operation.contains);
-            if (isIncorrectOperation && !FieldType.String.equals(filteredField.getType())) {
+            if (isIncorrectOperation && !filteredField.isOfType(FieldType.String, FieldType.JsonB)) {
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.OPERATION_IS_UNAVAILABLE_FOR_NOT_TEXT_FIELD_MESSAGE, operation, name);
             }
             return createCriteriaParameter(filteredField);
@@ -98,15 +112,6 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.EMPTY_LIST_NOT_ALLOWED_FOR_FIELD_MESSAGE, name);
             }
             return new CriteriaParameter(name, field.getType(), field.getIsJsonBType(), operation, parsedValues);
-        }
-
-        private Boolean parseToBoolean(String value) {
-            if (StringUtils.equalsAnyIgnoreCase(value, BOOLEAN_TRUE_TEXT, BOOLEAN_TRUE_NUMBER)) {
-                return Boolean.TRUE;
-            } else if (StringUtils.equalsAnyIgnoreCase(value, BOOLEAN_FALSE_TEXT, BOOLEAN_FALSE_NUMBER)) {
-                return Boolean.FALSE;
-            }
-            throw new SpecificationCriteriaException(SpecificationCriteriaException.BOOLEAN_INVALID_VALUE_MESSAGE, BOOLEAN_TRUE_TEXT, BOOLEAN_TRUE_NUMBER, BOOLEAN_FALSE_TEXT, BOOLEAN_FALSE_NUMBER);
         }
 
     }

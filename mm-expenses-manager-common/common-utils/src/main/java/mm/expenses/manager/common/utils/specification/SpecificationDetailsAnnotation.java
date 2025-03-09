@@ -23,4 +23,9 @@ public @interface SpecificationDetailsAnnotation {
      */
     boolean canBeSorted() default false;
 
+    /**
+     * @return if expected field is an JSONB representation
+     */
+    boolean isJsonB() default false;
+
 }
