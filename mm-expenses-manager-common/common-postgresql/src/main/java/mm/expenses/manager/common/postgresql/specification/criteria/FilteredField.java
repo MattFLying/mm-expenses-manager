@@ -48,6 +48,15 @@ public class FilteredField {
     }
 
     /**
+     * @return checks if filtered field is any of passed types.
+     */
+    public boolean isOfType(final FieldType... types) {
+        Objects.requireNonNull(types, "Field types cannot be null");
+
+        return Arrays.stream(types).anyMatch(expectedType -> Objects.equals(expectedType, type));
+    }
+
+    /**
      * @return {@link FilteredField} based on passed field name and fieldType.
      */
     public static FilteredField of(final String fieldName, final FieldType fieldType) {

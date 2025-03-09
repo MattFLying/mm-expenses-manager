@@ -26,6 +26,19 @@
             <artifactId>mm-expenses-manager-product-api</artifactId>
             <version>${mm-expenses-manager-product-api-version}</version>
         </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>mm-expenses-manager-finance-api</artifactId>
+            <version>${mm-expenses-manager-finance-api-version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock-version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

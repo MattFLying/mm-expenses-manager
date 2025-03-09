@@ -64,6 +64,8 @@ public final class SpecificationScanner {
                     val columnDefinition = column.columnDefinition();
                     if (Objects.nonNull(columnDefinition)) {
                         filterableField.setIsJsonBType(StringUtils.equals(JSONB_TYPE, columnDefinition.toLowerCase()));
+                    } else if (specificationDetails.isJsonB()) {
+                        filterableField.setIsJsonBType(true);
                     }
                 }
                 possibleFieldsToBeFiltered.add(filterableField);

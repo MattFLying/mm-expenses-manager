@@ -38,19 +38,26 @@ paths:
             default: 10
             minimum: 1
             format: int32
-        - name: sortOrder
+        - name: sort
           in: query
           required: false
           description: Sort products by.
           schema:
-            $ref: "#/components/schemas/SortOrderRequest"
-        - name: sortDesc
+            $ref: "#/components/schemas/SortProductRequest"
+        - name: isDeleted
           in: query
           required: false
-          description: Ascending sorting by default or descending if false.
+          description: If true then retrieves products even if they are marked as deleted otherwise not found.
           schema:
             type: boolean
-            default: true
+            default: false
+        - name: shouldConvertCurrency
+          in: query
+          required: false
+          description: Defines if prices currencies of products should be converted to the default currency. By default it will not be converted.
+          schema:
+            type: boolean
+            default: false
         - name: name
           in: query
           required: false
@@ -59,41 +66,50 @@ paths:
             type: string
             minLength: 1
             maxLength: 200
-        - name: price
+        - name: nameOperation
           in: query
           required: false
-          description: Specific price of the product.
+          description: Expected operation for the product's name if present.
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/TextOperationRequest"
+              - default: equal
+        - name: price.value
+          in: query
+          required: false
+          description: Specific price value of the product.
           schema:
             type: BigDecimal
             minimum: 0
-        - name: lessThan
+        - name: priceValueOperation
           in: query
           required: false
-          description: If price is passed then could be used to specify if price should be less than.
+          description: Expected operation for the price value if present.
           schema:
-            type: boolean
-            default: false
-        - name: greaterThan
+            allOf:
+              - $ref: "#/components/schemas/NumberOperationRequest"
+              - default: greaterThanOrEqual
+        - name: price.currency
           in: query
           required: false
-          description: If price is passed then could be used to specify if price should be greater than.
+          description: Specific price currency of the product.
           schema:
-            type: boolean
-            default: false
-        - name: priceMin
+            type: String
+            example: PLN
+        - name: priceCurrencyOperation
           in: query
           required: false
-          description: Specific price for minimal price range.
+          description: Expected operation for the price currency if present.
           schema:
-            type: BigDecimal
-            minimum: 0
-        - name: priceMax
+            allOf:
+              - $ref: "#/components/schemas/TextOperationRequest"
+              - default: equal
+        - name: query
           in: query
           required: false
-          description: Specific price for maximum price range.
+          description: Explicitly defined query to filter products result based on the products specification criteria.
           schema:
-            type: BigDecimal
-            minimum: 0
+            type: string
 
       responses:
         "200":
@@ -269,10 +285,23 @@ components:
           description: Date when error occurred.
       description: API error message details.
 
-    SortOrderRequest:
+    SortProductRequest:
       type: string
-      enum: [ NAME, PRICE_VALUE ]
+      enum: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, PRICE_ASC, PRICE_DESC ]
+      x-enum-varnames: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, PRICE_ASC, PRICE_DESC ]
       description: Sorting order for products.
+
+    TextOperationRequest:
+      type: string
+      enum: [ isNull, equal, notEqual, startsWith, endsWith, contains ]
+      x-enum-varnames: [ isNull, equal, notEqual, startsWith, endsWith, contains ]
+      description: Possible text operation types for specific query parameter.
+
+    NumberOperationRequest:
+      type: string
+      enum: [ isNull, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual ]
+      x-enum-varnames: [ isNull, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual ]
+      description: Possible number operation types for specific query parameter.
 
     ProductDetailsRequest:
       type: object

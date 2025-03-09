@@ -38,6 +38,13 @@ app:
         product-management: product-management
   product:
     clear-deleted-cron: "0 0 0 ? * *" # every day at 12:00
+  currency:
+    default-currency: PLN
+  feign-client:
+    finance:
+      name: finance-client
+      port: 8185
+      url: http://localhost:${app.feign-client.finance.port}
 
 server:
   port: ${app.configuration.port}

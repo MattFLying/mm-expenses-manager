@@ -6,6 +6,7 @@ package mm.expenses.manager.common.postgresql.exception;
 public class SpecificationCriteriaException extends RuntimeException {
 
     public static final String INCORRECT_FILTERABLE_FIELD_NAME_MESSAGE = "Incorrect filterable field name: %s";
+    public static final String FIELD_NOT_AVAILABLE_IN_OBJECT_FIELD_MESSAGE = "[%s] field have no available [%s] property";
     public static final String OPERATION_IS_UNSUPPORTED_MESSAGE = "Operation: [%s] is unsupported for field: [%s] of type: [%s]";
     public static final String OPERATION_IS_UNAVAILABLE_FOR_BOOLEAN_FIELD_MESSAGE = "Operation: %s is unavailable for boolean field: %s";
     public static final String OPERATION_IS_UNAVAILABLE_FOR_NOT_TEXT_FIELD_MESSAGE = "Operation: %s is unavailable for not text field: %s";
