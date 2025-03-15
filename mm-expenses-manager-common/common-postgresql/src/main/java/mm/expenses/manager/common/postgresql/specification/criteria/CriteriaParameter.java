@@ -71,7 +71,7 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
             }
 
             val isIncorrectOperation = operation.isIn(Operation.startsWith, Operation.endsWith, Operation.contains);
-            if (isIncorrectOperation && !filteredField.isOfType(FieldType.String, FieldType.JsonB)) {
+            if (isIncorrectOperation && (!filteredField.isOfType(FieldType.String, FieldType.JsonB))) {
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.OPERATION_IS_UNAVAILABLE_FOR_NOT_TEXT_FIELD_MESSAGE, operation, name);
             }
             return createCriteriaParameter(filteredField);

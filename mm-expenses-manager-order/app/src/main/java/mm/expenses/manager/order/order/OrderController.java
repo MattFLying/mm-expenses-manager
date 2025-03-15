@@ -35,21 +35,27 @@ class OrderController implements OrderApi {
     public ResponseEntity<OrderPage> findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER, required = false) final Integer pageNumber,
                                              @RequestParam(value = PaginationConfig.PAGE_SIZE, required = false) final Integer pageSize,
                                              @RequestParam(value = PaginationConfig.SORT, required = false) final SortOrderRequest sortOrder,
+
                                              @RequestParam(value = OrderFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted,
                                              @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency,
+
                                              @RequestParam(value = OrderFilter.NAME_PROPERTY, required = false) final String name,
                                              @RequestParam(value = OrderFilter.NAME_OPERATION_PROPERTY, required = false) final TextOperationRequest nameOperation,
+
                                              @RequestParam(value = OrderFilter.PRODUCTS_COUNT_PROPERTY, required = false) final Integer productsCount,
-                                             @RequestParam(value = OrderFilter.PRODUCTS_COUNT_OPERATION_PROPERTY, required = false) final NumberOperationRequest productsCountOperation) {
+                                             @RequestParam(value = OrderFilter.PRODUCTS_COUNT_OPERATION_PROPERTY, required = false) final NumberOperationRequest productsCountOperation,
+
+                                             @RequestParam(value = OrderFilter.GENERAL_QUERY_PROPERTY, required = false) final String query) {
         val queryFilter = OrderFilter.builder()
-                .isDeleted(isDeleted)
-                .shouldConvertCurrency(shouldConvertCurrency)
-                .paginationConfig(pagination.getPageRequest(pageNumber, pageSize))
                 .sortConfig(OrderSortOrder.of(sortOrder))
                 .name(name)
                 .nameOperation(nameOperation)
                 .productsCount(productsCount)
                 .productsCountOperation(productsCountOperation)
+                .query(query)
+                .isDeleted(isDeleted)
+                .shouldConvertCurrency(shouldConvertCurrency)
+                .paginationConfig(pagination.getPageRequest(pageNumber, pageSize))
                 .build();
 
         return ResponseEntity.ok(mapper.mapToPageResponse(service.findOrders(queryFilter)));

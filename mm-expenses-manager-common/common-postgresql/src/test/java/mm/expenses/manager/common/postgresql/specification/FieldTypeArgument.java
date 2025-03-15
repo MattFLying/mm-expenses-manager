@@ -118,7 +118,7 @@ public class FieldTypeArgument implements ArgumentsProvider {
                     if (fieldType.equals(FieldType.Boolean) && !Operation.equal.equals(operation)) {
                         return;
                     }
-                    if (List.of(FieldType.Long, FieldType.Integer, FieldType.Instant, FieldType.List).contains(fieldType) && operation.isIn(Operation.startsWith, Operation.endsWith, Operation.contains)) {
+                    if (List.of(FieldType.Long, FieldType.Integer, FieldType.Instant, FieldType.List, FieldType.Object).contains(fieldType) && operation.isIn(Operation.startsWith, Operation.endsWith, Operation.contains)) {
                         return;
                     }
                     result.add(Arguments.of(fieldType, operation));
@@ -139,7 +139,7 @@ public class FieldTypeArgument implements ArgumentsProvider {
             val result = new ArrayList<Arguments>();
             fieldTypes.forEach(fieldType -> {
                 operations.forEach(operation -> {
-                    if (fieldType.equals(FieldType.String) || fieldType.equals(FieldType.Boolean)) {
+                    if (fieldType.equals(FieldType.String) || fieldType.equals(FieldType.Boolean) || fieldType.equals(FieldType.JsonB)) {
                         return;
                     }
                     if (!operation.isIn(Operation.startsWith, Operation.endsWith, Operation.contains)) {

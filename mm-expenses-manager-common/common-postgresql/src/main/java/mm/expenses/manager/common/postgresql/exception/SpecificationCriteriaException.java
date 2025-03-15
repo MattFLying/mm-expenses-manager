@@ -17,6 +17,7 @@ public class SpecificationCriteriaException extends RuntimeException {
     public static final String ONLY_ONE_OPERATION_ALLOWED_MESSAGE = "Only one operation allowed";
     public static final String PAGINATION_CONFIG_IS_NULL_MESSAGE = "Pagination configuration is null";
     public static final String BOOLEAN_INVALID_VALUE_MESSAGE = "Allowed values for boolean type are: %s";
+    public static final String FILTERING_BY_EXPLICIT_QUERY_ONLY = "Explicit query for orders filtering have been used. Use of another parameters is not allowed.";
 
     public SpecificationCriteriaException(final String message) {
         super(message);

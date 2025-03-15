@@ -27,8 +27,7 @@ public enum ProductExceptionMessage implements ExceptionType {
     PRODUCT_NAME_MISSING_OPERATOR("product-missing-operator-for-name", "Missing operator for product filtering by name."),
 
     // filter
-    PRODUCT_FILTERING_PATH_SIZE_EXCEEDED("product-filtering-path-too-big", "Path of filtered property is too big"),
-    PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY("product-filtering-explicit-query-only-expected", "Explicit query for products filtering have been used. Use of another parameters is not allowed.");
+    PRODUCT_FILTERING_PATH_SIZE_EXCEEDED("product-filtering-path-too-big", "Path of filtered property is too big");
 
     private final String code;
     private final String message;

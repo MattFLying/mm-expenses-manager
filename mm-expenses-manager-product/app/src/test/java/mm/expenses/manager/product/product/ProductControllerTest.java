@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
-import mm.expenses.manager.common.postgresql.specification.Operation;
+import mm.expenses.manager.common.postgresql.exception.SpecificationCriteriaException;
+import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
@@ -662,8 +663,8 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.code", is(EntityFilter.FILTERING_BY_EXPLICIT_QUERY_ONLY_ERROR_CODE)))
+                    .andExpect(jsonPath("$.message", is(SpecificationCriteriaException.FILTERING_BY_EXPLICIT_QUERY_ONLY)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
@@ -674,8 +675,8 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.code", is(EntityFilter.FILTERING_BY_EXPLICIT_QUERY_ONLY_ERROR_CODE)))
+                    .andExpect(jsonPath("$.message", is(SpecificationCriteriaException.FILTERING_BY_EXPLICIT_QUERY_ONLY)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
@@ -686,8 +687,8 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.code", is(EntityFilter.FILTERING_BY_EXPLICIT_QUERY_ONLY_ERROR_CODE)))
+                    .andExpect(jsonPath("$.message", is(SpecificationCriteriaException.FILTERING_BY_EXPLICIT_QUERY_ONLY)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
@@ -698,8 +699,8 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.code", is(EntityFilter.FILTERING_BY_EXPLICIT_QUERY_ONLY_ERROR_CODE)))
+                    .andExpect(jsonPath("$.message", is(SpecificationCriteriaException.FILTERING_BY_EXPLICIT_QUERY_ONLY)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
@@ -710,8 +711,8 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.code", is(EntityFilter.FILTERING_BY_EXPLICIT_QUERY_ONLY_ERROR_CODE)))
+                    .andExpect(jsonPath("$.message", is(SpecificationCriteriaException.FILTERING_BY_EXPLICIT_QUERY_ONLY)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }
@@ -722,8 +723,8 @@ class ProductControllerTest extends ProductApplicationTest {
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-                    .andExpect(jsonPath("$.code", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getCode())))
-                    .andExpect(jsonPath("$.message", is(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY.getMessage())))
+                    .andExpect(jsonPath("$.code", is(EntityFilter.FILTERING_BY_EXPLICIT_QUERY_ONLY_ERROR_CODE)))
+                    .andExpect(jsonPath("$.message", is(SpecificationCriteriaException.FILTERING_BY_EXPLICIT_QUERY_ONLY)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ExceptionMessage.formatStatus(HttpStatus.BAD_REQUEST))))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.occurredAt", Matchers.notNullValue()));
         }

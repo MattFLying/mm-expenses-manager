@@ -1,18 +1,17 @@
 package mm.expenses.manager.product.product;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
+import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.postgresql.specification.Operation;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import mm.expenses.manager.product.api.product.model.NumberOperationRequest;
 import mm.expenses.manager.product.api.product.model.TextOperationRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,12 +19,10 @@ import java.util.Objects;
 /**
  * Filter for querying products.
  */
-@Builder
+@SuperBuilder
 @Getter(value = AccessLevel.PRIVATE)
 @Setter(value = AccessLevel.PRIVATE)
-class ProductFilter {
-
-    static final String IS_DELETED_PROPERTY = "isDeleted";
+class ProductFilter extends EntityFilter {
 
     static final String NAME_PROPERTY = "name";
     static final String NAME_OPERATION_PROPERTY = "nameOperation";
@@ -36,10 +33,6 @@ class ProductFilter {
     static final String PRICE_CURRENCY_PROPERTY = "price.currency";
     static final String PRICE_CURRENCY_OPERATION_PROPERTY = "priceCurrencyOperation";
 
-    static final String SHOULD_CONVERT_CURRENCY_PROPERTY = "shouldConvertCurrency";
-
-    static final String GENERAL_QUERY_PROPERTY = "query";
-
     private String name;
     private TextOperationRequest nameOperation;
 
@@ -49,44 +42,13 @@ class ProductFilter {
     private String priceCurrency;
     private TextOperationRequest priceCurrencyOperation;
 
-    private Boolean isDeleted;
-    private Boolean shouldConvertCurrency;
-
-    private PageRequest paginationConfig;
     private SortOrder sortConfig;
 
-    private String query;
+    @Override
+    protected void buildSpecificQueryParameters(final Map<String, String[]> queryParameters) {
+        buildPagination(queryParameters);
+        buildDeleted(queryParameters);
 
-    /**
-     * @return builds query parameters based on passed filters.
-     */
-    Map<String, String[]> buildQueryParams() {
-        val queryParameters = new HashMap<String, String[]>();
-
-        if (isExplicitQueryOriented()) {
-            val params = query.split("&");
-            for (val queryParameter : params) {
-                val parameter = queryParameter.split("=");
-
-                val parameterName = parameter[0];
-                val parameterValues = parameter[1].split(",");
-
-                queryParameters.put(parameterName, parameterValues);
-            }
-            return queryParameters;
-        }
-        buildSpecificQueryParameters(queryParameters);
-        return queryParameters;
-    }
-
-    /**
-     * build query parameters based on specific query parameters not defined in general query path variable.
-     */
-    private void buildSpecificQueryParameters(final Map<String, String[]> queryParameters) {
-        if (Objects.nonNull(paginationConfig)) {
-            queryParameters.put(PaginationConfig.PAGE_NUMBER, new String[]{String.valueOf(paginationConfig.getPageNumber())});
-            queryParameters.put(PaginationConfig.PAGE_SIZE, new String[]{String.valueOf(paginationConfig.getPageSize())});
-        }
         if (Objects.nonNull(sortConfig)) {
             val sortOrder = sortConfig.getOrder();
             if (Objects.nonNull(sortOrder)) {
@@ -103,17 +65,20 @@ class ProductFilter {
         if (isProductsPriceCurrencyOriented()) {
             queryParameters.put(getProductsPriceCurrencyOperationProperty(), new String[]{String.valueOf(getPriceCurrency())});
         }
-
-        if (shouldBeDeleted()) {
-            queryParameters.put(IS_DELETED_PROPERTY, new String[]{String.valueOf(isDeleted)});
-        }
     }
 
-    /**
-     * @return checks if all prices should be converted to the default currency or not.
-     */
-    public boolean shouldConvertPricesToDefault() {
-        return Objects.nonNull(shouldConvertCurrency) && shouldConvertCurrency;
+    @Override
+    protected List<Boolean> getSpecificFiltersPresenceList() {
+        val isNamePresent = Objects.nonNull(name);
+        val isNameOperationPresent = Objects.nonNull(nameOperation);
+
+        val isProductsPriceValuePresent = Objects.nonNull(priceValue);
+        val isProductsPriceValueOperationPresent = Objects.nonNull(priceValueOperation);
+
+        val isProductsPriceCurrencyPresent = Objects.nonNull(priceCurrency);
+        val isProductsPriceCurrencyOperationPresent = Objects.nonNull(priceCurrencyOperation);
+
+        return List.of(isNamePresent, isNameOperationPresent, isProductsPriceValuePresent, isProductsPriceValueOperationPresent, isProductsPriceCurrencyPresent, isProductsPriceCurrencyOperationPresent);
     }
 
     /**
@@ -150,44 +115,6 @@ class ProductFilter {
             throw new ApiBadRequestException(ProductExceptionMessage.PRICE_CURRENCY_MISSING_OPERATOR);
         }
         return isProductsPriceCurrencyPresent && isProductsPriceCurrencyOperationPresent;
-    }
-
-    /**
-     * @return checks if general query parameter is in use.
-     */
-    private boolean isExplicitQueryOriented() {
-        val isQueryPresent = StringUtils.isNotBlank(query);
-        if (isQueryPresent) {
-            val listOfSpecificFilters = getSpecificFiltersPresenceList();
-            if (listOfSpecificFilters.stream().anyMatch(filter -> filter)) {
-                throw new ApiBadRequestException(ProductExceptionMessage.PRODUCT_FILTERING_BY_EXPLICIT_QUERY_ONLY);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return list of presence of specific query parameters available during filtering products.
-     */
-    private List<Boolean> getSpecificFiltersPresenceList() {
-        val isNamePresent = Objects.nonNull(name);
-        val isNameOperationPresent = Objects.nonNull(nameOperation);
-
-        val isProductsPriceValuePresent = Objects.nonNull(priceValue);
-        val isProductsPriceValueOperationPresent = Objects.nonNull(priceValueOperation);
-
-        val isProductsPriceCurrencyPresent = Objects.nonNull(priceCurrency);
-        val isProductsPriceCurrencyOperationPresent = Objects.nonNull(priceCurrencyOperation);
-
-        return List.of(isNamePresent, isNameOperationPresent, isProductsPriceValuePresent, isProductsPriceValueOperationPresent, isProductsPriceCurrencyPresent, isProductsPriceCurrencyOperationPresent);
-    }
-
-    /**
-     * @return checks if it should filter only be deleted products.
-     */
-    private boolean shouldBeDeleted() {
-        return Objects.nonNull(isDeleted) && isDeleted;
     }
 
     private String getNameOperationProperty() {
