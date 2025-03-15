@@ -6,6 +6,7 @@ import mm.expenses.manager.common.async.AsyncMessageProducer;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
+import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
@@ -101,13 +102,13 @@ public class ProductService {
         return savedProduct;
     }
 
-    public Page<Product> findProducts(final ProductFilter queryFilter) {
+    public Page<Product> findProducts(final EntityFilter queryFilter) {
         Objects.requireNonNull(queryFilter, "Query filter cannot be null.");
 
         val filterParameters = queryFilter.buildQueryParams();
         val specificationResult = specificationHandler.handle(filterParameters);
         val pagedOrders = repository.findAll(specificationResult.specification(), specificationResult.pageable());
-        if (queryFilter.shouldConvertPricesToDefault()) {
+        if (queryFilter.shouldConvertCurrenciesToDefault()) {
             // calculate prices if there are different currencies than default
             val isCurrencyConversionNeeded = pagedOrders.getContent()
                     .stream()

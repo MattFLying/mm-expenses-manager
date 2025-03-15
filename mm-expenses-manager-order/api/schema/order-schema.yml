@@ -89,6 +89,12 @@ paths:
             allOf:
               - $ref: "#/components/schemas/NumberOperationRequest"
               - default: greaterThanOrEqual
+        - name: query
+          in: query
+          required: false
+          description: Explicitly defined query to filter orders result based on the orders specification criteria.
+          schema:
+            type: string
 
       responses:
         "200":

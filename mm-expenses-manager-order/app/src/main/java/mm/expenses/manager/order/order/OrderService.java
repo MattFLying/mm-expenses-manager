@@ -3,6 +3,7 @@ package mm.expenses.manager.order.order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
@@ -34,13 +35,13 @@ public class OrderService {
     private final PriceConverter priceConverter;
     private final OrderSpecificationHandler specificationHandler;
 
-    Page<Order> findOrders(final OrderFilter queryFilter) {
+    Page<Order> findOrders(final EntityFilter queryFilter) {
         Objects.requireNonNull(queryFilter, "Query filter cannot be null.");
 
         val filterParameters = queryFilter.buildQueryParams();
         val specificationResult = specificationHandler.handle(filterParameters);
         val pagedOrders = repository.findAll(specificationResult.specification(), specificationResult.pageable());
-        if (queryFilter.shouldConvertPricesToDefault()) {
+        if (queryFilter.shouldConvertCurrenciesToDefault()) {
             val productsByOrderId = pagedOrders.getContent()
                     .stream()
                     .collect(Collectors.groupingBy(

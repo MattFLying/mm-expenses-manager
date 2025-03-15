@@ -58,9 +58,6 @@ class ProductController implements ProductApi {
 
                                                @RequestParam(value = ProductFilter.GENERAL_QUERY_PROPERTY, required = false) final String query) {
         val queryFilter = ProductFilter.builder()
-                .isDeleted(isDeleted)
-                .shouldConvertCurrency(shouldConvertCurrency)
-                .paginationConfig(pagination.getPageRequest(pageNumber, pageSize))
                 .sortConfig(ProductSortOrder.of(sortOrder))
                 .name(name)
                 .nameOperation(nameOperation)
@@ -69,6 +66,9 @@ class ProductController implements ProductApi {
                 .priceCurrency(priceCurrency)
                 .priceCurrencyOperation(priceCurrencyOperation)
                 .query(query)
+                .isDeleted(isDeleted)
+                .shouldConvertCurrency(shouldConvertCurrency)
+                .paginationConfig(pagination.getPageRequest(pageNumber, pageSize))
                 .build();
 
         return ResponseEntity.ok(mapper.map(service.findProducts(queryFilter)));

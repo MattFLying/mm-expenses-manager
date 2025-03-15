@@ -57,10 +57,15 @@ public enum FieldType {
         return valueOf(
                 switch (fieldType) {
                     case "int":
+                    case "integer":
+                    case "Integer":
                         yield Integer.getName();
                     case "long":
+                    case "Long":
                         yield Long.getName();
+                    case "bool":
                     case "boolean":
+                    case "Boolean":
                         yield Boolean.getName();
                     case "String":
                         yield String.getName();
