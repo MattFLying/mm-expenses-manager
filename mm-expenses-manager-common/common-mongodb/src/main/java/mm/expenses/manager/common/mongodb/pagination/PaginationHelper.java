@@ -1,7 +1,7 @@
-package mm.expenses.manager.common.web.pagination;
+package mm.expenses.manager.common.mongodb.pagination;
 
+import mm.expenses.manager.common.mongodb.pagination.sort.MongoDBSortOrder;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
-import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,7 +21,7 @@ public final class PaginationHelper {
         this.config = config;
     }
 
-    public PageRequest getPageRequest(final Integer pageNumber, final Integer pageSize, final SortOrder sort) {
+    public PageRequest getPageRequest(final Integer pageNumber, final Integer pageSize, final MongoDBSortOrder sort) {
         return getPageRequest(findCorrectPageNumber(pageNumber), findCorrectPageSize(pageSize), findCorrectSort(sort), config.getMaxPageSize());
     }
 
@@ -31,10 +31,6 @@ public final class PaginationHelper {
 
     public Pageable getPageable(final Integer pageNumber, final Integer pageSize) {
         return getPageable(findCorrectPageNumber(pageNumber), findCorrectPageSize(pageSize), config.getMaxPageSize());
-    }
-
-    public boolean isPageNumberAndPageSizePresent(final Integer pageNumber, final Integer pageSize) {
-        return (Objects.nonNull(pageNumber) && Objects.isNull(pageSize)) || (Objects.isNull(pageNumber) && Objects.nonNull(pageSize));
     }
 
     private Pageable getPageable(final Integer page, final Integer size, final Integer maxPageSize) {
@@ -85,14 +81,14 @@ public final class PaginationHelper {
         return pageNumber >= config.getMinPageNumber() ? pageNumber : config.getMinPageNumber();
     }
 
-    private Sort findCorrectSort(final SortOrder sortOrder) {
+    private Sort findCorrectSort(final MongoDBSortOrder sortOrder) {
         if (Objects.nonNull(sortOrder)) {
             final var sort = sortOrder.getSort();
             if (Objects.nonNull(sort)) {
                 return sort;
             }
         }
-        return SortOrder.unsorted();
+        return MongoDBSortOrder.unsorted();
     }
 
 }

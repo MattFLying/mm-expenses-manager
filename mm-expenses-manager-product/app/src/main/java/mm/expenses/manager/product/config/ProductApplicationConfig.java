@@ -2,11 +2,11 @@ package mm.expenses.manager.product.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Generated;
+import mm.expenses.manager.common.postgresql.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.utils.config.ObjectMapperConfig;
 import mm.expenses.manager.common.web.config.ApplicationConfig;
 import mm.expenses.manager.common.web.config.ErrorHandlingConfig;
-import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.web.config.OpenApiConfig;
 import mm.expenses.manager.common.web.config.WebMvcConfig;
 import mm.expenses.manager.common.kafka.producer.AsyncKafkaProducer;

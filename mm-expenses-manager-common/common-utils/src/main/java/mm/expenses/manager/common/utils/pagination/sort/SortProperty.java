@@ -1,7 +1,9 @@
-package mm.expenses.manager.common.utils.sort;
+package mm.expenses.manager.common.utils.pagination.sort;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.val;
 
 import java.util.Objects;
 
@@ -31,6 +33,14 @@ public abstract class SortProperty<Order> {
             this.direction = SortDirection.ASC;
         }
         return this;
+    }
+
+    public static SortDirection of(@NotNull final Object direction) {
+        val clazz = direction.getClass();
+        if (clazz.isEnum()) {
+            SortDirection.valueOf(((Enum<?>) direction).name());
+        }
+        return SortDirection.valueOf(direction.toString());
     }
 
     public enum SortDirection {

@@ -1,41 +1,47 @@
-package mm.expenses.manager.common.web.pagination.sort;
+package mm.expenses.manager.common.utils.pagination.sort;
 
 import mm.expenses.manager.common.exceptions.sort.SortOrderException;
-import mm.expenses.manager.common.utils.sort.SortProperty;
-import mm.expenses.manager.common.web.exception.WebExceptionMessage;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
+import mm.expenses.manager.common.utils.exception.CommonUtilsExceptionMessage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-public interface SortOrder {
+/**
+ * Interface to define specific sorting order.
+ *
+ * @param <S> sort type
+ * @param <O> order type
+ */
+public interface SortOrder<S, O> {
 
-    Collection<SortProperty<Order>> getProperties();
+    /**
+     * Returns list of properties for specific sorting.
+     */
+    Collection<SortProperty<O>> getProperties();
 
-    static Sort unsorted() {
-        return Sort.unsorted();
-    }
+    /**
+     * Returns sorting of specific sorting type.
+     */
+    S getSort();
 
-    default List<Order> getOrders() {
+    default List<O> getOrders() {
         return Objects.isNull(getProperties())
                 ? Collections.emptyList()
                 : getProperties().stream().map(SortProperty::getOrder).collect(Collectors.toList());
     }
 
-    default Order getOrder() {
+    default O getOrder() {
         final var orders = getOrders();
         if (Objects.isNull(orders) || orders.size() != 1) {
-            throw new SortOrderException(WebExceptionMessage.PAGINATION_SORT_ORDER_MULTIPLE_VALUES);
+            throw new SortOrderException(CommonUtilsExceptionMessage.PAGINATION_SORT_ORDER_MULTIPLE_VALUES);
         }
         return orders.get(0);
     }
 
-    default Sort getSort() {
-        return Sort.by(getOrders());
-    }
-
-    default SortOrder withDirectionsDesc(final Boolean isDescending) {
+    default SortOrder<S, O> withDirectionsDesc(final Boolean isDescending) {
         if (Objects.nonNull(isDescending)) {
             for (var sortProperty : getProperties()) {
                 sortProperty.setDirectionDesc(!isDescending);
@@ -45,7 +51,7 @@ public interface SortOrder {
         return withDirectionsAsc(true);
     }
 
-    default SortOrder withDirectionsAsc(final Boolean isAscending) {
+    default SortOrder<S, O> withDirectionsAsc(final Boolean isAscending) {
         if (Objects.nonNull(isAscending)) {
             for (var sortProperty : getProperties()) {
                 sortProperty.setDirectionAsc(isAscending);

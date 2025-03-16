@@ -1,4 +1,4 @@
-package mm.expenses.manager.common.postgresql.sort;
+package mm.expenses.manager.common.postgresql.pagination.sort;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;

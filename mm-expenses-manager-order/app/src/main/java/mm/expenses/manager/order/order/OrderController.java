@@ -2,8 +2,8 @@ package mm.expenses.manager.order.order;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import mm.expenses.manager.common.postgresql.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
-import mm.expenses.manager.common.web.pagination.PaginationHelper;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.order.api.order.OrderApi;
 import mm.expenses.manager.order.api.order.model.*;

@@ -17,7 +17,8 @@ public enum CommonUtilsExceptionMessage implements ExceptionType {
     DATE_STRING_CANNOT_BE_PARSED("date-string-cannot-be-parsed", "Unable to parse date as string."),
     DATE_LONG_NULL_NOT_ALLOWED("date-long-cannot-be-null", "Date as long has null value what is not allowed."),
     INSTANT_TO_LOCAL_DATE_ERROR("instant-to-local-date-error", "Instant cannot be converted to LocalDate."),
-    LOCAL_DATE_TO_INSTANT_ERROR("local-date-to-instant-error", "Instant cannot be converted to LocalDate.");
+    LOCAL_DATE_TO_INSTANT_ERROR("local-date-to-instant-error", "Instant cannot be converted to LocalDate."),
+    PAGINATION_SORT_ORDER_MULTIPLE_VALUES("pagination-sort-order-error", "Pagination sorting has different order values than expected.");
 
     private final String code;
     private final String message;

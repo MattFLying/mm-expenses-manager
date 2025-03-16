@@ -2,10 +2,10 @@ package mm.expenses.manager.order.order;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.common.postgresql.sort.SortJsonBProperty;
-import mm.expenses.manager.common.utils.sort.SortProperty;
-import mm.expenses.manager.common.web.pagination.sort.SortOrder;
-import mm.expenses.manager.common.web.pagination.sort.DefaultSortProperty;
+import mm.expenses.manager.common.postgresql.pagination.sort.PostgreSQLSortOrder;
+import mm.expenses.manager.common.postgresql.pagination.sort.PostgreSQLSortProperty;
+import mm.expenses.manager.common.postgresql.pagination.sort.SortJsonBProperty;
+import mm.expenses.manager.common.utils.pagination.sort.SortProperty;
 import mm.expenses.manager.order.api.order.model.SortOrderRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -19,24 +19,24 @@ import java.util.Objects;
  */
 @Getter
 @RequiredArgsConstructor
-enum OrderSortOrder implements SortOrder {
-    NAME_ASC(List.of(new DefaultSortProperty("name", Direction.ASC))),
-    NAME_DESC(List.of(new DefaultSortProperty("name", Direction.DESC))),
+enum OrderSortOrder implements PostgreSQLSortOrder {
+    NAME_ASC(List.of(new PostgreSQLSortProperty("name", Direction.ASC))),
+    NAME_DESC(List.of(new PostgreSQLSortProperty("name", Direction.DESC))),
 
-    CREATED_AT_ASC(List.of(new DefaultSortProperty("createdAt", Direction.ASC))),
-    CREATED_AT_DESC(List.of(new DefaultSortProperty("createdAt", Direction.DESC))),
+    CREATED_AT_ASC(List.of(new PostgreSQLSortProperty("createdAt", Direction.ASC))),
+    CREATED_AT_DESC(List.of(new PostgreSQLSortProperty("createdAt", Direction.DESC))),
 
     PRODUCTS_COUNT_ASC(List.of(new SortJsonBProperty("products", Direction.ASC))),
     PRODUCTS_COUNT_DESC(List.of(new SortJsonBProperty("products", Direction.DESC))),
 
-    DEFAULT_SORT(List.of(new DefaultSortProperty("name", Direction.ASC)));
+    DEFAULT_SORT(List.of(new PostgreSQLSortProperty("name", Direction.ASC)));
 
     private final Collection<SortProperty<Sort.Order>> properties;
 
     /**
      * @return proper sorting for {@link Order} based on passed requested sorting.
      */
-    public static SortOrder of(final SortOrderRequest request) {
+    public static PostgreSQLSortOrder of(final SortOrderRequest request) {
         return Objects.isNull(request) ? OrderSortOrder.DEFAULT_SORT : switch (request) {
             case NAME_ASC -> OrderSortOrder.NAME_ASC;
             case NAME_DESC -> OrderSortOrder.NAME_DESC;

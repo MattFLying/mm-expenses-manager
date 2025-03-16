@@ -5,7 +5,7 @@ import mm.expenses.manager.common.postgresql.exception.SpecificationParseExcepti
 import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCriteriaParameter;
 import mm.expenses.manager.common.postgresql.specification.criteria.SpecificationCriteria;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
-import mm.expenses.manager.common.utils.sort.SortProperty;
+import mm.expenses.manager.common.utils.pagination.sort.SortProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;

@@ -5,7 +5,7 @@ import lombok.val;
 import mm.expenses.manager.common.postgresql.exception.SpecificationParseException;
 import mm.expenses.manager.common.postgresql.specification.criteria.*;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
-import mm.expenses.manager.common.utils.sort.SortProperty;
+import mm.expenses.manager.common.utils.pagination.sort.SortProperty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
