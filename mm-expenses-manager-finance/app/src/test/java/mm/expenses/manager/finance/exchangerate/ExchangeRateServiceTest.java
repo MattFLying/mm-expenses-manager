@@ -1,6 +1,6 @@
 package mm.expenses.manager.finance.exchangerate;
 
-import mm.expenses.manager.common.web.pagination.PaginationHelper;
+import mm.expenses.manager.common.mongodb.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.FinanceApplicationTest;

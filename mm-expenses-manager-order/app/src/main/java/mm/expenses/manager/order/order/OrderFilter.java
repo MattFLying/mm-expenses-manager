@@ -4,9 +4,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.postgresql.filter.EntityFilter;
+import mm.expenses.manager.common.postgresql.pagination.sort.PostgreSQLSortOrder;
 import mm.expenses.manager.common.postgresql.specification.Operation;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
-import mm.expenses.manager.common.web.pagination.sort.SortOrder;
 import mm.expenses.manager.order.api.order.model.NumberOperationRequest;
 import mm.expenses.manager.order.api.order.model.TextOperationRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
@@ -36,7 +36,7 @@ class OrderFilter extends EntityFilter {
     private Integer productsCount;
     private NumberOperationRequest productsCountOperation;
 
-    private SortOrder sortConfig;
+    private PostgreSQLSortOrder sortConfig;
 
     @Override
     protected void buildSpecificQueryParameters(final Map<String, String[]> queryParameters) {
