@@ -2,10 +2,12 @@ package mm.expenses.manager.common.postgresql.specification.criteria;
 
 import lombok.*;
 import mm.expenses.manager.common.postgresql.specification.FieldType;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Represents specific field to be handled by specific {@link org.springframework.data.jpa.domain.Specification}
@@ -19,9 +21,26 @@ public class FilteredField {
 
     private String name;
 
+    /**
+     * Some fields can be recognized by different name, this field represents such alternative name by which it can be recognized even if
+     * the field name is different but this alternative name is present.
+     */
+    private String alternativeName;
+
     private FieldType type;
 
     private Boolean isJsonBType = false;
+
+    public FilteredField(final String name, final FieldType type, final Boolean isJsonBType) {
+        this(name, null, type, isJsonBType);
+    }
+
+    public FilteredField(final String name, final String alternativeName, final FieldType type, final Boolean isJsonBType) {
+        this.name = name;
+        this.alternativeName = alternativeName;
+        this.type = type;
+        this.isJsonBType = isJsonBType;
+    }
 
     /**
      * @return list of passed objects value mapped to specific {@link FieldType} or returns list of original
@@ -57,6 +76,16 @@ public class FilteredField {
     }
 
     /**
+     * @return checks if filtered field can be recognized by passed field name.
+     */
+    public boolean hasSameName(final String... names) {
+        val availableNames = Stream.of(name, alternativeName)
+                .filter(Objects::nonNull)
+                .toList();
+        return CollectionUtils.containsAny(availableNames, List.of(names));
+    }
+
+    /**
      * @return {@link FilteredField} based on passed field name and fieldType.
      */
     public static FilteredField of(final String fieldName, final FieldType fieldType) {
@@ -65,6 +94,22 @@ public class FilteredField {
 
         return FilteredField.builder()
                 .name(fieldName)
+                .type(fieldType)
+                .isJsonBType(false)
+                .build();
+    }
+
+    /**
+     * @return {@link FilteredField} based on passed field name, alternative name and fieldType.
+     */
+    public static FilteredField of(final String fieldName, final String alternativeFieldName, final FieldType fieldType) {
+        Objects.requireNonNull(fieldName, "Field name cannot be null");
+        Objects.requireNonNull(alternativeFieldName, "Alternative field name cannot be null");
+        Objects.requireNonNull(fieldType, "Field fieldType cannot be null");
+
+        return FilteredField.builder()
+                .name(fieldName)
+                .alternativeName(alternativeFieldName)
                 .type(fieldType)
                 .isJsonBType(false)
                 .build();

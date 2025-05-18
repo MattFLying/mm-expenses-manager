@@ -3,13 +3,12 @@ package mm.expenses.manager.product.currency;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.product.client.FinanceApiClient;
 import mm.expenses.manager.product.config.CurrencyConfig;
-import mm.expenses.manager.product.product.Product;
+import mm.expenses.manager.product.product.ProductFilterView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -37,11 +36,11 @@ public class PriceConverter {
     /**
      * @return passed products as parameter with converted prices to default currency.
      */
-    public List<Product> convertPrices(final List<Product> products) {
+    public List<ProductFilterView> convertPrices(final List<ProductFilterView> products) {
         val defaultCurrency = getDefaultCurrency();
         val currencyConversionRequests = products.stream()
-                .filter(product -> !product.getPrice().hasCurrency(defaultCurrency))
-                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Product::getId))))
+                .filter(product -> !Objects.equals(product.getPriceCurrency(), defaultCurrency))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ProductFilterView::getProductId))))
                 .stream()
                 .map(product -> mapper.map(product, config.getDefaultCurrency()))
                 .toList();
@@ -51,22 +50,16 @@ public class PriceConverter {
                 .filter(conversionResponse -> isTheConversionResponseSameAsProduct(product, conversionResponse))
                 .findAny()
                 .ifPresent(resultedProduct -> {
-                    product.setPrice(updatePriceAfterConversion(resultedProduct));
+                    product.setPriceValue(BigDecimalWrapper.of(resultedProduct.getTo().getValue()));
+                    product.setPriceCurrency(CurrencyCode.getCurrencyFromString(resultedProduct.getTo().getCode()));
+                    product.setPriceCreatedAt(DateUtils.localDateToInstant(resultedProduct.getDate()));
                 })
         );
         return products;
     }
 
-    private Price updatePriceAfterConversion(final CurrencyConversionResponse resultedProduct) {
-        return new Price(
-                CurrencyCode.getCurrencyFromString(resultedProduct.getTo().getCode()),
-                BigDecimalWrapper.of(resultedProduct.getTo().getValue()),
-                DateUtils.localDateToInstant(resultedProduct.getDate())
-        );
-    }
-
-    private boolean isTheConversionResponseSameAsProduct(final Product product, final CurrencyConversionResponse conversionResponse) {
-        return StringUtils.equals(conversionResponse.getId(), product.getId().toString()) && product.getPrice().hasCurrency(conversionResponse.getFrom().getCode());
+    private boolean isTheConversionResponseSameAsProduct(final ProductFilterView product, final CurrencyConversionResponse conversionResponse) {
+        return StringUtils.equals(conversionResponse.getId(), product.getProductId().toString()) && Objects.equals(product.getPriceCurrency().getCode(), conversionResponse.getFrom().getCode());
     }
 
 }

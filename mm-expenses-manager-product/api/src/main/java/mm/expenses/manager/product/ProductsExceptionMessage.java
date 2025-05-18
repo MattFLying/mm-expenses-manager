@@ -10,6 +10,8 @@ import java.util.Objects;
 
 @RequiredArgsConstructor
 public enum ProductsExceptionMessage implements ExceptionType {
+    PRODUCT_PRICE_ORIGINAL_MISSING("product-price-missing", "The original price cannot be empty or is unknown."),
+    PRODUCT_PRICE_VALUE_UNDEFINED("product-price-value-undefined", "The price value cannot be empty or is unknown."),
     PRODUCT_PRICE_VALUE_LESS_THAN_0("product-price-cannot-be-less-than-0", "The price value cannot be less than 0."),
     PRODUCT_PRICE_CURRENCY_UNDEFINED("product-price-currency-undefined", "The price currency code cannot be empty or is unknown."),
     PRODUCT_NAME_EMPTY("product-name-empty", "The name of the product cannot be empty."),

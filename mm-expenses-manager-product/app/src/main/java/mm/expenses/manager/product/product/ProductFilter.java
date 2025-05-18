@@ -7,14 +7,17 @@ import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.postgresql.pagination.sort.PostgreSQLSortOrder;
 import mm.expenses.manager.common.postgresql.specification.Operation;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
+import mm.expenses.manager.product.api.product.model.CurrencyOperationRequest;
 import mm.expenses.manager.product.api.product.model.NumberOperationRequest;
 import mm.expenses.manager.product.api.product.model.TextOperationRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Filter for querying products.
@@ -40,7 +43,7 @@ class ProductFilter extends EntityFilter {
     private NumberOperationRequest priceValueOperation;
 
     private String priceCurrency;
-    private TextOperationRequest priceCurrencyOperation;
+    private CurrencyOperationRequest priceCurrencyOperation;
 
     private PostgreSQLSortOrder sortConfig;
 
@@ -94,6 +97,32 @@ class ProductFilter extends EntityFilter {
     }
 
     /**
+     * @return checks if products price currency is not null.
+     */
+    public boolean isProductsPriceCurrencyOriented() {
+        val isProductsPriceCurrencyPresent = Objects.nonNull(priceCurrency);
+        val isProductsPriceCurrencyOperationPresent = Objects.nonNull(priceCurrencyOperation);
+        if (isProductsPriceCurrencyPresent && !isProductsPriceCurrencyOperationPresent) {
+            throw new ApiBadRequestException(ProductExceptionMessage.PRICE_CURRENCY_MISSING_OPERATOR);
+        }
+        return isProductsPriceCurrencyPresent && isProductsPriceCurrencyOperationPresent;
+    }
+
+    /**
+     * @return sorting order of product's price value if available
+     */
+    public Optional<Sort.Order> getPriceValueSortingOrder() {
+        val isSortingEnabled = Objects.nonNull(sortConfig);
+        if (isSortingEnabled) {
+            val sortOrder = sortConfig.getOrder();
+            if (Objects.nonNull(sortOrder) && Objects.equals(sortOrder.getProperty(), ProductFilterView.PRICE_VALUE_FIELD_NAME)) {
+                return Optional.of(sortOrder);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
      * @return checks if product name is not null.
      */
     private boolean isNameOriented() {
@@ -103,18 +132,6 @@ class ProductFilter extends EntityFilter {
             throw new ApiBadRequestException(ProductExceptionMessage.PRODUCT_NAME_MISSING_OPERATOR);
         }
         return isNamePresent && isNameOperationPresent;
-    }
-
-    /**
-     * @return checks if products price currency is not null.
-     */
-    private boolean isProductsPriceCurrencyOriented() {
-        val isProductsPriceCurrencyPresent = Objects.nonNull(priceCurrency);
-        val isProductsPriceCurrencyOperationPresent = Objects.nonNull(priceCurrencyOperation);
-        if (isProductsPriceCurrencyPresent && !isProductsPriceCurrencyOperationPresent) {
-            throw new ApiBadRequestException(ProductExceptionMessage.PRICE_CURRENCY_MISSING_OPERATOR);
-        }
-        return isProductsPriceCurrencyPresent && isProductsPriceCurrencyOperationPresent;
     }
 
     private String getNameOperationProperty() {

@@ -1,0 +1,29 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="03-emp-create-product-filter_view" author="mateusz.mucha">
+
+        <createView viewName="emp_product_filter_view">
+            SELECT p.id AS product_id,
+                p.name,
+                p.is_deleted AS is_product_deleted,
+                p.created_at AS product_created_at,
+                p.last_modified_at AS product_last_modified_at,
+                p.details AS product_details,
+                pp.id AS price_id,
+                pp.value AS price_value,
+                pp.currency AS price_currency,
+                pp.is_original AS is_price_original,
+                pp.date AS price_date,
+                pp.created_at AS price_created_at,
+                pp.last_modified_at AS price_last_modified_at
+            FROM emp_product p
+            LEFT JOIN emp_product_price pp ON pp.product_id = p.id;
+        </createView>
+
+    </changeSet>
+
+</databaseChangeLog>

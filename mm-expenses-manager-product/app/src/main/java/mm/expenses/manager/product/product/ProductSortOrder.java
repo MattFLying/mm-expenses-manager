@@ -23,8 +23,8 @@ enum ProductSortOrder implements PostgreSQLSortOrder {
     CREATED_AT_ASC(List.of(new PostgreSQLSortProperty("createdAt", Direction.ASC))),
     CREATED_AT_DESC(List.of(new PostgreSQLSortProperty("createdAt", Direction.DESC))),
 
-    PRICE_ASC(List.of(new SortJsonBProperty("price", Direction.ASC))),
-    PRICE_DESC(List.of(new SortJsonBProperty("price", Direction.DESC))),
+    PRICE_ASC(List.of(new SortJsonBProperty(ProductFilterView.PRICE_VALUE_FIELD_NAME, Direction.ASC))),
+    PRICE_DESC(List.of(new SortJsonBProperty(ProductFilterView.PRICE_VALUE_FIELD_NAME, Direction.DESC))),
 
     DEFAULT_SORT(List.of(new PostgreSQLSortProperty("name", Direction.ASC)));
 

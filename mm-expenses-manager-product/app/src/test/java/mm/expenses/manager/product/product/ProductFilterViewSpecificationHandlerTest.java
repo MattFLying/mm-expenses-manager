@@ -1,23 +1,21 @@
 package mm.expenses.manager.product.product;
 
 import lombok.val;
-import mm.expenses.manager.common.postgresql.exception.SpecificationCriteriaException;
-import mm.expenses.manager.common.postgresql.specification.FieldType;
-import mm.expenses.manager.common.postgresql.specification.Operation;
-import mm.expenses.manager.common.postgresql.specification.criteria.CriteriaParameter;
 import mm.expenses.manager.common.postgresql.specification.criteria.FilteredField;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
-import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class ProductSpecificationHandlerTest {
+class ProductFilterViewSpecificationHandlerTest {
 
     private static final List<String> selectedFields = new ArrayList<>();
     private static final List<String> filteredFields = new ArrayList<>();
@@ -25,9 +23,11 @@ class ProductSpecificationHandlerTest {
 
     @BeforeAll
     public static void setUp() {
-        val allFields = Arrays.stream(Product.class.getDeclaredFields()).toList();
+        val allFields = Arrays.stream(ProductFilterView.class.getDeclaredFields()).toList();
         allFields.forEach(field -> {
-            selectedFields.add(field.getName());
+            if (!Modifier.isStatic(field.getModifiers())) {
+                selectedFields.add(field.getName());
+            }
 
             val specificationDetails = field.getAnnotation(SpecificationDetailsAnnotation.class);
             if (Objects.nonNull(specificationDetails)) {
@@ -44,10 +44,11 @@ class ProductSpecificationHandlerTest {
     @Test
     void getSpecificationCriteria_shouldReturnSpecificationCriteria() {
         // given
-        val handler = new ProductSpecificationHandler(new PaginationConfig());
+        val handler = new ProductFilterViewSpecificationHandler(new PaginationConfig());
 
         // when
         val specificationCriteria = handler.getSpecificationCriteria();
+        handler.additionalPredicateDefinition();
 
         val selectableFields = specificationCriteria.getSelectedFields();
         val filterableFields = specificationCriteria.getFilteredFields();
@@ -79,32 +80,15 @@ class ProductSpecificationHandlerTest {
     }
 
     @Test
-    void additionalPredicateDefinition_shouldThrowSpecificationCriteriaException_whenParameterNameIsLongerThanExpected() {
+    void additionalPredicateDefinition_shouldAdditionalPredicateToNotBeNull() {
         // given
-        val handler = new ProductSpecificationHandler(new PaginationConfig());
-        val criteriaParameter = new CriteriaParameter("price.value.test", FieldType.String, true, Operation.equal, List.of("0"));
+        val handler = new ProductFilterViewSpecificationHandler(new PaginationConfig());
 
-        // when& then
-        assertThatThrownBy(() -> handler.additionalPredicateDefinition().handle(new ArrayList<>(List.of(criteriaParameter)), null, null, null))
-                .isInstanceOf(SpecificationCriteriaException.class)
-                .hasMessage(ProductExceptionMessage.PRODUCT_FILTERING_PATH_SIZE_EXCEEDED.getMessage());
+        // when
+        val additionalPredicate = handler.additionalPredicateDefinition();
 
-    }
-
-    @Test
-    void additionalPredicateDefinition_shouldThrowSpecificationCriteriaException_whenParameterNameIsNotSupported() {
-        // given
-        val handler = new ProductSpecificationHandler(new PaginationConfig());
-
-        val objectPropertyName = "price";
-        val fieldPropertyName = "test";
-        val criteriaParameter = new CriteriaParameter(String.format("%s.%s", objectPropertyName, fieldPropertyName), FieldType.String, true, Operation.equal, List.of("0"));
-
-        // when& then
-        assertThatThrownBy(() -> handler.additionalPredicateDefinition().handle(new ArrayList<>(List.of(criteriaParameter)), null, null, null))
-                .isInstanceOf(SpecificationCriteriaException.class)
-                .hasMessage(String.format(SpecificationCriteriaException.FIELD_NOT_AVAILABLE_IN_OBJECT_FIELD_MESSAGE, objectPropertyName, fieldPropertyName));
-
+        // then
+        assertThat(additionalPredicate).isNotNull();
     }
 
 }

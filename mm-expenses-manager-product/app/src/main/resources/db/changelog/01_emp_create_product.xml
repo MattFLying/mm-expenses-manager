@@ -4,13 +4,13 @@
 
     <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
 
-    <changeSet id="01-o-create-product" author="mateusz.mucha">
-        <createTable tableName="o_product">
+    <changeSet id="01-emp-create-product" author="mateusz.mucha">
+        <createTable tableName="emp_product">
             <column name="id" type="uuid">
                 <constraints nullable="false" unique="true"/>
             </column>
 
-            <column name="price" type="jsonb">
+            <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
 
@@ -35,8 +35,8 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="id" tableName="o_product"/>
-        <addUniqueConstraint columnNames="id" tableName="o_product"/>
+        <addPrimaryKey columnNames="id" tableName="emp_product"/>
+        <addUniqueConstraint columnNames="id" tableName="emp_product"/>
     </changeSet>
 
 </databaseChangeLog>

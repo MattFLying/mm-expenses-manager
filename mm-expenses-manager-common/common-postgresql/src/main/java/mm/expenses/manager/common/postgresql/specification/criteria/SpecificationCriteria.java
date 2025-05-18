@@ -7,7 +7,6 @@ import lombok.val;
 import mm.expenses.manager.common.postgresql.exception.SpecificationCriteriaException;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +44,7 @@ public class SpecificationCriteria {
         Objects.requireNonNull(nameOfFilteredField, "Name of filtered field cannot be null");
         if (CollectionUtils.isNotEmpty(filteredFields)) {
             for (val field : filteredFields) {
-                if (StringUtils.equals(nameOfFilteredField, field.getName())) {
+                if (field.hasSameName(nameOfFilteredField)) {
                     return field;
                 }
             }
@@ -54,11 +53,23 @@ public class SpecificationCriteria {
     }
 
     /**
-     * @return true if passed field name can be filtered, otherwise returns false.
+     * @return true if passed field name can be sorted, otherwise returns false.
      */
     public boolean canFieldBeSorted(final String name) {
         Objects.requireNonNull(name, "Sorted field name cannot be null");
-        return Objects.nonNull(sortedFields) && sortedFields.contains(name);
+
+        if (CollectionUtils.isNotEmpty(sortedFields)) {
+            val availableFields = sortedFields.stream()
+                    .map(fieldName -> {
+                        if (fieldName.contains(".")) {
+                            return fieldName.replace(".", "_");
+                        }
+                        return fieldName;
+                    })
+                    .toList();
+            return sortedFields.contains(name) || availableFields.contains(name);
+        }
+        return false;
     }
 
     /**

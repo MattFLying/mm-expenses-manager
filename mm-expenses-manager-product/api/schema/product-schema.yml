@@ -102,7 +102,7 @@ paths:
           description: Expected operation for the price currency if present.
           schema:
             allOf:
-              - $ref: "#/components/schemas/TextOperationRequest"
+              - $ref: "#/components/schemas/CurrencyOperationRequest"
               - default: equal
         - name: query
           in: query
@@ -297,6 +297,12 @@ components:
       x-enum-varnames: [ isNull, equal, notEqual, startsWith, endsWith, contains ]
       description: Possible text operation types for specific query parameter.
 
+    CurrencyOperationRequest:
+      type: string
+      enum: [ isNull, equal, notEqual ]
+      x-enum-varnames: [ isNull, equal, notEqual ]
+      description: Possible currency operation types for specific query parameter.
+
     NumberOperationRequest:
       type: string
       enum: [ isNull, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual ]
@@ -317,6 +323,9 @@ components:
         value:
           type: BigDecimal
           description: Price value.
+        isOriginal:
+          type: boolean
+          description: Is price originally defined.
       additionalProperties: false
       description: Price response data.
 
@@ -392,6 +401,12 @@ components:
           $ref: '#/components/schemas/PriceResponse'
         details:
           $ref: "#/components/schemas/ProductDetailsRequest"
+        createdAt:
+          type: string
+          description: Date when product has been created.
+        lastModifiedAt:
+          type: string
+          description: Date when product has been modified.
       additionalProperties: false
       description: Product response data.
 

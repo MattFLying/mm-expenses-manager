@@ -18,7 +18,7 @@
 
     <properties>
         <!-- Hibernate dependencies -->
-        <hibernate-core-version>6.5.2.Final</hibernate-core-version>
+        <hibernate-core-version>6.5.3.Final</hibernate-core-version>
     </properties>
 
     <dependencies>

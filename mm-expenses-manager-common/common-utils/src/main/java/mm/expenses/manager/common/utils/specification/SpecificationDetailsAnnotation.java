@@ -1,5 +1,7 @@
 package mm.expenses.manager.common.utils.specification;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,5 +29,10 @@ public @interface SpecificationDetailsAnnotation {
      * @return if expected field is an JSONB representation
      */
     boolean isJsonB() default false;
+
+    /**
+     * @return if expected field should be recognized by specific value mostly different from defined in the entity
+     */
+    String name() default StringUtils.EMPTY;
 
 }

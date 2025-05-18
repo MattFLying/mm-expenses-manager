@@ -2,19 +2,17 @@ package mm.expenses.manager.product.product;
 
 import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.product.api.product.model.*;
+import mm.expenses.manager.product.price.ProductPrice;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class ProductHelper {
 
@@ -23,7 +21,7 @@ public class ProductHelper {
     public static final UUID ID = UUID.randomUUID();
     public static final String PRODUCT_NAME = UUID.randomUUID().toString();
     public static final CurrencyCode DEFAULT_CURRENCY = CurrencyCode.PLN;
-    public static final Map<String, Object> PRODUCT_DETAILS = Map.of("key", "value");
+    public static final Map<String, Object> PRODUCT_DETAILS = new HashMap<>(Map.of("key", "value"));
 
     public static UpdateProductRequest createSimpleProduct(String name) {
         var request = new UpdateProductRequest();
@@ -130,13 +128,55 @@ public class ProductHelper {
         return Product.builder()
                 .id(ID)
                 .name(name)
-                .price(Price.builder().value(price).currency(currency).build())
+                .prices(List.of(
+                        ProductPrice.builder()
+                                .id(UUID.randomUUID())
+                                .value(price)
+                                .currency(currency)
+                                .isOriginal(true)
+                                .createdAt(createdAndModifiedDate)
+                                .lastModifiedAt(createdAndModifiedDate)
+                                .build()
+                ))
                 .details(PRODUCT_DETAILS)
                 .createdAt(createdAndModifiedDate)
                 .lastModifiedAt(createdAndModifiedDate)
                 .version(1L)
                 .isDeleted(isDeleted)
                 .build();
+    }
+
+    public static ProductFilterView createProductFilterViewDeleted() {
+        return createProductFilterView(PRODUCT_NAME, DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), DateUtils.nowAsInstant(), true);
+    }
+
+    public static ProductFilterView createProductFilterView(final String name, final CurrencyCode currency) {
+        return createProductFilterView(name, currency, BigDecimal.valueOf(getRandomPriceValue()), DateUtils.nowAsInstant(), false);
+    }
+
+    public static ProductFilterView createProductFilterView(final String name, final BigDecimal priceValue, final CurrencyCode currency) {
+        return createProductFilterView(name, currency, priceValue, DateUtils.nowAsInstant(), false);
+    }
+
+    public static ProductFilterView createProductFilterView(final String name, final CurrencyCode currency, final BigDecimal price, final Instant createdAndModifiedDate, final boolean isDeleted) {
+        return ProductFilterView.builder()
+                .productId(ID)
+                .name(name)
+                .priceId(UUID.randomUUID())
+                .priceValue(price)
+                .priceCurrency(currency)
+                .isPriceOriginal(true)
+                .priceCreatedAt(createdAndModifiedDate)
+                .priceLastModifiedAt(createdAndModifiedDate)
+                .details(PRODUCT_DETAILS)
+                .createdAt(createdAndModifiedDate)
+                .lastModifiedAt(createdAndModifiedDate)
+                .isProductDeleted(isDeleted)
+                .build();
+    }
+
+    public static ProductFilterView createProductFilterView() {
+        return createProductFilterView(PRODUCT_NAME, DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), DateUtils.nowAsInstant(), false);
     }
 
     public static Product createProduct() {
@@ -160,7 +200,16 @@ public class ProductHelper {
         return Product.builder()
                 .id(ID)
                 .name(createProductRequest.getName())
-                .price(Price.builder().value(createProductRequest.getPrice().getValue()).currency(CurrencyCode.getCurrencyFromString(createProductRequest.getPrice().getCurrency(), true)).build())
+                .prices(List.of(
+                        ProductPrice.builder()
+                                .id(UUID.randomUUID())
+                                .value(createProductRequest.getPrice().getValue())
+                                .currency(CurrencyCode.getCurrencyFromString(createProductRequest.getPrice().getCurrency(), true))
+                                .isOriginal(true)
+                                .createdAt(now)
+                                .lastModifiedAt(now)
+                                .build()
+                ))
                 .details(createProductRequest.getDetails())
                 .createdAt(now)
                 .lastModifiedAt(now)
@@ -173,7 +222,16 @@ public class ProductHelper {
         return Product.builder()
                 .id(ID)
                 .name(updateProductRequest.getName())
-                .price(Price.builder().value(updateProductRequest.getPrice().getValue()).currency(CurrencyCode.getCurrencyFromString(updateProductRequest.getPrice().getCurrency(), true)).build())
+                .prices(List.of(
+                        ProductPrice.builder()
+                                .id(UUID.randomUUID())
+                                .value(updateProductRequest.getPrice().getValue())
+                                .currency(CurrencyCode.getCurrencyFromString(updateProductRequest.getPrice().getCurrency(), true))
+                                .isOriginal(true)
+                                .createdAt(now)
+                                .lastModifiedAt(now)
+                                .build()
+                ))
                 .details(updateProductRequest.getDetails())
                 .createdAt(now)
                 .lastModifiedAt(now)
@@ -183,15 +241,33 @@ public class ProductHelper {
 
     public static CurrencyConversionResponse createCurrencyConversionResponse(final Product product) {
         val from = new CurrencyConversionValueDto();
-        from.setCode(product.getPrice().getCurrency().getCode());
-        from.setValue(product.getPrice().getValue().doubleValue());
+       // from.setCode(product.getPrice().getCurrency().getCode());
+        //from.setValue(product.getPrice().getValue().doubleValue());
 
         val to = new CurrencyConversionValueDto();
         to.setCode(DEFAULT_CURRENCY.getCode());
-        to.setValue(product.getPrice().getValue().doubleValue());
+        //to.setValue(product.getPrice().getValue().doubleValue());
 
         val response = new CurrencyConversionResponse();
         response.setId(product.getId().toString());
+        response.setDate(LocalDate.now());
+        response.setFrom(from);
+        response.setTo(to);
+
+        return response;
+    }
+
+    public static CurrencyConversionResponse createCurrencyConversionResponse(final ProductFilterView product) {
+        val from = new CurrencyConversionValueDto();
+        from.setCode(product.getPriceCurrency().getCode());
+        from.setValue(product.getPriceValue().doubleValue());
+
+        val to = new CurrencyConversionValueDto();
+        to.setCode(DEFAULT_CURRENCY.getCode());
+        to.setValue(product.getPriceValue().doubleValue());
+
+        val response = new CurrencyConversionResponse();
+        response.setId(product.toString());
         response.setDate(LocalDate.now());
         response.setFrom(from);
         response.setTo(to);
