@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,17 @@ public abstract class SpecificationHandler<T> {
         if (Objects.nonNull(predicate)) {
             predicates.add(predicate);
         }
+    }
+
+    /**
+     * Converts {@link CriteriaParameter} to {@link Predicate}.
+     */
+    protected Predicate convertCriteriaParameterToPredicate(final CriteriaParameter criteriaParameter, final Root<?> root, CriteriaQuery<?> query, final CriteriaBuilder builder) {
+        val converter = converters.getConverter(criteriaParameter);
+        if (Objects.isNull(converter)) {
+            throw SpecificationParseException.converterNotFound(criteriaParameter);
+        }
+        return converter.restrict(criteriaParameter, root, builder);
     }
 
     /**
@@ -199,25 +211,9 @@ public abstract class SpecificationHandler<T> {
 
             if (Objects.nonNull(additionalCriteriaParameters)) {
                 Arrays.stream(additionalCriteriaParameters)
-                        .forEach(additionalCriteriaParameter -> {
-                            val operation = Objects.nonNull(additionalCriteriaParameter.getOperation())
-                                    ? additionalCriteriaParameter.getOperation()
-                                    : Objects.nonNull(additionalCriteriaParameter.getValue())
-                                    ? Operation.equal
-                                    : Operation.isNull;
-
-                            parsedParams.add(
-                                    new CriteriaParameter(
-                                            additionalCriteriaParameter.getName(),
-                                            null,
-                                            false,
-                                            operation,
-                                            Objects.nonNull(additionalCriteriaParameter.getValue())
-                                                    ? Collections.singletonList(additionalCriteriaParameter.getValue())
-                                                    : Collections.singletonList(true)
-                                    )
-                            );
-                        });
+                        .forEach(additionalCriteriaParameter -> parsedParams.add(
+                                SpecificationScanner.scanParameter(additionalCriteriaParameter, ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments())
+                        ));
             }
             return parseCriteriaParametersToSpecification(parsedParams);
         } catch (final Exception exception) {
@@ -227,8 +223,16 @@ public abstract class SpecificationHandler<T> {
 
     private Specification<T> parseCriteriaParametersToSpecification(final List<CriteriaParameter> criteriaParameters) {
         return (root, query, builder) -> {
-            val additionalPredicate = additionalPredicateDefinition().handle(criteriaParameters, root, query, builder);
+            val additionalPredicate = additionalPredicateDefinition().handle(
+                    criteriaParameters.stream()
+                            .filter(criteriaParameter -> !criteriaParameter.isStandard())
+                            .toList(),
+                    root,
+                    query,
+                    builder
+            );
             val parsedParamsAsPredicates = criteriaParameters.stream()
+                    .filter(CriteriaParameter::isStandard)
                     .map(param -> convertCriteriaParameterToPredicate(param, root, query, builder))
                     .filter(Objects::nonNull)
                     .toArray(Predicate[]::new);
@@ -238,14 +242,6 @@ public abstract class SpecificationHandler<T> {
                     ? builder.and(standard, additionalPredicate)
                     : standard;
         };
-    }
-
-    private Predicate convertCriteriaParameterToPredicate(final CriteriaParameter criteriaParameter, final Root<T> root, CriteriaQuery<?> query, final CriteriaBuilder builder) {
-        val converter = converters.getConverter(criteriaParameter);
-        if (Objects.isNull(converter)) {
-            throw SpecificationParseException.converterNotFound(criteriaParameter);
-        }
-        return converter.restrict(criteriaParameter, root, builder);
     }
 
 }

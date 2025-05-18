@@ -1,0 +1,72 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="02-emp-create-product-price" author="mateusz.mucha">
+
+        <createTable tableName="emp_product_price">
+
+            <column name="id" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="value" type="numeric(20,2)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="currency" type="varchar(5)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="date" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="product_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_original" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_modified_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="id" tableName="emp_product_price"/>
+        <addUniqueConstraint columnNames="id" tableName="emp_product_price"/>
+
+        <addUniqueConstraint
+                columnNames="product_id, currency, date"
+                constraintName="uq_product_price"
+                tableName="emp_product_price"
+        />
+
+        <addForeignKeyConstraint baseTableName="emp_product_price"
+                                 baseColumnNames="product_id"
+                                 constraintName="fk_product_price_id"
+                                 referencedTableName="emp_product"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 onDelete="CASCADE"
+        />
+
+    </changeSet>
+
+</databaseChangeLog>

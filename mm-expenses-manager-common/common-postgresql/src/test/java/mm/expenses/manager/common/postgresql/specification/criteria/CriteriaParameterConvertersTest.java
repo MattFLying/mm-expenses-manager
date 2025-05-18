@@ -29,7 +29,7 @@ class CriteriaParameterConvertersTest {
         val isJsonBField = false;
         val values = List.of();
 
-        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values);
+        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values, true);
 
         // when
         val converter = converters.getConverter(criteriaParameter);
@@ -75,7 +75,7 @@ class CriteriaParameterConvertersTest {
         val values = Collections.<Object>singletonList(value);
         val operation = Operation.contains;
 
-        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values);
+        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values, false);
         val converter = converters.getConverter(criteriaParameter);
 
         // when & then
@@ -97,7 +97,7 @@ class CriteriaParameterConvertersTest {
         val values = Collections.<Object>singletonList(value);
         val operation = Operation.endsWith;
 
-        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values);
+        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values, true);
         val converter = converters.getConverter(criteriaParameter);
 
         // when & then
@@ -119,7 +119,7 @@ class CriteriaParameterConvertersTest {
         val values = Collections.<Object>singletonList(value);
         val operation = Operation.startsWith;
 
-        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values);
+        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values, false);
         val converter = converters.getConverter(criteriaParameter);
 
         // when & then
@@ -141,7 +141,7 @@ class CriteriaParameterConvertersTest {
         val values = Collections.<Object>singletonList(value);
         val operation = Operation.isNull;
 
-        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values);
+        val criteriaParameter = new CriteriaParameter(fieldName, fieldType, isJsonBField, operation, values, true);
         val converter = converters.getConverter(criteriaParameter);
 
         // when & then

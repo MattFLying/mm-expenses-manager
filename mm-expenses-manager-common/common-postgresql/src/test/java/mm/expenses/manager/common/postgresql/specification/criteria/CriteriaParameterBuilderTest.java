@@ -55,6 +55,7 @@ class CriteriaParameterBuilderTest {
                 .hasSize(1)
                 .containsExactly(fieldValue);
         assertThat(result.isJsonBField()).isFalse();
+        assertThat(result.isStandard()).isTrue();
     }
 
     @ParameterizedTest
@@ -107,6 +108,7 @@ class CriteriaParameterBuilderTest {
         assertThat(result.operation()).isNotNull()
                 .isEqualTo(operation);
         assertThat(result.isJsonBField()).isFalse();
+        assertThat(result.isStandard()).isTrue();
 
         assertThat(result.values()).isNotNull()
                 .isInstanceOf(List.class)
@@ -326,6 +328,7 @@ class CriteriaParameterBuilderTest {
                 .hasSize(1)
                 .containsExactly(booleanValues.get(fieldValue));
         assertThat(result.isJsonBField()).isFalse();
+        assertThat(result.isStandard()).isTrue();
     }
 
     @Test

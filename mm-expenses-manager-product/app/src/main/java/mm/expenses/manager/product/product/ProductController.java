@@ -8,6 +8,7 @@ import mm.expenses.manager.common.web.api.WebApi;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.product.api.product.ProductApi;
 import mm.expenses.manager.product.api.product.model.*;
+import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ class ProductController implements ProductApi {
 
     private final ProductMapper mapper;
     private final ProductService service;
+    private final PriceConverter priceConverter;
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,7 +56,7 @@ class ProductController implements ProductApi {
                                                @RequestParam(value = ProductFilter.PRICE_VALUE_OPERATION_PROPERTY, required = false) final NumberOperationRequest priceValueOperation,
 
                                                @RequestParam(value = ProductFilter.PRICE_CURRENCY_PROPERTY, required = false) final String priceCurrency,
-                                               @RequestParam(value = ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, required = false) final TextOperationRequest priceCurrencyOperation,
+                                               @RequestParam(value = ProductFilter.PRICE_CURRENCY_OPERATION_PROPERTY, required = false) final CurrencyOperationRequest priceCurrencyOperation,
 
                                                @RequestParam(value = ProductFilter.GENERAL_QUERY_PROPERTY, required = false) final String query) {
         val queryFilter = ProductFilter.builder()
@@ -71,20 +73,20 @@ class ProductController implements ProductApi {
                 .paginationConfig(pagination.getPageRequest(pageNumber, pageSize))
                 .build();
 
-        return ResponseEntity.ok(mapper.map(service.findProducts(queryFilter)));
+        return ResponseEntity.ok(mapper.map(service.filterProducts(queryFilter)));
     }
 
     @Override
     @GetMapping(value = WebApi.ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> findById(@PathVariable("id") final UUID id, final Boolean isDeleted) {
-        return ResponseEntity.ok(mapper.mapProductResponse(service.findById(id, isDeleted)));
+        return ResponseEntity.ok(mapper.mapProductResponse(service.findById(id, isDeleted), priceConverter.getDefaultCurrency()));
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> create(@RequestBody final CreateProductRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.mapProductResponse(service.create(request)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
     @Override
@@ -94,7 +96,7 @@ class ProductController implements ProductApi {
         if (!isAnyUpdateProduct(request)) {
             throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
         }
-        return ResponseEntity.ok(mapper.mapProductResponse(service.update(id, request)));
+        return ResponseEntity.ok(mapper.mapProductResponse(service.update(id, request), priceConverter.getDefaultCurrency()));
     }
 
     @Override

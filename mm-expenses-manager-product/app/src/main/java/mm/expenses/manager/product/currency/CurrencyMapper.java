@@ -3,12 +3,11 @@ package mm.expenses.manager.product.currency;
 import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
-import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
-import mm.expenses.manager.product.product.Product;
+import mm.expenses.manager.product.product.ProductFilterView;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -26,20 +25,20 @@ import java.util.stream.Stream;
 )
 public interface CurrencyMapper extends AbstractMapper {
 
-    @Mapping(target = "code", source = "price.currency.code")
-    @Mapping(target = "value", source = "price.value")
-    CurrencyConversionValueDto map(final Price price);
+    @Mapping(target = "code", source = "product.priceCurrency.code")
+    @Mapping(target = "value", source = "product.priceValue")
+    CurrencyConversionValueDto map(final ProductFilterView product);
 
     @Mapping(target = "code", source = "toCode")
     CurrencyConversionValueDto mapTo(final CurrencyCode toCode);
 
-    @Mapping(target = "id", expression = "java(product.getId().toString())")
+    @Mapping(target = "id", expression = "java(product.getProductId().toString())")
     @Mapping(target = "date", expression = "java(dateOfLastModifiedOrCreatedProduct(product))")
     @Mapping(target = "to", expression = "java(mapTo(toCode))")
-    @Mapping(target = "from", expression = "java(map(product.getPrice()))")
-    CurrencyConversionRequest map(final Product product, final CurrencyCode toCode);
+    @Mapping(target = "from", expression = "java(map(product))")
+    CurrencyConversionRequest map(final ProductFilterView product, final CurrencyCode toCode);
 
-    default LocalDate dateOfLastModifiedOrCreatedProduct(final Product product) {
+    default LocalDate dateOfLastModifiedOrCreatedProduct(final ProductFilterView product) {
         val latestDate = Stream.of(product.getCreatedAt(), product.getLastModifiedAt())
                 .filter(Objects::nonNull)
                 .max(Instant::compareTo)

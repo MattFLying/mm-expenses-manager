@@ -12,8 +12,10 @@ import java.util.Objects;
 
 /**
  * Representation of specification criteria parameter to be handled by JPA specification in further processing.
+ *
+ * @param isStandard defines if {@link CriteriaParameter} for specific field is an additional criteria parameter or is standard one.
  */
-public record CriteriaParameter(String name, FieldType fieldType, boolean isJsonBField, Operation operation, List<Object> values) {
+public record CriteriaParameter(String name, FieldType fieldType, boolean isJsonBField, Operation operation, List<Object> values, boolean isStandard) {
 
     /**
      * Represents specification criteria builder for specific parameter.
@@ -60,8 +62,7 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
         public CriteriaParameter build() {
             parseMapEntryToCorrectProperties();
 
-            val splitNameBySeparator = name.split("\\.");
-            val filteredField = criteria.getFilteredField(splitNameBySeparator[0]);
+            val filteredField = criteria.getFilteredField(name);
             if (Objects.isNull(filteredField)) {
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.INCORRECT_FILTERABLE_FIELD_NAME_MESSAGE, name);
             }
@@ -111,7 +112,7 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
             if (FieldType.List.equals(field.getType()) && StringUtils.equals(String.valueOf(parsedValues.get(0)), "[]")) {
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.EMPTY_LIST_NOT_ALLOWED_FOR_FIELD_MESSAGE, name);
             }
-            return new CriteriaParameter(name, field.getType(), field.getIsJsonBType(), operation, parsedValues);
+            return new CriteriaParameter(field.getName(), field.getType(), field.getIsJsonBType(), operation, parsedValues, true);
         }
 
     }

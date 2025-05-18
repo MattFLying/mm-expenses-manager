@@ -165,6 +165,74 @@ class FilteredFieldTest {
                 .containsExactly(instant);
     }
 
+    @Test
+    void hasSameName_shouldReturnTrue_whenComparedWithTheSameName() {
+        // given
+        val name = "textFieldName";
+        val isJsonBType = false;
+
+        val filteredField = new FilteredField(name, FieldType.String, isJsonBType);
+
+        // when
+        val result = filteredField.hasSameName(name);
+
+        // then
+        assertThat(result).isNotNull()
+                .isTrue();
+    }
+
+    @Test
+    void hasSameName_shouldReturnTrue_whenComparedWithWithSameNameAsAlternativeName() {
+        // given
+        val name = "textFieldName";
+        val alternativeName = "alternativeFieldName";
+        val isJsonBType = false;
+
+        val filteredField = new FilteredField(name, alternativeName, FieldType.String, isJsonBType);
+
+        // when
+        val result = filteredField.hasSameName(alternativeName);
+
+        // then
+        assertThat(result).isNotNull()
+                .isTrue();
+    }
+
+    @Test
+    void hasSameName_shouldReturnFalse_whenComparedWithDifferentName() {
+        // given
+        val name = "textFieldName";
+        val isJsonBType = false;
+        val nameToCompare = "nameToCompare";
+
+        val filteredField = new FilteredField(name, FieldType.String, isJsonBType);
+
+        // when
+        val result = filteredField.hasSameName(nameToCompare);
+
+        // then
+        assertThat(result).isNotNull()
+                .isFalse();
+    }
+
+    @Test
+    void hasSameName_shouldReturnFalse_whenComparedWithWithDifferentNameThanEvenAlternativeName() {
+        // given
+        val name = "textFieldName";
+        val alternativeName = "alternativeFieldName";
+        val isJsonBType = false;
+        val nameToCompare = "nameToCompare";
+
+        val filteredField = new FilteredField(name, alternativeName, FieldType.String, isJsonBType);
+
+        // when
+        val result = filteredField.hasSameName(nameToCompare);
+
+        // then
+        assertThat(result).isNotNull()
+                .isFalse();
+    }
+
     @ParameterizedTest
     @ArgumentsSource(FieldTypeArgument.class)
     void of_shouldThrowNPE_whenNullNamePassed(final FieldType type) {
@@ -199,6 +267,38 @@ class FilteredFieldTest {
                 .isInstanceOf(FilteredField.class);
 
         assertThat(result.getName()).isEqualTo(name);
+        assertThat(result.getAlternativeName()).isNull();
+        assertThat(result.getType()).isEqualTo(type);
+        assertThat(result.getIsJsonBType()).isFalse();
+    }
+
+    @Test
+    void of_shouldThrowNPE_whenNullAlternativeNamePassed() {
+        // given
+        val name = "name";
+
+        // when & then
+        assertThatThrownBy(() -> FilteredField.of(name, null, FieldType.String))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Alternative field name cannot be null");
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(FieldTypeArgument.class)
+    void of_shouldCreateFilteredFieldWithAlternativeName(final FieldType type) {
+        // given
+        val name = "name";
+        val alternativeName = "alternativeName";
+
+        // when
+        val result = FilteredField.of(name, alternativeName, type);
+
+        // then
+        assertThat(result).isNotNull()
+                .isInstanceOf(FilteredField.class);
+
+        assertThat(result.getName()).isEqualTo(name);
+        assertThat(result.getAlternativeName()).isEqualTo(alternativeName);
         assertThat(result.getType()).isEqualTo(type);
         assertThat(result.getIsJsonBType()).isFalse();
     }

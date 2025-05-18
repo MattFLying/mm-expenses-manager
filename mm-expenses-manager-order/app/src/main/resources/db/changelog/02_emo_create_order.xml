@@ -4,8 +4,8 @@
 
     <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
 
-    <changeSet id="02-o-create-order" author="mateusz.mucha">
-        <createTable tableName="o_order">
+    <changeSet id="02-emo-create-order" author="mateusz.mucha">
+        <createTable tableName="emo_order">
             <column name="id" type="uuid">
                 <constraints nullable="false" unique="true"/>
             </column>
@@ -39,8 +39,8 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="id" tableName="o_order"/>
-        <addUniqueConstraint columnNames="id" tableName="o_order"/>
+        <addPrimaryKey columnNames="id" tableName="emo_order"/>
+        <addUniqueConstraint columnNames="id" tableName="emo_order"/>
     </changeSet>
 
 </databaseChangeLog>

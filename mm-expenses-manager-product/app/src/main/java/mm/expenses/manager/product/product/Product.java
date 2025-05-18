@@ -3,9 +3,10 @@ package mm.expenses.manager.product.product;
 import jakarta.persistence.*;
 import lombok.*;
 import mm.expenses.manager.common.postgresql.specification.SpecificationScanner;
-import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
 import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.product.price.ProductPrice;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -14,7 +15,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -23,7 +26,7 @@ import java.util.UUID;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "p_product")
+@Table(name = "emp_product")
 @Builder(toBuilder = true)
 @EntityListeners({
         AuditingEntityListener.class
@@ -39,10 +42,9 @@ public class Product implements Serializable {
     @SpecificationDetailsAnnotation(canBeFiltered = true, canBeSorted = true)
     private String name;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @SpecificationDetailsAnnotation(canBeFiltered = true, canBeSorted = true, isJsonB = true)
-    @Column(name = "price", columnDefinition = SpecificationScanner.JSONB_TYPE)
-    private Price price;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id", insertable = true, updatable = true)
+    private List<ProductPrice> prices;
 
     @Column(name = "created_at")
     @SpecificationDetailsAnnotation(canBeSorted = true)
@@ -63,15 +65,26 @@ public class Product implements Serializable {
     @Column(name = "version")
     private Long version;
 
-    @PreUpdate
-    private void beforeUpdate() {
-        setLastModifiedAt(DateUtils.nowAsInstant());
-    }
-
     @PrePersist
     private void beforeSave() {
-        setCreatedAt(DateUtils.nowAsInstant());
-        setLastModifiedAt(getCreatedAt());
+        val now = DateUtils.nowAsInstant();
+        if (Objects.nonNull(prices)) {
+            prices.forEach(price -> {
+                price.setCreatedAt(now);
+                price.setLastModifiedAt(now);
+            });
+        }
+        setCreatedAt(now);
+        setLastModifiedAt(createdAt);
+    }
+
+    public void setPrice(List<ProductPrice> prices) {
+        if (CollectionUtils.isNotEmpty(prices)) {
+            this.prices = prices;
+            this.prices.forEach(price -> {
+                price.setProduct(this);
+            });
+        }
     }
 
 }
