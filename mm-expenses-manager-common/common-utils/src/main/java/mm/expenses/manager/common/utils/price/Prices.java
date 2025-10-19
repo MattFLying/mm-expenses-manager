@@ -94,4 +94,9 @@ public class Prices extends ArrayList<Price> implements Serializable {
         return Price.add(first, second);
     }
 
+    @JsonIgnore
+    public Optional<Price> getByCurrency(final CurrencyCode currency) {
+        return stream().filter(price -> Objects.equals(price.getCurrency(), currency)).findFirst();
+    }
+
 }

@@ -1,4 +1,4 @@
-package mm.expenses.manager.order.currency;
+package mm.expenses.manager.order.price;
 
 import lombok.*;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
@@ -9,10 +9,12 @@ import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.order.client.FinanceApiClient;
 import mm.expenses.manager.order.config.CurrencyConfig;
+import mm.expenses.manager.order.order.Order;
 import mm.expenses.manager.order.order.OrderedProduct;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,15 +34,13 @@ public class PriceConverter {
     public List<OrderedProduct> convertPrices(final List<OrderedProduct> orderedProducts) {
         val defaultCurrency = getDefaultCurrency();
         val productsByCurrency = new HashMap<CurrencyCode, List<OrderedProduct>>();
-        orderedProducts.forEach(orderedProduct ->
-                orderedProduct.getPrice()
-                        .forEach(price ->
-                                productsByCurrency.computeIfAbsent(
-                                        price.getCurrency(),
-                                        k -> new ArrayList<>()
-                                ).add(orderedProduct)
-                        )
-        );
+        orderedProducts.forEach(orderedProduct -> {
+            val price = mapper.mapTo(orderedProduct);
+            productsByCurrency.computeIfAbsent(
+                    price.getCurrency(),
+                    k -> new ArrayList<>()
+            ).add(orderedProduct);
+        });
 
         if (productsByCurrency.size() == 1 && productsByCurrency.containsKey(defaultCurrency)) {
             return orderedProducts;
@@ -62,7 +62,10 @@ public class PriceConverter {
                         .filter(conversionResponse -> isTheConversionResponseSameAsOrderedProduct(orderedProduct, conversionResponse))
                         .findAny()
                         .ifPresent(resultedOrderedProduct -> {
-                            orderedProduct.setPrice(updatePriceAfterConversion(resultedOrderedProduct));
+                            val price = updatePriceAfterConversion(resultedOrderedProduct);
+                            orderedProduct.setValue(BigDecimalWrapper.of(price.getValue()));
+                            orderedProduct.setCurrency(price.getCurrency());
+
                             orderedProduct.setPriceSummary(updatePriceSummaryAfterConversion(resultedOrderedProduct, orderedProduct.getQuantity()));
                         });
             });
@@ -70,12 +73,27 @@ public class PriceConverter {
         return orderedProducts;
     }
 
+    public void pricesConversion(final Boolean shouldConvertCurrency, final Order order) {
+        if (Objects.nonNull(shouldConvertCurrency) && shouldConvertCurrency) {
+            // calculate prices if different currencies to default currency
+            val defaultCurrency = getDefaultCurrency();
+            val isCurrencyConversionNeeded = order.getProducts()
+                    .stream()
+                    .anyMatch(orderedProduct -> !defaultCurrency.equals(orderedProduct.getCurrency()) || !orderedProduct.getPriceSummary().containsCurrency(defaultCurrency));
+            if (isCurrencyConversionNeeded) {
+                val convertedProducts = convertPrices(order.getProducts());
+                order.setProducts(convertedProducts);
+                order.setPriceSummary(Prices.calculatePriceSummary(convertedProducts));
+            }
+        }
+    }
+
     public Map<UUID, List<OrderedProduct>> convertPricesByOrderId(final Map<UUID, List<OrderedProduct>> productsByOrderId) {
         val defaultCurrency = getDefaultCurrency();
         val currencyConversionRequests = productsByOrderId.values()
                 .stream()
                 .flatMap(Collection::stream)
-                .filter(orderedProduct -> !orderedProduct.getPrice().containsCurrency(defaultCurrency))
+                .filter(orderedProduct -> !Objects.equals(orderedProduct.getCurrency(), defaultCurrency))
                 .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(OrderedProduct::getId))))
                 .stream()
                 .map(orderedProduct -> mapper.map(orderedProduct, config.getDefaultCurrency()))
@@ -94,8 +112,10 @@ public class PriceConverter {
                         orderedProducts.forEach(orderedProduct -> {
                             if (orderedProductsByIdsFromResponse.containsKey(orderedProduct.getId())) {
                                 val currencyConversionResponse = orderedProductsByIdsFromResponse.get(orderedProduct.getId());
+                                val price = updatePriceAfterConversion(currencyConversionResponse);
 
-                                orderedProduct.setPrice(updatePriceAfterConversion(currencyConversionResponse));
+                                orderedProduct.setValue(BigDecimalWrapper.of(price.getValue()));
+                                orderedProduct.setCurrency(price.getCurrency());
                                 orderedProduct.setPriceSummary(updatePriceSummaryAfterConversion(currencyConversionResponse, orderedProduct.getQuantity()));
                             }
                         });
@@ -104,13 +124,25 @@ public class PriceConverter {
         return productsByOrderId;
     }
 
-    private Prices updatePriceAfterConversion(final CurrencyConversionResponse resultedOrderedProduct) {
-        return new Prices(
-                new Price(
-                        CurrencyCode.getCurrencyFromString(resultedOrderedProduct.getTo().getCode()),
-                        BigDecimalWrapper.of(resultedOrderedProduct.getTo().getValue()),
-                        DateUtils.localDateToInstant(resultedOrderedProduct.getDate())
-                )
+    public BigDecimal getPricesSummary(final List<OrderedProduct> products, final CurrencyCode currency) {
+        val prices = products.stream()
+                .map(OrderedProduct::getPriceSummary)
+                .filter(pricesSummary -> pricesSummary.containsCurrency(currency))
+                .map(pricesSummary -> pricesSummary.getByCurrency(currency))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+
+        return Prices.of(prices)
+                .get(0)
+                .getValue();
+    }
+
+    private Price updatePriceAfterConversion(final CurrencyConversionResponse resultedOrderedProduct) {
+        return new Price(
+                CurrencyCode.getCurrencyFromString(resultedOrderedProduct.getTo().getCode()),
+                BigDecimalWrapper.of(resultedOrderedProduct.getTo().getValue()),
+                DateUtils.localDateToInstant(resultedOrderedProduct.getDate())
         );
     }
 
@@ -126,7 +158,7 @@ public class PriceConverter {
     }
 
     private boolean isTheConversionResponseSameAsOrderedProduct(final OrderedProduct orderedProduct, final CurrencyConversionResponse conversionResponse) {
-        return StringUtils.equals(conversionResponse.getId(), orderedProduct.getId().toString()) && orderedProduct.getPrice().containsCurrency(conversionResponse.getFrom().getCode());
+        return StringUtils.equals(conversionResponse.getId(), orderedProduct.getId().toString());
     }
 
 }

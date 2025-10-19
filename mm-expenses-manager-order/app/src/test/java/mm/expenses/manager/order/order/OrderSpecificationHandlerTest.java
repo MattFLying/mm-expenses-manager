@@ -1,5 +1,6 @@
 package mm.expenses.manager.order.order;
 
+import jakarta.persistence.Column;
 import lombok.val;
 import mm.expenses.manager.common.postgresql.specification.criteria.FilteredField;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
@@ -24,7 +25,10 @@ class OrderSpecificationHandlerTest {
     public static void setUp() {
         val allFields = Arrays.stream(Order.class.getDeclaredFields()).toList();
         allFields.forEach(field -> {
-            selectedFields.add(field.getName());
+            val column = field.getAnnotation(Column.class);
+            if (Objects.nonNull(column)) {
+                selectedFields.add(field.getName());
+            }
 
             val specificationDetails = field.getAnnotation(SpecificationDetailsAnnotation.class);
             if (Objects.nonNull(specificationDetails)) {
@@ -36,6 +40,8 @@ class OrderSpecificationHandlerTest {
                 }
             }
         });
+
+        filteredFields.add(OrderFilter.PRODUCTS_COUNT_PROPERTY);
     }
 
     @Test
@@ -64,6 +70,9 @@ class OrderSpecificationHandlerTest {
                 .map(FilteredField::getName)
                 .hasSameSizeAs(filteredFields)
                 .containsExactlyInAnyOrderElementsOf(filteredFields);
+
+        assertThat(filterableFields).map(FilteredField::getName)
+                .contains(OrderFilter.PRODUCTS_COUNT_PROPERTY);
 
         assertThat(sortableFields).isNotNull()
                 .isNotEmpty()

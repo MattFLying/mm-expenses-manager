@@ -57,12 +57,14 @@ class SpecificationHandlerTest {
         assertThat(filterableNameField).isNotNull();
         assertThat(filterableNameField.getName()).isEqualTo(NAME_FIELD_NAME);
         assertThat(filterableNameField.getType()).isEqualTo(FieldType.String);
+        assertThat(filterableNameField.getIsStandard()).isTrue();
         assertThat(filterableNameField.getIsJsonBType()).isFalse();
 
         val filterableColumnField = filterableFields.get(1);
         assertThat(filterableColumnField).isNotNull();
         assertThat(filterableColumnField.getName()).isEqualTo(COLUMN_FIELD_NAME);
         assertThat(filterableColumnField.getType()).isEqualTo(FieldType.String);
+        assertThat(filterableColumnField.getIsStandard()).isTrue();
         assertThat(filterableColumnField.getIsJsonBType()).isTrue();
     }
 
@@ -191,15 +193,15 @@ class SpecificationHandlerTest {
     }
 
     @Test
-    void handle_shouldCorrectlyHandleHiddenParameters() {
+    void handle_shouldCorrectlyHandleAdditionalCriteriaParameters() {
         // given
         val handler = new TestClassToHandlerSpecificationHandler();
 
-        val hiddenCriteriaParameter_1 = AdditionalCriteriaParameter.of("name", "testFieldValue2", Operation.equal);
-        val hiddenCriteriaParameter_2 = AdditionalCriteriaParameter.of("value", 1, Operation.greaterThan);
+        val additionalCriteriaParameter_1 = AdditionalCriteriaParameter.of("name", "testFieldValue2", Operation.equal);
+        val additionalCriteriaParameter_2 = AdditionalCriteriaParameter.of("value", 1, Operation.greaterThan);
 
         // when
-        val result = handler.handle(hiddenCriteriaParameter_1, hiddenCriteriaParameter_2);
+        val result = handler.handle(additionalCriteriaParameter_1, additionalCriteriaParameter_2);
 
         // then
         assertThat(result).isNotNull();
@@ -208,16 +210,32 @@ class SpecificationHandlerTest {
     }
 
     @Test
-    void handle_shouldThrowSpecificationParseException_whenUnknownAdditionalFieldPassed() {
+    void handle_shouldThrowSpecificationParseException_whenUnknownAdditionalFieldPassedForStandardParameter() {
         // given
         val handler = new TestClassToHandlerSpecificationHandler();
 
-        val hiddenCriteriaParameter_1 = AdditionalCriteriaParameter.of("testFieldName1", 1, Operation.greaterThan);
+        val additionalCriteriaParameter_1 = AdditionalCriteriaParameter.of("testFieldName1", 1, Operation.greaterThan);
 
         // when & then
-        assertThatThrownBy(() -> handler.handle(hiddenCriteriaParameter_1))
+        assertThatThrownBy(() -> handler.handle(additionalCriteriaParameter_1))
                 .isInstanceOf(SpecificationParseException.class)
-                .hasMessage(String.format(String.format(SpecificationParseException.INCORRECT_ADDITIONAL_FIELD_NAME, hiddenCriteriaParameter_1.getName(), TestClassToHandlerSpecification.class.getSimpleName())));
+                .hasMessage(String.format(String.format(SpecificationParseException.INCORRECT_ADDITIONAL_FIELD_NAME, additionalCriteriaParameter_1.getName(), TestClassToHandlerSpecification.class.getSimpleName())));
+    }
+
+    @Test
+    void handle_shouldNotThrowSpecificationParseException_whenUnknownAdditionalFieldPassedForNotStandardParameter() {
+        // given
+        val handler = new TestClassToHandlerSpecificationHandler();
+
+        val additionalCriteriaParameter_1 = AdditionalCriteriaParameter.of("testFieldName1", 1, Operation.greaterThan, FieldType.String, false);
+
+        // when
+        val result = handler.handle(additionalCriteriaParameter_1);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.pageable()).isNotNull();
+        assertThat(result.specification()).isNotNull();
     }
 
     @Test

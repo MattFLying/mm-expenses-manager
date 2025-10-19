@@ -7,6 +7,9 @@ import lombok.experimental.SuperBuilder;
 import lombok.val;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.postgresql.exception.SpecificationCriteriaException;
+import mm.expenses.manager.common.postgresql.specification.FieldType;
+import mm.expenses.manager.common.postgresql.specification.Operation;
+import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCriteriaParameter;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -107,6 +110,55 @@ class EntityFilterTest {
         } else {
             assertThat(queryParameters).isNotNull().isEmpty();
         }
+    }
+
+    @Test
+    void getAdditionalCriteriaParametersAsArray_shouldReturnEmptyArrayWhenAdditionalCriteriaParametersIsNull() {
+        // given
+        val filter = TestFilter.builder().build();
+
+        // when
+        val additionalCriteriaParametersAsArray = filter.getAdditionalCriteriaParametersAsArray();
+
+        // then
+        assertThat(additionalCriteriaParametersAsArray).isNotNull().isEmpty();
+    }
+
+    @Test
+    void getAdditionalCriteriaParametersAsArray_shouldReturnAdditionalCriteriaParameterWithStandardFlagTrue() {
+        // given
+        val additionalCriteriaParameters = AdditionalCriteriaParameter.of("test");
+        val filter = TestFilter.builder().build();
+        filter.addAdditionalCriteria(additionalCriteriaParameters);
+
+        // when
+        val additionalCriteriaParametersAsArray = filter.getAdditionalCriteriaParametersAsArray();
+
+        // then
+        assertThat(additionalCriteriaParametersAsArray).isNotNull().hasSize(1);
+        assertThat(additionalCriteriaParametersAsArray[0]).isNotNull();
+        assertThat(additionalCriteriaParametersAsArray[0].getName()).isEqualTo(additionalCriteriaParameters.getName());
+        assertThat(additionalCriteriaParametersAsArray[0].isStandard()).isEqualTo(additionalCriteriaParameters.isStandard());
+    }
+
+    @Test
+    void getAdditionalCriteriaParametersAsArray_shouldReturnAdditionalCriteriaParameterWithStandardFlagFalse() {
+        // given
+        val additionalCriteriaParameters = AdditionalCriteriaParameter.of("test", "value", Operation.equal, FieldType.String, false);
+        val filter = TestFilter.builder().build();
+        filter.addAdditionalCriteria(additionalCriteriaParameters);
+
+        // when
+        val additionalCriteriaParametersAsArray = filter.getAdditionalCriteriaParametersAsArray();
+
+        // then
+        assertThat(additionalCriteriaParametersAsArray).isNotNull().hasSize(1);
+        assertThat(additionalCriteriaParametersAsArray[0]).isNotNull();
+        assertThat(additionalCriteriaParametersAsArray[0].getName()).isEqualTo(additionalCriteriaParameters.getName());
+        assertThat(additionalCriteriaParametersAsArray[0].getValue()).isEqualTo(additionalCriteriaParameters.getValue());
+        assertThat(additionalCriteriaParametersAsArray[0].getOperation()).isEqualTo(additionalCriteriaParameters.getOperation());
+        assertThat(additionalCriteriaParametersAsArray[0].getType()).isEqualTo(additionalCriteriaParameters.getType());
+        assertThat(additionalCriteriaParametersAsArray[0].isStandard()).isEqualTo(additionalCriteriaParameters.isStandard());
     }
 
     @SuperBuilder

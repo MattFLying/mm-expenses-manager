@@ -23,6 +23,8 @@ app:
         db-name: expenses_manager
         username: admin
         password: gP_h3cS!Lqu-4
+        show-sql: true
+        format-sql: true
     pagination:
       min-page-number: 0
       default-page-size: 10
@@ -61,6 +63,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
+    show-sql: ${app.configuration.database.postgres.show-sql}
+    properties:
+      hibernate:
+        format_sql: ${app.configuration.database.postgres.format-sql}
   liquibase:
     enabled: ${app.configuration.database.liquibase.enabled}
     change-log: ${app.configuration.database.liquibase.master-changelog-path}
@@ -97,3 +103,18 @@ springdoc:
     operations-sorter: alpha
   api-docs:
     path: ${app.configuration.api.url}
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL:
+          DEBUG
+        orm:
+          jdbc:
+            bind: TRACE
+        type:
+          descriptor:
+            sql:
+              BasicBinder:
+                TRACE

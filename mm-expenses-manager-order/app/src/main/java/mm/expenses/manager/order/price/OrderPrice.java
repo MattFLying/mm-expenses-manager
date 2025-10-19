@@ -1,13 +1,12 @@
-package mm.expenses.manager.order.order;
+package mm.expenses.manager.order.price;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.common.utils.price.Price;
-import mm.expenses.manager.common.utils.price.PriceSummary;
-import mm.expenses.manager.common.utils.price.Prices;
-import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
-import mm.expenses.manager.order.product.Product;
+import mm.expenses.manager.order.order.Order;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -23,20 +22,17 @@ import java.util.UUID;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "emo_order_product")
+@Table(name = "emo_order_price")
 @Builder(toBuilder = true)
 @EntityListeners({
         AuditingEntityListener.class
 })
-public class OrderedProduct implements Serializable, PriceSummary {
+public class OrderPrice implements Serializable {
 
     @Id
     @GeneratedValue
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
-
-    @Column(name = "quantity", nullable = false)
-    private Double quantity;
 
     @Column(name = "value", nullable = false)
     private BigDecimal value;
@@ -45,39 +41,24 @@ public class OrderedProduct implements Serializable, PriceSummary {
     @Column(name = "currency", nullable = false)
     private CurrencyCode currency;
 
-    @Column(name = "is_price_original", nullable = false)
-    private boolean isPriceOriginal;
+    @Column(name = "date", nullable = false)
+    private String date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", updatable = false)
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", updatable = false)
-    private Product product;
-
     @Column(name = "created_at")
-    @SpecificationDetailsAnnotation(canBeSorted = true)
     private Instant createdAt;
 
     @Column(name = "last_modified_at")
     private Instant lastModifiedAt;
 
     @Column(name = "is_deleted")
-    @SpecificationDetailsAnnotation(canBeFiltered = true)
     private boolean isDeleted;
 
     @Version
     @Column(name = "version")
     private Long version;
-
-    @Setter
-    @Transient
-    private Prices priceSummary;
-
-    @Override
-    public Prices getPriceSummary() {
-        return new Prices(Price.multiply(currency, value, quantity, createdAt));
-    }
 
 }

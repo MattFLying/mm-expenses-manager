@@ -16,8 +16,8 @@ paths:
     get:
       tags:
         - Order
-      summary: Finds all available orders.
-      description: Check for all available orders.
+      summary: Finds all available orders with additional filters.
+      description: Check for all available orders based on additional filtering options if needed.
       operationId: findAll
       parameters:
         - name: pageNumber
@@ -47,10 +47,9 @@ paths:
         - name: isDeleted
           in: query
           required: false
-          description: If true then retrieves orders even if they are marked as deleted otherwise not found.
+          description: If true then retrieves orders even if they are deleted, false means to retrieve not deleted orders. By default all orders will be returned.
           schema:
             type: boolean
-            default: false
         - name: shouldConvertCurrency
           in: query
           required: false
@@ -113,9 +112,15 @@ paths:
     post:
       tags:
         - Order
-      summary: Creates new order.
+      summary: Creates a new order.
       description: Create a new order.
       operationId: create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNewOrderRequest"
       parameters:
         - name: shouldConvertCurrency
           in: query
@@ -124,12 +129,6 @@ paths:
           schema:
             type: boolean
             default: false
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateNewOrderRequest"
 
       responses:
         "201":
@@ -163,7 +162,7 @@ paths:
         - name: isDeleted
           in: query
           required: false
-          description: If true then retrieves order even if is marked as deleted otherwise not found.
+          description: If true then retrieves orders even if they are deleted, false means to retrieve not deleted orders. By default all orders will be returned.
           schema:
             type: boolean
             default: false
@@ -192,8 +191,8 @@ paths:
     patch:
       tags:
         - Order
-      summary: Update order.
-      description: Update order.
+      summary: Update an order.
+      description: Update an order.
       operationId: update
       parameters:
         - name: id
@@ -240,8 +239,8 @@ paths:
     delete:
       tags:
         - Order
-      summary: Delete order.
-      description: Remove order by given id.
+      summary: Delete an order.
+      description: Remove an order by given id.
       operationId: deleteById
       parameters:
         - name: id
@@ -324,8 +323,8 @@ components:
 
     SortOrderRequest:
       type: string
-      enum: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, PRODUCTS_COUNT_ASC, PRODUCTS_COUNT_DESC ]
-      x-enum-varnames: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, PRODUCTS_COUNT_ASC, PRODUCTS_COUNT_DESC ]
+      enum: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, LAST_MODIFIED_AT_ASC, LAST_MODIFIED_AT_DESC ]
+      x-enum-varnames: [ NAME_ASC, NAME_DESC, CREATED_AT_ASC, CREATED_AT_DESC, LAST_MODIFIED_AT_ASC, LAST_MODIFIED_AT_DESC ]
       description: Sorting order for orders.
 
     TextOperationRequest:
@@ -349,11 +348,13 @@ components:
         productId:
           type: string
           format: uuid
-          description: Ordered product id.
+          description: ID of the product that is expected to be ordered.
         quantity:
           type: double
           minimum: 0
           description: Ordered product quantity.
+        price:
+          $ref: '#/components/schemas/PriceRequest'
       additionalProperties: false
       description: New ordered product request data.
 
@@ -377,16 +378,17 @@ components:
     UpdateOrderedProductRequest:
       type: object
       required:
-        - productId
-        - quantity
+        - orderedProductId
       properties:
-        productId:
+        orderedProductId:
           type: string
           format: uuid
           description: Ordered product id.
         quantity:
           type: double
           description: Ordered product quantity.
+        price:
+          $ref: '#/components/schemas/PriceRequest'
       additionalProperties: false
       description: Ordered product to be updated request data.
 
@@ -398,22 +400,38 @@ components:
           description: The name of the order.
         orderedProducts:
           type: array
-          description: Products in the order.
+          description: Already available products in the order to be updated.
           items:
             $ref: '#/components/schemas/UpdateOrderedProductRequest'
         newProducts:
           type: array
-          description: New products in the order.
+          description: New products to be added to the order.
           items:
             $ref: '#/components/schemas/CreateNewOrderedProductRequest'
         removeProducts:
           type: array
-          description: Products to remove from order.
+          description: Products to be removed from the order.
           items:
             type: string
             format: uuid
       additionalProperties: false
       description: Order to be updated request data.
+
+    PriceRequest:
+      type: object
+      required:
+        - currency
+        - value
+      properties:
+        currency:
+          type: string
+          description: Currency code of the price.
+        value:
+          type: BigDecimal
+          minimum: 0
+          description: Price value.
+      additionalProperties: false
+      description: Price request data.
 
     PriceResponse:
       type: object
@@ -424,10 +442,13 @@ components:
         amount:
           type: BigDecimal
           description: Price value.
+        isOriginal:
+          type: boolean
+          description: Defines if it is original price or modified on demand.
       additionalProperties: false
       description: Price response data.
       example: |
-        {"currency": "PLN", "amount": 1.15}
+        {"currency": "PLN", "amount": 1.15, "isOriginal": true}
 
     MultiPricesResponse:
       type: array
@@ -443,7 +464,11 @@ components:
         id:
           type: string
           format: uuid
-          description: Product id.
+          description: Ordered product id.
+        productId:
+          type: string
+          format: uuid
+          description: Direct id of the ordered product.
         quantity:
           type: double
           description: Ordered product quantity.
@@ -453,6 +478,12 @@ components:
         priceSummary:
           $ref: '#/components/schemas/MultiPricesResponse'
           description: Summary price for all related products.
+        createdAt:
+          type: string
+          description: Date when ordered product has been created.
+        lastModifiedAt:
+          type: string
+          description: Date when ordered product has been modified.
       additionalProperties: false
       description: Ordered product response data.
 
@@ -469,6 +500,9 @@ components:
         createdAt:
           type: string
           description: Date when order has been created.
+        lastModifiedAt:
+          type: string
+          description: Date when order has been modified.
         priceSummary:
           $ref: '#/components/schemas/MultiPricesResponse'
           description: Order summary price for all products.

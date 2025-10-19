@@ -224,9 +224,7 @@ public abstract class SpecificationHandler<T> {
     private Specification<T> parseCriteriaParametersToSpecification(final List<CriteriaParameter> criteriaParameters) {
         return (root, query, builder) -> {
             val additionalPredicate = additionalPredicateDefinition().handle(
-                    criteriaParameters.stream()
-                            .filter(criteriaParameter -> !criteriaParameter.isStandard())
-                            .toList(),
+                    nonStandardCriteriaParameters(criteriaParameters),
                     root,
                     query,
                     builder
@@ -242,6 +240,12 @@ public abstract class SpecificationHandler<T> {
                     ? builder.and(standard, additionalPredicate)
                     : standard;
         };
+    }
+
+    private List<CriteriaParameter> nonStandardCriteriaParameters(final List<CriteriaParameter> criteriaParameters) {
+        return criteriaParameters.stream()
+                .filter(criteriaParameter -> !criteriaParameter.isStandard())
+                .toList();
     }
 
 }

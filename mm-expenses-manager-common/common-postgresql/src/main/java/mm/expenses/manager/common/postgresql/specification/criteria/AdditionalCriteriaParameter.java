@@ -3,6 +3,7 @@ package mm.expenses.manager.common.postgresql.specification.criteria;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import mm.expenses.manager.common.postgresql.specification.FieldType;
 import mm.expenses.manager.common.postgresql.specification.Operation;
 
 import java.util.Objects;
@@ -22,15 +23,17 @@ public class AdditionalCriteriaParameter {
 
     public Object value;
 
+    public boolean isStandard;
+
+    public FieldType type;
+
     /**
      * @return criteria parameter based on the specific name.
      */
     public static AdditionalCriteriaParameter of(final String name) {
         Objects.requireNonNull(name, "Param name cannot be null");
 
-        return AdditionalCriteriaParameter.builder()
-                .name(name)
-                .build();
+        return build(name, null, null, null, true);
     }
 
     /**
@@ -40,10 +43,7 @@ public class AdditionalCriteriaParameter {
         Objects.requireNonNull(name, "Param name cannot be null");
         Objects.requireNonNull(value, "Param value cannot be null");
 
-        return AdditionalCriteriaParameter.builder()
-                .name(name)
-                .value(value)
-                .build();
+        return build(name, value, null, null, true);
     }
 
     /**
@@ -54,10 +54,43 @@ public class AdditionalCriteriaParameter {
         Objects.requireNonNull(value, "Param value cannot be null");
         Objects.requireNonNull(operation, "Param operation cannot be null");
 
+        return build(name, value, operation, null, true);
+    }
+
+    /**
+     * @return criteria parameter based on the specific name, value, {@link Operation}, {@link FieldType} and if it is standard operation's behaviour.
+     */
+    public static AdditionalCriteriaParameter of(final String name, final Object value, final Operation operation, final FieldType type) {
+        Objects.requireNonNull(name, "Param name cannot be null");
+        Objects.requireNonNull(value, "Param value cannot be null");
+        Objects.requireNonNull(operation, "Param operation cannot be null");
+        Objects.requireNonNull(type, "Param type cannot be null");
+
+        return build(name, value, operation, type, true);
+    }
+
+    /**
+     * @return criteria parameter based on the specific name, value, {@link Operation}, {@link FieldType} and if it is standard operation's behaviour.
+     */
+    public static AdditionalCriteriaParameter of(final String name, final Object value, final Operation operation, final FieldType type, final boolean isStandard) {
+        Objects.requireNonNull(name, "Param name cannot be null");
+        Objects.requireNonNull(value, "Param value cannot be null");
+        Objects.requireNonNull(operation, "Param operation cannot be null");
+        Objects.requireNonNull(type, "Param type cannot be null");
+
+        return build(name, value, operation, type, isStandard);
+    }
+
+    /**
+     * @return return default {@link AdditionalCriteriaParameter} built object without validation at this level.
+     */
+    private static AdditionalCriteriaParameter build(final String name, final Object value, final Operation operation, final FieldType type, final boolean isStandard) {
         return AdditionalCriteriaParameter.builder()
                 .name(name)
                 .value(value)
                 .operation(operation)
+                .type(type)
+                .isStandard(isStandard)
                 .build();
     }
 

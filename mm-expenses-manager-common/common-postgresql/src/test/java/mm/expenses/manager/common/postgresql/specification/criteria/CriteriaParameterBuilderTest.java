@@ -60,6 +60,41 @@ class CriteriaParameterBuilderTest {
 
     @ParameterizedTest
     @ArgumentsSource(FieldTypeArgument.class)
+    void build_shouldBuildCriteriaParameter_asNonStandardProperty(final FieldType type) {
+        // given
+        val nameOfFilteredField = "testFieldName";
+        val filteredField = FilteredField.of(nameOfFilteredField, type, false);
+
+        val filteredFields = List.of(filteredField);
+        val specificationCriteria = SpecificationCriteria.of(filteredFields, null, null);
+
+        val fieldValue = getValueByFieldType(type);
+        val map = Map.of(nameOfFilteredField, String.valueOf(fieldValue));
+
+        val builder = new CriteriaParameter.CriteriaParameterBuilder(map.entrySet().stream().findFirst().orElse(null), specificationCriteria);
+
+        // when
+        val result = builder.build();
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.name()).isNotNull()
+                .isEqualTo(nameOfFilteredField);
+        assertThat(result.fieldType()).isNotNull()
+                .isEqualTo(type);
+        assertThat(result.operation()).isNotNull()
+                .isEqualTo(Operation.equal);
+        assertThat(result.values()).isNotNull()
+                .isInstanceOf(List.class)
+                .isNotEmpty()
+                .hasSize(1)
+                .containsExactly(fieldValue);
+        assertThat(result.isJsonBField()).isFalse();
+        assertThat(result.isStandard()).isFalse();
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(FieldTypeArgument.class)
     void build_shouldThrowRuntimeException_whenFieldOfGivenNameIsNotFilterable(final FieldType type) {
         // given
         val nameOfNotExistingField = "notExistingFieldName";

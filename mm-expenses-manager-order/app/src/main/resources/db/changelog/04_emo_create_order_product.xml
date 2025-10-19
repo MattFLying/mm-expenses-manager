@@ -1,0 +1,83 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="04-emo-create-order-product" author="mateusz.mucha">
+
+        <createTable tableName="emo_order_product">
+
+            <column name="id" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="quantity" type="numeric(20,3)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="value" type="numeric(20,2)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="currency" type="varchar(5)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_price_original" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="order_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="product_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_modified_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="id" tableName="emo_order_product"/>
+        <addUniqueConstraint columnNames="id" tableName="emo_order_product"/>
+
+        <addUniqueConstraint
+                columnNames="order_id, product_id"
+                constraintName="uq_order_product"
+                tableName="emo_order_product"
+        />
+
+        <addForeignKeyConstraint baseTableName="emo_order_product"
+                                 baseColumnNames="order_id"
+                                 constraintName="fk_ordered_product_order_id"
+                                 referencedTableName="emo_order"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 onDelete="CASCADE"
+        />
+
+        <addForeignKeyConstraint baseTableName="emo_order_product"
+                                 baseColumnNames="product_id"
+                                 constraintName="fk_ordered_product_product_id"
+                                 referencedTableName="emo_product"
+                                 referencedColumnNames="id"
+        />
+
+    </changeSet>
+
+</databaseChangeLog>

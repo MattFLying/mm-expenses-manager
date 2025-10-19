@@ -18,9 +18,12 @@ public enum OrderExceptionMessage implements ExceptionType {
     ORDER_NO_UPDATE_DATA("order-no-update-data-passed-error", "Data to update order have no be passed. Nothing to update."),
     ORDER_NOT_ALL_PRODUCTS_FOUND("order-products-not-all-found", "Not all products were found to create ordered products: %s"),
     ORDER_PRODUCTS_CANNOT_BE_EMPTY("order-products-cannot-be-empty", "Order must contains at least 1 product."),
+    ORDER_NAME_EMPTY("product-name-empty", "The name of the order cannot be empty."),
     ORDER_NAME_MISSING_OPERATOR("order-missing-operator-for-name", "Missing operator for orders filtering by name."),
     ORDER_PRODUCTS_COUNT_MISSING_OPERATOR("order-missing-operator-for-products-count", "Missing operator for orders filtering by products count."),
-    ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO("order-product-quantity-must-be-greater-than-zero", "Ordered product quantity must be greater than 0.0.");
+    ORDER_PRODUCTS_CUSTOM_PRICE_VALUE_MISSING("order-missing-custom-price-for-products", "Missing price value for ordered product %s."),
+    ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO("order-product-quantity-must-be-greater-than-zero", "Ordered product quantity must be greater than 0.0."),
+    ORDERED_PRODUCTS_NOT_FOUND("order-products-not-found-error", "Ordered products of ids: '%s' not found.");
 
     private final String code;
     private final String message;

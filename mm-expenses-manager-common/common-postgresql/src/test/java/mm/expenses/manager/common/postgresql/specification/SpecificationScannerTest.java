@@ -44,12 +44,14 @@ class SpecificationScannerTest {
         assertThat(filterableNameField.getName()).isEqualTo(nameFieldName);
         assertThat(filterableNameField.getType()).isEqualTo(FieldType.String);
         assertThat(filterableNameField.getIsJsonBType()).isFalse();
+        assertThat(filterableNameField.getIsStandard()).isTrue();
 
         val filterableColumnField = filterableFields.get(1);
         assertThat(filterableColumnField).isNotNull();
         assertThat(filterableColumnField.getName()).isEqualTo(columnFieldName);
         assertThat(filterableColumnField.getType()).isEqualTo(FieldType.String);
         assertThat(filterableColumnField.getIsJsonBType()).isTrue();
+        assertThat(filterableColumnField.getIsStandard()).isTrue();
     }
 
 }
