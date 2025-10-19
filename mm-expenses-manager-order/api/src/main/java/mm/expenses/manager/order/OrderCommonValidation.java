@@ -58,7 +58,7 @@ public class OrderCommonValidation {
             return true;
         }
         final var orderedProductsFailures = orderedProducts.stream()
-                .map(orderedProduct -> validateProductQuantity(orderedProduct.getProductId(), orderedProduct.getQuantity()))
+                .map(orderedProduct -> validateProductQuantity(orderedProduct.getOrderedProductId(), orderedProduct.getQuantity()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         handleOrderedProductsUpdate(orderedProductsFailures, context);
@@ -66,11 +66,11 @@ public class OrderCommonValidation {
         return CollectionUtils.isEmpty(orderedProductsFailures);
     }
 
-    private static ExceptionType validateProductQuantity(final UUID orderId, final Double orderQuantity) {
+    public static ExceptionType validateProductQuantity(final UUID orderId, final Double orderQuantity) {
         if (Objects.isNull(orderQuantity)) {
             return OrderExceptionMessage.ORDER_QUANTITY_EMPTY.withParameters(orderId);
         }
-        if (orderQuantity == Double.MIN_VALUE) {
+        if (Double.compare(orderQuantity, Double.MIN_VALUE) <= 0) {
             return OrderExceptionMessage.ORDER_QUANTITY_ZERO.withParameters(orderId);
         }
         if (Double.isNaN(orderQuantity) || Double.doubleToRawLongBits(orderQuantity) < 0) {

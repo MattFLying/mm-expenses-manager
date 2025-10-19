@@ -188,7 +188,7 @@ class FilteredFieldTest {
         val alternativeName = "alternativeFieldName";
         val isJsonBType = false;
 
-        val filteredField = new FilteredField(name, alternativeName, FieldType.String, isJsonBType);
+        val filteredField = new FilteredField(name, alternativeName, FieldType.String, true, isJsonBType);
 
         // when
         val result = filteredField.hasSameName(alternativeName);
@@ -223,7 +223,7 @@ class FilteredFieldTest {
         val isJsonBType = false;
         val nameToCompare = "nameToCompare";
 
-        val filteredField = new FilteredField(name, alternativeName, FieldType.String, isJsonBType);
+        val filteredField = new FilteredField(name, alternativeName, FieldType.String, true, isJsonBType);
 
         // when
         val result = filteredField.hasSameName(nameToCompare);
@@ -269,6 +269,7 @@ class FilteredFieldTest {
         assertThat(result.getName()).isEqualTo(name);
         assertThat(result.getAlternativeName()).isNull();
         assertThat(result.getType()).isEqualTo(type);
+        assertThat(result.getIsStandard()).isTrue();
         assertThat(result.getIsJsonBType()).isFalse();
     }
 
@@ -300,6 +301,26 @@ class FilteredFieldTest {
         assertThat(result.getName()).isEqualTo(name);
         assertThat(result.getAlternativeName()).isEqualTo(alternativeName);
         assertThat(result.getType()).isEqualTo(type);
+        assertThat(result.getIsStandard()).isTrue();
+        assertThat(result.getIsJsonBType()).isFalse();
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(FieldTypeArgument.class)
+    void of_shouldCreateFilteredFieldAsNotStandardField(final FieldType type) {
+        // given
+        val name = "name";
+
+        // when
+        val result = FilteredField.of(name, type, false);
+
+        // then
+        assertThat(result).isNotNull()
+                .isInstanceOf(FilteredField.class);
+
+        assertThat(result.getName()).isEqualTo(name);
+        assertThat(result.getType()).isEqualTo(type);
+        assertThat(result.getIsStandard()).isFalse();
         assertThat(result.getIsJsonBType()).isFalse();
     }
 

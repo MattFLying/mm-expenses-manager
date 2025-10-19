@@ -54,37 +54,42 @@ public enum FieldType {
      */
     public static FieldType of(final Field field) {
         val fieldType = Objects.requireNonNull(field, "Field cannot be null").getType().getSimpleName();
-        return valueOf(
-                switch (fieldType) {
-                    case "int":
-                    case "integer":
-                    case "Integer":
-                        yield Integer.getName();
-                    case "long":
-                    case "Long":
-                        yield Long.getName();
-                    case "bool":
-                    case "boolean":
-                    case "Boolean":
-                        yield Boolean.getName();
-                    case "String":
-                        yield String.getName();
-                    case "Instant":
-                        yield Instant.getName();
-                    default:
-                        if (Collection.class.isAssignableFrom(field.getType())) {
-                            yield List.getName();
-                        }
+        return valueOf(of(field, fieldType));
+    }
 
-                        val specificationDetails = field.getAnnotation(SpecificationDetailsAnnotation.class);
-                        if (Objects.nonNull(specificationDetails) && specificationDetails.isJsonB()) {
-                            yield JsonB.getName();
-                        } else if (Object.class.isAssignableFrom(field.getType())) {
-                            yield Object.getName();
-                        }
-                        yield fieldType;
+    /**
+     * @return {@link FieldType} of given {@link Field} based on the passed field type.
+     */
+    public static String of(final Field field, final String fieldType) {
+        return switch (fieldType) {
+            case "int":
+            case "integer":
+            case "Integer":
+                yield Integer.getName();
+            case "long":
+            case "Long":
+                yield Long.getName();
+            case "bool":
+            case "boolean":
+            case "Boolean":
+                yield Boolean.getName();
+            case "String":
+                yield String.getName();
+            case "Instant":
+                yield Instant.getName();
+            default:
+                if (Collection.class.isAssignableFrom(field.getType())) {
+                    yield List.getName();
                 }
-        );
+
+                val specificationDetails = field.getAnnotation(SpecificationDetailsAnnotation.class);
+                if (Objects.nonNull(specificationDetails) && specificationDetails.isJsonB()) {
+                    yield JsonB.getName();
+                } else if (Object.class.isAssignableFrom(field.getType())) {
+                    yield Object.getName();
+                }
+                yield fieldType;
+        };
     }
 
     /**

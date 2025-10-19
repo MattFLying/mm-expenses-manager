@@ -12,7 +12,9 @@ import java.util.stream.Stream;
 /**
  * Represents specific field to be handled by specific {@link org.springframework.data.jpa.domain.Specification}
  * to define class fields that can be filtered by specific specification.
- * Defines the specific field name and type with additional information if the field is defined as JSONB value.
+ * Defines the specific field name and type with additional information like:
+ * - if the field is standard in the entity context or if it is not standard
+ * - if the field is defined as JSONB value
  */
 @Setter
 @Getter
@@ -29,16 +31,22 @@ public class FilteredField {
 
     private FieldType type;
 
+    /**
+     * Defines if the field is standard field available in the entity or if this some specific field that is not accessible as standard property.
+     */
+    private Boolean isStandard = true;
+
     private Boolean isJsonBType = false;
 
     public FilteredField(final String name, final FieldType type, final Boolean isJsonBType) {
-        this(name, null, type, isJsonBType);
+        this(name, null, type, true, isJsonBType);
     }
 
-    public FilteredField(final String name, final String alternativeName, final FieldType type, final Boolean isJsonBType) {
+    public FilteredField(final String name, final String alternativeName, final FieldType type, final Boolean isStandard, final Boolean isJsonBType) {
         this.name = name;
         this.alternativeName = alternativeName;
         this.type = type;
+        this.isStandard = isStandard;
         this.isJsonBType = isJsonBType;
     }
 
@@ -95,6 +103,22 @@ public class FilteredField {
         return FilteredField.builder()
                 .name(fieldName)
                 .type(fieldType)
+                .isStandard(true)
+                .isJsonBType(false)
+                .build();
+    }
+
+    /**
+     * @return {@link FilteredField} based on passed field name, fieldType and if field is standard.
+     */
+    public static FilteredField of(final String fieldName, final FieldType fieldType, final boolean isStandard) {
+        Objects.requireNonNull(fieldName, "Field name cannot be null");
+        Objects.requireNonNull(fieldType, "Field fieldType cannot be null");
+
+        return FilteredField.builder()
+                .name(fieldName)
+                .type(fieldType)
+                .isStandard(isStandard)
                 .isJsonBType(false)
                 .build();
     }
@@ -111,6 +135,7 @@ public class FilteredField {
                 .name(fieldName)
                 .alternativeName(alternativeFieldName)
                 .type(fieldType)
+                .isStandard(true)
                 .isJsonBType(false)
                 .build();
     }

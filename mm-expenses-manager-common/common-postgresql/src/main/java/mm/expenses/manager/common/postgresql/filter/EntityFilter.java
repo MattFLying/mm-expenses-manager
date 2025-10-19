@@ -5,14 +5,12 @@ import lombok.experimental.SuperBuilder;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.exceptions.base.ExceptionType;
 import mm.expenses.manager.common.postgresql.exception.SpecificationCriteriaException;
+import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCriteriaParameter;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents entity's filtering based on passed specific parameters and builds simple map
@@ -38,6 +36,19 @@ public abstract class EntityFilter {
 
     private PageRequest paginationConfig;
 
+    @Getter(AccessLevel.PUBLIC)
+    private List<AdditionalCriteriaParameter> additionalCriteriaParameters;
+
+    /**
+     * Returns available additional criteria parameters as array to easily support it if needed.
+     */
+    public AdditionalCriteriaParameter[] getAdditionalCriteriaParametersAsArray() {
+        if (Objects.isNull(additionalCriteriaParameters)) {
+            return new AdditionalCriteriaParameter[0];
+        }
+        return getAdditionalCriteriaParameters().toArray(new AdditionalCriteriaParameter[0]);
+    }
+
     /**
      * @return builds query parameters based on passed filters.
      */
@@ -51,13 +62,45 @@ public abstract class EntityFilter {
 
                 val parameterName = parameter[0];
                 val parameterValues = parameter[1].split(",");
+                val parameterNameAndOperation = parameterName.split(":");
 
                 queryParameters.put(parameterName, parameterValues);
+                prepareAdditionalCriteria(parameterNameAndOperation[0], parameterNameAndOperation[1], parameterValues);
             }
+            prepareAdditionalCriteria();
             return queryParameters;
         }
+        prepareAdditionalCriteria();
         buildSpecificQueryParameters(queryParameters);
         return queryParameters;
+    }
+
+    /**
+     * Adds prepared additional criteria to internal list
+     */
+    protected void addAdditionalCriteria(final AdditionalCriteriaParameter additionalCriteriaParameter) {
+        if (Objects.isNull(additionalCriteriaParameters)) {
+            additionalCriteriaParameters = new ArrayList<>();
+        }
+        additionalCriteriaParameters.add(additionalCriteriaParameter);
+    }
+
+    /**
+     * Builds specific data based on additional criteria
+     *
+     * @param parameterName - name of the parameter
+     * @param operation     - operation name for the specific parameter name
+     * @param values        - all available values for specific criteria
+     */
+    protected void prepareAdditionalCriteria(final String parameterName, final String operation, final String[] values) {
+
+    }
+
+    /**
+     * Builds additional criteria parameters for passed additional criteria list.
+     */
+    protected void prepareAdditionalCriteria() {
+
     }
 
     /**

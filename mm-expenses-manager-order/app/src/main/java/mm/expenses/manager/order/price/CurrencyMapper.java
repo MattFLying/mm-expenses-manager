@@ -1,4 +1,4 @@
-package mm.expenses.manager.order.currency;
+package mm.expenses.manager.order.price;
 
 import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
@@ -6,6 +6,7 @@ import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.order.order.OrderedProduct;
@@ -14,6 +15,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +30,7 @@ import java.util.stream.Stream;
 public interface CurrencyMapper extends AbstractMapper {
 
     @Mapping(target = "code", source = "price.currency.code")
-    @Mapping(target = "value", source = "price.value")
+    @Mapping(target = "value", expression = "java(mapToDouble(price.getValue()))")
     CurrencyConversionValueDto map(final Price price);
 
     @Mapping(target = "code", source = "toCode")
@@ -40,10 +42,13 @@ public interface CurrencyMapper extends AbstractMapper {
     @Mapping(target = "from", expression = "java(map(price))")
     CurrencyConversionRequest map(final OrderedProduct orderedProduct, final Price price, final CurrencyCode toCode);
 
+    @Mapping(target = "currency", source = "orderedProduct.currency")
+    @Mapping(target = "value", expression = "java(map(orderedProduct.getValue()))")
+    @Mapping(target = "date", source = "orderedProduct.lastModifiedAt")
+    Price mapTo(final OrderedProduct orderedProduct);
+
     default List<CurrencyConversionRequest> map(final OrderedProduct orderedProduct, final CurrencyCode toCode) {
-        return orderedProduct.getPrice().stream()
-                .map(price -> map(orderedProduct, price, toCode))
-                .toList();
+        return List.of(map(orderedProduct, mapTo(orderedProduct), toCode));
     }
 
     default LocalDate dateOfLastModifiedOrCreatedOrderedProduct(final OrderedProduct orderedProduct) {
@@ -53,6 +58,14 @@ public interface CurrencyMapper extends AbstractMapper {
                 .orElse(null);
 
         return DateUtils.instantToLocalDate(latestDate);
+    }
+
+    default BigDecimal map(final BigDecimal value) {
+        return BigDecimalWrapper.of(value);
+    }
+
+    default Double mapToDouble(final BigDecimal value) {
+        return BigDecimalWrapper.of(value).doubleValue();
     }
 
 }

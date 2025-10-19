@@ -2,19 +2,19 @@ package mm.expenses.manager.order.order;
 
 import jakarta.persistence.*;
 import lombok.*;
-import mm.expenses.manager.common.postgresql.specification.SpecificationScanner;
-import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
+import mm.expenses.manager.common.utils.price.PriceSummary;
 import mm.expenses.manager.common.utils.price.Prices;
+import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
 import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.order.price.OrderPrice;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -28,7 +28,7 @@ import java.util.UUID;
 @EntityListeners({
         AuditingEntityListener.class
 })
-public class Order implements Serializable {
+public class Order implements Serializable, PriceSummary {
 
     @Id
     @GeneratedValue
@@ -39,22 +39,21 @@ public class Order implements Serializable {
     @SpecificationDetailsAnnotation(canBeFiltered = true, canBeSorted = true)
     private String name;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "order_id", updatable = false)
+    private List<OrderPrice> prices;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "order_id", updatable = false)
+    private List<OrderedProduct> products;
+
     @Column(name = "created_at")
     @SpecificationDetailsAnnotation(canBeSorted = true)
     private Instant createdAt;
 
     @Column(name = "last_modified_at")
+    @SpecificationDetailsAnnotation(canBeSorted = true)
     private Instant lastModifiedAt;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @SpecificationDetailsAnnotation(canBeFiltered = true, canBeSorted = true)
-    @Column(name = "products", columnDefinition = SpecificationScanner.JSONB_TYPE)
-    private List<OrderedProduct> products;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @SpecificationDetailsAnnotation(canBeFiltered = true)
-    @Column(name = "price_summary", columnDefinition = SpecificationScanner.JSONB_TYPE)
-    private Prices priceSummary;
 
     @Column(name = "is_deleted")
     @SpecificationDetailsAnnotation(canBeFiltered = true)
@@ -64,15 +63,40 @@ public class Order implements Serializable {
     @Column(name = "version")
     private Long version;
 
-    @PreUpdate
-    private void beforeUpdate() {
-        setLastModifiedAt(DateUtils.nowAsInstant());
+    @Setter
+    @Transient
+    private Prices priceSummary;
+
+    @Override
+    public Prices getPriceSummary() {
+        if (Objects.nonNull(products)) {
+            priceSummary = Prices.calculatePriceSummary(products);
+        }
+        return priceSummary;
     }
 
     @PrePersist
     private void beforeSave() {
-        setCreatedAt(DateUtils.nowAsInstant());
-        setLastModifiedAt(getCreatedAt());
+        val now = DateUtils.nowAsInstant();
+        setCreatedAt(now);
+        setLastModifiedAt(now);
+
+        if (Objects.nonNull(products)) {
+            products.forEach(product -> {
+                product.setCreatedAt(now);
+                product.setLastModifiedAt(now);
+                product.setOrder(this);
+            });
+        }
+
+        if (Objects.nonNull(prices)) {
+            prices.forEach(price -> {
+                price.setCreatedAt(now);
+                price.setLastModifiedAt(now);
+                price.setOrder(this);
+                price.setDate(DateUtils.instantToLocalDate(now).toString());
+            });
+        }
     }
 
 }

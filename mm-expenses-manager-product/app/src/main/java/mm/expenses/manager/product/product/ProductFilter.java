@@ -36,6 +36,8 @@ class ProductFilter extends EntityFilter {
     static final String PRICE_CURRENCY_PROPERTY = "price.currency";
     static final String PRICE_CURRENCY_OPERATION_PROPERTY = "priceCurrencyOperation";
 
+    public static final String IS_PRODUCT_DELETED_PROPERTY = "isProductDeleted";
+
     private String name;
     private TextOperationRequest nameOperation;
 
@@ -67,6 +69,13 @@ class ProductFilter extends EntityFilter {
         }
         if (isProductsPriceCurrencyOriented()) {
             queryParameters.put(getProductsPriceCurrencyOperationProperty(), new String[]{String.valueOf(getPriceCurrency())});
+        }
+    }
+
+    @Override
+    protected void buildDeleted(final Map<String, String[]> queryParameters) {
+        if (shouldBeDeleted()) {
+            queryParameters.put(IS_PRODUCT_DELETED_PROPERTY, new String[]{String.valueOf(getIsDeleted())});
         }
     }
 

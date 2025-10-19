@@ -112,7 +112,7 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
             if (FieldType.List.equals(field.getType()) && StringUtils.equals(String.valueOf(parsedValues.get(0)), "[]")) {
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.EMPTY_LIST_NOT_ALLOWED_FOR_FIELD_MESSAGE, name);
             }
-            return new CriteriaParameter(field.getName(), field.getType(), field.getIsJsonBType(), operation, parsedValues, true);
+            return new CriteriaParameter(field.getName(), field.getType(), field.getIsJsonBType(), operation, parsedValues, field.getIsStandard());
         }
 
     }

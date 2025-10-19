@@ -5,11 +5,14 @@ import lombok.experimental.SuperBuilder;
 import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.postgresql.pagination.sort.PostgreSQLSortOrder;
+import mm.expenses.manager.common.postgresql.specification.FieldType;
 import mm.expenses.manager.common.postgresql.specification.Operation;
+import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCriteriaParameter;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.order.api.order.model.NumberOperationRequest;
 import mm.expenses.manager.order.api.order.model.TextOperationRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +22,7 @@ import java.util.Objects;
  * Filter for querying orders.
  */
 @SuperBuilder
-@Getter(value = AccessLevel.PRIVATE)
+@Getter
 @Setter(value = AccessLevel.PRIVATE)
 class OrderFilter extends EntityFilter {
 
@@ -53,8 +56,36 @@ class OrderFilter extends EntityFilter {
         if (isNameOriented()) {
             queryParameters.put(getNameOperationProperty(), new String[]{String.valueOf(getName())});
         }
+    }
+
+    @Override
+    protected void prepareAdditionalCriteria(final String parameterName, final String operation, final String[] values) {
+        if (StringUtils.equals(PRODUCTS_COUNT_PROPERTY, parameterName)) {
+            productsCountOperation = NumberOperationRequest.fromValue(operation);
+            productsCount = Integer.valueOf(values[0]); // ignore if there is more than single value, just take the first one
+        }
+    }
+
+    @Override
+    protected void prepareAdditionalCriteria() {
         if (isProductsCountOriented()) {
-            queryParameters.put(getProductsCountOperationProperty(), new String[]{String.valueOf(getProductsCount())});
+            addAdditionalCriteria(
+                    AdditionalCriteriaParameter.of(
+                            PRODUCTS_COUNT_PROPERTY,
+                            String.valueOf(productsCount),
+                            Operation.of(getProductsCountOperation()),
+                            FieldType.Integer,
+                            false
+                    )
+            );
+        }
+    }
+
+    @Override
+    protected void buildDeleted(final Map<String, String[]> queryParameters) {
+        val isDeleted = getIsDeleted();
+        if (Objects.nonNull(isDeleted)) {
+            queryParameters.put(IS_DELETED_PROPERTY, new String[]{String.valueOf(isDeleted)});
         }
     }
 
@@ -96,11 +127,6 @@ class OrderFilter extends EntityFilter {
     private String getNameOperationProperty() {
         val operation = Operation.of(nameOperation);
         return String.format("%s%s", NAME_PROPERTY, operation.getValueWithSeparator());
-    }
-
-    private String getProductsCountOperationProperty() {
-        val operation = Operation.of(productsCountOperation);
-        return String.format("%s%s", PRODUCTS_PROPERTY, operation.getValueWithSeparator());
     }
 
 }

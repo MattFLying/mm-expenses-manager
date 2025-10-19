@@ -52,10 +52,21 @@ public final class SpecificationScanner {
      *
      * @return defined {@link CriteriaParameter} for expected {@link AdditionalCriteriaParameter}
      */
-    static CriteriaParameter scanParameter(final AdditionalCriteriaParameter criteriaParameter, final Type[] typeArguments) {
-        Objects.requireNonNull(criteriaParameter, "Passed parameter cannot be null.");
+    static CriteriaParameter scanParameter(final AdditionalCriteriaParameter additionalCriteriaParameter, final Type[] typeArguments) {
+        Objects.requireNonNull(additionalCriteriaParameter, "Passed parameter cannot be null.");
         if (ArrayUtils.isEmpty(typeArguments)) {
             throw new SpecificationParseException("Cannot process parsing empty array of type arguments.");
+        }
+
+        if (!additionalCriteriaParameter.isStandard()) {
+            return new CriteriaParameter(
+                    additionalCriteriaParameter.getName(),
+                    additionalCriteriaParameter.getType(),
+                    false,
+                    getValidOperation(additionalCriteriaParameter),
+                    List.of(additionalCriteriaParameter.getValue()),
+                    additionalCriteriaParameter.isStandard()
+            );
         }
 
         val type = typeArguments[0];
@@ -67,13 +78,13 @@ public final class SpecificationScanner {
                         alternativeNamePresent = StringUtils.isNotBlank(specificationDetails.name());
                     }
 
-                    val isFieldNamePresent = StringUtils.equalsIgnoreCase(field.getName(), criteriaParameter.getName());
+                    val isFieldNamePresent = StringUtils.equalsIgnoreCase(field.getName(), additionalCriteriaParameter.getName());
                     return alternativeNamePresent
                             ? isFieldNamePresent || StringUtils.equalsIgnoreCase(field.getName(), specificationDetails.name())
                             : isFieldNamePresent;
                 })
                 .findAny()
-                .orElseThrow(() -> SpecificationParseException.additionalPropertyNotFound(criteriaParameter.getName(), ((Class<?>) type).getSimpleName()));
+                .orElseThrow(() -> SpecificationParseException.additionalPropertyNotFound(additionalCriteriaParameter.getName(), ((Class<?>) type).getSimpleName()));
 
         var isJsonBField = false;
         val column = foundField.getAnnotation(Column.class);
@@ -83,7 +94,7 @@ public final class SpecificationScanner {
                 isJsonBField = StringUtils.equals(JSONB_TYPE, columnDefinition.toLowerCase());
             }
         }
-        return new CriteriaParameter(foundField.getName(), FieldType.of(foundField), isJsonBField, getValidOperation(criteriaParameter), List.of(criteriaParameter.getValue()), false);
+        return new CriteriaParameter(foundField.getName(), FieldType.of(foundField), isJsonBField, getValidOperation(additionalCriteriaParameter), List.of(additionalCriteriaParameter.getValue()), false);
     }
 
     private static Operation getValidOperation(final AdditionalCriteriaParameter criteriaParameter) {

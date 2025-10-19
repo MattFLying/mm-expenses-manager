@@ -1,23 +1,23 @@
 package mm.expenses.manager.order.order;
 
+import lombok.val;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.util.IdUtils;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.order.api.order.model.*;
-import mm.expenses.manager.order.product.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
 
-import java.time.Instant;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(
@@ -25,28 +25,6 @@ import java.util.stream.Collectors;
         imports = {StringUtils.class, Collectors.class, DateUtils.class, IdUtils.class}
 )
 public interface OrderMapper extends AbstractMapper {
-
-    @Mapping(target = "name", expression = "java(StringUtils.trim(newProduct.getName()))")
-    @Mapping(target = "products", source = "productOrders")
-    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.common.utils.price.Prices.calculatePriceSummary(productOrders))")
-    @Mapping(target = "createdAt", source = "creationTime")
-    @Mapping(target = "lastModifiedAt", source = "creationTime")
-    @Mapping(target = "id", ignore = true)
-    Order map(final CreateNewOrderRequest newProduct, final List<OrderedProduct> productOrders, final Instant creationTime);
-
-    @Mapping(target = "name", expression = "java(updateProduct.getName() != null ? StringUtils.trim(updateProduct.getName()) : entity.getName())")
-    @Mapping(target = "products", source = "updatedProductOrders")
-    @Mapping(target = "priceSummary", expression = "java(mm.expenses.manager.common.utils.price.Prices.calculatePriceSummary(updatedProductOrders))")
-    @Mapping(target = "createdAt", source = "entity.createdAt")
-    @Mapping(target = "lastModifiedAt", source = "modifiedAt")
-    Order map(final UpdateOrderRequest updateProduct, final Order entity, final Collection<OrderedProduct> updatedProductOrders, final Instant modifiedAt);
-
-    @Mapping(target = "id", source = "product.id")
-    @Mapping(target = "quantity", source = "newProduct.quantity")
-    @Mapping(target = "createdAt", source = "creationTime")
-    @Mapping(target = "lastModifiedAt", source = "creationTime")
-    @Mapping(target = "price", source = "product.price")
-    OrderedProduct map(final CreateNewOrderedProductRequest newProduct, final Product product, final Instant creationTime);
 
     @Mapping(target = "priceSummary", expression = "java(mapPriceToResponse(order.getPriceSummary()))")
     @Mapping(target = "orderedProducts", source = "order.products")
@@ -62,8 +40,31 @@ public interface OrderMapper extends AbstractMapper {
     @Mapping(target = "amount", expression = "java(mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper.of(value.getValue()))")
     PriceResponse mapPriceToResponse(final Price value);
 
+    @Mapping(target = "productId", expression = "java(mapProductId(orderedProduct))")
+    @Mapping(target = "price", expression = "java(mapPriceToResponse(orderedProduct))")
+    OrderedProductResponse orderedProductToOrderedProductResponse(final OrderedProduct orderedProduct);
+
     default List<PriceResponse> mapPriceToResponse(final Prices value) {
         return Objects.nonNull(value) ? value.stream().map(this::mapPriceToResponse).toList() : Collections.emptyList();
+    }
+
+    default List<PriceResponse> mapPriceToResponse(final OrderedProduct orderedProduct) {
+        val price = new PriceResponse();
+        price.setCurrency(orderedProduct.getCurrency().getCode());
+        price.setAmount(BigDecimalWrapper.of(orderedProduct.getValue()));
+        price.setIsOriginal(orderedProduct.isPriceOriginal());
+
+        return List.of(price);
+    }
+
+    default UUID mapProductId(final OrderedProduct orderedProduct) {
+        if (Objects.nonNull(orderedProduct)) {
+            val product = orderedProduct.getProduct();
+            if (Objects.nonNull(product)) {
+                return product.getId();
+            }
+        }
+        return null;
     }
 
 }

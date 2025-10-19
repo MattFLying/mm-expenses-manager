@@ -7,15 +7,14 @@ import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
-import mm.expenses.manager.order.api.order.model.CreateNewOrderRequest;
-import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
-import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
-import mm.expenses.manager.order.api.order.model.UpdateOrderedProductRequest;
+import mm.expenses.manager.order.api.order.model.*;
+import mm.expenses.manager.order.price.OrderPrice;
 import mm.expenses.manager.order.product.Product;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public class OrderHelper {
     public static final Map<String, Object> PRODUCT_DETAILS = Map.of("key", "value");
 
     public static CreateNewOrderRequest createOrderRequest(final List<CreateNewOrderedProductRequest> products, final String name) {
-        var request = new CreateNewOrderRequest();
+        val request = new CreateNewOrderRequest();
         request.setName(name);
         request.setOrderedProducts(products);
 
@@ -43,13 +42,12 @@ public class OrderHelper {
     }
 
     public static CreateNewOrderRequest createOrderRequest(final String name, final Product product, final Double quantity) {
-        var request = new CreateNewOrderRequest();
+        val request = new CreateNewOrderRequest();
         request.setName(name);
 
         if (Objects.nonNull(product)) {
-            var newProduct = new CreateNewOrderedProductRequest();
-            newProduct.setProductId(product.getId());
-            newProduct.setQuantity(quantity);
+            val price = createPriceRequest(product);
+            val newProduct = createNewOrderedProductRequest(product, quantity, price);
 
             request.setOrderedProducts(List.of(newProduct));
         }
@@ -61,11 +59,8 @@ public class OrderHelper {
     }
 
     public static CreateNewOrderRequest createOrderRequestEmptyProductId(final String name) {
-        var newProduct = new CreateNewOrderedProductRequest();
-        newProduct.setProductId(null);
-        newProduct.setQuantity(ORDER_QUANTITY);
-
-        var request = new CreateNewOrderRequest();
+        val newProduct = createNewOrderedProductRequest(null, ORDER_QUANTITY, null);
+        val request = new CreateNewOrderRequest();
         request.setName(name);
         request.setOrderedProducts(List.of(newProduct));
 
@@ -77,45 +72,37 @@ public class OrderHelper {
     }
 
     public static Order createOrderFromOrderRequest(final UUID orderId, final CreateNewOrderRequest request, final Product product) {
-        final var now = DateUtils.nowAsInstant();
+        val now = DateUtils.nowAsInstant();
         final List<OrderedProduct> products = CollectionUtils.isNotEmpty(request.getOrderedProducts())
                 ? request.getOrderedProducts().stream()
                 .map(p -> createProductFromRequest(p, product))
                 .collect(Collectors.toList())
                 : List.of();
 
-        return Order.builder()
-                .id(orderId)
-                .name(request.getName())
-                .isDeleted(product.isDeleted())
-                .products(products)
-                .priceSummary(Prices.calculatePriceSummary(products))
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
-    }
+        val summary = Prices.calculatePriceSummary(products);
+        val prices = new ArrayList<OrderPrice>();
+        summary.forEach(price -> {
+            val orderPrice = createOrderPrice(price, now);
 
-    private static OrderedProduct createProductFromRequest(final CreateNewOrderedProductRequest orderedProduct, final Product product) {
-        val result = OrderedProduct.builder()
-                .id(orderedProduct.getProductId())
-                .quantity(orderedProduct.getQuantity())
-                .createdAt(product.getCreatedAt())
-                .lastModifiedAt(product.getLastModifiedAt())
-                .build();
-        result.setPrice(product.getPrice());
+            prices.add(orderPrice);
+        });
 
-        return result;
-    }
+        val order = createOrder(
+                Order.builder()
+                        .id(orderId)
+                        .name(request.getName())
+                        .isDeleted(product.isDeleted())
+                        .products(products),
+                prices,
+                summary,
+                now
+        );
 
-    private static OrderedProduct createProductFromRequest(final UpdateOrderedProductRequest orderedProduct, final Product product) {
-        return OrderedProduct.builder()
-                .id(orderedProduct.getProductId())
-                .quantity(orderedProduct.getQuantity())
-                .price(product.getPrice())
-                .createdAt(product.getCreatedAt())
-                .lastModifiedAt(product.getLastModifiedAt())
-                .build();
+        prices.forEach(price -> {
+            price.setOrder(order);
+            price.setDeleted(order.isDeleted());
+        });
+        return order;
     }
 
     public static CurrencyConversionResponse createCurrencyConversionResponse(final Product product) {
@@ -137,45 +124,21 @@ public class OrderHelper {
     }
 
     public static Product createProduct() {
-        final var now = DateUtils.nowAsInstant();
+        val now = DateUtils.nowAsInstant();
 
-        return Product.builder()
-                .id(UUID.randomUUID())
-                .price(new Prices(new Price(DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), now)))
-                .details(PRODUCT_DETAILS)
-                .isDeleted(false)
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
+        return createProduct(DEFAULT_CURRENCY, now, false);
     }
 
-    public static Product createProduct(CurrencyCode currency) {
-        final var now = DateUtils.nowAsInstant();
+    public static Product createProduct(final CurrencyCode currency) {
+        val now = DateUtils.nowAsInstant();
 
-        return Product.builder()
-                .id(UUID.randomUUID())
-                .price(new Prices(new Price(currency, BigDecimal.valueOf(getRandomPriceValue()), now)))
-                .details(PRODUCT_DETAILS)
-                .isDeleted(false)
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
+        return createProduct(currency, now, false);
     }
 
     public static Product createProduct(final boolean isDeleted) {
-        final var now = DateUtils.nowAsInstant();
+        val now = DateUtils.nowAsInstant();
 
-        return Product.builder()
-                .id(UUID.randomUUID())
-                .price(new Prices(new Price(DEFAULT_CURRENCY, BigDecimal.valueOf(getRandomPriceValue()), now)))
-                .details(PRODUCT_DETAILS)
-                .isDeleted(isDeleted)
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
+        return createProduct(DEFAULT_CURRENCY, now, isDeleted);
     }
 
     public static UpdateOrderRequest updateOrderRequestEmpty() {
@@ -183,48 +146,22 @@ public class OrderHelper {
     }
 
     public static UpdateOrderRequest updateOrderRequest(final String name, final Product updateProduct, final Double updateProductQuantity, final Product newProduct) {
-        var request = new UpdateOrderRequest();
+        val request = new UpdateOrderRequest();
         request.setName(name);
 
         if (updateProduct != null) {
-            var productToUpdate = new UpdateOrderedProductRequest();
-            productToUpdate.setProductId(updateProduct.getId());
+            val price = createPriceRequest(updateProduct);
+            val productToUpdate = new UpdateOrderedProductRequest();
+            productToUpdate.setOrderedProductId(updateProduct.getId());
             productToUpdate.setQuantity(updateProductQuantity);
+            productToUpdate.setPrice(price);
 
             request.setOrderedProducts(List.of(productToUpdate));
         }
 
         if (newProduct != null) {
-            var newProductToAdd = new CreateNewOrderedProductRequest();
-            newProductToAdd.setProductId(newProduct.getId());
-            newProductToAdd.setQuantity(ORDER_QUANTITY);
-
-            request.setNewProducts(List.of(newProductToAdd));
-        }
-
-        return request;
-    }
-
-    public static UpdateOrderRequest updateOrderRequest(final String name, final Product updateProduct, final Double updateProductQuantity, final Product newProduct, final boolean removeUpdatedProduct) {
-        var request = new UpdateOrderRequest();
-        request.setName(name);
-
-        if (updateProduct != null) {
-            var productToUpdate = new UpdateOrderedProductRequest();
-            productToUpdate.setProductId(updateProduct.getId());
-            productToUpdate.setQuantity(updateProductQuantity);
-
-            request.setOrderedProducts(List.of(productToUpdate));
-
-            if (removeUpdatedProduct) {
-                request.setRemoveProducts(List.of(updateProduct.getId()));
-            }
-        }
-
-        if (newProduct != null) {
-            var newProductToAdd = new CreateNewOrderedProductRequest();
-            newProductToAdd.setProductId(newProduct.getId());
-            newProductToAdd.setQuantity(ORDER_QUANTITY);
+            val price = createPriceRequest(newProduct);
+            val newProductToAdd = createNewOrderedProductRequest(newProduct, ORDER_QUANTITY, price);
 
             request.setNewProducts(List.of(newProductToAdd));
         }
@@ -233,39 +170,48 @@ public class OrderHelper {
     }
 
     public static UpdateOrderRequest updateOrderRequest(final List<UUID> removeProducts) {
-        var request = new UpdateOrderRequest();
-
+        val request = new UpdateOrderRequest();
         if (CollectionUtils.isNotEmpty(removeProducts)) {
             request.setRemoveProducts(removeProducts);
         }
-
         return request;
     }
 
     public static Order createOrderFromUpdateOrderRequest(final UpdateOrderRequest request, final Product updatedProduct, final Product addedProduct) {
-        final var now = DateUtils.nowAsInstant();
-        var products = new ArrayList<OrderedProduct>();
+        val now = DateUtils.nowAsInstant();
+        val products = new ArrayList<OrderedProduct>();
         if (CollectionUtils.isNotEmpty(request.getOrderedProducts())) {
             products.add(createProductFromRequest(request.getOrderedProducts().get(0), updatedProduct));
         }
         if (CollectionUtils.isNotEmpty(request.getNewProducts())) {
             products.add(createProductFromRequest(request.getNewProducts().get(0), addedProduct));
         }
-        return Order.builder()
-                .id(ID)
-                .name(request.getName())
-                .isDeleted(false)
-                .products(products)
-                .priceSummary(Prices.calculatePriceSummary(products))
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
+
+        val summary = Prices.calculatePriceSummary(products);
+        val prices = new ArrayList<OrderPrice>();
+        summary.forEach(price -> prices.add(createOrderPrice(price, now)));
+
+        val order = createOrder(
+                Order.builder()
+                        .id(ID)
+                        .name(request.getName())
+                        .isDeleted(false)
+                        .products(products),
+                prices,
+                summary,
+                now
+        );
+
+        prices.forEach(price -> {
+            price.setOrder(order);
+            price.setDeleted(order.isDeleted());
+        });
+        return order;
     }
 
     public static Order createOrderFromUpdateOrderRequest(final UpdateOrderRequest request, final CreateNewOrderRequest previousOrder, final Product updatedProduct, final Product addedProduct) {
-        final var now = DateUtils.nowAsInstant();
-        var products = new ArrayList<OrderedProduct>();
+        val now = DateUtils.nowAsInstant();
+        val products = new ArrayList<OrderedProduct>();
         if (CollectionUtils.isNotEmpty(previousOrder.getOrderedProducts())) {
             products.add(createProductFromRequest(previousOrder.getOrderedProducts().get(0), updatedProduct));
         }
@@ -275,36 +221,38 @@ public class OrderHelper {
         if (CollectionUtils.isNotEmpty(request.getNewProducts())) {
             products.add(createProductFromRequest(request.getNewProducts().get(0), addedProduct));
         }
-        return Order.builder()
-                .id(ID)
-                .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
-                .isDeleted(false)
-                .products(products)
-                .priceSummary(Prices.calculatePriceSummary(products))
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
+
+        val summary = Prices.calculatePriceSummary(products);
+        val prices = new ArrayList<OrderPrice>();
+        summary.forEach(price -> prices.add(createOrderPrice(price, now)));
+
+        val order = createOrder(
+                Order.builder()
+                        .id(ID)
+                        .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
+                        .isDeleted(false)
+                        .products(products),
+                prices,
+                summary,
+                now
+        );
+
+        prices.forEach(price -> {
+            price.setOrder(order);
+            price.setDeleted(order.isDeleted());
+        });
+        return order;
     }
 
     public static Order createOrderFromUpdateOrderRequest(final UpdateOrderRequest request, final CreateNewOrderRequest previousOrder) {
-        final var now = DateUtils.nowAsInstant();
-        var products = new ArrayList<OrderedProduct>();
-        return Order.builder()
-                .id(ID)
-                .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
-                .isDeleted(false)
-                .products(products)
-                .priceSummary(Prices.calculatePriceSummary(products))
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
+        val now = DateUtils.nowAsInstant();
+        val products = new ArrayList<OrderedProduct>();
+        return createOrder(request, previousOrder, products, now);
     }
 
     public static Order createOrderFromUpdateOrderRequest(final UpdateOrderRequest request, final CreateNewOrderRequest previousOrder, final Product updatedProduct, final Product addedProduct, final boolean skipRequest) {
-        final var now = DateUtils.nowAsInstant();
-        var products = new ArrayList<OrderedProduct>();
+        val now = DateUtils.nowAsInstant();
+        val products = new ArrayList<OrderedProduct>();
         if (CollectionUtils.isNotEmpty(previousOrder.getOrderedProducts())) {
             products.add(createProductFromRequest(previousOrder.getOrderedProducts().get(0), updatedProduct));
         }
@@ -314,47 +262,114 @@ public class OrderHelper {
         if (CollectionUtils.isNotEmpty(request.getNewProducts())) {
             products.add(createProductFromRequest(request.getNewProducts().get(0), addedProduct));
         }
-        return Order.builder()
-                .id(ID)
-                .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
-                .isDeleted(false)
-                .products(products)
-                .priceSummary(Prices.calculatePriceSummary(products))
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
-    }
 
-    public static Order createOrderFromUpdateOrderRequest(final UpdateOrderRequest request, final CreateNewOrderRequest previousOrder, final Product updatedProduct, final Product addedProduct, final boolean skipRequest, final boolean removeUpdatedProduct) {
-        final var now = DateUtils.nowAsInstant();
-        var products = new ArrayList<OrderedProduct>();
-        if (CollectionUtils.isNotEmpty(previousOrder.getOrderedProducts())) {
-            products.add(createProductFromRequest(previousOrder.getOrderedProducts().get(0), updatedProduct));
-        }
-        if (CollectionUtils.isNotEmpty(request.getOrderedProducts()) && !skipRequest) {
-            products.add(createProductFromRequest(request.getOrderedProducts().get(0), updatedProduct));
-        }
-        if (CollectionUtils.isNotEmpty(request.getNewProducts())) {
-            products.add(createProductFromRequest(request.getNewProducts().get(0), addedProduct));
-        }
-        if (Objects.nonNull(updatedProduct) && removeUpdatedProduct) {
-            products.removeIf(toRemove -> toRemove.getId().equals(updatedProduct.getId()));
-        }
-        return Order.builder()
-                .id(ID)
-                .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
-                .isDeleted(false)
-                .products(products)
-                .priceSummary(Prices.calculatePriceSummary(products))
-                .createdAt(now)
-                .lastModifiedAt(now)
-                .version(1L)
-                .build();
+        val summary = Prices.calculatePriceSummary(products);
+        val prices = new ArrayList<OrderPrice>();
+        summary.forEach(price -> prices.add(createOrderPrice(price, now)));
+
+        val order = createOrder(
+                Order.builder()
+                        .id(ID)
+                        .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
+                        .isDeleted(false)
+                        .products(products),
+                prices,
+                summary,
+                now
+        );
+
+        prices.forEach(price -> {
+            price.setOrder(order);
+            price.setDeleted(order.isDeleted());
+        });
+        return order;
     }
 
     private static double getRandomPriceValue() {
         return randomDataGenerator.nextUniform(1, 100);
+    }
+
+    private static Order createOrder(final Order.OrderBuilder ID, final ArrayList<OrderPrice> prices, final Prices summary, final Instant now) {
+        return ID.prices(prices)
+                .priceSummary(summary)
+                .createdAt(now)
+                .lastModifiedAt(now)
+                .version(1L)
+                .build();
+    }
+
+    private static Order createOrder(final UpdateOrderRequest request, final CreateNewOrderRequest previousOrder, final ArrayList<OrderedProduct> products, final Instant now) {
+        return Order.builder()
+                .id(ID)
+                .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
+                .isDeleted(false)
+                .products(products)
+                .priceSummary(Prices.calculatePriceSummary(products))
+                .createdAt(now)
+                .lastModifiedAt(now)
+                .version(1L)
+                .build();
+    }
+
+    private static CreateNewOrderedProductRequest createNewOrderedProductRequest(final Product product, final Double quantity, final PriceRequest price) {
+        val newProduct = new CreateNewOrderedProductRequest();
+        newProduct.setQuantity(quantity);
+        newProduct.setPrice(price);
+        if (Objects.nonNull(product)) {
+            newProduct.setProductId(product.getId());
+        }
+        return newProduct;
+    }
+
+    private static PriceRequest createPriceRequest(final Product product) {
+        val price = new PriceRequest();
+        price.setValue(product.getPrice().get(0).getValue());
+        price.setCurrency(product.getPrice().get(0).getCurrency().getCode());
+        return price;
+    }
+
+    private static OrderPrice createOrderPrice(final Price price, final Instant now) {
+        val orderPrice = new OrderPrice();
+        orderPrice.setValue(price.getValue());
+        orderPrice.setCurrency(price.getCurrency());
+        orderPrice.setCreatedAt(now);
+        orderPrice.setLastModifiedAt(now);
+        orderPrice.setDate(now.toString());
+        return orderPrice;
+    }
+
+    private static OrderedProduct createProductFromRequest(final CreateNewOrderedProductRequest orderedProduct, final Product product) {
+        return createProductFromRequest(orderedProduct.getProductId(), orderedProduct.getQuantity(), orderedProduct.getPrice())
+                .createdAt(product.getCreatedAt())
+                .lastModifiedAt(product.getLastModifiedAt())
+                .build();
+    }
+
+    private static OrderedProduct createProductFromRequest(final UpdateOrderedProductRequest orderedProduct, final Product product) {
+        return createProductFromRequest(orderedProduct.getOrderedProductId(), orderedProduct.getQuantity(), orderedProduct.getPrice())
+                .createdAt(product.getCreatedAt())
+                .lastModifiedAt(product.getLastModifiedAt())
+                .build();
+    }
+
+    private static OrderedProduct.OrderedProductBuilder createProductFromRequest(final UUID orderedProductId, final Double quantity, final PriceRequest priceRequest) {
+        return OrderedProduct.builder()
+                .id(orderedProductId)
+                .quantity(quantity)
+                .value(priceRequest.getValue())
+                .currency(CurrencyCode.valueOf(priceRequest.getCurrency()));
+    }
+
+    private static Product createProduct(final CurrencyCode defaultCurrency, final Instant now, final boolean isDeleted) {
+        return Product.builder()
+                .id(UUID.randomUUID())
+                .price(new Prices(new Price(defaultCurrency, BigDecimal.valueOf(getRandomPriceValue()), now)))
+                .details(PRODUCT_DETAILS)
+                .isDeleted(isDeleted)
+                .createdAt(now)
+                .lastModifiedAt(now)
+                .version(1L)
+                .build();
     }
 
 }

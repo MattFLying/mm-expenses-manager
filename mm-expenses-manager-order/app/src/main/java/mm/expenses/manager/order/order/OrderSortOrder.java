@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.postgresql.pagination.sort.PostgreSQLSortOrder;
 import mm.expenses.manager.common.postgresql.pagination.sort.PostgreSQLSortProperty;
-import mm.expenses.manager.common.postgresql.pagination.sort.SortJsonBProperty;
 import mm.expenses.manager.common.utils.pagination.sort.SortProperty;
 import mm.expenses.manager.order.api.order.model.SortOrderRequest;
 import org.springframework.data.domain.Sort;
@@ -26,8 +25,8 @@ enum OrderSortOrder implements PostgreSQLSortOrder {
     CREATED_AT_ASC(List.of(new PostgreSQLSortProperty("createdAt", Direction.ASC))),
     CREATED_AT_DESC(List.of(new PostgreSQLSortProperty("createdAt", Direction.DESC))),
 
-    PRODUCTS_COUNT_ASC(List.of(new SortJsonBProperty("products", Direction.ASC))),
-    PRODUCTS_COUNT_DESC(List.of(new SortJsonBProperty("products", Direction.DESC))),
+    LAST_MODIFIED_AT_ASC(List.of(new PostgreSQLSortProperty("lastModifiedAt", Direction.ASC))),
+    LAST_MODIFIED_AT_DESC(List.of(new PostgreSQLSortProperty("lastModifiedAt", Direction.DESC))),
 
     DEFAULT_SORT(List.of(new PostgreSQLSortProperty("name", Direction.ASC)));
 
@@ -42,8 +41,8 @@ enum OrderSortOrder implements PostgreSQLSortOrder {
             case NAME_DESC -> OrderSortOrder.NAME_DESC;
             case CREATED_AT_ASC -> OrderSortOrder.CREATED_AT_ASC;
             case CREATED_AT_DESC -> OrderSortOrder.CREATED_AT_DESC;
-            case PRODUCTS_COUNT_ASC -> OrderSortOrder.PRODUCTS_COUNT_ASC;
-            case PRODUCTS_COUNT_DESC -> OrderSortOrder.PRODUCTS_COUNT_DESC;
+            case LAST_MODIFIED_AT_ASC -> OrderSortOrder.LAST_MODIFIED_AT_ASC;
+            case LAST_MODIFIED_AT_DESC -> OrderSortOrder.LAST_MODIFIED_AT_DESC;
 
             // in case if any other request's value is not handled.
             default -> OrderSortOrder.DEFAULT_SORT;
