@@ -11,6 +11,7 @@ import mm.expenses.manager.order.exception.OrderExceptionMessage;
 import mm.expenses.manager.order.price.OrderPrice;
 import mm.expenses.manager.order.price.PriceConverter;
 import mm.expenses.manager.order.product.Product;
+import mm.expenses.manager.order.product.ProductPrice;
 import mm.expenses.manager.order.product.ProductService;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +49,17 @@ class OrderedProductService {
             orderedProduct.setCurrency(currency);
             orderedProduct.setPriceOriginal(false);
         } else {
-            val productPrice = product.getPrice().get(0);
+            val prices = product.getPrices();
+            val productPrice = prices.stream()
+                    .filter(ProductPrice::isOriginal)
+                    .findAny()
+                    .orElseGet(() -> {
+                        val defaultCurrencyPrice = prices.get(priceConverter.getDefaultCurrency());
+
+                        // in case if original price for this product does not exist, find the price of current
+                        // default currency, otherwise returns the first available price
+                        return Objects.nonNull(defaultCurrencyPrice) ? defaultCurrencyPrice : prices.get(0);
+                    });
 
             orderedProduct.setValue(productPrice.getValue());
             orderedProduct.setCurrency(productPrice.getCurrency());

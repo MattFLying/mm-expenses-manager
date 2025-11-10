@@ -210,8 +210,8 @@ class OrderControllerTest extends OrderApplicationTest {
             val convertedCurrencyRequest = convertedCurrenciesRequestList.get(0);
             assertThat(convertedCurrencyRequest.getId()).isEqualTo(expectedProduct.getId().toString());
             assertThat(convertedCurrencyRequest.getDate()).isEqualTo(expectedConvertedCurrencyResponse.getDate());
-            assertThat(convertedCurrencyRequest.getFrom().getCode()).isEqualTo(expectedProduct.getPrice().get(0).getCurrency().getCode());
-            assertThat(convertedCurrencyRequest.getFrom().getValue()).isEqualTo(expectedProduct.getPrice().get(0).getValue().doubleValue());
+            assertThat(convertedCurrencyRequest.getFrom().getCode()).isEqualTo(expectedProduct.getPrices().get(0).getCurrency().getCode());
+            assertThat(convertedCurrencyRequest.getFrom().getValue()).isEqualTo(expectedProduct.getPrices().get(0).getValue().doubleValue());
             assertThat(convertedCurrencyRequest.getTo().getCode()).isEqualTo(DEFAULT_CURRENCY.getCode());
         }
 
@@ -592,8 +592,8 @@ class OrderControllerTest extends OrderApplicationTest {
             val convertedCurrencyRequest = convertedCurrenciesRequestList.get(0);
             assertThat(convertedCurrencyRequest.getId()).isEqualTo(expectedProduct.getId().toString());
             assertThat(convertedCurrencyRequest.getDate()).isEqualTo(expectedConvertedCurrencyResponse.getDate());
-            assertThat(convertedCurrencyRequest.getFrom().getCode()).isEqualTo(expectedProduct.getPrice().get(0).getCurrency().getCode());
-            assertThat(convertedCurrencyRequest.getFrom().getValue()).isEqualTo(expectedProduct.getPrice().get(0).getValue().doubleValue());
+            assertThat(convertedCurrencyRequest.getFrom().getCode()).isEqualTo(expectedProduct.getPrices().get(0).getCurrency().getCode());
+            assertThat(convertedCurrencyRequest.getFrom().getValue()).isEqualTo(expectedProduct.getPrices().get(0).getValue().doubleValue());
             assertThat(convertedCurrencyRequest.getTo().getCode()).isEqualTo(DEFAULT_CURRENCY.getCode());
         }
 

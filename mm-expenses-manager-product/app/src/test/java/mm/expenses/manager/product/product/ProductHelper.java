@@ -125,19 +125,22 @@ public class ProductHelper {
     }
 
     public static Product createProduct(final String name, final CurrencyCode currency, final BigDecimal price, final Instant createdAndModifiedDate, final boolean isDeleted) {
+        final var newPrice = ProductPrice.builder()
+                .id(UUID.randomUUID())
+                .value(price)
+                .currency(currency)
+                .isOriginal(true)
+                .date(DateUtils.instantToLocalDate(createdAndModifiedDate).toString())
+                .createdAt(createdAndModifiedDate)
+                .lastModifiedAt(createdAndModifiedDate)
+                .build();
+        final var newPrices = new ArrayList<ProductPrice>();
+        newPrices.add(newPrice);
+
         return Product.builder()
                 .id(ID)
                 .name(name)
-                .prices(List.of(
-                        ProductPrice.builder()
-                                .id(UUID.randomUUID())
-                                .value(price)
-                                .currency(currency)
-                                .isOriginal(true)
-                                .createdAt(createdAndModifiedDate)
-                                .lastModifiedAt(createdAndModifiedDate)
-                                .build()
-                ))
+                .prices(newPrices)
                 .details(PRODUCT_DETAILS)
                 .createdAt(createdAndModifiedDate)
                 .lastModifiedAt(createdAndModifiedDate)

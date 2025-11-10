@@ -5,15 +5,17 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.order.api.order.model.*;
 import mm.expenses.manager.order.price.OrderPrice;
 import mm.expenses.manager.order.product.Product;
+import mm.expenses.manager.order.product.ProductPrice;
+import mm.expenses.manager.order.product.ProductPrices;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -107,12 +109,12 @@ public class OrderHelper {
 
     public static CurrencyConversionResponse createCurrencyConversionResponse(final Product product) {
         val from = new CurrencyConversionValueDto();
-        from.setCode(product.getPrice().get(0).getCurrency().getCode());
-        from.setValue(product.getPrice().get(0).getValue().doubleValue());
+        from.setCode(product.getPrices().get(0).getCurrency().getCode());
+        from.setValue(product.getPrices().get(0).getValue().doubleValue());
 
         val to = new CurrencyConversionValueDto();
         to.setCode(DEFAULT_CURRENCY.getCode());
-        to.setValue(product.getPrice().get(0).getValue().doubleValue());
+        to.setValue(product.getPrices().get(0).getValue().doubleValue());
 
         val response = new CurrencyConversionResponse();
         response.setId(product.getId().toString());
@@ -323,8 +325,8 @@ public class OrderHelper {
 
     private static PriceRequest createPriceRequest(final Product product) {
         val price = new PriceRequest();
-        price.setValue(product.getPrice().get(0).getValue());
-        price.setCurrency(product.getPrice().get(0).getCurrency().getCode());
+        price.setValue(product.getPrices().get(0).getValue());
+        price.setCurrency(product.getPrices().get(0).getCurrency().getCode());
         return price;
     }
 
@@ -361,9 +363,12 @@ public class OrderHelper {
     }
 
     private static Product createProduct(final CurrencyCode defaultCurrency, final Instant now, final boolean isDeleted) {
+        final var productPrices = new ProductPrices();
+        productPrices.add(new ProductPrice(defaultCurrency, BigDecimalWrapper.of(getRandomPriceValue()), DateUtils.instantToLocalDate(now).toString(), true));
+
         return Product.builder()
                 .id(UUID.randomUUID())
-                .price(new Prices(new Price(defaultCurrency, BigDecimal.valueOf(getRandomPriceValue()), now)))
+                .prices(productPrices)
                 .details(PRODUCT_DETAILS)
                 .isDeleted(isDeleted)
                 .createdAt(now)

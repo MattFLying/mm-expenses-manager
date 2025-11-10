@@ -41,6 +41,14 @@ public interface ProductMapper extends AbstractMapper {
     @Mapping(target = "operation", source = "operation")
     ProductManagementMessage map(final Product product, final AsyncKafkaOperation operation);
 
+    @Mapping(target = "id", source = "product.id")
+    @Mapping(target = "createdAt", source = "price.createdAt")
+    @Mapping(target = "lastModifiedAt", source = "price.lastModifiedAt")
+    @Mapping(target = "price", expression = "java(mm.expenses.manager.product.price.ProductPriceMapper.INSTANCE.mapToPriceMessage(price))")
+    @Mapping(target = "isDeleted", source = "product.deleted")
+    @Mapping(target = "operation", source = "operation")
+    ProductManagementMessage map(final Product product, final ProductPrice price, final AsyncKafkaOperation operation);
+
     @Mapping(target = "id", source = "product.productId")
     @Mapping(target = "name", source = "product.name")
     @Mapping(target = "details", source = "product.details")
@@ -55,6 +63,16 @@ public interface ProductMapper extends AbstractMapper {
 
     default ProductPrice map(final List<ProductPrice> prices, final CurrencyCode expectedCurrency) {
         return ProductPriceMapper.INSTANCE.getExpectedCurrencyOrOriginalPrice(prices, expectedCurrency);
+    }
+
+    default ProductManagementMessage mapProductPrice(final Product product, final ProductPrice price, final AsyncKafkaOperation operation) {
+        return ProductManagementMessage.builder()
+                .id(product.getId())
+                .price(mm.expenses.manager.product.price.ProductPriceMapper.INSTANCE.mapToPriceMessage(price))
+                .createdAt(product.getCreatedAt())
+                .lastModifiedAt(product.getLastModifiedAt())
+                .operation(operation)
+                .build();
     }
 
 }

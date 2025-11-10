@@ -6,6 +6,8 @@ import mm.expenses.manager.common.exceptions.api.ApiBadRequestException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
+import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
 import mm.expenses.manager.product.api.product.model.UpdatePriceRequest;
@@ -52,6 +54,19 @@ public class ProductPriceService {
                 .isOriginal(true)
                 .createdAt(updatedTime)
                 .lastModifiedAt(updatedTime)
+                .isDeleted(product.isDeleted())
+                .build();
+    }
+
+    public ProductPrice createNewPrice(final Product product, final CurrencyConversionResponse price, final Instant now) {
+        return ProductPrice.builder()
+                .value(BigDecimalWrapper.of(price.getTo().getValue()))
+                .currency(CurrencyCode.getCurrencyFromString(price.getTo().getCode()))
+                .date(price.getDate().toString())
+                .isOriginal(false)
+                .product(product)
+                .createdAt(now)
+                .lastModifiedAt(now)
                 .isDeleted(product.isDeleted())
                 .build();
     }

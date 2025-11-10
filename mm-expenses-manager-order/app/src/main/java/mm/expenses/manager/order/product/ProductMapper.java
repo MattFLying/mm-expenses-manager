@@ -3,8 +3,6 @@ package mm.expenses.manager.order.product;
 import mm.expenses.manager.common.kafka.message.PriceMessage;
 import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
-import mm.expenses.manager.common.utils.price.Price;
-import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,8 +20,10 @@ import java.util.stream.Collectors;
 )
 public interface ProductMapper extends AbstractMapper {
 
-    @Mapping(target = "price", expression = "java(mapPrice(message.getPrice(), message.getLastModifiedAt()))")
+    @Mapping(target = "prices", expression = "java(mapPrice(message.getPrice(), message.getLastModifiedAt()))")
     Product mapCreate(final ProductManagementMessage message);
+
+    ProductPrice mapProductPrice(final PriceMessage message);
 
     default Product mapUpdate(Product product, final ProductManagementMessage message) {
         if (MapUtils.isNotEmpty(message.getDetails())) {
@@ -36,38 +36,38 @@ public interface ProductMapper extends AbstractMapper {
             product.setLastModifiedAt(message.getLastModifiedAt());
         }
         if (Objects.nonNull(message.getPrice())) {
-            var price = mapPrice(product, message.getPrice());
-            product.setPrice(price);
+            product.setPrices(mapPrices(product, message.getPrice()));
         }
         return product;
     }
 
-    default Prices mapPrice(final Product product, final PriceMessage message) {
-        var originalPrice = product.getPrice();
+    default ProductPrices mapPrices(final Product product, final PriceMessage message) {
+        final var currentPrices = product.getPrices();
         if (Objects.isNull(message)) {
-            return originalPrice;
+            return currentPrices;
         }
-        if (Objects.nonNull(message.getValue())) {
-            if (originalPrice.size() == 1) {
-                originalPrice.get(0).setValue(message.getValue());
-            }
+
+        final var priceOfCurrencyExists = currentPrices.exists(message.getCurrency());
+        if (priceOfCurrencyExists) {
+            currentPrices.update(message.getCurrency(), message.getValue(), message.getDate(), message.getIsOriginal());
+        } else {
+            currentPrices.add(mapProductPrice(message));
         }
-        if (Objects.nonNull(message.getCurrency())) {
-            if (originalPrice.size() == 1) {
-                originalPrice.get(0).setCurrency(message.getCurrency());
-            }
-        }
-        return originalPrice;
+        return currentPrices;
     }
 
-    default Prices mapPrice(final PriceMessage message, final Instant date) {
-        var price = new Price();
+    default ProductPrices mapPrice(final PriceMessage message, final Instant date) {
+        final var prices = new ProductPrices();
+        final var price = new ProductPrice();
         if (Objects.nonNull(message)) {
             price.setValue(message.getValue());
             price.setCurrency(message.getCurrency());
-            price.setDate(date);
+            price.setDate(DateUtils.instantToLocalDate(date).toString());
+            price.setOriginal(message.getIsOriginal());
+
+            prices.add(mapProductPrice(message));
         }
-        return new Prices(price);
+        return prices;
     }
 
 }

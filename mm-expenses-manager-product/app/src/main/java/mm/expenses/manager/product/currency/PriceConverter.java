@@ -5,9 +5,12 @@ import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.product.client.FinanceApiClient;
 import mm.expenses.manager.product.config.CurrencyConfig;
+import mm.expenses.manager.product.price.ProductPrice;
+import mm.expenses.manager.product.product.Product;
 import mm.expenses.manager.product.product.ProductFilterView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class PriceConverter {
+
+    public static final String CORRELATION_ID_SEPARATOR = "_";
 
     private final FinanceApiClient client;
     private final CurrencyConfig config;
@@ -58,8 +63,26 @@ public class PriceConverter {
         return products;
     }
 
+    public List<CurrencyConversionResponse> convert(final List<CurrencyConversionRequest> pricesConversionRequests) {
+        return client.convertMultipleRates(pricesConversionRequests);
+    }
+
+    public List<CurrencyConversionRequest> createConversionRequests(final Product product, final Set<CurrencyCode> missingCurrencies, final ProductPrice priceOriginalOrAny) {
+        return missingCurrencies.stream()
+                .map(currencyCode -> mapToRequestWithCorrelationId(product, priceOriginalOrAny, currencyCode))
+                .collect(Collectors.toList());
+    }
+
     private boolean isTheConversionResponseSameAsProduct(final ProductFilterView product, final CurrencyConversionResponse conversionResponse) {
         return StringUtils.equals(conversionResponse.getId(), product.getProductId().toString()) && Objects.equals(product.getPriceCurrency().getCode(), conversionResponse.getFrom().getCode());
+    }
+
+    private CurrencyConversionRequest mapToRequestWithCorrelationId(final Product product, final ProductPrice priceOriginalOrAny, final CurrencyCode currencyCode) {
+        return mapper.map(product, currencyCode, priceOriginalOrAny, prepareCorrelationIdForProductPrice(product.getId().toString(), currencyCode));
+    }
+
+    private String prepareCorrelationIdForProductPrice(final String productId, final CurrencyCode currencyCode) {
+        return String.format("%s%s%s", productId, CORRELATION_ID_SEPARATOR, currencyCode.getCode());
     }
 
 }

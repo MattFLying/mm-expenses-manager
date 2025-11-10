@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Three digits code, iso currency code and countries of usage according to ISO 4217
@@ -62,6 +63,10 @@ public enum CurrencyCode {
             return false;
         }
         return Arrays.stream(values()).anyMatch(code -> currencyCode.equals(code.getCode()));
+    }
+
+    public static Set<CurrencyCode> available() {
+        return Arrays.stream(values()).filter(currencyCode -> !currencyCode.equals(CurrencyCode.UNDEFINED)).collect(Collectors.toSet());
     }
 
 }

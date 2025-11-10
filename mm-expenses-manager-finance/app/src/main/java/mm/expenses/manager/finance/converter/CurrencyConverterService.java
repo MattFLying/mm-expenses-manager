@@ -46,7 +46,11 @@ class CurrencyConverterService {
                 .map(request -> {
                     val currencyCodeFrom = CurrencyCode.getCurrencyFromString(request.getFrom().getCode(), false);
                     val currencyCodeTo = CurrencyCode.getCurrencyFromString(Objects.nonNull(request.getTo()) ? request.getTo().getCode() : currenciesService.getCurrentCurrency().getCode(), false);
-                    val converted = findConversionStrategy(currencyCodeFrom, currencyCodeTo).convert(currencyCodeFrom, currencyCodeTo, BigDecimalWrapper.of(request.getFrom().getValue()));
+                    val date = request.getDate();
+
+                    val converted = Objects.nonNull(date)
+                            ? findConversionStrategy(currencyCodeFrom, currencyCodeTo).convert(currencyCodeFrom, currencyCodeTo, BigDecimalWrapper.of(request.getFrom().getValue()), date)
+                            : findConversionStrategy(currencyCodeFrom, currencyCodeTo).convert(currencyCodeFrom, currencyCodeTo, BigDecimalWrapper.of(request.getFrom().getValue()));
 
                     return CurrencyConversion.of(request.getId(), converted.date(), CurrencyRate.of(currencyCodeFrom, BigDecimalWrapper.of(request.getFrom().getValue())), converted);
                 })

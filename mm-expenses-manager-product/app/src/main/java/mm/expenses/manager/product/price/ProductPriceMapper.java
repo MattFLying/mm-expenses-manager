@@ -23,9 +23,6 @@ public interface ProductPriceMapper extends AbstractMapper {
 
     ProductPriceMapper INSTANCE = Mappers.getMapper(ProductPriceMapper.class);
 
-    @Mapping(target = "currency", expression = "java(CurrencyCode.getCurrencyFromString(createPriceRequest.getCurrency()))")
-    Price map(final CreatePriceRequest createPriceRequest);
-
     @Mapping(target = "value", expression = "java(createProductRequest.getPrice().getValue())")
     @Mapping(target = "currency", expression = "java(CurrencyCode.getCurrencyFromString(createProductRequest.getPrice().getCurrency()))")
     @Mapping(target = "isOriginal", expression = "java(true)")
@@ -42,6 +39,7 @@ public interface ProductPriceMapper extends AbstractMapper {
     @Mapping(target = "isOriginal", expression = "java(product.isPriceOriginal())")
     PriceResponse mapToPrice(final ProductFilterView product);
 
+    @Mapping(target = "isOriginal", expression = "java(price.isOriginal())")
     PriceMessage mapToPriceMessage(final ProductPrice price);
 
     @Mapping(target = "isOriginal", expression = "java(price.isOriginal())")
