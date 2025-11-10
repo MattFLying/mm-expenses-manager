@@ -38,6 +38,7 @@ app:
         product-management: product-management
   product:
     clear-deleted-cron: "0 0 0 ? * *" # every day at 12:00
+    update-currencies-cron: "0 0 0/1 * * ?" # every hour
   currency:
     default-currency: PLN
   feign-client:

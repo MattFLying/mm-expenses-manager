@@ -21,4 +21,8 @@ public class PriceMessage {
 
     private BigDecimal value;
 
+    private Boolean isOriginal;
+
+    private String date;
+
 }

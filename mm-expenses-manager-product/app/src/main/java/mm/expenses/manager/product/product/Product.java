@@ -15,13 +15,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor
@@ -78,13 +76,33 @@ public class Product implements Serializable {
         setLastModifiedAt(createdAt);
     }
 
-    public void setPrice(List<ProductPrice> prices) {
+    public void setPrice(final List<ProductPrice> prices) {
         if (CollectionUtils.isNotEmpty(prices)) {
             this.prices = prices;
             this.prices.forEach(price -> {
                 price.setProduct(this);
             });
         }
+    }
+
+    public void addPrice(final ProductPrice price) {
+        if (Objects.isNull(this.prices)) {
+            this.prices = new ArrayList<>();
+        }
+
+        price.setProduct(this);
+        this.prices.add(price);
+    }
+
+    public void addPrices(final List<ProductPrice> prices) {
+        if (Objects.isNull(this.prices)) {
+            this.prices = new ArrayList<>();
+        }
+
+        prices.forEach(price -> {
+            price.setProduct(this);
+        });
+        this.prices.addAll(prices);
     }
 
 }

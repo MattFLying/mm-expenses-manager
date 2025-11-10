@@ -1,26 +1,26 @@
 package mm.expenses.manager.product.product;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import mm.expenses.manager.common.async.AsyncMessageProducer;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.exceptions.api.ApiValidationException;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCriteriaParameter;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
+import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.product.ProductCommonValidation;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
 import mm.expenses.manager.product.api.product.model.ProductResponse;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
+import mm.expenses.manager.product.price.ProductPrice;
 import mm.expenses.manager.product.price.ProductPriceService;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,17 +29,18 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository repository;
     private final ProductFilterViewRepository productFilterViewRepository;
-    private final AsyncMessageProducer producer;
     private final ProductPriceService priceService;
     private final ProductMapper mapper;
     private final ProductFilterViewSpecificationHandler productFilterViewSpecificationHandler;
     private final PriceConverter priceConverter;
+    private final ProductAsyncHandler asyncHandler;
 
     @Transactional
     public ProductResponse create(final CreateProductRequest request) {
@@ -144,6 +145,78 @@ public class ProductService {
         return pagedOrders;
     }
 
+    public Page<Product> findProductsWithMissingPriceCurrencies(final PageRequest pageable) {
+        return repository.findAllWithCurrenciesLessThan(CurrencyCode.available().size(), pageable);
+    }
+
+    @Transactional
+    public Map<Product, List<ProductPrice>> updateConvertedPrices(final List<Product> products) {
+        try {
+            val now = Instant.now();
+            val productsById = products.stream().collect(Collectors.toMap(Product::getId, Function.identity()));
+            val currenciesAvailable = CurrencyCode.available();
+
+            val pricesConversionRequests = new ArrayList<CurrencyConversionRequest>();
+            productsById.forEach((productId, product) -> findAndPrepareProductPriceConversionRequests(product, currenciesAvailable, pricesConversionRequests));
+
+            if (!pricesConversionRequests.isEmpty()) {
+                val convertedPrices = priceConverter.convert(pricesConversionRequests)
+                        .stream()
+                        .peek(response -> {
+                            val id = response.getId();
+
+                            // id needs to be split here to easily group all responses by product id
+                            val idFromCorrelationId = id.substring(0, id.indexOf(PriceConverter.CORRELATION_ID_SEPARATOR));
+                            response.setId(idFromCorrelationId);
+                        })
+                        .collect(Collectors.groupingBy(CurrencyConversionResponse::getId));
+
+                val pricesByProductId = new HashMap<String, List<ProductPrice>>();
+                val productsWithUpdatedPrices = products.stream()
+                        .filter(product -> convertedPrices.containsKey(product.getId().toString()))
+                        .peek(product -> {
+                            val convertedPricesForProduct = convertedPrices.get(product.getId().toString());
+                            val newPrices = convertedPricesForProduct.stream()
+                                    .map(converted -> priceService.createNewPrice(product, converted, now))
+                                    .toList();
+
+                            pricesByProductId.put(product.getId().toString(), newPrices);
+                            product.addPrices(newPrices);
+                        })
+                        .toList();
+
+
+                return productsWithUpdatedPrices.stream()
+                        .map(this::saveProduct)
+                        .collect(Collectors.toMap(
+                                Function.identity(),
+                                product -> pricesByProductId.get(product.getId().toString())
+                        ));
+            }
+        } catch (final Exception exception) {
+            log.error("Cannot update converted prices.", exception);
+        }
+        return Collections.emptyMap();
+    }
+
+    private void findAndPrepareProductPriceConversionRequests(final Product product, final Set<CurrencyCode> currenciesAvailable, final List<CurrencyConversionRequest> pricesConversionRequests) {
+        val prices = product.getPrices();
+        val pricesByCurrency = prices.stream().collect(Collectors.groupingBy(ProductPrice::getCurrency));
+
+        val missingCurrencies = currenciesAvailable.stream()
+                .filter(currencyCode -> !pricesByCurrency.containsKey(currencyCode))
+                .collect(Collectors.toSet());
+
+        // original price is the main goal here but in case if it is missing just takes the first available price
+        // and prepare conversion requests based on that. Price is always required to be present, so there is always at least one position
+        val priceOriginalOrAny = prices.stream()
+                .filter(ProductPrice::isOriginal)
+                .findAny()
+                .orElseGet(() -> prices.get(0));
+
+        pricesConversionRequests.addAll(priceConverter.createConversionRequests(product, missingCurrencies, priceOriginalOrAny));
+    }
+
     private void convertCurrencies(final Page<ProductFilterView> pagedOrders, final CurrencyCode defaultCurrency) {
         val isCurrencyConversionNeeded = pagedOrders.getContent()
                 .stream()
@@ -221,9 +294,13 @@ public class ProductService {
     }
 
     private Product saveProduct(final Product product, final AsyncKafkaOperation operation) {
-        final var savedProduct = repository.save(product);
-        producer.send(mapper.map(savedProduct, operation));
+        final var savedProduct = saveProduct(product);
+        asyncHandler.sendProductMessage(savedProduct, operation);
         return savedProduct;
+    }
+
+    private Product saveProduct(final Product product) {
+        return repository.save(product);
     }
 
 }

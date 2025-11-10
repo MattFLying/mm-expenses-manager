@@ -485,7 +485,44 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
 
         @ParameterizedTest
         @ArgumentsSource(CurrencyCodeArgument.class)
-        void shouldReturnConvertedCurrency(final CurrencyCode currency) throws Exception {
+        void shouldReturnConvertedCurrencyWithDefaultConversionWithCurrentTime_whenDateIsNotPresent(final CurrencyCode currency) throws Exception {
+            // given
+            val date = LocalDate.now();
+
+            val expected = createNewExchangeRate(currency, date);
+            val rate = expected.getRateByProvider(PROVIDER_NAME);
+            latestCacheTest.saveInMemory(currency, expected);
+
+            val fromDto = new CurrencyConversionValueDto();
+            fromDto.setCode(currency.getCode());
+            fromDto.setValue(rate.getFrom().getValue().doubleValue());
+
+            val toDto = new CurrencyConversionValueDto();
+            toDto.setCode(DEFAULT_CURRENCY.getCode());
+
+            val conversionDto = new CurrencyConversionRequest();
+            conversionDto.setFrom(fromDto);
+            conversionDto.setTo(toDto);
+            conversionDto.setId(UUID.randomUUID().toString());
+
+            val request = List.of(conversionDto);
+
+            // when && then
+            mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+                    .andExpect(content().contentType(DATA_FORMAT_JSON))
+                    .andExpect(status().isOk())
+
+                    .andExpect(jsonPath("$[0].id", is(conversionDto.getId())))
+                    .andExpect(jsonPath("$[0].date", is(date.toString())))
+                    .andExpect(jsonPath("$[0].from.value", is(fromDto.getValue())))
+                    .andExpect(jsonPath("$[0].from.code", is(fromDto.getCode())))
+                    .andExpect(jsonPath("$[0].to.value", is(rate.getTo().getValue().doubleValue())))
+                    .andExpect(jsonPath("$[0].to.code", is(toDto.getCode())));
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CurrencyCodeArgument.class)
+        void shouldReturnConvertedCurrencyWithConversionForSpecificDate_whenDateIsPresent(final CurrencyCode currency) throws Exception {
             // given
             val date = LocalDate.now();
 
@@ -507,6 +544,8 @@ class CurrencyConverterControllerTest extends FinanceApplicationTest {
             conversionDto.setId(UUID.randomUUID().toString());
 
             val request = List.of(conversionDto);
+
+            when(exchangeRateCacheService.findForCurrencyAndSpecificDate(currency, date)).thenReturn(Optional.of(ExchangeRateCache.of(expected, false, PROVIDER_NAME)));
 
             // when && then
             mockMvc.perform(post(BASE_URL).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))

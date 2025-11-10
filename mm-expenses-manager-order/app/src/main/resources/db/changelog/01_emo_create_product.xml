@@ -10,7 +10,7 @@
                 <constraints nullable="false" unique="true"/>
             </column>
 
-            <column name="price" type="jsonb">
+            <column name="prices" type="jsonb">
                 <constraints nullable="false"/>
             </column>
 
