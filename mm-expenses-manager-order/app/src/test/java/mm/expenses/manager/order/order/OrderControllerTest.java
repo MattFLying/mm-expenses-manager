@@ -82,7 +82,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts", hasSize(1)))
@@ -92,12 +92,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -129,7 +129,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].priceSummary[0].amount", is(expectedOrderResultDeleted.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].priceSummary[0].value", is(expectedOrderResultDeleted.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].priceSummary[0].currency", is(expectedOrderResultDeleted.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts", hasSize(1)))
@@ -139,12 +139,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount", is(expectedOrderResultDeleted.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value", is(expectedOrderResultDeleted.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedOrderResultDeleted.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].isOriginal", is(expectedOrderResultDeleted.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].amount", is(expectedOrderResultDeleted.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].value", is(expectedOrderResultDeleted.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].currency", is(expectedOrderResultDeleted.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -180,7 +180,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts", hasSize(1)))
@@ -190,15 +190,15 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount").value(expectedConvertedCurrencyResponse.getTo().getValue().doubleValue()))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value").value(expectedConvertedCurrencyResponse.getTo().getValue().doubleValue()))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedConvertedCurrencyResponse.getTo().getCode())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
 
             val convertedCurrenciesRequestList = currencyConversionRequestCaptor.getValue();
@@ -243,7 +243,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts", hasSize(1)))
@@ -253,12 +253,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
 
             verifyNoInteractions(financeApiClient);
@@ -293,7 +293,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts", hasSize(1)))
@@ -303,12 +303,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -342,7 +342,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts", hasSize(1)))
@@ -352,12 +352,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -393,7 +393,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts", hasSize(1)))
@@ -403,12 +403,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.content[0].orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -437,7 +437,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -447,12 +447,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -477,7 +477,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -487,12 +487,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -517,7 +517,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -527,12 +527,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
         }
 
@@ -566,7 +566,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount").value(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue()))
+                    .andExpect(jsonPath("$.priceSummary[0].value").value(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue()))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -576,12 +576,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount").value(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue()))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value").value(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue()))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
 
             val convertedCurrenciesRequestList = currencyConversionRequestCaptor.getValue();
@@ -760,7 +760,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount").value(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue()))
+                    .andExpect(jsonPath("$.priceSummary[0].value").value(expectedOrderResult.getPriceSummary().get(0).getValue().doubleValue()))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -770,12 +770,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount").value(expectedConvertedCurrencyResponse.getTo().getValue()))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value").value(expectedConvertedCurrencyResponse.getTo().getValue()))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedConvertedCurrencyResponse.getTo().getCode())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount").value(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue()))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value").value(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue()))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
 
             verifyNoInteractions(financeApiClient);
@@ -1027,7 +1027,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(2)))
@@ -1037,12 +1037,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts[1].id", is(expectedProductToAdd.getId().toString())))
@@ -1051,12 +1051,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[1].lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.orderedProducts[1].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[1].price[0].amount", is(expectedOrderResult.getProducts().get(1).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[1].price[0].value", is(expectedOrderResult.getProducts().get(1).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[1].price[0].currency", is(expectedOrderResult.getProducts().get(1).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[1].price[0].isOriginal", is(expectedOrderResult.getProducts().get(1).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[1].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[1].priceSummary[0].amount", is(expectedUpdatedOrderResult.getProducts().get(1).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[1].priceSummary[0].value", is(expectedUpdatedOrderResult.getProducts().get(1).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[1].priceSummary[0].currency", is(expectedUpdatedOrderResult.getProducts().get(1).getPriceSummary().get(0).getCurrency().toString())));
 
             verifyNoInteractions(financeApiClient);
@@ -1111,7 +1111,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.name", is(expectedUpdatedOrderResult.getName())))
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -1119,12 +1119,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].quantity", is(expectedUpdatedOrderResult.getProducts().get(0).getQuantity())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
 
             verifyNoInteractions(financeApiClient);
@@ -1154,7 +1154,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.name", is(expectedUpdatedOrderResult.getName())))
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(2)))
@@ -1162,24 +1162,24 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].quantity", is(expectedUpdatedOrderResult.getProducts().get(0).getQuantity())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts[1].id", is(expectedProductToAdd.getId().toString())))
                     .andExpect(jsonPath("$.orderedProducts[1].quantity", is(expectedUpdatedOrderResult.getProducts().get(1).getQuantity())))
 
                     .andExpect(jsonPath("$.orderedProducts[1].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[1].price[0].amount", is(expectedOrderResult.getProducts().get(1).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[1].price[0].value", is(expectedOrderResult.getProducts().get(1).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[1].price[0].currency", is(expectedOrderResult.getProducts().get(1).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[1].price[0].isOriginal", is(expectedOrderResult.getProducts().get(1).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[1].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[1].priceSummary[0].amount", is(expectedUpdatedOrderResult.getProducts().get(1).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[1].priceSummary[0].value", is(expectedUpdatedOrderResult.getProducts().get(1).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[1].priceSummary[0].currency", is(expectedUpdatedOrderResult.getProducts().get(1).getPriceSummary().get(0).getCurrency().toString())));
 
             verifyNoInteractions(financeApiClient);
@@ -1207,7 +1207,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.name", is(expectedUpdatedOrderResult.getName())))
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -1215,12 +1215,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].quantity", is(expectedUpdatedOrderResult.getProducts().get(0).getQuantity())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
 
             verifyNoInteractions(financeApiClient);
@@ -1248,7 +1248,7 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.name", is(newOrderRequest.getName())))
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.priceSummary[0].amount", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.priceSummary[0].value", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.priceSummary[0].currency", is(expectedUpdatedOrderResult.getPriceSummary().get(0).getCurrency().toString())))
 
                     .andExpect(jsonPath("$.orderedProducts", hasSize(1)))
@@ -1256,12 +1256,12 @@ class OrderControllerTest extends OrderApplicationTest {
                     .andExpect(jsonPath("$.orderedProducts[0].quantity", is(expectedUpdatedOrderResult.getProducts().get(0).getQuantity())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].price", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].price[0].amount", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].price[0].value", is(expectedOrderResult.getProducts().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].currency", is(expectedOrderResult.getProducts().get(0).getCurrency().toString())))
                     .andExpect(jsonPath("$.orderedProducts[0].price[0].isOriginal", is(expectedOrderResult.getProducts().get(0).isPriceOriginal())))
 
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary", hasSize(1)))
-                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].amount", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
+                    .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].value", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getValue().doubleValue())))
                     .andExpect(jsonPath("$.orderedProducts[0].priceSummary[0].currency", is(expectedUpdatedOrderResult.getProducts().get(0).getPriceSummary().get(0).getCurrency().toString())));
 
             verifyNoInteractions(financeApiClient);
