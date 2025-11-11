@@ -439,7 +439,7 @@ components:
         currency:
           type: string
           description: Currency code of the price.
-        amount:
+        value:
           type: BigDecimal
           description: Price value.
         isOriginal:
@@ -448,7 +448,7 @@ components:
       additionalProperties: false
       description: Price response data.
       example: |
-        {"currency": "PLN", "amount": 1.15, "isOriginal": true}
+        {"currency": "PLN", "value": 1.15, "isOriginal": true}
 
     MultiPricesResponse:
       type: array
@@ -456,7 +456,7 @@ components:
         $ref: '#/components/schemas/PriceResponse'
       description: Price response data distinguished by currency.
       example: |
-        [{"currency": "PLN", "amount": 2.30}, {"currency": "EUR", "amount": 7.14}]
+        [{"currency": "PLN", "value": 2.30}, {"currency": "EUR", "value": 7.14}]
 
     OrderedProductResponse:
       type: object

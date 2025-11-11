@@ -37,7 +37,7 @@ public interface OrderMapper extends AbstractMapper {
     OrderPage mapToPageResponse(final Page<Order> orderPage);
 
     @Mapping(target = "currency", expression = "java(value.getCurrency().getCode())")
-    @Mapping(target = "amount", expression = "java(mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper.of(value.getValue()))")
+    @Mapping(target = "value", expression = "java(mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper.of(value.getValue()))")
     PriceResponse mapPriceToResponse(final Price value);
 
     @Mapping(target = "productId", expression = "java(mapProductId(orderedProduct))")
@@ -51,7 +51,7 @@ public interface OrderMapper extends AbstractMapper {
     default List<PriceResponse> mapPriceToResponse(final OrderedProduct orderedProduct) {
         val price = new PriceResponse();
         price.setCurrency(orderedProduct.getCurrency().getCode());
-        price.setAmount(BigDecimalWrapper.of(orderedProduct.getValue()));
+        price.setValue(BigDecimalWrapper.of(orderedProduct.getValue()));
         price.setIsOriginal(orderedProduct.isPriceOriginal());
 
         return List.of(price);
