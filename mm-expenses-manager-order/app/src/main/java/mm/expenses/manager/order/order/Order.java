@@ -2,11 +2,11 @@ package mm.expenses.manager.order.order;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.common.utils.price.Price;
 import mm.expenses.manager.common.utils.price.PriceSummary;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
-import mm.expenses.manager.common.utils.util.DateUtils;
-import mm.expenses.manager.order.price.OrderPrice;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -75,26 +76,30 @@ public class Order implements Serializable, PriceSummary {
         return priceSummary;
     }
 
+    @Override
+    public Price getPriceSummary(final CurrencyCode currency) {
+        if (Objects.nonNull(products)) {
+            val pricesForCurrency = products.stream()
+                    .map(orderedProduct -> orderedProduct.getPriceSummary(currency))
+                    .toList();
+
+            priceSummary = Prices.ofCurrency(pricesForCurrency, currency);
+        }
+        return Optional.ofNullable(priceSummary)
+                .flatMap(prices -> prices.getByCurrency(currency))
+                .orElse(null);
+    }
+
     @PrePersist
     private void beforeSave() {
-        val now = DateUtils.nowAsInstant();
-        setCreatedAt(now);
-        setLastModifiedAt(now);
-
         if (Objects.nonNull(products)) {
             products.forEach(product -> {
-                product.setCreatedAt(now);
-                product.setLastModifiedAt(now);
                 product.setOrder(this);
             });
         }
-
         if (Objects.nonNull(prices)) {
             prices.forEach(price -> {
-                price.setCreatedAt(now);
-                price.setLastModifiedAt(now);
                 price.setOrder(this);
-                price.setDate(DateUtils.instantToLocalDate(now).toString());
             });
         }
     }

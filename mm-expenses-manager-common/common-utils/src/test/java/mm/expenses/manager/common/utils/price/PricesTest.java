@@ -211,6 +211,30 @@ class PricesTest {
 
     @ParameterizedTest
     @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
+    void ofCurrency_shouldCreatePricesFromPricesListAndSpecificCurrency(final CurrencyCode currency) {
+        // given
+        val value_1 = BigDecimal.valueOf(8.11);
+        val value_2 = BigDecimal.valueOf(2.22);
+        val date = Instant.now();
+        val price_1 = new Price(currency, value_1, date);
+        val price_2 = new Price(generateDifferentThan(currency), value_2, date);
+        val pricesList = List.of(price_1, price_2);
+
+        // when
+        val result = Prices.ofCurrency(pricesList, currency);
+
+        // then
+        assertThat(result.isEmpty()).isFalse();
+        assertThat(result).hasSize(1);
+
+        val resultedPrice_1 = result.get(0);
+        assertThat(resultedPrice_1.getValue()).isEqualTo(price_1.getValue());
+        assertThat(resultedPrice_1.getCurrency()).isEqualTo(price_1.getCurrency());
+        assertThat(resultedPrice_1.getDate()).isEqualTo(price_1.getDate());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
     void calculatePriceSummary_shouldCorrectlyCalculatePricesSummary(final CurrencyCode currency) {
         // given
         val date = Instant.now();
@@ -248,7 +272,7 @@ class PricesTest {
 
     @ParameterizedTest
     @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
-    void calculatePriceSummary_shouldCorrectlyCalculatePricesSummary2(final CurrencyCode currency) {
+    void calculatePriceSummary_shouldCorrectlyCalculatePricesSummaries(final CurrencyCode currency) {
         // given
         val date = Instant.now();
         val quantity = 2.45d;
@@ -298,6 +322,145 @@ class PricesTest {
         assertThat(result.isEmpty()).isTrue();
     }
 
+    @ParameterizedTest
+    @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
+    void calculatePriceSummary_shouldCorrectlyCalculatePricesSummaryForCurrency(final CurrencyCode currency) {
+        // given
+        val date = Instant.now();
+        val quantity = 2.45d;
+
+        val value_1 = BigDecimal.valueOf(3.21);
+        val price_1 = new Price(currency, value_1, date);
+        val prices_1 = Prices.of(List.of(price_1));
+        val summary_1 = new TestPriceSummary(prices_1, quantity);
+
+        val value_2 = BigDecimal.valueOf(6.43);
+        val price_2 = new Price(generateDifferentThan(currency), value_2, date);
+        val prices_2 = Prices.of(List.of(price_2));
+        val summary_2 = new TestPriceSummary(prices_2, quantity);
+
+        val summaryPrices = List.of(summary_1, summary_2);
+
+        // when
+        val result = Prices.calculatePriceSummary(summaryPrices, currency);
+
+        // then
+        assertThat(result.isEmpty()).isFalse();
+        assertThat(result).hasSize(1);
+
+        val resultedPrice_1 = result.get(0);
+        assertThat(resultedPrice_1.getValue()).isEqualTo(BigDecimalWrapper.of(Price.multiply(price_1, quantity).getValue()));
+        assertThat(resultedPrice_1.getCurrency()).isEqualTo(price_1.getCurrency());
+        assertThat(resultedPrice_1.getDate()).isEqualTo(price_1.getDate()).isEqualTo(price_1.getDate());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
+    void calculatePriceSummary_shouldCorrectlyCalculatePricesSummaryForCurrencies(final CurrencyCode currency) {
+        // given
+        val date = Instant.now();
+        val quantity = 2.45d;
+
+        val value_1 = BigDecimal.valueOf(7.32);
+        val price_1 = new Price(currency, value_1, date);
+        val prices_1 = Prices.of(List.of(price_1));
+        val summary_1 = new TestPriceSummary(prices_1, quantity);
+        val expectedValue_1 = Price.multiply(price_1, quantity).getValue();
+
+        val value_2 = BigDecimal.valueOf(1.21);
+        val price_2 = new Price(currency, value_2, date);
+        val prices_2 = Prices.of(List.of(price_2));
+        val summary_2 = new TestPriceSummary(prices_2, quantity);
+        val expectedValue_2 = Price.multiply(price_2, quantity).getValue();
+
+        val summaryPrices = List.of(summary_1, summary_2);
+
+        // when
+        val result = Prices.calculatePriceSummary(summaryPrices, currency);
+
+        // then
+        assertThat(result.isEmpty()).isFalse();
+        assertThat(result).hasSize(1);
+
+        val resultedPrice_1 = result.get(0);
+        assertThat(resultedPrice_1.getValue()).isEqualTo(BigDecimalWrapper.of(expectedValue_1.add(expectedValue_2)));
+        assertThat(resultedPrice_1.getCurrency()).isEqualTo(price_1.getCurrency());
+        assertThat(resultedPrice_1.getDate()).isEqualTo(price_1.getDate()).isEqualTo(price_1.getDate());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
+    void calculatePriceSummary_shouldReturnEmptyPrices_whenObjectsToCalculateAreNull(final CurrencyCode currency) {
+        // given & when
+        val result = Prices.calculatePriceSummary(null, currency);
+
+        // then
+        assertThat(result.isEmpty()).isTrue();
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
+    void calculatePriceSummary_shouldReturnEmptyPrices_whenObjectsToCalculateAreEmpty(final CurrencyCode currency) {
+        // given & when
+        val result = Prices.calculatePriceSummary(List.of(), currency);
+
+        // then
+        assertThat(result.isEmpty()).isTrue();
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
+    void getByCurrency_shouldCorrectlyFindPriceForCurrency(final CurrencyCode currency) {
+        // given
+        val date = Instant.now();
+        val quantity = 2.45d;
+
+        val value_1 = BigDecimal.valueOf(3.21);
+        val price_1 = new Price(currency, value_1, date);
+        val prices_1 = Prices.of(List.of(price_1));
+        val summary_1 = new TestPriceSummary(prices_1, quantity);
+
+        val value_2 = BigDecimal.valueOf(6.43);
+        val price_2 = new Price(generateDifferentThan(currency), value_2, date);
+        val prices_2 = Prices.of(List.of(price_2));
+        val summary_2 = new TestPriceSummary(prices_2, quantity);
+
+        val summaryPrices = List.of(summary_1, summary_2);
+        val prices = Prices.calculatePriceSummary(summaryPrices);
+
+        // when
+        val result = prices.getByCurrency(currency);
+
+        // then
+        assertThat(result.isEmpty()).isFalse();
+
+        val resultedPrice_1 = result.get();
+        assertThat(resultedPrice_1.getValue()).isEqualTo(BigDecimalWrapper.of(Price.multiply(price_1, quantity).getValue()));
+        assertThat(resultedPrice_1.getCurrency()).isEqualTo(price_1.getCurrency());
+        assertThat(resultedPrice_1.getDate()).isEqualTo(price_1.getDate()).isEqualTo(price_1.getDate());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(BaseInitTest.CurrencyCodeArgument.class)
+    void getByCurrency_shouldNotFindPriceForCurrencyIfIsNotPresent(final CurrencyCode currency) {
+        // given
+        val date = Instant.now();
+        val quantity = 2.45d;
+
+        val value_1 = BigDecimal.valueOf(3.21);
+        val price_1 = new Price(generateDifferentThan(currency), value_1, date);
+        val prices_1 = Prices.of(List.of(price_1));
+        val summary_1 = new TestPriceSummary(prices_1, quantity);
+
+        val prices = Prices.calculatePriceSummary(List.of(summary_1));
+
+        // when
+        val result = prices.getByCurrency(currency);
+
+        // then
+        assertThat(result.isEmpty()).isTrue();
+    }
+
     private CurrencyCode generateDifferentThan(final CurrencyCode currencyCode) {
         val listWithoutGivenCurrency = Stream.of(CurrencyCode.values()).filter(currency -> !currency.equals(currencyCode)).toList();
         return listWithoutGivenCurrency.stream()
@@ -316,6 +479,11 @@ class PricesTest {
         @Override
         public Prices getPriceSummary() {
             return Objects.nonNull(price) ? Prices.multiply(price, quantity) : new Prices();
+        }
+
+        @Override
+        public Price getPriceSummary(final CurrencyCode currency) {
+            return getPriceSummary().getByCurrency(currency).orElse(null);
         }
 
     }

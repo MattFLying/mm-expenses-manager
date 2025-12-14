@@ -16,18 +16,6 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="value" type="numeric(20,2)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="currency" type="varchar(5)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="is_price_original" type="boolean" defaultValue="true">
-                <constraints nullable="false"/>
-            </column>
-
             <column name="order_id" type="uuid">
                 <constraints nullable="false"/>
             </column>
@@ -56,11 +44,22 @@
         <addPrimaryKey columnNames="id" tableName="emo_order_product"/>
         <addUniqueConstraint columnNames="id" tableName="emo_order_product"/>
 
-        <addUniqueConstraint
-                columnNames="order_id, product_id"
-                constraintName="uq_order_product"
-                tableName="emo_order_product"
-        />
+        <createIndex indexName="idx_emo_order_product_order_id" tableName="emo_order_product">
+            <column name="order_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_product_id" tableName="emo_order_product">
+            <column name="product_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_is_deleted" tableName="emo_order_product">
+            <column name="is_deleted"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_order_id_product_id" tableName="emo_order_product">
+            <column name="order_id"/>
+            <column name="product_id"/>
+        </createIndex>
 
         <addForeignKeyConstraint baseTableName="emo_order_product"
                                  baseColumnNames="order_id"

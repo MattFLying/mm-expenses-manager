@@ -11,7 +11,6 @@ import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderedProductRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
-import mm.expenses.manager.order.price.OrderPrice;
 import mm.expenses.manager.order.price.PriceConverter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -143,19 +142,36 @@ class OrderUpdater {
 
         if (Objects.nonNull(requestedProduct.getPrice())) {
             val newPrice = requestedProduct.getPrice();
+            val prices = productFromEntity.getPrices();
             if (Objects.nonNull(newPrice.getValue())) {
-                productFromEntity.setValue(newPrice.getValue());
-                productFromEntity.setPriceOriginal(false);
+                val originalPrice = prices.stream()
+                        .filter(OrderedProductPrice::isPriceOriginal)
+                        .findFirst()
+                        .orElse(null);
 
-                productFromEntity.setLastModifiedAt(updateTime);
-                isProductUpdated = true;
+                if (Objects.nonNull(originalPrice)) {
+                    originalPrice.setValue(newPrice.getValue());
+                    originalPrice.setPriceCustom(true);
+                    originalPrice.setLastModifiedAt(updateTime);
+
+                    productFromEntity.setLastModifiedAt(updateTime);
+                    isProductUpdated = true;
+                }
             }
             if (Objects.nonNull(newPrice.getCurrency())) {
-                productFromEntity.setCurrency(CurrencyCode.getCurrencyFromString(newPrice.getCurrency()));
-                productFromEntity.setPriceOriginal(false);
+                val originalPrice = prices.stream()
+                        .filter(OrderedProductPrice::isPriceOriginal)
+                        .findFirst()
+                        .orElse(null);
 
-                productFromEntity.setLastModifiedAt(updateTime);
-                isProductUpdated = true;
+                if (Objects.nonNull(originalPrice)) {
+                    originalPrice.setCurrency(CurrencyCode.getCurrencyFromString(newPrice.getCurrency()));
+                    originalPrice.setPriceCustom(true);
+                    originalPrice.setLastModifiedAt(updateTime);
+
+                    productFromEntity.setLastModifiedAt(updateTime);
+                    isProductUpdated = true;
+                }
             }
         }
         return isProductUpdated;
@@ -176,7 +192,7 @@ class OrderUpdater {
 
         val newOrderedProducts = new ArrayList<OrderedProduct>();
         for (var productToAdd : productsToAdd) {
-            val newOrderedProduct = orderedProductService.mapToOrderedProduct(productToAdd, foundProductsByIds.get(productToAdd.getProductId()));
+            val newOrderedProduct = orderedProductService.mapToOrderedProduct(productToAdd, foundProductsByIds.get(productToAdd.getProductId()), updatedTime);
             newOrderedProduct.setOrder(existedOrder);
             newOrderedProduct.setCreatedAt(updatedTime);
             newOrderedProduct.setLastModifiedAt(updatedTime);
@@ -200,7 +216,14 @@ class OrderUpdater {
                 ));
         val existingProductsByCurrency = existedOrder.getProducts()
                 .stream()
-                .collect(Collectors.groupingBy(OrderedProduct::getCurrency));
+                .collect(Collectors.groupingBy(
+                        product -> product.getPrices()
+                                .stream()
+                                .filter(OrderedProductPrice::isPriceOriginal)
+                                .findAny()
+                                .map(OrderedProductPrice::getCurrency)
+                                .orElse(CurrencyCode.UNDEFINED)
+                ));
 
         existingPrices.removeIf(existingPrice -> !existingProductsByCurrency.containsKey(existingPrice.getCurrency()));
         existingProductsByCurrency.forEach((currency, products) -> {

@@ -19,5 +19,6 @@
     <include file="changelog/02_emo_create_order.xml" relativeToChangelogFile="true"/>
     <include file="changelog/03_emo_create_order_price.xml" relativeToChangelogFile="true"/>
     <include file="changelog/04_emo_create_order_product.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/05_emo_create_order_product_price.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

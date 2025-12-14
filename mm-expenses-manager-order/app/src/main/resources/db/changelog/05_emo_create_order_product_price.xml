@@ -1,0 +1,117 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="05-emo-create-order-product-price" author="mateusz.mucha">
+
+        <createTable tableName="emo_order_product_price">
+
+            <column name="id" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="value" type="numeric(20,2)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="currency" type="varchar(5)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="date" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Defines if price is originally created during order creation -->
+            <column name="is_price_original" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Defines if price is custom instead of taken from the available product price during order creation -->
+            <column name="is_price_custom" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Defines if price is converted to specific currency based on original price -->
+            <column name="is_price_converted" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="order_product_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_modified_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="id" tableName="emo_order_product_price"/>
+        <addUniqueConstraint columnNames="id" tableName="emo_order_product_price"/>
+
+        <createIndex indexName="idx_emo_order_product_price_currency" tableName="emo_order_product_price">
+            <column name="currency"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_is_price_original" tableName="emo_order_product_price">
+            <column name="is_price_original"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_is_price_custom" tableName="emo_order_product_price">
+            <column name="is_price_custom"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_order_product_id" tableName="emo_order_product_price">
+            <column name="order_product_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_is_deleted" tableName="emo_order_product_price">
+            <column name="is_deleted"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_order_product_id_is_price_original" tableName="emo_order_product_price">
+            <column name="order_product_id"/>
+            <column name="is_price_original"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_order_product_id_is_price_custom" tableName="emo_order_product_price">
+            <column name="order_product_id"/>
+            <column name="is_price_custom"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_order_product_id_currency" tableName="emo_order_product_price">
+            <column name="order_product_id"/>
+            <column name="currency"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_product_price_is_price_original_is_price_custom" tableName="emo_order_product_price">
+            <column name="is_price_original"/>
+            <column name="is_price_custom"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="emo_order_product_price"
+                                 baseColumnNames="order_product_id"
+                                 constraintName="fk_ordered_product_product_id"
+                                 referencedTableName="emo_order_product"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 onDelete="CASCADE"
+        />
+
+    </changeSet>
+
+</databaseChangeLog>

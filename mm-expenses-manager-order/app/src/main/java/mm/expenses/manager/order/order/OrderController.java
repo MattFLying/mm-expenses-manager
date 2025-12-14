@@ -66,7 +66,7 @@ class OrderController implements OrderApi {
     public ResponseEntity<OrderResponse> findById(@PathVariable("id") final UUID id,
                                                   @RequestParam(value = OrderFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted,
                                                   @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
-        return ResponseEntity.ok(mapper.mapToResponse(service.findById(id, isDeleted, shouldConvertCurrency)));
+        return ResponseEntity.ok(service.findById(id, isDeleted, shouldConvertCurrency));
     }
 
     @Override
@@ -74,7 +74,7 @@ class OrderController implements OrderApi {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> create(@RequestBody final CreateNewOrderRequest request,
                                                 @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.mapToResponse(service.create(request, shouldConvertCurrency)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request, shouldConvertCurrency));
     }
 
     @Override
@@ -86,7 +86,7 @@ class OrderController implements OrderApi {
         if (!isAnyUpdateOrder(request)) {
             throw new ApiConflictException(OrderExceptionMessage.ORDER_NO_UPDATE_DATA);
         }
-        return ResponseEntity.ok(mapper.mapToResponse(service.update(id, request, shouldConvertCurrency)));
+        return ResponseEntity.ok(service.update(id, request, shouldConvertCurrency));
     }
 
     @Override

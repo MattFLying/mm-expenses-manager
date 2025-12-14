@@ -9,11 +9,11 @@ import mm.expenses.manager.common.utils.wrapper.BigDecimalWrapper;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.order.api.order.model.*;
-import mm.expenses.manager.order.price.OrderPrice;
 import mm.expenses.manager.order.product.Product;
 import mm.expenses.manager.order.product.ProductPrice;
 import mm.expenses.manager.order.product.ProductPrices;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.time.Instant;
@@ -71,6 +71,60 @@ public class OrderHelper {
 
     public static Order createOrderFromOrderRequest(final CreateNewOrderRequest request, final Product product) {
         return createOrderFromOrderRequest(ID, request, product);
+    }
+
+    public static Order createOrderFromOrderRequest(final CreateNewOrderRequest request, final Product product, final CurrencyCode currency) {
+        return createOrderFromOrderRequest(ID, request, product, currency);
+    }
+
+    public static Order createOrderFromOrder(final Order order, final CurrencyCode currency) {
+        val newOrder = (Order) SerializationUtils.clone(order);
+        newOrder.getProducts().forEach(product -> {
+            product.getPrices().forEach(price -> {
+                price.setCurrency(currency);
+            });
+            product.getPriceSummary().forEach(price -> {
+                price.setCurrency(currency);
+            });
+        });
+        newOrder.getPriceSummary().forEach(price -> {
+            price.setCurrency(currency);
+        });
+        return newOrder;
+    }
+
+    public static Order createOrderFromOrderRequest(final UUID orderId, final CreateNewOrderRequest request, final Product product, final CurrencyCode currency) {
+        val now = DateUtils.nowAsInstant();
+        final List<OrderedProduct> products = CollectionUtils.isNotEmpty(request.getOrderedProducts())
+                ? request.getOrderedProducts().stream()
+                .map(p -> createProductFromRequest(p, product, currency))
+                .collect(Collectors.toList())
+                : List.of();
+
+        val summary = Prices.calculatePriceSummary(products, currency);
+        val prices = new ArrayList<OrderPrice>();
+        summary.forEach(price -> {
+            val orderPrice = createOrderPrice(price, now);
+
+            prices.add(orderPrice);
+        });
+
+        val order = createOrder(
+                Order.builder()
+                        .id(orderId)
+                        .name(request.getName())
+                        .isDeleted(product.isDeleted())
+                        .products(products),
+                prices,
+                summary,
+                now
+        );
+
+        prices.forEach(price -> {
+            price.setOrder(order);
+            price.setDeleted(order.isDeleted());
+        });
+        return order;
     }
 
     public static Order createOrderFromOrderRequest(final UUID orderId, final CreateNewOrderRequest request, final Product product) {
@@ -231,7 +285,8 @@ public class OrderHelper {
         val order = createOrder(
                 Order.builder()
                         .id(ID)
-                        .name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
+                        //.name(previousOrder.getName() != null ? previousOrder.getName() : request.getName())
+                        .name(request.getName() != null ? request.getName() : previousOrder.getName())
                         .isDeleted(false)
                         .products(products),
                 prices,
@@ -337,11 +392,19 @@ public class OrderHelper {
         orderPrice.setCreatedAt(now);
         orderPrice.setLastModifiedAt(now);
         orderPrice.setDate(now.toString());
+        orderPrice.setPriceOriginal(true);
         return orderPrice;
     }
 
     private static OrderedProduct createProductFromRequest(final CreateNewOrderedProductRequest orderedProduct, final Product product) {
         return createProductFromRequest(orderedProduct.getProductId(), orderedProduct.getQuantity(), orderedProduct.getPrice())
+                .createdAt(product.getCreatedAt())
+                .lastModifiedAt(product.getLastModifiedAt())
+                .build();
+    }
+
+    private static OrderedProduct createProductFromRequest(final CreateNewOrderedProductRequest orderedProduct, final Product product, final CurrencyCode currency) {
+        return createProductFromRequest(orderedProduct.getProductId(), orderedProduct.getQuantity(), orderedProduct.getPrice(), currency)
                 .createdAt(product.getCreatedAt())
                 .lastModifiedAt(product.getLastModifiedAt())
                 .build();
@@ -355,11 +418,35 @@ public class OrderHelper {
     }
 
     private static OrderedProduct.OrderedProductBuilder createProductFromRequest(final UUID orderedProductId, final Double quantity, final PriceRequest priceRequest) {
+        val price = OrderedProductPrice.builder()
+                .value(priceRequest.getValue())
+                .currency(CurrencyCode.valueOf(priceRequest.getCurrency()))
+                .isPriceOriginal(true)
+                .build();
+
+        val prices = new ArrayList<OrderedProductPrice>();
+        prices.add(price);
+
         return OrderedProduct.builder()
                 .id(orderedProductId)
                 .quantity(quantity)
+                .prices(prices);
+    }
+
+    private static OrderedProduct.OrderedProductBuilder createProductFromRequest(final UUID orderedProductId, final Double quantity, final PriceRequest priceRequest, final CurrencyCode currency) {
+        val price = OrderedProductPrice.builder()
                 .value(priceRequest.getValue())
-                .currency(CurrencyCode.valueOf(priceRequest.getCurrency()));
+                .currency(currency)
+                .isPriceOriginal(true)
+                .build();
+
+        val prices = new ArrayList<OrderedProductPrice>();
+        prices.add(price);
+
+        return OrderedProduct.builder()
+                .id(orderedProductId)
+                .quantity(quantity)
+                .prices(prices);
     }
 
     private static Product createProduct(final CurrencyCode defaultCurrency, final Instant now, final boolean isDeleted) {
