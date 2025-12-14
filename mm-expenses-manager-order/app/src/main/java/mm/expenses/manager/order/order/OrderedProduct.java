@@ -13,9 +13,8 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Data
@@ -38,15 +37,13 @@ public class OrderedProduct implements Serializable, PriceSummary {
     @Column(name = "quantity", nullable = false)
     private Double quantity;
 
-    @Column(name = "value", nullable = false)
-    private BigDecimal value;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "currency", nullable = false)
-    private CurrencyCode currency;
-
-    @Column(name = "is_price_original", nullable = false)
-    private boolean isPriceOriginal;
+    @OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(
+            name = "emo_order_product_price",
+            joinColumns = @JoinColumn(name = "order_product_id", referencedColumnName = "id", insertable = false, updatable = false),
+            inverseJoinColumns = @JoinColumn(name = "id")
+    )
+    private List<OrderedProductPrice> prices = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", updatable = false)
@@ -77,7 +74,55 @@ public class OrderedProduct implements Serializable, PriceSummary {
 
     @Override
     public Prices getPriceSummary() {
-        return new Prices(Price.multiply(currency, value, quantity, createdAt));
+        if (Objects.nonNull(prices) && !prices.isEmpty()) {
+            return getPrices().stream()
+                    .filter(OrderedProductPrice::isPriceOriginal)
+                    .findAny()
+                    .map(price -> new Prices(Price.multiply(price.getCurrency(), price.getValue(), quantity, createdAt)))
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    @Override
+    public Price getPriceSummary(final CurrencyCode currency) {
+        if (Objects.nonNull(prices) && !prices.isEmpty()) {
+            val priceOfCurrency = getPrices().stream()
+                    .filter(price -> Objects.equals(price.getCurrency(), currency))
+                    .toList();
+
+            OrderedProductPrice price = null;
+            if (priceOfCurrency.size() == 1) {
+                price = priceOfCurrency.get(0);
+            } else if (priceOfCurrency.size() > 1) {
+                val priceOriginal = priceOfCurrency.stream()
+                        .filter(OrderedProductPrice::isPriceOriginal)
+                        .findAny();
+                if (priceOriginal.isPresent()) {
+                    price = priceOriginal.get();
+                }
+            }
+
+            if (Objects.nonNull(price)) {
+                return Price.multiply(price.getCurrency(), price.getValue(), quantity, createdAt);
+            }
+        }
+        return null;
+    }
+
+    public void setPrices(final List<OrderedProductPrice> prices) {
+        if (Objects.isNull(this.prices)) {
+            this.prices = new ArrayList<>();
+        }
+        this.prices.clear();
+        this.prices.addAll(prices);
+    }
+
+    public void addPrice(final OrderedProductPrice price) {
+        if (Objects.isNull(this.prices)) {
+            this.prices = new ArrayList<>();
+        }
+        this.prices.add(price);
     }
 
 }

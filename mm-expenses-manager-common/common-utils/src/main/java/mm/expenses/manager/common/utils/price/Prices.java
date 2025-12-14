@@ -23,7 +23,7 @@ public class Prices extends ArrayList<Price> implements Serializable {
     }
 
     public Prices(final Price price) {
-        super(List.of(price));
+        super(new ArrayList<>(Collections.singletonList(price)));
     }
 
     /**
@@ -53,12 +53,29 @@ public class Prices extends ArrayList<Price> implements Serializable {
     public static Prices of(final List<Price> prices) {
         val map = new LinkedHashMap<CurrencyCode, Price>();
         prices.forEach(price -> {
-            if (!map.containsKey(price.getCurrency())) {
-                map.put(price.getCurrency(), price);
-            } else {
-                map.compute(price.getCurrency(), (currencyCode, originalPrice) -> accumulatePrices(originalPrice, price));
+            if (Objects.nonNull(price)) {
+                if (!map.containsKey(price.getCurrency())) {
+                    map.put(price.getCurrency(), price);
+                } else {
+                    map.compute(price.getCurrency(), (currencyCode, originalPrice) -> accumulatePrices(originalPrice, price));
+                }
             }
         });
+        return new Prices(map.values().stream().toList());
+    }
+
+    @JsonIgnore
+    public static Prices ofCurrency(final List<Price> prices, final CurrencyCode currency) {
+        val map = new LinkedHashMap<CurrencyCode, Price>();
+        prices.stream()
+                .filter(price -> price.getCurrency().equals(currency))
+                .forEach(price -> {
+                    if (!map.containsKey(price.getCurrency())) {
+                        map.put(price.getCurrency(), price);
+                    } else {
+                        map.compute(price.getCurrency(), (currencyCode, originalPrice) -> accumulatePrices(originalPrice, price));
+                    }
+                });
         return new Prices(map.values().stream().toList());
     }
 
@@ -85,6 +102,25 @@ public class Prices extends ArrayList<Price> implements Serializable {
                 objects.stream()
                         .map(PriceSummary::getPriceSummary)
                         .flatMap(Collection::stream)
+                        .toList()
+        );
+    }
+
+    /**
+     * Calculates prices summary for given objects that implements {@link PriceSummary} interface.
+     *
+     * @param objects  - some objects that implements {@link PriceSummary} interface with own interpretation of prices to be summarized here
+     * @param currency - some currency {@link CurrencyCode} of prices to be summarized here
+     * @param <T>      - specific object that implements {@link PriceSummary} interface
+     */
+    @JsonIgnore
+    public static <T extends PriceSummary> Prices calculatePriceSummary(final Collection<T> objects, final CurrencyCode currency) {
+        if (CollectionUtils.isEmpty(objects)) {
+            return new Prices();
+        }
+        return Prices.of(
+                objects.stream()
+                        .map(object -> object.getPriceSummary(currency))
                         .toList()
         );
     }

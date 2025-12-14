@@ -24,6 +24,14 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="is_price_original" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_price_converted" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
             <column name="order_id" type="uuid">
                 <constraints nullable="false"/>
             </column>
@@ -47,6 +55,42 @@
 
         <addPrimaryKey columnNames="id" tableName="emo_order_price"/>
         <addUniqueConstraint columnNames="id" tableName="emo_order_price"/>
+
+        <createIndex indexName="idx_emo_order_price_currency" tableName="emo_order_price">
+            <column name="currency"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_price_is_price_original" tableName="emo_order_price">
+            <column name="is_price_original"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_price_is_price_converted" tableName="emo_order_price">
+            <column name="is_price_converted"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_price_is_deleted" tableName="emo_order_price">
+            <column name="is_deleted"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_price_order_id_is_price_original" tableName="emo_order_price">
+            <column name="order_id"/>
+            <column name="is_price_original"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_price_is_price_original_is_price_converted" tableName="emo_order_price">
+            <column name="is_price_original"/>
+            <column name="is_price_converted"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_price_is_price_original_currency" tableName="emo_order_price">
+            <column name="is_price_original"/>
+            <column name="currency"/>
+        </createIndex>
+
+        <createIndex indexName="idx_emo_order_price_order_id_currency" tableName="emo_order_price">
+            <column name="order_id"/>
+            <column name="currency"/>
+        </createIndex>
 
         <addUniqueConstraint
                 columnNames="order_id, currency, date"

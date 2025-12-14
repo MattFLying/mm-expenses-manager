@@ -27,31 +27,30 @@ public class OrderService {
     private final OrderUpdater updater;
     private final OrderCreator creator;
     private final OrderSpecificationHandler specificationHandler;
+    private final OrderMapper mapper;
 
     @Transactional
-    Order create(final CreateNewOrderRequest request, final Boolean shouldConvertCurrency) {
+    OrderResponse create(final CreateNewOrderRequest request, final Boolean shouldConvertCurrency) {
         val newOrder = creator.create(request);
         val saved = repository.save(newOrder);
-        priceConverter.pricesConversion(shouldConvertCurrency, saved);
 
-        return saved;
+        val response = mapper.mapToResponse(saved);
+        priceConverter.pricesConversion(shouldConvertCurrency, response);
+        return response;
     }
 
     @Transactional
-    Order update(final UUID id, final UpdateOrderRequest request, final Boolean shouldConvertCurrency) {
+    OrderResponse update(final UUID id, final UpdateOrderRequest request, final Boolean shouldConvertCurrency) {
         val existedOrder = repository.findByIdAndIsDeleted(id, false)
                 .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
 
         val isUpdated = updater.update(request, existedOrder);
+        val response = (isUpdated)
+                ? mapper.mapToResponse(repository.save(existedOrder))
+                : mapper.mapToResponse(existedOrder);
 
-        if (isUpdated) {
-            val saved = repository.save(existedOrder);
-            priceConverter.pricesConversion(shouldConvertCurrency, saved);
-
-            return saved;
-        }
-        priceConverter.pricesConversion(shouldConvertCurrency, existedOrder);
-        return existedOrder;
+        priceConverter.pricesConversion(shouldConvertCurrency, response);
+        return response;
     }
 
     void delete(final UUID orderId) {
@@ -65,6 +64,10 @@ public class OrderService {
                             order.getProducts().forEach(product -> {
                                 product.setDeleted(true);
                                 product.setLastModifiedAt(deletedAt);
+                                product.getPrices().forEach(price -> {
+                                    price.setDeleted(true);
+                                    price.setLastModifiedAt(deletedAt);
+                                });
                             });
                             order.getPrices().forEach(price -> {
                                 price.setDeleted(true);
@@ -93,13 +96,17 @@ public class OrderService {
         repository.saveAll(removed);
     }
 
-    Order findById(final UUID id, final Boolean isDeleted, final Boolean shouldConvertCurrency) {
+    OrderResponse findById(final UUID id, final Boolean isDeleted, final Boolean shouldConvertCurrency) {
         val isDeletedFlag = Objects.nonNull(isDeleted) ? isDeleted : false;
         val foundOrder = repository.findByIdAndIsDeleted(id, isDeletedFlag)
                 .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(id)));
 
+        val defaultCurrency = priceConverter.getDefaultCurrency();
         priceConverter.pricesConversion(shouldConvertCurrency, foundOrder);
-        return foundOrder;
+        if (Objects.nonNull(shouldConvertCurrency) && shouldConvertCurrency) {
+            return mapper.mapToResponse(foundOrder, defaultCurrency);
+        }
+        return mapper.mapToResponse(foundOrder);
     }
 
     Page<Order> findOrders(final EntityFilter queryFilter) {
@@ -120,7 +127,9 @@ public class OrderService {
             val isCurrencyConversionNeeded = productsByOrderId.values()
                     .stream()
                     .flatMap(Collection::stream)
-                    .anyMatch(orderedProduct -> !Objects.equals(orderedProduct.getCurrency(), priceConverter.getDefaultCurrency()));
+                    .anyMatch(orderedProduct -> orderedProduct.getPrices()
+                            .stream()
+                            .anyMatch(price -> (price.isPriceOriginal() && !Objects.equals(price.getCurrency(), priceConverter.getDefaultCurrency())) || !Objects.equals(price.getCurrency(), priceConverter.getDefaultCurrency())));
             if (isCurrencyConversionNeeded) {
                 val convertedOrders = priceConverter.convertPricesByOrderId(productsByOrderId);
                 pagedOrders.getContent()

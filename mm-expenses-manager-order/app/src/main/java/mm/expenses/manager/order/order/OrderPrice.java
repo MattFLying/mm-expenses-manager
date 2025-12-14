@@ -1,4 +1,4 @@
-package mm.expenses.manager.order.price;
+package mm.expenses.manager.order.order;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.order.order.Order;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -47,6 +46,12 @@ public class OrderPrice implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", updatable = false)
     private Order order;
+
+    @Column(name = "is_price_original", nullable = false)
+    private boolean isPriceOriginal;
+
+    @Column(name = "is_price_converted", nullable = false)
+    private boolean isPriceConverted;
 
     @Column(name = "created_at")
     private Instant createdAt;

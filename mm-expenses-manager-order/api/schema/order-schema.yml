@@ -442,6 +442,8 @@ components:
         value:
           type: BigDecimal
           description: Price value.
+          multipleOf: 0.01
+          x-constraints: "@JsonSerialize(using = PriceValueSerializer.class)"
         isOriginal:
           type: boolean
           description: Defines if it is original price or modified on demand.
