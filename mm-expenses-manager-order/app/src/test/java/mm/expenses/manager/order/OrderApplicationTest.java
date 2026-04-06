@@ -3,7 +3,7 @@ package mm.expenses.manager.order;
 import mm.expenses.manager.common.async.AsyncMessageProducer;
 import mm.expenses.manager.order.client.FinanceApiClient;
 import mm.expenses.manager.order.price.PriceConverter;
-import mm.expenses.manager.order.order.OrderRepository;
+import mm.expenses.manager.order.processor.OrderRepository;
 import mm.expenses.manager.order.product.ProductRepository;
 import org.junit.ClassRule;
 import org.junit.Rule;

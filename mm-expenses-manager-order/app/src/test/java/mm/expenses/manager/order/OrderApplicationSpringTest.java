@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.stream.Stream;
 
-import static mm.expenses.manager.order.order.OrderHelper.DEFAULT_CURRENCY;
+import static mm.expenses.manager.order.processor.OrderHelper.DEFAULT_CURRENCY;
 
 @RunWith(JUnitParamsRunner.class)
 @ContextConfiguration(initializers = ConfigDataApplicationContextInitializer.class)

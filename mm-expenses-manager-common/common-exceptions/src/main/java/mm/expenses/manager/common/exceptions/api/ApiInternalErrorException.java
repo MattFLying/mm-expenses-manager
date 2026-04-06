@@ -8,6 +8,10 @@ public class ApiInternalErrorException extends ApiException {
         super(exceptionType);
     }
 
+    public ApiInternalErrorException(final ExceptionType exceptionType, final Throwable cause) {
+        super(exceptionType, cause);
+    }
+
     @Override
     public int httpStatus() {
         return 500;

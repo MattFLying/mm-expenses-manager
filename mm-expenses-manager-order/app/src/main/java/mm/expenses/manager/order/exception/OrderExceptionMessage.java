@@ -13,6 +13,11 @@ import java.util.Objects;
  */
 @RequiredArgsConstructor
 public enum OrderExceptionMessage implements ExceptionType {
+    ORDER_CANNOT_BE_CREATED("order-creation-error", "Order cannot be created"),
+    ORDER_CANNOT_BE_UPDATED("order-update-error", "Order cannot be updated"),
+    ORDER_CANNOT_BE_DELETED("order-delete-error", "Order cannot be deleted"),
+    ORDERS_CANNOT_BE_DELETED("orders-delete-error", "Orders cannot be deleted"),
+    ORDERS_CANNOT_BE_FOUND("orders-found-error", "Orders cannot be found"),
     ORDER_NOT_FOUND("order-not-found-error", "Order of id '%s' not found."),
     ORDERS_NOT_FOUND("orders-not-found-error", "Orders with ids: '%s' not found."),
     ORDER_NO_UPDATE_DATA("order-no-update-data-passed-error", "Data to update order have no be passed. Nothing to update."),
