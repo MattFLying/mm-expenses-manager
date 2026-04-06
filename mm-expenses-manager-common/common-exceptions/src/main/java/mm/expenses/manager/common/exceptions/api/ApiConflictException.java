@@ -8,6 +8,10 @@ public class ApiConflictException extends ApiException {
         super(exceptionType);
     }
 
+    public ApiConflictException(final ExceptionType exceptionType, final Throwable cause) {
+        super(exceptionType, cause);
+    }
+
     @Override
     public int httpStatus() {
         return 409;

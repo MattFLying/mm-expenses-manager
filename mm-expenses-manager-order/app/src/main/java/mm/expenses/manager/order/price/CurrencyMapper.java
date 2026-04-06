@@ -11,8 +11,8 @@ import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequ
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.order.api.order.model.OrderedProductResponse;
 import mm.expenses.manager.order.api.order.model.PriceResponse;
-import mm.expenses.manager.order.order.OrderedProduct;
-import mm.expenses.manager.order.order.OrderedProductPrice;
+import mm.expenses.manager.order.processor.OrderedProduct;
+import mm.expenses.manager.order.processor.OrderedProductPrice;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
