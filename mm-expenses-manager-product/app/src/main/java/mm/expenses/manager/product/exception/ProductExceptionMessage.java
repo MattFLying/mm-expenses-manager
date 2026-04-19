@@ -14,12 +14,22 @@ import java.util.Objects;
  */
 @RequiredArgsConstructor
 public enum ProductExceptionMessage implements ExceptionType {
+    PRODUCT_CANNOT_BE_CREATED("product-creation-error", "Product cannot be created"),
+    PRODUCT_CANNOT_BE_UPDATED("product-update-error", "Product cannot be updated"),
+    PRODUCT_CANNOT_BE_DELETED("product-delete-error", "Product cannot be deleted"),
+    PRODUCTS_CANNOT_BE_DELETED("products-delete-error", "Products cannot be deleted"),
+    PRODUCTS_CANNOT_BE_PERMANENTLY_DELETED("products-hard-delete-error", "Products cannot be permanently deleted"),
+    PRODUCTS_PRICES_CANNOT_BE_CONVERTED("products-prices-conversion-error", "Products prices cannot be converted"),
+    PRODUCT_CANNOT_BE_FOUND("product-found-error", "Product cannot be found"),
+    PRODUCTS_CANNOT_BE_FOUND("products-found-error", "Products cannot be found"),
+
     // price
     PRICE_VALUE_MISSING_OPERATOR("product-price-missing-operator-for-products-price-value", "Missing operator for products price filtering by products price value."),
     PRICE_CURRENCY_MISSING_OPERATOR("product-price-missing-operator-for-products-price-currency", "Missing operator for products price filtering by products price currency."),
 
     // product
     PRODUCT_NOT_FOUND("product-not-found-error", "Product of id '%s' not found."),
+    PRODUCTS_NOT_FOUND("products-not-found-error", "Products with ids: '%s' not found."),
     PRODUCT_NAME_NOT_VALID(ProductsExceptionMessage.PRODUCT_NAME_EMPTY),
     PRODUCT_PRICE_ORIGINAL_NOT_FOUND(ProductsExceptionMessage.PRODUCT_PRICE_ORIGINAL_MISSING),
     PRODUCT_PRICE_CURRENCY_NOT_VALID(ProductsExceptionMessage.PRODUCT_PRICE_CURRENCY_UNDEFINED),

@@ -28,7 +28,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static mm.expenses.manager.product.product.ProductHelper.DEFAULT_CURRENCY;
+import static mm.expenses.manager.product.processor.ProductHelper.DEFAULT_CURRENCY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
