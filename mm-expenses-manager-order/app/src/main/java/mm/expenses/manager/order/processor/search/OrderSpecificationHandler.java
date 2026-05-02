@@ -7,17 +7,17 @@ import mm.expenses.manager.common.postgresql.specification.criteria.*;
 import mm.expenses.manager.common.postgresql.specification.SpecificationScanner;
 import mm.expenses.manager.common.postgresql.specification.SpecificationHandler;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
-import mm.expenses.manager.order.processor.Order;
+import mm.expenses.manager.order.core.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderSpecificationHandler extends SpecificationHandler<mm.expenses.manager.order.processor.Order> {
+public class OrderSpecificationHandler extends SpecificationHandler<Order> {
 
     private final SpecificationCriteria criteria;
 
     public OrderSpecificationHandler(@Autowired final PaginationConfig paginationConfig) {
-        criteria = SpecificationScanner.scan(mm.expenses.manager.order.processor.Order.class);
+        criteria = SpecificationScanner.scan(Order.class);
         criteria.setPagination(paginationConfig);
 
         criteria.getFilteredFields().add(FilteredField.of(OrderFilter.PRODUCTS_COUNT_PROPERTY, FieldType.Integer, false));

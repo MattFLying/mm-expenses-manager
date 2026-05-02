@@ -6,9 +6,9 @@ import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductAsyncHandler;
-import mm.expenses.manager.product.processor.ProductRepository;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductAsyncHandler;
+import mm.expenses.manager.product.core.ProductRepository;
 
 import java.time.Instant;
 import java.util.List;

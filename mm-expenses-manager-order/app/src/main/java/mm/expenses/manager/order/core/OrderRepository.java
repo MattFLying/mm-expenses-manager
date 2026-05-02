@@ -1,4 +1,4 @@
-package mm.expenses.manager.order.processor;
+package mm.expenses.manager.order.core;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

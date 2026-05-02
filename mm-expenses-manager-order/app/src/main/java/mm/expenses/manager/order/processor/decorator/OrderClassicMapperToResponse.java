@@ -2,8 +2,8 @@ package mm.expenses.manager.order.processor.decorator;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.order.api.order.model.OrderResponse;
-import mm.expenses.manager.order.processor.Order;
-import mm.expenses.manager.order.processor.OrderMapper;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderMapper;
 import org.springframework.data.domain.Page;
 
 /**

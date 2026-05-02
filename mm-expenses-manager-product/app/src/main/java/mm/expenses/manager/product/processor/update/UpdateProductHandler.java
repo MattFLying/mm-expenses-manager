@@ -4,6 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductAsyncHandler;
+import mm.expenses.manager.product.core.ProductMapper;
+import mm.expenses.manager.product.core.ProductRepository;
 import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.processor.*;
@@ -32,34 +37,44 @@ public class UpdateProductHandler extends ProductHandler {
 
     @Override
     public Type getType() {
-        return Type.UPDATE;
+        return Type.UPDATE_PRODUCT;
     }
 
     @Transactional
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         final var now = Instant.now();
         final var chain = ChainCommandExecution.build(
-                new ValidateRequestedProductUpdates(repository, asyncHandler, now, request.id()),
+                new ValidateRequestedProductUpdates(repository, asyncHandler, now, request.getId()),
                 new FindProductToUpdate(repository, asyncHandler, now),
                 new UpdateProductData(repository, asyncHandler, now),
                 new SaveUpdatedProduct(repository, asyncHandler, now),
                 new AsyncProductUpdate(asyncHandler)
         );
-        return of((Product) chain.handleRequest(request.request()));
+        return Response.builder()
+                .response(chain.handleRequest(request.getRequest()))
+                .build();
     }
 
     @Transactional
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         try {
-            final var response = handle(request);
-            final var decorator = Objects.isNull(request.expectedCurrency())
-                    ? new ProductClassicMapperToResponse(mapper)
-                    : new ProductClassicMapperToResponseWithDefaultCurrency(mapper, request.expectedCurrency());
+            if (request instanceof ProductHandler.Request updateRequest) {
+                final var response = handle(updateRequest);
+                final var decorator = Objects.isNull(updateRequest.getExpectedCurrency())
+                        ? new ProductClassicMapperToResponse(mapper)
+                        : new ProductClassicMapperToResponseWithDefaultCurrency(mapper, updateRequest.getExpectedCurrency());
 
-            final var product = response.getResponse();
-            return of(product, decorator.decorate(product));
+                if (response instanceof ProductHandler.Response product) {
+                    final var productResponse = product.mapResponse(Product.class);
+                    return Response.builder()
+                            .response(productResponse)
+                            .decoratedResponse(decorator.decorate(productResponse))
+                            .build();
+                }
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(ProductExceptionMessage.PRODUCT_CANNOT_BE_UPDATED.getMessage());
         } catch (final ApiException exception) {
             throw exception;
         } catch (final Exception exception) {

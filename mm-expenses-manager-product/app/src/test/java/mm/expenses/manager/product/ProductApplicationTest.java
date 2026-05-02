@@ -2,8 +2,8 @@ package mm.expenses.manager.product;
 
 import mm.expenses.manager.common.async.AsyncMessageProducer;
 import mm.expenses.manager.product.client.FinanceApiClient;
+import mm.expenses.manager.product.core.ProductRepository;
 import mm.expenses.manager.product.currency.PriceConverter;
-import mm.expenses.manager.product.processor.ProductRepository;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package mm.expenses.manager.order.processor;
+package mm.expenses.manager.order.core;
 
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;

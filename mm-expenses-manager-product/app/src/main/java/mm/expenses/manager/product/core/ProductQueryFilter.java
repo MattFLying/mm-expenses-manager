@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.processor;
+package mm.expenses.manager.product.core;
 
 import org.apache.commons.lang3.StringUtils;
 

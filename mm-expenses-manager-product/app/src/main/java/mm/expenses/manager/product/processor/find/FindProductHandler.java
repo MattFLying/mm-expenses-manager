@@ -3,11 +3,13 @@ package mm.expenses.manager.product.processor.find;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
 import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
+import mm.expenses.manager.product.core.Product;
 import mm.expenses.manager.product.processor.ProductHandler;
-import mm.expenses.manager.product.processor.ProductMapper;
-import mm.expenses.manager.product.processor.ProductRepository;
+import mm.expenses.manager.product.core.ProductMapper;
+import mm.expenses.manager.product.core.ProductRepository;
 import mm.expenses.manager.product.processor.decorator.ProductClassicMapperToResponse;
 import mm.expenses.manager.product.processor.decorator.ProductClassicMapperToResponseWithDefaultCurrency;
 import org.springframework.stereotype.Component;
@@ -27,27 +29,38 @@ class FindProductHandler extends ProductHandler {
 
     @Override
     public Type getType() {
-        return Type.FIND;
+        return Type.FIND_PRODUCT;
     }
 
     @Override
-    public Response handle(final Request request) {
-        final var chain = new FindProductById(repository, request.isDeleted());
-        final var response = chain.handleRequest(request.id());
-
-        return of(response);
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
+        if (request instanceof ProductHandler.Request findRequest) {
+            final var chain = new FindProductById(repository, findRequest.isDeleted());
+            return Response.builder()
+                    .response(chain.handleRequest(findRequest.getId()))
+                    .build();
+        }
+        throw new ProcessorHandler.ProcessorHandlerException(ProductExceptionMessage.PRODUCT_CANNOT_BE_FOUND.getMessage());
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         try {
-            final var response = handle(request);
-            final var decorator = Objects.isNull(request.expectedCurrency())
-                    ? new ProductClassicMapperToResponse(mapper)
-                    : new ProductClassicMapperToResponseWithDefaultCurrency(mapper, request.expectedCurrency());
+            if (request instanceof ProductHandler.Request findRequest) {
+                final var response = handle(findRequest);
+                final var decorator = Objects.isNull(findRequest.getExpectedCurrency())
+                        ? new ProductClassicMapperToResponse(mapper)
+                        : new ProductClassicMapperToResponseWithDefaultCurrency(mapper, findRequest.getExpectedCurrency());
 
-            final var product = response.getResponse();
-            return of(product, decorator.decorate(product));
+                if (response instanceof ProductHandler.Response product) {
+                    final var productResponse = product.mapResponse(Product.class);
+                    return Response.builder()
+                            .response(productResponse)
+                            .decoratedResponse(decorator.decorate(productResponse))
+                            .build();
+                }
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(ProductExceptionMessage.PRODUCT_CANNOT_BE_FOUND.getMessage());
         } catch (final ApiException exception) {
             throw exception;
         } catch (final Exception exception) {

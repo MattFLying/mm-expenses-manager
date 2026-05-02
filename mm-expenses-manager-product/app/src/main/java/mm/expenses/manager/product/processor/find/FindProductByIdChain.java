@@ -1,7 +1,7 @@
 package mm.expenses.manager.product.processor.find;
 
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
-import mm.expenses.manager.product.processor.Product;
+import mm.expenses.manager.product.core.Product;
 
 import java.util.UUID;
 

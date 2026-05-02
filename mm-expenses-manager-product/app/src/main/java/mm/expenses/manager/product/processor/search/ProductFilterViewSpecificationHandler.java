@@ -8,7 +8,7 @@ import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalPr
 import mm.expenses.manager.common.postgresql.specification.criteria.CriteriaParameter;
 import mm.expenses.manager.common.postgresql.specification.criteria.SpecificationCriteria;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
-import mm.expenses.manager.product.processor.ProductFilterView;
+import mm.expenses.manager.product.core.ProductFilterView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

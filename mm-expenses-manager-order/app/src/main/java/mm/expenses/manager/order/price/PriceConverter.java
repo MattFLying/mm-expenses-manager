@@ -11,8 +11,8 @@ import mm.expenses.manager.order.api.order.model.OrderedProductResponse;
 import mm.expenses.manager.order.api.order.model.PriceResponse;
 import mm.expenses.manager.order.client.FinanceApiClient;
 import mm.expenses.manager.order.config.CurrencyConfig;
-import mm.expenses.manager.order.processor.OrderedProduct;
-import mm.expenses.manager.order.processor.OrderedProductPrice;
+import mm.expenses.manager.order.core.OrderedProduct;
+import mm.expenses.manager.order.core.OrderedProductPrice;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 

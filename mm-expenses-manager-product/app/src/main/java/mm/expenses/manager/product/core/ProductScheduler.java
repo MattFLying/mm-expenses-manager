@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.processor;
+package mm.expenses.manager.product.core;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

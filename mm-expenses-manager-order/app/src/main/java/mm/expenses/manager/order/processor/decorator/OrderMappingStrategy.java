@@ -2,7 +2,7 @@ package mm.expenses.manager.order.processor.decorator;
 
 import mm.expenses.manager.common.web.decorator.PagedDecorator;
 import mm.expenses.manager.order.api.order.model.OrderResponse;
-import mm.expenses.manager.order.processor.Order;
+import mm.expenses.manager.order.core.Order;
 
 /**
  * Simple {@link Order} decorator for specific cases.

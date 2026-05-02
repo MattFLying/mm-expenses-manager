@@ -8,7 +8,7 @@ import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.ProductFilterView;
+import mm.expenses.manager.product.core.ProductFilterView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;

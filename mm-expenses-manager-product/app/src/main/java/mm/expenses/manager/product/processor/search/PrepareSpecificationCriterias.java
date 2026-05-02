@@ -9,8 +9,8 @@ import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCr
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.ProductFilterView;
-import mm.expenses.manager.product.processor.ProductFilterViewRepository;
+import mm.expenses.manager.product.core.ProductFilterView;
+import mm.expenses.manager.product.core.ProductFilterViewRepository;
 import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;

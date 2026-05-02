@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
-import mm.expenses.manager.product.processor.Product;
+import mm.expenses.manager.product.core.Product;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

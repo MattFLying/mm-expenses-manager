@@ -2,11 +2,12 @@ package mm.expenses.manager.product.processor.conversion;
 
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.postgresql.pagination.PaginationHelper;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
 import mm.expenses.manager.product.currency.PriceConverter;
-import mm.expenses.manager.product.processor.ProductAsyncHandler;
+import mm.expenses.manager.product.core.ProductAsyncHandler;
 import mm.expenses.manager.product.processor.ProductHandler;
-import mm.expenses.manager.product.processor.ProductMapper;
-import mm.expenses.manager.product.processor.ProductRepository;
+import mm.expenses.manager.product.core.ProductMapper;
+import mm.expenses.manager.product.core.ProductRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -32,11 +33,11 @@ class ProductsCurrenciesConversionHandler extends ProductHandler {
 
     @Override
     public Type getType() {
-        return Type.UPDATE_PRICE_CURRENCIES;
+        return Type.UPDATE_PRODUCTS_PRICE_CURRENCIES;
     }
 
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         log.info("Currencies conversion for products in progress.");
 
         final var now = Instant.now();
@@ -66,7 +67,7 @@ class ProductsCurrenciesConversionHandler extends ProductHandler {
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         return null;
     }
 

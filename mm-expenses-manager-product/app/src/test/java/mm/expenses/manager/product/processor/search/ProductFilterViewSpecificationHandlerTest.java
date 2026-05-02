@@ -4,7 +4,7 @@ import lombok.val;
 import mm.expenses.manager.common.postgresql.specification.criteria.FilteredField;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
-import mm.expenses.manager.product.processor.ProductFilterView;
+import mm.expenses.manager.product.core.ProductFilterView;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

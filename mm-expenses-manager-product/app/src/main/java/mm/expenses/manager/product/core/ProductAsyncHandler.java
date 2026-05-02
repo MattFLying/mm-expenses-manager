@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.processor;
+package mm.expenses.manager.product.core;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.async.AsyncMessageProducer;

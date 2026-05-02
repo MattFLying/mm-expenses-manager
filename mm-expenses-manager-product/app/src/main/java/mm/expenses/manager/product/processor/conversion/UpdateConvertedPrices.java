@@ -11,8 +11,8 @@ import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResp
 import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.price.ProductPrice;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductRepository;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductRepository;
 
 import java.time.Instant;
 import java.util.*;

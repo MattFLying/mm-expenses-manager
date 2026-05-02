@@ -3,6 +3,7 @@ package mm.expenses.manager.order.processor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
+import mm.expenses.manager.order.core.OrderedProduct;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.processor.product.CreateOrderedProduct;
 import mm.expenses.manager.order.processor.product.FindAllRequestedProducts;

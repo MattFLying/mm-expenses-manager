@@ -7,8 +7,8 @@ import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.price.ProductPrice;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductAsyncHandler;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductAsyncHandler;
 
 import java.util.List;
 import java.util.Map;

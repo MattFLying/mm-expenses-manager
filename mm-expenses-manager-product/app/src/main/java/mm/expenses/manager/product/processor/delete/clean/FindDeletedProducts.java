@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductRepository;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

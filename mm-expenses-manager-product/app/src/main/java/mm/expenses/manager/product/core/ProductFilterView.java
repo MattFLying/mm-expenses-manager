@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.processor;
+package mm.expenses.manager.product.core;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

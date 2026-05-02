@@ -13,9 +13,9 @@ import mm.expenses.manager.product.api.product.model.UpdatePriceRequest;
 import mm.expenses.manager.product.api.product.model.UpdateProductRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
 import mm.expenses.manager.product.price.ProductPrice;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductAsyncHandler;
-import mm.expenses.manager.product.processor.ProductRepository;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductAsyncHandler;
+import mm.expenses.manager.product.core.ProductRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 

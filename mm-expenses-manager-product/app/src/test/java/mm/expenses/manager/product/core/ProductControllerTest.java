@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.processor;
+package mm.expenses.manager.product.core;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static mm.expenses.manager.product.processor.ProductHelper.*;
-import static mm.expenses.manager.product.processor.ProductWebApi.BASE_URL;
+import static mm.expenses.manager.product.core.ProductWebApi.BASE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
