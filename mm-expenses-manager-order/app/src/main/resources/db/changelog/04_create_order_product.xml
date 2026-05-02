@@ -4,9 +4,9 @@
 
     <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
 
-    <changeSet id="04-emo-create-order-product" author="mateusz.mucha">
+    <changeSet id="004" author="mateusz.mucha">
 
-        <createTable tableName="emo_order_product">
+        <createTable tableName="order_product">
 
             <column name="id" type="uuid">
                 <constraints nullable="false" unique="true"/>
@@ -41,39 +41,39 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="id" tableName="emo_order_product"/>
-        <addUniqueConstraint columnNames="id" tableName="emo_order_product"/>
+        <addPrimaryKey columnNames="id" tableName="order_product"/>
+        <addUniqueConstraint columnNames="id" tableName="order_product"/>
 
-        <createIndex indexName="idx_emo_order_product_order_id" tableName="emo_order_product">
+        <createIndex indexName="idx_order_product_order_id" tableName="order_product">
             <column name="order_id"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_product_id" tableName="emo_order_product">
+        <createIndex indexName="idx_order_product_product_id" tableName="order_product">
             <column name="product_id"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_is_deleted" tableName="emo_order_product">
+        <createIndex indexName="idx_order_product_is_deleted" tableName="order_product">
             <column name="is_deleted"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_order_id_product_id" tableName="emo_order_product">
+        <createIndex indexName="idx_order_product_order_id_product_id" tableName="order_product">
             <column name="order_id"/>
             <column name="product_id"/>
         </createIndex>
 
-        <addForeignKeyConstraint baseTableName="emo_order_product"
+        <addForeignKeyConstraint baseTableName="order_product"
                                  baseColumnNames="order_id"
                                  constraintName="fk_ordered_product_order_id"
-                                 referencedTableName="emo_order"
+                                 referencedTableName="order"
                                  referencedColumnNames="id"
                                  onUpdate="CASCADE"
                                  onDelete="CASCADE"
         />
 
-        <addForeignKeyConstraint baseTableName="emo_order_product"
+        <addForeignKeyConstraint baseTableName="order_product"
                                  baseColumnNames="product_id"
                                  constraintName="fk_ordered_product_product_id"
-                                 referencedTableName="emo_product"
+                                 referencedTableName="product"
                                  referencedColumnNames="id"
         />
 

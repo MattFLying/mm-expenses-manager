@@ -4,9 +4,9 @@
 
     <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
 
-    <changeSet id="03-emp-create-product-filter_view" author="mateusz.mucha">
+    <changeSet id="003" author="mateusz.mucha">
 
-        <createView viewName="emp_product_filter_view">
+        <createView viewName="product_filter_view">
             SELECT p.id AS product_id,
                 p.name,
                 p.is_deleted AS is_product_deleted,
@@ -20,8 +20,8 @@
                 pp.date AS price_date,
                 pp.created_at AS price_created_at,
                 pp.last_modified_at AS price_last_modified_at
-            FROM emp_product p
-            LEFT JOIN emp_product_price pp ON pp.product_id = p.id;
+            FROM product p
+            LEFT JOIN product_price pp ON pp.product_id = p.id;
         </createView>
 
     </changeSet>

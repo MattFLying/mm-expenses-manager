@@ -13,21 +13,23 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: gP_h3cS!Lqu-4
       MONGO_INITDB_DATABASE: expenses-manager-finance
     volumes:
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+      - ./databases/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
     restart: unless-stopped
 
   postgres:
-    container_name: em_postgres
-    image: postgres:15.2
+    container_name: em_postgresql
+    image: postgres:18.3
     hostname: postgres
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: expenses_manager
+      POSTGRES_DB: em_postgresql
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: gP_h3cS!Lqu-4
     volumes:
-      - ./postgresql-extensions.sql:/docker-entrypoint-initdb.d/postgresql-extensions.sql
+      - ./databases/postgresql/postgresql-extensions.sql:/docker-entrypoint-initdb.d/postgresql-extensions.sql
+      - ./databases/postgresql/init-pg-db.sql:/docker-entrypoint-initdb.d/init-pg-db.sql
+      - ./databases/postgresql/init-pg-db-schemas.sql:/docker-entrypoint-initdb.d/init-pg-db-schemas.sql
     restart: unless-stopped
 
   pgadmin:
