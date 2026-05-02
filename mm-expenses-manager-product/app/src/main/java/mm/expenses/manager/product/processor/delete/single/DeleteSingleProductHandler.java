@@ -1,6 +1,10 @@
 package mm.expenses.manager.product.processor.delete.single;
 
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.product.core.ProductAsyncHandler;
+import mm.expenses.manager.product.core.ProductMapper;
+import mm.expenses.manager.product.core.ProductRepository;
 import mm.expenses.manager.product.processor.*;
 import org.springframework.stereotype.Component;
 
@@ -22,11 +26,11 @@ class DeleteSingleProductHandler extends ProductHandler {
 
     @Override
     public Type getType() {
-        return Type.DELETE;
+        return Type.DELETE_SINGLE_PRODUCT;
     }
 
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         final var now = Instant.now();
         final var chain = ChainCommandExecution.build(
                 new FindProductToRemove(repository, asyncHandler, now),
@@ -34,12 +38,13 @@ class DeleteSingleProductHandler extends ProductHandler {
                 new SaveDeletedProduct(repository, asyncHandler),
                 new AsyncProductDelete(asyncHandler)
         );
-
-        return of((Product) chain.handleRequest(request.request()));
+        return Response.builder()
+                .response(chain.handleRequest(request.getRequest()))
+                .build();
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         return null;
     }
 

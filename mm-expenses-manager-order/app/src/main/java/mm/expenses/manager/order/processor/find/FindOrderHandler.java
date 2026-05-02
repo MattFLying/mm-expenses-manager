@@ -3,6 +3,10 @@ package mm.expenses.manager.order.processor.find;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderMapper;
+import mm.expenses.manager.order.core.OrderRepository;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
 import mm.expenses.manager.order.processor.*;
 import mm.expenses.manager.order.processor.decorator.OrderClassicMapperToResponse;
@@ -23,31 +27,43 @@ class FindOrderHandler extends OrderHandler {
 
     @Override
     public Type getType() {
-        return Type.FIND;
+        return Type.FIND_ORDER;
     }
 
     @Override
-    public Response handle(final Request request) {
-        final var chain = new FindOrderById(repository, request.isDeleted());
-        final var response = chain.handleRequest(request.id());
-
-        return of(response);
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
+        if (request instanceof OrderHandler.Request findRequest) {
+            final var chain = new FindOrderById(repository, findRequest.isDeleted());
+            return Response.builder()
+                    .response(chain.handleRequest(findRequest.getId()))
+                    .build();
+        }
+        throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDER_NOT_FOUND.getMessage());
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         try {
-            final var order = handle(request);
-            final var decorator = request.isShouldConvertCurrency()
-                    ? new OrderClassicMapperToResponseWithConversionDecorator(priceConverter, new OrderClassicMapperToResponse(mapper), request.shouldConvertCurrency())
-                    : new OrderClassicMapperToResponse(mapper);
+            if (request instanceof OrderHandler.Request findRequest) {
+                final var response = handle(findRequest);
+                final var decorator = findRequest.isShouldConvertCurrency()
+                        ? new OrderClassicMapperToResponseWithConversionDecorator(priceConverter, new OrderClassicMapperToResponse(mapper), findRequest.isShouldConvertCurrency())
+                        : new OrderClassicMapperToResponse(mapper);
 
-            return of(order.response(), decorator.decorate(order.response()));
+                if (response instanceof OrderHandler.Response order) {
+                    final var orderResponse = order.mapResponse(Order.class);
+                    return Response.builder()
+                            .response(orderResponse)
+                            .decoratedResponse(decorator.decorate(orderResponse))
+                            .build();
+                }
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDER_NOT_FOUND.getMessage());
         } catch (final ApiException exception) {
             throw exception;
         } catch (final Exception exception) {
             log.error("Unknown find single order error occurred.", exception);
-            throw new ApiConflictException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(request.id()), exception);
+            throw new ApiConflictException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(request.getId()), exception);
         }
     }
 

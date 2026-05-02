@@ -1,7 +1,7 @@
 package mm.expenses.manager.order.processor.product;
 
 import lombok.RequiredArgsConstructor;
-import mm.expenses.manager.order.processor.Order;
+import mm.expenses.manager.order.core.Order;
 
 import java.util.*;
 

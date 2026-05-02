@@ -7,8 +7,8 @@ import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductRepository;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductRepository;
 
 import java.util.Objects;
 import java.util.UUID;

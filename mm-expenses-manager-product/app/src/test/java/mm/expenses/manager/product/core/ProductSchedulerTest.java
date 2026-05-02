@@ -1,4 +1,4 @@
-package mm.expenses.manager.product.processor;
+package mm.expenses.manager.product.core;
 
 import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.postgresql.pagination.PaginationHelper;

@@ -8,9 +8,9 @@ import mm.expenses.manager.order.OrderCommonValidation;
 import mm.expenses.manager.order.api.order.model.PriceRequest;
 import mm.expenses.manager.order.api.order.model.UpdateOrderedProductRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
-import mm.expenses.manager.order.processor.Order;
-import mm.expenses.manager.order.processor.OrderedProduct;
-import mm.expenses.manager.order.processor.OrderedProductPrice;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderedProduct;
+import mm.expenses.manager.order.core.OrderedProductPrice;
 
 import java.time.Instant;
 import java.util.*;

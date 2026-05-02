@@ -5,7 +5,7 @@ import mm.expenses.manager.common.kafka.message.PriceMessage;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.mapper.AbstractMapper;
 import mm.expenses.manager.product.api.product.model.*;
-import mm.expenses.manager.product.processor.ProductFilterView;
+import mm.expenses.manager.product.core.ProductFilterView;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

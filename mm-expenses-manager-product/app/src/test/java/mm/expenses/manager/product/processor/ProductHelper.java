@@ -5,6 +5,8 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResponse;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductFilterView;
 import mm.expenses.manager.product.api.product.model.*;
 import mm.expenses.manager.product.price.ProductPrice;
 import org.apache.commons.math3.random.RandomDataGenerator;

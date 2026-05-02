@@ -4,13 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderMapper;
+import mm.expenses.manager.order.core.OrderRepository;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
 import mm.expenses.manager.order.processor.*;
 import mm.expenses.manager.order.processor.decorator.OrderClassicMapperToResponse;
 import mm.expenses.manager.order.processor.decorator.OrderClassicMapperToResponseWithConversionDecorator;
 import mm.expenses.manager.order.price.PriceConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -31,34 +34,43 @@ class UpdateOrderHandler extends OrderHandler {
 
     @Override
     public Type getType() {
-        return Type.UPDATE;
+        return Type.UPDATE_ORDER;
     }
 
-    @Transactional
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         final var now = Instant.now();
         final var chain = ChainCommandExecution.build(
-                new ValidateRequestedOrderUpdates(repository, productService, now, request.id()),
+                new ValidateRequestedOrderUpdates(repository, productService, now, request.getId()),
                 new FindOrderToUpdate(repository, productService, now),
                 new UpdateBasicOrderData(repository, productService, now),
                 new ModifyOrderedProductsDuringOrderUpdate(repository, productService, now),
                 new OrderSummaryUpdateDuringUpdate(repository, now),
                 new SaveUpdatedOrder(repository)
         );
-        return of((Order) chain.handleRequest(request.request()));
+        return Response.builder()
+                .response(chain.handleRequest(request.getRequest()))
+                .build();
     }
 
-    @Transactional
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         try {
-            final var order = handle(request);
-            final var decorator = request.isShouldConvertCurrency()
-                    ? new OrderClassicMapperToResponseWithConversionDecorator(priceConverter, new OrderClassicMapperToResponse(mapper), request.shouldConvertCurrency())
-                    : new OrderClassicMapperToResponse(mapper);
+            if (request instanceof OrderHandler.Request updateRequest) {
+                final var response = handle(updateRequest);
+                final var decorator = updateRequest.isShouldConvertCurrency()
+                        ? new OrderClassicMapperToResponseWithConversionDecorator(priceConverter, new OrderClassicMapperToResponse(mapper), updateRequest.isShouldConvertCurrency())
+                        : new OrderClassicMapperToResponse(mapper);
 
-            return of(order.response(), decorator.decorate(order.response()));
+                if (response instanceof OrderHandler.Response order) {
+                    final var orderResponse = order.mapResponse(Order.class);
+                    return Response.builder()
+                            .response(orderResponse)
+                            .decoratedResponse(decorator.decorate(orderResponse))
+                            .build();
+                }
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDER_CANNOT_BE_UPDATED.getMessage());
         } catch (final ApiException exception) {
             throw exception;
         } catch (final Exception exception) {

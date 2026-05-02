@@ -5,9 +5,9 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.price.Prices;
 import mm.expenses.manager.order.api.order.model.OrderResponse;
 import mm.expenses.manager.order.api.order.model.PriceResponse;
-import mm.expenses.manager.order.processor.Order;
+import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.price.PriceConverter;
-import mm.expenses.manager.order.processor.OrderedProductPrice;
+import mm.expenses.manager.order.core.OrderedProductPrice;
 import org.springframework.data.domain.Page;
 
 import java.util.Collection;

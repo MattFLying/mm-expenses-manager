@@ -4,12 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.product.core.ProductFilterView;
+import mm.expenses.manager.product.core.ProductFilterViewRepository;
+import mm.expenses.manager.product.core.ProductMapper;
 import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.BaseProductHandler;
-import mm.expenses.manager.product.processor.ProductFilterView;
-import mm.expenses.manager.product.processor.ProductFilterViewRepository;
-import mm.expenses.manager.product.processor.ProductMapper;
+import mm.expenses.manager.product.processor.*;
 import mm.expenses.manager.product.processor.decorator.ProductFilterViewClassicMapperToResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-class SearchProductsHandler extends BaseProductHandler<ProductFilterView> {
+class SearchProductsHandler extends BaseProductHandler {
 
     private final ProductFilterViewSpecificationHandler specificationHandler;
     private final ProductFilterViewRepository repository;
@@ -32,29 +33,38 @@ class SearchProductsHandler extends BaseProductHandler<ProductFilterView> {
 
     @Override
     public Type getType() {
-        return Type.SEARCH;
+        return Type.SEARCH_PRODUCTS;
     }
 
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         final var chain = ChainCommandExecution.build(
                 new PrepareSpecificationCriterias(repository, specificationHandler, priceConverter),
                 new SearchProductsByCriteria(repository, priceConverter),
                 new ConvertPricesForSearchProducts(priceConverter),
                 new PrepareSearchProductsResult()
         );
-
-        return of((Page<ProductFilterView>) chain.handleRequest(request.request()));
+        return Response.builder()
+                .pagedFilteredResponse((Page<ProductFilterView>) chain.handleRequest(request.getRequest()))
+                .build();
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         try {
-            final var pagedProducts = handle(request);
-            final var decorator = new ProductFilterViewClassicMapperToResponse(mapper);
-            final var result = decorator.decorate(pagedProducts.getPagedResponse());
+            if (request instanceof ProductHandler.Request searchRequest) {
+                final var pagedProducts = handle(searchRequest);
+                final var decorator = new ProductFilterViewClassicMapperToResponse(mapper);
 
-            return of((Page<ProductFilterView>) pagedProducts.getPagedResponse(), mapper.mapToPageResponse(result));
+                if (pagedProducts instanceof ProductHandler.Response paged) {
+                    final var result = decorator.decorate(paged.getPagedFilteredResponse());
+                    return Response.builder()
+                            .pagedProductResponse(paged.getPagedProductResponse())
+                            .decoratedPagedResponse(mapper.mapToPageResponse(result))
+                            .build();
+                }
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(ProductExceptionMessage.PRODUCTS_CANNOT_BE_FOUND.getMessage());
         } catch (final ApiException exception) {
             throw exception;
         } catch (final Exception exception) {

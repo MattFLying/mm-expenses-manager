@@ -2,8 +2,8 @@ package mm.expenses.manager.order.processor.product;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
-import mm.expenses.manager.order.processor.Order;
-import mm.expenses.manager.order.processor.OrderedProduct;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderedProduct;
 import mm.expenses.manager.order.processor.OrderedProductService;
 
 import java.time.Instant;

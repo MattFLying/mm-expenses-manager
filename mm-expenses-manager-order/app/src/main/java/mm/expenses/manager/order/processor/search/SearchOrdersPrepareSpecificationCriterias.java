@@ -6,8 +6,8 @@ import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
-import mm.expenses.manager.order.processor.Order;
-import mm.expenses.manager.order.processor.OrderRepository;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderRepository;
 import org.springframework.data.domain.Page;
 
 import java.util.Objects;

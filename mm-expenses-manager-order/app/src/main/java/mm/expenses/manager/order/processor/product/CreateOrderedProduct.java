@@ -6,8 +6,8 @@ import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.utils.util.DateUtils;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderedProductRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
-import mm.expenses.manager.order.processor.OrderedProduct;
-import mm.expenses.manager.order.processor.OrderedProductPrice;
+import mm.expenses.manager.order.core.OrderedProduct;
+import mm.expenses.manager.order.core.OrderedProductPrice;
 import mm.expenses.manager.order.product.Product;
 import mm.expenses.manager.order.product.ProductPrice;
 

@@ -2,6 +2,9 @@ package mm.expenses.manager.product.processor.delete.clean;
 
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.postgresql.pagination.PaginationHelper;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.product.core.ProductMapper;
+import mm.expenses.manager.product.core.ProductRepository;
 import mm.expenses.manager.product.currency.PriceConverter;
 import mm.expenses.manager.product.processor.*;
 import org.springframework.data.domain.PageRequest;
@@ -25,11 +28,11 @@ class HardDeleteProductsHandler extends ProductHandler {
 
     @Override
     public Type getType() {
-        return Type.HARD_DELETE;
+        return Type.HARD_DELETE_PRODUCTS;
     }
 
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         log.info("Clean deleted products in progress.");
 
         var deletedCount = 0L;
@@ -55,7 +58,7 @@ class HardDeleteProductsHandler extends ProductHandler {
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         return null;
     }
 

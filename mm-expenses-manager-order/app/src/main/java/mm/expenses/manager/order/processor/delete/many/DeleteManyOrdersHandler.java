@@ -1,10 +1,11 @@
 package mm.expenses.manager.order.processor.delete.many;
 
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
-import mm.expenses.manager.order.processor.Order;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.processor.OrderHandler;
-import mm.expenses.manager.order.processor.OrderMapper;
-import mm.expenses.manager.order.processor.OrderRepository;
+import mm.expenses.manager.order.core.OrderMapper;
+import mm.expenses.manager.order.core.OrderRepository;
 import mm.expenses.manager.order.price.PriceConverter;
 import org.springframework.stereotype.Component;
 
@@ -23,23 +24,24 @@ class DeleteManyOrdersHandler extends OrderHandler {
 
     @Override
     public Type getType() {
-        return Type.DELETE_MANY;
+        return Type.DELETE_MANY_ORDERS;
     }
 
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         final var now = Instant.now();
         final var chain = ChainCommandExecution.build(
                 new FindOrdersToRemove(repository, now),
                 new DeleteMultipleOrders(repository, now),
                 new SaveDeletedOrders(repository)
         );
-
-        return of((List<Order>) chain.handleRequest(request.request()));
+        return Response.builder()
+                .listedResponse((List<Order>) chain.handleRequest(request.getRequest()))
+                .build();
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         return null;
     }
 

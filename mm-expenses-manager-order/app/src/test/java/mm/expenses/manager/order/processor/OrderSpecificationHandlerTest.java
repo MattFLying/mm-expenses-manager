@@ -5,6 +5,7 @@ import lombok.val;
 import mm.expenses.manager.common.postgresql.specification.criteria.FilteredField;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
+import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.processor.search.OrderFilter;
 import mm.expenses.manager.order.processor.search.OrderSpecificationHandler;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,6 +1,9 @@
 package mm.expenses.manager.order.processor.delete.single;
 
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.order.core.OrderMapper;
+import mm.expenses.manager.order.core.OrderRepository;
 import mm.expenses.manager.order.processor.*;
 import mm.expenses.manager.order.price.PriceConverter;
 import org.springframework.stereotype.Component;
@@ -19,23 +22,24 @@ class DeleteSingleOrderHandler extends OrderHandler {
 
     @Override
     public Type getType() {
-        return Type.DELETE;
+        return Type.DELETE_SINGLE_ORDER;
     }
 
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         final var now = Instant.now();
         final var chain = ChainCommandExecution.build(
                 new FindOrderToRemove(repository, now),
                 new DeleteSingleOrder(repository, now),
                 new SaveDeletedOrder(repository)
         );
-
-        return of((Order) chain.handleRequest(request.request()));
+        return Response.builder()
+                .response(chain.handleRequest(request.getRequest()))
+                .build();
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         return null;
     }
 

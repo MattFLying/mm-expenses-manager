@@ -1,4 +1,4 @@
-package mm.expenses.manager.order.processor;
+package mm.expenses.manager.order.core;
 
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.postgresql.pagination.PaginationHelper;
@@ -23,7 +23,7 @@ class OrderController implements OrderApi {
 
     private final PaginationHelper pagination;
 
-    private final OrderService facade;
+    private final OrderService service;
 
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,7 +53,7 @@ class OrderController implements OrderApi {
                 .paginationConfig(pagination.getPageRequest(pageNumber, pageSize))
                 .build();
 
-        return ResponseEntity.ok(facade.search(queryFilter, queryFilter.shouldConvertCurrenciesToDefault()));
+        return ResponseEntity.ok(service.search(queryFilter, queryFilter.shouldConvertCurrenciesToDefault()));
     }
 
     @Override
@@ -61,7 +61,7 @@ class OrderController implements OrderApi {
     public ResponseEntity<OrderResponse> findById(@PathVariable("id") final UUID id,
                                                   @RequestParam(value = OrderFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted,
                                                   @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
-        return ResponseEntity.ok(facade.findById(id, isDeleted, shouldConvertCurrency));
+        return ResponseEntity.ok(service.findById(id, isDeleted, shouldConvertCurrency));
     }
 
     @Override
@@ -69,7 +69,7 @@ class OrderController implements OrderApi {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> create(@RequestBody final CreateNewOrderRequest request,
                                                 @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(facade.create(request, shouldConvertCurrency));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request, shouldConvertCurrency));
     }
 
     @Override
@@ -78,14 +78,14 @@ class OrderController implements OrderApi {
     public ResponseEntity<OrderResponse> update(@PathVariable("id") final UUID id,
                                                 @RequestBody final UpdateOrderRequest request,
                                                 @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
-        return ResponseEntity.ok(facade.update(id, request, shouldConvertCurrency));
+        return ResponseEntity.ok(service.update(id, request, shouldConvertCurrency));
     }
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable("id") final UUID id) {
-        facade.delete(id);
+        service.delete(id);
 
         return ResponseEntity.noContent().build();
     }
@@ -94,7 +94,7 @@ class OrderController implements OrderApi {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteByIds(@RequestBody final OrderIds request) {
-        facade.delete(new HashSet<>(request.getIds()));
+        service.delete(new HashSet<>(request.getIds()));
 
         return ResponseEntity.noContent().build();
     }

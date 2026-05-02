@@ -11,7 +11,7 @@ import mm.expenses.manager.product.api.product.model.CurrencyOperationRequest;
 import mm.expenses.manager.product.api.product.model.NumberOperationRequest;
 import mm.expenses.manager.product.api.product.model.TextOperationRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.ProductFilterView;
+import mm.expenses.manager.product.core.ProductFilterView;
 import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;

@@ -1,107 +1,69 @@
 package mm.expenses.manager.order.processor;
 
-import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.common.utils.processor.ProcessorType;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderMapper;
+import mm.expenses.manager.order.core.OrderRepository;
 import mm.expenses.manager.order.api.order.model.OrderPage;
-import mm.expenses.manager.order.api.order.model.OrderResponse;
 import mm.expenses.manager.order.price.PriceConverter;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Default handler definition to process specific handlers.
  */
 @RequiredArgsConstructor
-public abstract class OrderHandler {
+public abstract class OrderHandler extends ProcessorHandler {
 
     protected final OrderRepository repository;
     protected final OrderMapper mapper;
     protected final PriceConverter priceConverter;
 
-    /**
-     * Handler type
-     */
-    public abstract Type getType();
+    @SuperBuilder
+    public static class Request extends ProcessorHandler.Request {
 
-    /**
-     * Handles specific request to processed with specific response expected.
-     */
-    public abstract Response handle(final Request request);
+        private Boolean isDeleted;
 
-    /**
-     * Decorates handled response.
-     */
-    public abstract Response handleDecorated(final Request request);
-
-    protected Response of(final Order order) {
-        return Response.builder().response(order).build();
-    }
-
-    protected Response of(final Order order, final OrderResponse orderResponse) {
-        return Response.builder().response(order).decoratedResponse(orderResponse).build();
-    }
-
-    protected Response of(final List<Order> listedResponse) {
-        return Response.builder().listedResponse(listedResponse).build();
-    }
-
-    protected Response of(final Page<Order> orderPage) {
-        return Response.builder().pagedResponse(orderPage).build();
-    }
-
-    protected Response of(final Page<Order> page, final OrderPage orderPage) {
-        return Response.builder().pagedResponse(page).decoratedPagedResponse(orderPage).build();
-    }
-
-    /**
-     * Request to be processed within specific handlers' implementation.
-     *
-     * @param request               - request object to be processed
-     * @param id                    - specific id
-     * @param isDeleted             - if should handle deleted objects
-     * @param shouldConvertCurrency - defines if curreny should be also converted
-     */
-    @Builder
-    public record Request(Object request, UUID id, Boolean isDeleted, Boolean shouldConvertCurrency) {
+        private Boolean shouldConvertCurrency;
 
         public boolean isShouldConvertCurrency() {
             return Objects.nonNull(shouldConvertCurrency) && shouldConvertCurrency;
         }
 
+        public boolean isDeleted() {
+            return Objects.nonNull(isDeleted) && isDeleted;
+        }
+
     }
 
-    /**
-     * Response to be used in handlers context with the expected return value.
-     *
-     * @param response               - order response
-     * @param decoratedResponse      - decorated order response
-     * @param pagedResponse          - paginated orders
-     * @param listedResponse         - list of orders
-     * @param decoratedPagedResponse - decorated paginated orders
-     */
-    @Builder
-    public record Response(
-            Order response,
-            OrderResponse decoratedResponse,
-            Page<Order> pagedResponse,
-            List<Order> listedResponse,
-            OrderPage decoratedPagedResponse) {
+    @Getter
+    @SuperBuilder
+    public static class Response extends ProcessorHandler.Response {
+
+        private Page<Order> pagedResponse;
+
+        private List<Order> listedResponse;
+
+        private OrderPage decoratedPagedResponse;
 
     }
 
     /**
      * Possible handler types to be implemented and to be used.
      */
-    public enum Type {
-        CREATE,
-        UPDATE,
-        DELETE,
-        DELETE_MANY,
-        FIND,
-        SEARCH
+    public enum Type implements ProcessorType {
+        CREATE_ORDER,
+        UPDATE_ORDER,
+        DELETE_SINGLE_ORDER,
+        DELETE_MANY_ORDERS,
+        FIND_ORDER,
+        SEARCH_ORDERS
     }
 
 }

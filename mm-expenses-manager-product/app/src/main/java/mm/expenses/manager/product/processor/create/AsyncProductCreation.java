@@ -8,8 +8,8 @@ import mm.expenses.manager.common.kafka.AsyncKafkaOperation;
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
 import mm.expenses.manager.product.api.product.model.CreateProductRequest;
 import mm.expenses.manager.product.exception.ProductExceptionMessage;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductAsyncHandler;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductAsyncHandler;
 
 /**
  * Step in chain of new {@link Product} creation.

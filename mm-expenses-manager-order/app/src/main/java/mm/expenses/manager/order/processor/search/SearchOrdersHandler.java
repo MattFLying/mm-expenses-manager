@@ -4,6 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
+import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.order.core.Order;
+import mm.expenses.manager.order.core.OrderMapper;
+import mm.expenses.manager.order.core.OrderRepository;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
 import mm.expenses.manager.order.processor.*;
 import mm.expenses.manager.order.processor.decorator.OrderClassicMapperToResponse;
@@ -28,30 +32,39 @@ class SearchOrdersHandler extends OrderHandler {
 
     @Override
     public Type getType() {
-        return Type.SEARCH;
+        return Type.SEARCH_ORDERS;
     }
 
     @Override
-    public Response handle(final Request request) {
+    public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
         final var chain = ChainCommandExecution.build(
                 new SearchOrdersPrepareSpecificationCriterias(repository, specificationHandler),
                 new SearchOrdersByCriteria(repository)
         );
-
-        return of((Page<Order>) chain.handleRequest(request.request()));
+        return Response.builder()
+                .pagedResponse((Page<Order>) chain.handleRequest(request.getRequest()))
+                .build();
     }
 
     @Override
-    public Response handleDecorated(final Request request) {
+    public ProcessorHandler.Response handleDecorated(final ProcessorHandler.Request request) {
         try {
-            final var pagedOrders = handle(request);
-            final var decorator = request.isShouldConvertCurrency()
-                    ? new OrderClassicMapperToResponseWithConversionDecorator(priceConverter, new OrderClassicMapperToResponse(mapper), request.shouldConvertCurrency())
-                    : new OrderClassicMapperToResponse(mapper);
+            if (request instanceof OrderHandler.Request searchRequest) {
+                final var response = handle(searchRequest);
+                final var decorator = searchRequest.isShouldConvertCurrency()
+                        ? new OrderClassicMapperToResponseWithConversionDecorator(priceConverter, new OrderClassicMapperToResponse(mapper), searchRequest.isShouldConvertCurrency())
+                        : new OrderClassicMapperToResponse(mapper);
 
-            final var result = decorator.decorate(pagedOrders.pagedResponse());
-
-            return of(pagedOrders.pagedResponse(), mapper.mapToPageResponse(result));
+                if (response instanceof OrderHandler.Response order) {
+                    final var pagedOrders = order.getPagedResponse();
+                    final var pagedOrderResponse = decorator.decorate(pagedOrders);
+                    return Response.builder()
+                            .pagedResponse(pagedOrders)
+                            .decoratedPagedResponse(mapper.mapToPageResponse(pagedOrderResponse))
+                            .build();
+                }
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDERS_CANNOT_BE_FOUND.getMessage());
         } catch (final ApiException exception) {
             throw exception;
         } catch (final Exception exception) {

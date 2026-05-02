@@ -2,8 +2,8 @@ package mm.expenses.manager.product.processor.decorator;
 
 import mm.expenses.manager.common.web.decorator.PagedDecorator;
 import mm.expenses.manager.product.api.product.model.ProductResponse;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductFilterView;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductFilterView;
 
 /**
  * Simple {@link Product} decorator for specific cases.

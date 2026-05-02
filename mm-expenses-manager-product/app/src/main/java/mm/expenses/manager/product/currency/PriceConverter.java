@@ -10,8 +10,8 @@ import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResp
 import mm.expenses.manager.product.client.FinanceApiClient;
 import mm.expenses.manager.product.config.CurrencyConfig;
 import mm.expenses.manager.product.price.ProductPrice;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductFilterView;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductFilterView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 

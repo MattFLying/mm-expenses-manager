@@ -1,7 +1,7 @@
 package mm.expenses.manager.order.processor.delete.single;
 
 import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
-import mm.expenses.manager.order.processor.Order;
+import mm.expenses.manager.order.core.Order;
 
 import java.util.UUID;
 

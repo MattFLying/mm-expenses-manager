@@ -3,8 +3,8 @@ package mm.expenses.manager.product.processor.decorator;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.product.api.product.model.ProductResponse;
-import mm.expenses.manager.product.processor.Product;
-import mm.expenses.manager.product.processor.ProductMapper;
+import mm.expenses.manager.product.core.Product;
+import mm.expenses.manager.product.core.ProductMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
