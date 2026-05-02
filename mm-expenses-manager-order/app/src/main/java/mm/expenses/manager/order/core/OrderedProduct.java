@@ -22,7 +22,7 @@ import java.util.*;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "emo_order_product")
+@Table(name = "order_product")
 @Builder(toBuilder = true)
 @EntityListeners({
         AuditingEntityListener.class
@@ -39,7 +39,7 @@ public class OrderedProduct implements Serializable, PriceSummary {
 
     @OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval = true)
     @JoinTable(
-            name = "emo_order_product_price",
+            name = "order_product_price",
             joinColumns = @JoinColumn(name = "order_product_id", referencedColumnName = "id", insertable = false, updatable = false),
             inverseJoinColumns = @JoinColumn(name = "id")
     )

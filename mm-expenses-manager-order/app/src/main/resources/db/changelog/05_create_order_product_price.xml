@@ -4,9 +4,9 @@
 
     <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
 
-    <changeSet id="05-emo-create-order-product-price" author="mateusz.mucha">
+    <changeSet id="005" author="mateusz.mucha">
 
-        <createTable tableName="emo_order_product_price">
+        <createTable tableName="order_product_price">
 
             <column name="id" type="uuid">
                 <constraints nullable="false" unique="true"/>
@@ -60,53 +60,53 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="id" tableName="emo_order_product_price"/>
-        <addUniqueConstraint columnNames="id" tableName="emo_order_product_price"/>
+        <addPrimaryKey columnNames="id" tableName="order_product_price"/>
+        <addUniqueConstraint columnNames="id" tableName="order_product_price"/>
 
-        <createIndex indexName="idx_emo_order_product_price_currency" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_currency" tableName="order_product_price">
             <column name="currency"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_is_price_original" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_is_price_original" tableName="order_product_price">
             <column name="is_price_original"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_is_price_custom" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_is_price_custom" tableName="order_product_price">
             <column name="is_price_custom"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_order_product_id" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_order_product_id" tableName="order_product_price">
             <column name="order_product_id"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_is_deleted" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_is_deleted" tableName="order_product_price">
             <column name="is_deleted"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_order_product_id_is_price_original" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_order_product_id_is_price_original" tableName="order_product_price">
             <column name="order_product_id"/>
             <column name="is_price_original"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_order_product_id_is_price_custom" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_order_product_id_is_price_custom" tableName="order_product_price">
             <column name="order_product_id"/>
             <column name="is_price_custom"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_order_product_id_currency" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_order_product_id_currency" tableName="order_product_price">
             <column name="order_product_id"/>
             <column name="currency"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_product_price_is_price_original_is_price_custom" tableName="emo_order_product_price">
+        <createIndex indexName="idx_order_product_price_is_price_original_is_price_custom" tableName="order_product_price">
             <column name="is_price_original"/>
             <column name="is_price_custom"/>
         </createIndex>
 
-        <addForeignKeyConstraint baseTableName="emo_order_product_price"
+        <addForeignKeyConstraint baseTableName="order_product_price"
                                  baseColumnNames="order_product_id"
                                  constraintName="fk_ordered_product_product_id"
-                                 referencedTableName="emo_order_product"
+                                 referencedTableName="order_product"
                                  referencedColumnNames="id"
                                  onUpdate="CASCADE"
                                  onDelete="CASCADE"

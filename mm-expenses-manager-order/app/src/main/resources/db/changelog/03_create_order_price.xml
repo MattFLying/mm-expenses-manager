@@ -4,9 +4,9 @@
 
     <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
 
-    <changeSet id="03-emo-create-order-price" author="mateusz.mucha">
+    <changeSet id="003" author="mateusz.mucha">
 
-        <createTable tableName="emo_order_price">
+        <createTable tableName="order_price">
 
             <column name="id" type="uuid">
                 <constraints nullable="false" unique="true"/>
@@ -53,41 +53,41 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="id" tableName="emo_order_price"/>
-        <addUniqueConstraint columnNames="id" tableName="emo_order_price"/>
+        <addPrimaryKey columnNames="id" tableName="order_price"/>
+        <addUniqueConstraint columnNames="id" tableName="order_price"/>
 
-        <createIndex indexName="idx_emo_order_price_currency" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_currency" tableName="order_price">
             <column name="currency"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_price_is_price_original" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_is_price_original" tableName="order_price">
             <column name="is_price_original"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_price_is_price_converted" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_is_price_converted" tableName="order_price">
             <column name="is_price_converted"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_price_is_deleted" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_is_deleted" tableName="order_price">
             <column name="is_deleted"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_price_order_id_is_price_original" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_order_id_is_price_original" tableName="order_price">
             <column name="order_id"/>
             <column name="is_price_original"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_price_is_price_original_is_price_converted" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_is_price_original_is_price_converted" tableName="order_price">
             <column name="is_price_original"/>
             <column name="is_price_converted"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_price_is_price_original_currency" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_is_price_original_currency" tableName="order_price">
             <column name="is_price_original"/>
             <column name="currency"/>
         </createIndex>
 
-        <createIndex indexName="idx_emo_order_price_order_id_currency" tableName="emo_order_price">
+        <createIndex indexName="idx_order_price_order_id_currency" tableName="order_price">
             <column name="order_id"/>
             <column name="currency"/>
         </createIndex>
@@ -95,13 +95,13 @@
         <addUniqueConstraint
                 columnNames="order_id, currency, date"
                 constraintName="uq_order_price"
-                tableName="emo_order_price"
+                tableName="order_price"
         />
 
-        <addForeignKeyConstraint baseTableName="emo_order_price"
+        <addForeignKeyConstraint baseTableName="order_price"
                                  baseColumnNames="order_id"
                                  constraintName="fk_order_price_id"
-                                 referencedTableName="emo_order"
+                                 referencedTableName="order"
                                  referencedColumnNames="id"
                                  onUpdate="CASCADE"
                                  onDelete="CASCADE"

@@ -15,10 +15,10 @@
     <property name="now" value="current_timestamp" dbms="postgresql"/>
     <property name="uuidType" value="uuid" dbms="postgresql"/>
 
-    <include file="changelog/01_emo_create_product.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/02_emo_create_order.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/03_emo_create_order_price.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/04_emo_create_order_product.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/05_emo_create_order_product_price.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/01_create_product.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/02_create_order.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/03_create_order_price.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/04_create_order_product.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/05_create_order_product_price.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

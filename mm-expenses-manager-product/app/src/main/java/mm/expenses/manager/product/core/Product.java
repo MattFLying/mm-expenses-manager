@@ -24,7 +24,7 @@ import java.util.*;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "emp_product")
+@Table(name = "product")
 @Builder(toBuilder = true)
 @EntityListeners({
         AuditingEntityListener.class
