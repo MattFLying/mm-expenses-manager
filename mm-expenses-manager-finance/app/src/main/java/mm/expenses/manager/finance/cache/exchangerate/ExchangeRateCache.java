@@ -21,8 +21,10 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@RedisHash("exchange-rates")
+@RedisHash(ExchangeRateCache.CACHE_NAME)
 public class ExchangeRateCache implements Serializable {
+
+    public static final String CACHE_NAME = "exchange-rates";
 
     @Id
     @Indexed

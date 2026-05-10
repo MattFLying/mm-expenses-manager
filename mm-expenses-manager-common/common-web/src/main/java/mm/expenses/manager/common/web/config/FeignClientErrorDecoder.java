@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
             log.debug("Received an empty body response for request: {}", response.request());
             return Optional.empty();
         }
-        try (final Reader reader = response.body().asReader()) {
+        try (final Reader reader = response.body().asReader(StandardCharsets.UTF_8)) {
             return Optional.of(getContentFromResponse(reader, response));
         } catch (final Exception e) {
             return Optional.empty();

@@ -8,24 +8,24 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Web</name>
     <description>Expenses Manager common web module with to work with web components.</description>
 
     <artifactId>common-web</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
 
     <properties>
-        <!-- Spring dependency versions -->
-        <spring-cloud-starter-netflix-hystrix-version>2.2.10.RELEASE</spring-cloud-starter-netflix-hystrix-version>
-
         <!-- Other dependency versions -->
-        <hibernate-validator-version>8.0.1.Final</hibernate-validator-version>
+        <hibernate-validator-version>9.0.1.Final</hibernate-validator-version>
+        <commons-configuration2-version>2.14.0</commons-configuration2-version>
+        <bcprov-jdk18on-version>1.84</bcprov-jdk18on-version>
     </properties>
 
     <dependencies>
+
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
@@ -38,27 +38,79 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
+            <version>${spring-data-commons-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
             <version>${spring-cloud-starter-netflix-hystrix-version}</version>
+
+            <exclusions>
+                <!-- Because of CVE-2018-10237, CVE-2023-2976 vulnerabilities -->
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+
+                <!-- Because of CVE-2026-0636 vulnerability -->
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk18on</artifactId>
+                </exclusion>
+
+                <!-- Because of CVE-2025-46392 vulnerability -->
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
+            <version>${spring-cloud-starter-netflix-hystrix-version}</version>
+
+            <exclusions>
+                <!-- Because of CVE-2025-48924 vulnerability -->
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+
+                <!-- Because of CVE-2025-46392 vulnerability -->
+                <exclusion>
+                    <groupId>commons-configuration</groupId>
+                    <artifactId>commons-configuration</artifactId>
+                </exclusion>
+
+                <!-- Because of CVE-2018-10237, CVE-2023-2976 vulnerabilities -->
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+
             <exclusions>
-                <!-- Because of CVE-2023-24998 vulnerability that is fixed in commons-fileupload2-javax already available in common-utils -->
+                <!-- Because of CVE-2023-24998 vulnerability -->
                 <exclusion>
                     <groupId>commons-fileupload</groupId>
                     <artifactId>commons-fileupload</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -76,6 +128,21 @@
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate-validator-version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <version>${commons-configuration2-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bcprov-jdk18on-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

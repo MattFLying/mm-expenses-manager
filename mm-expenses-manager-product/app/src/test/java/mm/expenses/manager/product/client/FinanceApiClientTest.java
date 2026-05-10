@@ -3,6 +3,7 @@ package mm.expenses.manager.product.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import lombok.val;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionRequest;
@@ -10,6 +11,7 @@ import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionResp
 import mm.expenses.manager.finance.api.calculations.model.CurrencyConversionValueDto;
 import mm.expenses.manager.product.ProductApplicationSpringTest;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -81,7 +83,7 @@ class FinanceApiClientTest extends ProductApplicationSpringTest {
 
         stubFor(
                 post("/calculations")
-                        .withRequestBody(equalToJson(requestBody.toString()))
+                        .withRequestBody(WireMock.equalToJson(requestBody.toString(), true, true))
                         .willReturn(
                                 aResponse()
                                         .withStatus(HttpStatus.OK.value())
@@ -149,7 +151,7 @@ class FinanceApiClientTest extends ProductApplicationSpringTest {
 
         stubFor(
                 post("/calculations")
-                        .withRequestBody(equalToJson(requestBody.toString()))
+                        .withRequestBody(WireMock.equalToJson(requestBody.toString(), true, true))
                         .willReturn(
                                 aResponse()
                                         .withStatus(HttpStatus.OK.value())
@@ -210,18 +212,26 @@ class FinanceApiClientTest extends ProductApplicationSpringTest {
     }
 
     private JSONObject createConversionBody(final CurrencyCode code, final Double value) {
-        val json = new JSONObject().put("code", code.getCode());
-        if (Objects.nonNull(value)) {
-            json.put("value", value);
+        try {
+            val json = new JSONObject().put("code", code.getCode());
+            if (Objects.nonNull(value)) {
+                json.put("value", value);
+            }
+            return json;
+        } catch (final JSONException exception) {
+            throw new RuntimeException(exception);
         }
-        return json;
     }
 
     private JSONObject createCurrencyConversionBody(final String id, final String date, final JSONObject from, final JSONObject to) {
-        return new JSONObject().put("id", id)
-                .put("date", date)
-                .put("from", from)
-                .put("to", to);
+        try {
+            return new JSONObject().put("id", id)
+                    .put("date", date)
+                    .put("from", from)
+                    .put("to", to);
+        } catch (final JSONException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
 }

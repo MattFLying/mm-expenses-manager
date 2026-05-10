@@ -9,6 +9,9 @@ import mm.expenses.manager.common.utils.config.ObjectMapperConfig;
 import mm.expenses.manager.common.web.config.ErrorHandlingConfig;
 import mm.expenses.manager.common.web.config.OpenApiConfig;
 import mm.expenses.manager.common.web.config.WebMvcConfig;
+import mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -56,6 +59,11 @@ class FinanceApplicationConfig {
     @Bean
     OpenApiConfig openApiConfig(final ApplicationConfig appConfig) {
         return new OpenApiConfig(appConfig);
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager(ExchangeRateCache.CACHE_NAME);
     }
 
 }

@@ -8,25 +8,29 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Utils</name>
     <description>Expenses Manager common utils with utilities components.</description>
 
     <artifactId>common-utils</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
 
     <properties>
         <!-- Apache commons version -->
-        <apache-commons-lang3-version>3.16.0</apache-commons-lang3-version>
-        <apache-commons-collections4-version>4.4</apache-commons-collections4-version>
+        <apache-commons-lang3-version>3.20.0</apache-commons-lang3-version>
+        <apache-commons-collections4-version>4.5.0</apache-commons-collections4-version>
         <apache-commons-math3>3.6.1</apache-commons-math3>
-        <apache-commons-validator-version>1.9.0</apache-commons-validator-version>
-        <apache-commons-fileupload>2.0.0-M2</apache-commons-fileupload>
+        <apache-commons-validator-version>1.10.1</apache-commons-validator-version>
+        <apache-commons-fileupload>2.0.0-M5</apache-commons-fileupload>
+        <tools-jackson-core-version>3.1.2</tools-jackson-core-version>
+        <jackson-datatype-jdk8-version>2.21.3</jackson-datatype-jdk8-version>
+        <junit-platform-runner-version>1.14.4</junit-platform-runner-version>
     </properties>
 
     <dependencies>
+
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
@@ -41,16 +45,19 @@
             <artifactId>commons-collections4</artifactId>
             <version>${apache-commons-collections4-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${apache-commons-lang3-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>${apache-commons-math3}</version>
         </dependency>
+
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
@@ -62,21 +69,42 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-fileupload2-javax</artifactId>
+            <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
             <version>${apache-commons-fileupload}</version>
         </dependency>
 
         <!-- Jackson (JSON) dependencies -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${tools-jackson-core-version}</version>
+            <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${tools-jackson-core-version}</version>
+            <scope>compile</scope>
+
+            <!-- Because of GHSA-2m67-wjpj-xhg9 vulnerability that is fixed in jackson-core in 3.1.1 version, so here is a newer version in this pom too -->
+            <exclusions>
+                <exclusion>
+                    <groupId>tools.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>${jackson-datatype-jdk8-version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
@@ -88,37 +116,45 @@
             <artifactId>junit-jupiter-api</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-runner</artifactId>
+            <version>${junit-platform-runner-version}</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>pl.pragmatists</groupId>
             <artifactId>JUnitParams</artifactId>
             <version>${junit-params-version}</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
 </project>

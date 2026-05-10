@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -45,13 +45,13 @@ import static org.mockito.Mockito.when;
 
 class LatestRatesCacheServiceTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private CurrenciesService currenciesService;
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateService exchangeRateService;
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateCacheService exchangeRateCacheService;
 
     @Autowired

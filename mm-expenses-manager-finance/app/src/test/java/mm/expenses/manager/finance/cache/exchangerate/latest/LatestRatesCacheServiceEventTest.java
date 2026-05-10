@@ -3,14 +3,14 @@ package mm.expenses.manager.finance.cache.exchangerate.latest;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.mockito.Mockito.*;
 
 class LatestRatesCacheServiceEventTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private LatestRatesCacheService latestRatesCacheService;
 
     @Autowired

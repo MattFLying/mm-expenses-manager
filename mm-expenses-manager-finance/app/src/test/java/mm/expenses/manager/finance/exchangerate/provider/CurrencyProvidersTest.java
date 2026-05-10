@@ -5,7 +5,7 @@ import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.currency.CurrencyRatesConfig;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.reset;
 
 class CurrencyProvidersTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private CurrencyRatesConfig currencyRatesConfig;
 
     @Override

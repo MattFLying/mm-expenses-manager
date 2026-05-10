@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -29,10 +29,10 @@ class ManagementControllerTest extends FinanceApplicationTest {
 
     private static final String BASE_URL = "/management";
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateService exchangeRateService;
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateTrailService exchangeRateTrailService;
 
     @Override

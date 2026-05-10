@@ -20,7 +20,8 @@ app:
       postgres:
         host: localhost
         port: 5432
-        db-name: expenses_manager
+        db-name: em_postgresql
+        db-schema: em_order
         username: admin
         password: gP_h3cS!Lqu-4
     pagination:
@@ -54,7 +55,7 @@ spring:
     active: ${app.configuration.active-profile}
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${app.configuration.database.postgres.host}:${app.configuration.database.postgres.port}/${app.configuration.database.postgres.db-name}?createDatabaseIfNotExist=true
+    url: jdbc:postgresql://${app.configuration.database.postgres.host}:${app.configuration.database.postgres.port}/${app.configuration.database.postgres.db-name}?createDatabaseIfNotExist=true&currentSchema=${app.configuration.database.postgres.db-schema}
     username: ${app.configuration.database.postgres.username}
     password: ${app.configuration.database.postgres.password}
   jpa:

@@ -4,7 +4,7 @@ import mm.expenses.manager.finance.FinanceApplicationTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static mm.expenses.manager.finance.cache.exchangerate.ExchangeRateCacheRepository.CacheType.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +13,7 @@ import static org.mockito.Mockito.*;
 
 class ExchangeRateCacheClearTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateCacheRepository exchangeRateCacheRepository;
 
     @Autowired

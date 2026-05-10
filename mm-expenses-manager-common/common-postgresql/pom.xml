@@ -7,21 +7,25 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common PostgreSQL</name>
     <description>Expenses Manager common PostgreSQL module to work with PostgreSQL database.</description>
 
     <artifactId>common-postgresql</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
 
     <properties>
+        <!-- PostgreSQL version -->
+        <org-postgresql-version>42.7.11</org-postgresql-version>
+
         <!-- Hibernate dependencies -->
-        <hibernate-core-version>6.5.3.Final</hibernate-core-version>
+        <hibernate-orm-core-version>7.3.3.Final</hibernate-orm-core-version>
     </properties>
 
     <dependencies>
+
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
@@ -34,21 +38,26 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
+            <version>${spring-data-commons-version}</version>
         </dependency>
 
         <!-- PostgreSQL dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-boot-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>${org-postgresql-version}</version>
         </dependency>
+
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${hibernate-core-version}</version>
+            <version>${hibernate-orm-core-version}</version>
             <type>pom</type>
         </dependency>
 
@@ -63,6 +72,7 @@
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>

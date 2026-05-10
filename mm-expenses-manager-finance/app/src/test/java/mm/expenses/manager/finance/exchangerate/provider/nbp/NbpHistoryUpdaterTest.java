@@ -8,7 +8,7 @@ import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exception.HistoricalCurrencyException;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,10 +30,10 @@ class NbpHistoryUpdaterTest extends FinanceApplicationTest {
 
     private NbpApiConfig nbpApiConfig;
 
-    @MockBean
+    @MockitoBean
     private NbpCurrencyProvider nbpCurrencyProvider;
 
-    @MockBean
+    @MockitoBean
     private CurrencyProviders currencyProviders;
 
     private NbpHistoryUpdater nbpHistoryUpdater;

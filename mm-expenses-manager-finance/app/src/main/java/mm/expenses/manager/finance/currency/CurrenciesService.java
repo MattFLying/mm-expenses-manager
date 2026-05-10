@@ -1,5 +1,6 @@
 package mm.expenses.manager.finance.currency;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import mm.expenses.manager.finance.exchangerate.provider.CurrencyProviders;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Collectors;

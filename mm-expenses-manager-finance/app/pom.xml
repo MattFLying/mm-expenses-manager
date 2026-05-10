@@ -8,7 +8,7 @@
     <parent>
         <artifactId>mm-expenses-manager-finance</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Finance App</name>
@@ -17,15 +17,35 @@
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-finance-app</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
 
     <dependencies>
+
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-finance-api</artifactId>
             <version>${mm-expenses-manager-finance-api-version}</version>
         </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-mongodb</artifactId>
+            <version>${mm-expenses-manager-common-mongodb-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-redis</artifactId>
+            <version>${mm-expenses-manager-common-redis-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-kafka</artifactId>
+            <version>${mm-expenses-manager-common-kafka-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
