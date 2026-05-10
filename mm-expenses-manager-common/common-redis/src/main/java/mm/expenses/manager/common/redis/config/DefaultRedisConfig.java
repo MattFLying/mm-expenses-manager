@@ -21,6 +21,7 @@ public class DefaultRedisConfig {
         final var configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(config.getHost());
         configuration.setPort(config.getPort());
+
         return new JedisConnectionFactory(configuration);
     }
 

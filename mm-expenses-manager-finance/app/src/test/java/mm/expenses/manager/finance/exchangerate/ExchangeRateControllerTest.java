@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -36,7 +36,7 @@ class ExchangeRateControllerTest extends FinanceApplicationTest {
 
     private static final String BASE_URL = "/exchange-rates";
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateRepository repository;
 
     @Autowired

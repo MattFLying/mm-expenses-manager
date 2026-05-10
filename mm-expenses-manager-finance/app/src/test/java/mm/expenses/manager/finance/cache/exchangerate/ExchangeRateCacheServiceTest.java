@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 class ExchangeRateCacheServiceTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private CurrencyProviders currencyProviders;
 
     @Autowired

@@ -9,7 +9,7 @@ import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,10 +28,10 @@ import static org.mockito.Mockito.when;
 
 class NbpCurrencyProviderTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private NbpClient nbpClient;
 
-    @MockBean
+    @MockitoBean
     private NbpApiConfig nbpApiConfig;
 
     @Autowired

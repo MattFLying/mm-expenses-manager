@@ -1,6 +1,7 @@
 package mm.expenses.manager.finance.exchangerate;
 
 import lombok.SneakyThrows;
+import mm.expenses.manager.common.kafka.message.ProductManagementMessage;
 import mm.expenses.manager.finance.FinanceApplicationTest;
 import mm.expenses.manager.finance.exception.ExchangeRateException;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -23,17 +24,17 @@ import static org.mockito.Mockito.*;
 
 class ExchangeRateHistoryUpdateTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateRepository exchangeRateRepository;
 
-    @MockBean
+    @MockitoBean
     private CurrencyProviders currencyProviders;
 
     @Autowired
     private ExchangeRateHistoryUpdate exchangeRateHistoryUpdate;
 
     @Captor
-    private ArgumentCaptor<Consumer<CurrencyRateProvider<? extends CurrencyRate>>> providerConsumerCaptor;
+    private ArgumentCaptor<Consumer<CurrencyRateProvider<? extends CurrencyRate>>> providerConsumerCaptor = ArgumentCaptor.forClass(Consumer.class);
 
     private final TestProvider provider_1 = new TestProvider(TEST_PROVIDER_NAME_1, false);
     private final TestProvider provider_2 = new TestProvider(TEST_PROVIDER_NAME_2, true);

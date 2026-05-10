@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -21,23 +21,23 @@ import static org.mockito.Mockito.*;
 
 class ExchangeRateSynchronizerTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private CurrencyProviders currencyProviders;
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateService exchangeRateService;
 
-    @MockBean
+    @MockitoBean
     private TaskScheduler taskScheduler;
 
     @Autowired
     private ExchangeRateSynchronizer exchangeRateSynchronizer;
 
     @Captor
-    private ArgumentCaptor<Consumer<CurrencyRateProvider<? extends CurrencyRate>>> providerConsumerCaptor;
+    private ArgumentCaptor<Consumer<CurrencyRateProvider<? extends CurrencyRate>>> providerConsumerCaptor = ArgumentCaptor.forClass(Consumer.class);
 
     @Captor
-    private ArgumentCaptor<Predicate<CurrencyRateProvider<? extends CurrencyRate>>> providerPredicateCaptor;
+    private ArgumentCaptor<Predicate<CurrencyRateProvider<? extends CurrencyRate>>> providerPredicateCaptor = ArgumentCaptor.forClass(Predicate.class);
 
     private TestProvider provider;
 

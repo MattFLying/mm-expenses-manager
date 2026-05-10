@@ -16,12 +16,11 @@ app:
       disable-default-url: true
     database:
       mongodb:
-        user: admin
+        user: em_root
         password: gP_h3cS!Lqu-4
-        name: expenses-manager-finance
+        name: em_finance
         host: localhost
         port: 27017
-        uri: mongodb://${app.configuration.database.mongodb.user}:${app.configuration.database.mongodb.password}@${app.configuration.database.mongodb.host}:${app.configuration.database.mongodb.port}/${app.configuration.database.mongodb.name}?authSource=admin
     cache:
       type: simple # 'simple' or 'redis'
       clear-cron: "0 0 * ? * *" # every 1h
@@ -70,13 +69,15 @@ spring:
     enabled: ${app.configuration.cache.redis.enabled}
     host: ${app.configuration.cache.redis.host}
     port: ${app.configuration.cache.redis.port}
+  mongodb:
+    host: ${app.configuration.database.mongodb.host}
+    port: ${app.configuration.database.mongodb.port}
+    database: ${app.configuration.database.mongodb.name}
+    username: ${app.configuration.database.mongodb.user}
+    password: ${app.configuration.database.mongodb.password}
+    authentication-database: admin
   data:
     mongodb:
-      host: ${app.configuration.database.mongodb.host}
-      port: ${app.configuration.database.mongodb.port}
-      database: ${app.configuration.database.mongodb.name}
-      username: root
-      password: ${app.configuration.database.mongodb.password}
       auto-index-creation: true
     web:
       pageable:

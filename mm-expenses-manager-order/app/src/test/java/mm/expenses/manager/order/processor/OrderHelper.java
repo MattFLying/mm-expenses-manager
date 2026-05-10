@@ -17,7 +17,7 @@ import mm.expenses.manager.order.product.Product;
 import mm.expenses.manager.order.product.ProductPrice;
 import mm.expenses.manager.order.product.ProductPrices;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.time.Instant;

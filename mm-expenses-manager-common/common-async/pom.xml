@@ -8,16 +8,17 @@
     <parent>
         <artifactId>mm-expenses-manager-common</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Async</name>
     <description>Expenses Manager common async module to adapt and work with any asynchronous mechanism.</description>
 
     <artifactId>common-async</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
 
     <dependencies>
+
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
@@ -25,6 +26,7 @@
             <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
 </project>

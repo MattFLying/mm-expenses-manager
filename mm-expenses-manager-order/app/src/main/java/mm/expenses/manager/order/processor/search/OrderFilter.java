@@ -12,7 +12,7 @@ import mm.expenses.manager.common.utils.config.PaginationConfig;
 import mm.expenses.manager.order.api.order.model.NumberOperationRequest;
 import mm.expenses.manager.order.api.order.model.TextOperationRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class OrderFilter extends EntityFilter {
 
     @Override
     protected void prepareAdditionalCriteria(final String parameterName, final String operation, final String[] values) {
-        if (StringUtils.equals(PRODUCTS_COUNT_PROPERTY, parameterName)) {
+        if (Strings.CS.equals(PRODUCTS_COUNT_PROPERTY, parameterName)) {
             productsCountOperation = NumberOperationRequest.fromValue(operation);
             productsCount = Integer.valueOf(values[0]); // ignore if there is more than single value, just take the first one
         }

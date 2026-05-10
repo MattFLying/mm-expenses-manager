@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -49,10 +49,10 @@ import static org.mockito.Mockito.when;
 
 class ExchangeRateServiceTest extends FinanceApplicationTest {
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateRepository exchangeRateRepository;
 
-    @MockBean
+    @MockitoBean
     private ExchangeRateHistoryUpdate exchangeRateHistoryUpdate;
 
     @Autowired

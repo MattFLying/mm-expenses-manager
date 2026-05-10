@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ class ProductSchedulerTest extends ProductApplicationTest {
     @Autowired
     private PaginationHelper pagination;
 
-    @MockBean
+    @MockitoBean
     private ProductAsyncHandler asyncHandler;
 
     private final CurrencyMapper mapper = mock(CurrencyMapperImpl.class);

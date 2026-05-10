@@ -45,13 +45,13 @@ class OrderControllerTest extends OrderApplicationTest {
     private OrderSpecificationHandler specificationHandler;
 
     @Captor
-    private ArgumentCaptor<Order> orderCaptor;
+    private ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
 
     @Captor
-    private ArgumentCaptor<List<Order>> ordersCaptor;
+    private ArgumentCaptor<List<Order>> ordersCaptor = ArgumentCaptor.forClass(List.class);
 
     @Captor
-    private ArgumentCaptor<List<CurrencyConversionRequest>> currencyConversionRequestCaptor;
+    private ArgumentCaptor<List<CurrencyConversionRequest>> currencyConversionRequestCaptor = ArgumentCaptor.forClass(List.class);
 
     @Nested
     class FindAll {

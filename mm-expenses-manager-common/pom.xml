@@ -8,23 +8,37 @@
     <parent>
         <artifactId>mm-expenses-manager-parent</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Common Library</name>
     <description>Expenses Manager common functionalities to be used in every service where needed to keep the consistency and stability.</description>
 
     <artifactId>mm-expenses-manager-common</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+
+    </properties>
+
     <dependencies>
+
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot-version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc-test</artifactId>
+            <version>${spring-boot-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <modules>
@@ -39,7 +53,9 @@
     </modules>
 
     <build>
+
         <plugins>
+
             <!-- Maven plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -60,6 +76,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -84,6 +101,7 @@
                     <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -92,7 +110,9 @@
                     <forkCount>2</forkCount>
                 </configuration>
             </plugin>
+
         </plugins>
+
     </build>
 
 </project>

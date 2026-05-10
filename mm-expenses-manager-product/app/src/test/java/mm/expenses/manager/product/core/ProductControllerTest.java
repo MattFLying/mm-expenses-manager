@@ -31,11 +31,11 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -52,17 +52,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ProductControllerTest extends ProductApplicationTest {
 
-    @MockBean
+    @MockitoBean
     protected ProductFilterViewRepository productFilterViewRepository;
 
     @Autowired
     private ProductFilterViewSpecificationHandler specificationHandler;
 
     @Captor
-    private ArgumentCaptor<ProductManagementMessage> productMessageArgumentCaptor;
+    private ArgumentCaptor<ProductManagementMessage> productMessageArgumentCaptor = ArgumentCaptor.forClass(ProductManagementMessage.class);
 
     @Captor
-    private ArgumentCaptor<List<CurrencyConversionRequest>> currencyConversionRequestCaptor;
+    private ArgumentCaptor<List<CurrencyConversionRequest>> currencyConversionRequestCaptor = ArgumentCaptor.forClass(List.class);
 
     @Nested
     class FindAll {

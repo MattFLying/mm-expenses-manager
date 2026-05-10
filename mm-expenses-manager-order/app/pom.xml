@@ -8,7 +8,7 @@
     <parent>
         <artifactId>mm-expenses-manager-order</artifactId>
         <groupId>mm-expenses-manager</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Expenses Manager Order App</name>
@@ -17,15 +17,17 @@
     <packaging>jar</packaging>
 
     <artifactId>mm-expenses-manager-order-app</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
 
     <dependencies>
+
         <!-- ExpensesManager dependencies -->
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-order-api</artifactId>
             <version>${mm-expenses-manager-order-api-version}</version>
         </dependency>
+
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-finance-api</artifactId>
@@ -39,6 +41,7 @@
             <version>${wiremock-version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

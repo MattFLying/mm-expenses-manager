@@ -1,12 +1,12 @@
 package mm.expenses.manager.finance.exchangerate.provider;
 
+import jakarta.annotation.PostConstruct;
 import mm.expenses.manager.common.utils.i18n.CurrencyCode;
 import mm.expenses.manager.common.exceptions.api.ApiInternalErrorException;
 import mm.expenses.manager.finance.currency.CurrencyRatesConfig;
 import mm.expenses.manager.finance.exception.FinanceExceptionMessage;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
