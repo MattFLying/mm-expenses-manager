@@ -1,0 +1,78 @@
+openapi: 3.0.1
+info:
+  title: account-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8187
+
+tags:
+  - name: Account
+    description: Provide API for accounts management.
+
+paths:
+
+  /accounts/{id}:
+    get:
+      tags:
+        - Account
+      parameters:
+        - name: id
+          in: path
+          description: Account id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+
+components:
+  schemas:
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    AccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Account id.
+        createdAt:
+          type: string
+          description: Date when account has been created.
+        lastModifiedAt:
+          type: string
+          description: Date when account has been modified.
+      additionalProperties: false
+      description: Account response data.

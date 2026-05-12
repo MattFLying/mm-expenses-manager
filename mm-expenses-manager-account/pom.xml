@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>mm-expenses-manager-parent</artifactId>
+        <groupId>mm-expenses-manager</groupId>
+        <version>0.3.3-SNAPSHOT</version>
+    </parent>
+
+    <name>Expenses Manager Account Service</name>
+    <description>Account service responsible for user accounts preparation and management.</description>
+
+    <artifactId>mm-expenses-manager-account</artifactId>
+    <version>0.3.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>api</module>
+        <module>app</module>
+        <module>keycloak</module>
+    </modules>
+
+    <properties>
+
+    </properties>
+
+    <dependencies>
+
+        <!-- ExpensesManager dependencies -->
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-utils</artifactId>
+            <version>${mm-expenses-manager-common-utils-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-web</artifactId>
+            <version>${mm-expenses-manager-common-web-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>
