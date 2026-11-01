@@ -75,6 +75,8 @@ spring:
   liquibase:
     enabled: ${app.configuration.database.liquibase.enabled}
     change-log: ${app.configuration.database.liquibase.master-changelog-path}
+    default-schema: ${app.configuration.database.postgres.db-schema}
+    liquibase-schema: ${app.configuration.database.postgres.db-schema}
   data:
     web:
       pageable:

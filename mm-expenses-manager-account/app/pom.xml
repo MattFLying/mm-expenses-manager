@@ -20,7 +20,8 @@
     <version>0.3.3-SNAPSHOT</version>
 
     <properties>
-
+        <!-- ExpensesManager Keycloak -->
+        <mm-expenses-manager-account-keycloak-admin-version>26.0.9</mm-expenses-manager-account-keycloak-admin-version>
     </properties>
 
     <dependencies>
@@ -30,6 +31,35 @@
             <groupId>mm-expenses-manager</groupId>
             <artifactId>mm-expenses-manager-account-api</artifactId>
             <version>${mm-expenses-manager-account-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-postgresql</artifactId>
+            <version>${mm-expenses-manager-common-postgresql-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-kafka</artifactId>
+            <version>${mm-expenses-manager-common-kafka-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Keycloak dependencies -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>${mm-expenses-manager-account-keycloak-admin-version}</version>
+        </dependency>
+
+        <!-- Http components dependencies -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
         </dependency>
 
     </dependencies>
@@ -48,6 +78,7 @@
         </resources>
 
         <plugins>
+
             <!-- Maven plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

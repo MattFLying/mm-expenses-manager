@@ -41,6 +41,12 @@
             <version>${spring-data-commons-version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-liquibase</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- PostgreSQL dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -59,12 +65,6 @@
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate-orm-core-version}</version>
             <type>pom</type>
-        </dependency>
-
-        <!-- Liquibase dependencies -->
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
         </dependency>
 
         <!-- Other dependencies -->

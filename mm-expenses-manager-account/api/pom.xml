@@ -56,9 +56,9 @@
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
                 <executions>
-                    <!-- Account API -->
+                    <!-- User API -->
                     <execution>
-                        <id>account-schema</id>
+                        <id>user-schema</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -67,11 +67,11 @@
                             <generatorName>spring</generatorName>
                             <generateSupportingFiles>false</generateSupportingFiles>
 
-                            <inputSpec>${api-generation-path}/account-schema.yml</inputSpec>
-                            <packageName>${api-package}.account</packageName>
-                            <invokerPackage>${api-package}.account</invokerPackage>
-                            <apiPackage>${api-package}.account</apiPackage>
-                            <modelPackage>${api-package}.account.model</modelPackage>
+                            <inputSpec>${api-generation-path}/user-schema.yml</inputSpec>
+                            <packageName>${api-package}.user</packageName>
+                            <invokerPackage>${api-package}.user</invokerPackage>
+                            <apiPackage>${api-package}.user</apiPackage>
+                            <modelPackage>${api-package}.user.model</modelPackage>
 
                             <typeMappings>
                                 <typeMapping>OffsetDateTime=Instant</typeMapping>

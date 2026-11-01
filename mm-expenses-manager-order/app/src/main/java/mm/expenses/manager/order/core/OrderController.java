@@ -3,6 +3,7 @@ package mm.expenses.manager.order.core;
 import lombok.RequiredArgsConstructor;
 import mm.expenses.manager.common.postgresql.pagination.PaginationHelper;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
+import mm.expenses.manager.common.web.security.CurrentUserProvider;
 import mm.expenses.manager.order.api.order.OrderApi;
 import mm.expenses.manager.order.api.order.model.*;
 import mm.expenses.manager.order.processor.search.OrderFilter;
@@ -18,15 +19,16 @@ import static mm.expenses.manager.common.web.api.WebApi.ID_URL;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/orders")
+@RequestMapping(value = "/api/v1")
 class OrderController implements OrderApi {
 
     private final PaginationHelper pagination;
 
     private final OrderService service;
+    private final CurrentUserProvider currentUserProvider;
 
     @Override
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/orders", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderPage> findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER, required = false) final Integer pageNumber,
                                              @RequestParam(value = PaginationConfig.PAGE_SIZE, required = false) final Integer pageSize,
                                              @RequestParam(value = PaginationConfig.SORT, required = false) final SortOrderRequest sortOrder,
@@ -41,6 +43,7 @@ class OrderController implements OrderApi {
                                              @RequestParam(value = OrderFilter.PRODUCTS_COUNT_OPERATION_PROPERTY, required = false) final NumberOperationRequest productsCountOperation,
 
                                              @RequestParam(value = OrderFilter.GENERAL_QUERY_PROPERTY, required = false) final String query) {
+
         final var queryFilter = OrderFilter.builder()
                 .sortConfig(OrderSortOrder.of(sortOrder))
                 .name(name)
@@ -57,7 +60,7 @@ class OrderController implements OrderApi {
     }
 
     @Override
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/orders/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> findById(@PathVariable("id") final UUID id,
                                                   @RequestParam(value = OrderFilter.IS_DELETED_PROPERTY, required = false) final Boolean isDeleted,
                                                   @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
@@ -66,7 +69,7 @@ class OrderController implements OrderApi {
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/orders", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> create(@RequestBody final CreateNewOrderRequest request,
                                                 @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request, shouldConvertCurrency));
@@ -74,7 +77,7 @@ class OrderController implements OrderApi {
 
     @Override
     @ResponseStatus(HttpStatus.OK)
-    @PatchMapping(value = ID_URL, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/orders" + ID_URL, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> update(@PathVariable("id") final UUID id,
                                                 @RequestBody final UpdateOrderRequest request,
                                                 @RequestParam(value = OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, required = false) final Boolean shouldConvertCurrency) {
@@ -83,7 +86,7 @@ class OrderController implements OrderApi {
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(value = ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/orders" + ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable("id") final UUID id) {
         service.delete(id);
 
@@ -92,7 +95,7 @@ class OrderController implements OrderApi {
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(value = "/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/orders/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteByIds(@RequestBody final OrderIds request) {
         service.delete(new HashSet<>(request.getIds()));
 

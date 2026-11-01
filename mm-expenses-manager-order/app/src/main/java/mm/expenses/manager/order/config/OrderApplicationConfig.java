@@ -11,6 +11,7 @@ import mm.expenses.manager.common.web.config.ApplicationConfig;
 import mm.expenses.manager.common.web.config.ErrorHandlingConfig;
 import mm.expenses.manager.common.web.config.OpenApiConfig;
 import mm.expenses.manager.common.web.config.WebMvcConfig;
+import mm.expenses.manager.common.web.security.SecurityImportSelector;
 import mm.expenses.manager.order.async.OrderKafkaConsumer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
         ErrorHandlingConfig.class, PaginationConfig.class, WebMvcConfig.class, OpenApiConfig.class,
-        ApplicationConfig.class, AsyncKafkaProducer.class
+        ApplicationConfig.class, AsyncKafkaProducer.class, SecurityImportSelector.class
 })
 class OrderApplicationConfig {
 

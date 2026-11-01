@@ -261,6 +261,25 @@
 
             <plugins>
 
+                <plugin>
+                    <groupId>com.coderplus.maven.plugins</groupId>
+                    <artifactId>copy-rename-maven-plugin</artifactId>
+                    <version>1.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>create-env-file</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>rename</goal>
+                            </goals>
+                            <configuration>
+                                <fileString>APP_VERSION=${project.version}</fileString>
+                                <toFile>${project.basedir}/.env</toFile>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
                 <!-- Maven plugins -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

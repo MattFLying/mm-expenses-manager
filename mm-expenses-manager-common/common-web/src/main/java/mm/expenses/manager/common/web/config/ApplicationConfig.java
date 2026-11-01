@@ -13,5 +13,6 @@ public class ApplicationConfig implements ApplicationConfigProperties {
     private String description;
     private String version;
     private Contact contact;
+    private Keycloak keycloak;
 
 }

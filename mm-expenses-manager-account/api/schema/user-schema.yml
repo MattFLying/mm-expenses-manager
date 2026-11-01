@@ -1,0 +1,315 @@
+openapi: 3.0.1
+info:
+  title: user-schema
+  version: latest
+
+servers:
+  - url: http://localhost:8187/api/v1
+
+tags:
+  - name: User
+    description: Provide API for users management.
+
+paths:
+
+  /users:
+    get:
+      tags:
+        - User
+      summary: Finds all available users with additional filters.
+      description: Check for all available users based on additional filtering options if needed.
+      operationId: findAll
+      parameters:
+        - name: pageNumber
+          in: query
+          required: false
+          example: 0
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            format: int32
+        - name: pageSize
+          in: query
+          required: false
+          example: 15
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            format: int32
+        - name: sort
+          in: query
+          required: false
+          description: Sort users by.
+          schema:
+            $ref: "#/components/schemas/SortUsersRequest"
+        - name: isDeleted
+          in: query
+          required: false
+          description: If true then retrieves users even if they are deleted, false means to retrieve not deleted users. By default all users will be returned.
+          schema:
+            type: boolean
+        - name: username
+          in: query
+          required: false
+          description: Specific username of the user.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: usernameOperation
+          in: query
+          required: false
+          description: Expected operation for username if present.
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/TextOperationRequest"
+              - default: equal
+        - name: email
+          in: query
+          required: false
+          description: Specific email of the user.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: emailOperation
+          in: query
+          required: false
+          description: Expected operation for email if present.
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/TextOperationRequest"
+              - default: equal
+        - name: query
+          in: query
+          required: false
+          description: Explicitly defined query to filter users result based on the users specification criteria.
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /users/{id}:
+    get:
+      tags:
+        - User
+      summary: Finds user by id.
+      description: Find user by given id.
+      operationId: findById
+      parameters:
+        - name: id
+          in: path
+          description: User id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: isDeleted
+          in: query
+          required: false
+          description: If true then retrieves user even if is deleted, false means to retrieve not deleted user. By default user will be returned.
+          schema:
+            type: boolean
+            default: false
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /users/own:
+    get:
+      tags:
+        - User
+      summary: Describes currently logged in user.
+      description: Describes currently logged in user.
+      operationId: findOwnAccount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+components:
+
+  schemas:
+
+    SortUsersRequest:
+      type: string
+      enum: [ USERNAME_ASC, USERNAME_DESC, EMAIL_ASC, EMAIL_DESC, CREATED_AT_ASC, CREATED_AT_DESC, LAST_MODIFIED_AT_ASC, LAST_MODIFIED_AT_DESC ]
+      x-enum-varnames: [ USERNAME_ASC, USERNAME_DESC, EMAIL_ASC, EMAIL_DESC, CREATED_AT_ASC, CREATED_AT_DESC, LAST_MODIFIED_AT_ASC, LAST_MODIFIED_AT_DESC ]
+      description: Sorting order for users.
+
+    TextOperationRequest:
+      type: string
+      enum: [ isNull, equal, notEqual, startsWith, endsWith, contains ]
+      x-enum-varnames: [ isNull, equal, notEqual, startsWith, endsWith, contains ]
+      description: Possible text operation types for specific query parameter.
+
+    ApiErrorMessage:
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: API error code.
+        status:
+          type: string
+          description: HTTP status.
+        message:
+          type: string
+          description: Error message.
+        occurredAt:
+          type: string
+          description: Date when error occurred.
+      description: API error message details.
+
+    UserDetailsResponse:
+      type: object
+      additionalProperties: true
+      description: Additional information of the user.
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User id.
+        keycloakId:
+          type: string
+          format: uuid
+          description: User keycloak id.
+        username:
+          type: string
+          description: User name.
+        email:
+          type: string
+          description: User email.
+        details:
+          $ref: "#/components/schemas/UserDetailsResponse"
+        createdAt:
+          type: string
+          description: Date when user has been created.
+        lastModifiedAt:
+          type: string
+          description: Date when user has been modified.
+      additionalProperties: false
+      description: User response data.
+
+    UserPage:
+      type: object
+      required:
+        - content
+        - empty
+        - first
+        - last
+        - page
+        - size
+        - hasNext
+        - pages
+        - elements
+        - total
+      properties:
+        content:
+          type: array
+          description: Users content on page.
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        empty:
+          type: boolean
+          description: Defines if the page has empty content.
+        first:
+          type: boolean
+          description: Defines if retrieved page is first.
+        last:
+          type: boolean
+          description: Defines if retrieved page is last.
+        page:
+          type: integer
+          description: Users page number.
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          description: Users page size.
+          format: int32
+          minimum: 1
+        hasNext:
+          type: boolean
+          description: Defines if there is more available pages.
+        totalPages:
+          type: integer
+          description: Total available pages of users.
+          format: int32
+        elements:
+          type: integer
+          description: Number of elements on page.
+          format: int32
+        totalElements:
+          type: integer
+          description: Total available users.
+          format: int64
+      description: Page with users data.

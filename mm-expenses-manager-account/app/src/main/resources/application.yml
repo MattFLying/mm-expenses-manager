@@ -4,13 +4,14 @@ app:
     version: @project.version@
     description: @project.description@
     active-profile: @active-profile@
+    security-enabled: true
     port: 8187
     contact:
       name: @developer-name@
       email: @developer-email@
       role: @developer-role@
     api:
-      url: /api
+      url: /api/v1
       ui-url: ${app.configuration.api.url}/ui
       disable-default-url: true
     database:
@@ -26,6 +27,18 @@ app:
         password: gP_h3cS!Lqu-4
         show-sql: true
         format-sql: true
+    keycloak:
+      hostname: localhost
+      port: 8182
+      url: http://${app.configuration.keycloak.hostname}:${app.configuration.keycloak.port}
+      realm: em-app-realm
+      oauth:
+        client-id: em-api-client
+      admin:
+        realm: master
+        client-id: admin-cli
+        username: admin-mm-em
+        secret: nC64n%3!#qP1
     pagination:
       min-page-number: 0
       default-page-size: 10
@@ -37,11 +50,18 @@ app:
       protocol: PLAINTEXT
       username: kafka
       password: kafka
+      topics:
+        keycloak-spi-user-registration: kc-spi-user-register
 
 server:
   port: ${app.configuration.port}
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${app.configuration.keycloak.url}/realms/${app.configuration.keycloak.realm}
   application:
     name: ${app.configuration.name}
   profiles:
@@ -63,6 +83,8 @@ spring:
   liquibase:
     enabled: ${app.configuration.database.liquibase.enabled}
     change-log: ${app.configuration.database.liquibase.master-changelog-path}
+    default-schema: ${app.configuration.database.postgres.db-schema}
+    liquibase-schema: ${app.configuration.database.postgres.db-schema}
   data:
     web:
       pageable:
@@ -79,6 +101,14 @@ spring:
             security.protocol: ${app.configuration.message-broker.protocol}
             sasl.mechanism: SCRAM-SHA-512
             sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${app.configuration.message-broker.username}' password='${app.configuration.message-broker.password}';
+      bindings:
+        keycloakSpiUserRegistration-in-0:
+          binder: ${app.configuration.message-broker.type}
+          group: @project.name@
+          content-type: application/json
+          destination: ${app.configuration.message-broker.topics.keycloak-spi-user-registration}
+    function:
+      definition: keycloakSpiUserRegistration
 
 springdoc:
   swagger-ui:
@@ -86,12 +116,19 @@ springdoc:
     disable-swagger-default-url: ${app.configuration.api.disable-default-url}
     tags-sorter: alpha
     operations-sorter: alpha
+    oauth:
+      client-id: ${app.configuration.keycloak.oauth.client-id}
   api-docs:
     path: ${app.configuration.api.url}
 
 logging:
   level:
     org:
+      springframework:
+        security:
+          DEBUG
+      springdoc:
+        DEBUG
       hibernate:
         SQL:
           DEBUG

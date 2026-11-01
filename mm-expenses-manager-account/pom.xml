@@ -37,7 +37,6 @@
             <version>${mm-expenses-manager-common-utils-version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>mm-expenses-manager</groupId>
             <artifactId>common-web</artifactId>

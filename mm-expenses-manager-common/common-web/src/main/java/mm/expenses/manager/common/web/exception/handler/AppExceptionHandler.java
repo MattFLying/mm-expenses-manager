@@ -8,9 +8,13 @@ import mm.expenses.manager.common.exceptions.base.EmCheckedException;
 import mm.expenses.manager.common.exceptions.base.EmUncheckedException;
 import mm.expenses.manager.common.web.exception.ExceptionMessage;
 import mm.expenses.manager.common.web.exception.ValidationExceptionMessage;
+import mm.expenses.manager.common.web.exception.security.ApiForbiddenException;
+import mm.expenses.manager.common.exceptions.api.ApiSecurityException;
+import mm.expenses.manager.common.web.exception.security.ApiUnauthorizedException;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,6 +24,27 @@ import java.util.stream.Collectors;
 @Slf4j
 @ControllerAdvice
 public class AppExceptionHandler {
+
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<ExceptionMessage> handleAccessDeniedException(final AccessDeniedException accessDenied) {
+        // this is required to rethrow this exception to be correctly handled by ApiAccessDeniedHandler.class
+        throw accessDenied;
+    }
+
+    @ExceptionHandler(ApiUnauthorizedException.class)
+    ResponseEntity<ExceptionMessage> handleUnauthorizedException(final ApiUnauthorizedException security) {
+        return messageApiException(security);
+    }
+
+    @ExceptionHandler(ApiForbiddenException.class)
+    ResponseEntity<ExceptionMessage> handleForbiddenException(final ApiForbiddenException security) {
+        return messageApiException(security);
+    }
+
+    @ExceptionHandler(ApiSecurityException.class)
+    ResponseEntity<ExceptionMessage> handleSecurityException(final ApiSecurityException security) {
+        return messageApiException(security);
+    }
 
     @ExceptionHandler(ApiBadRequestException.class)
     ResponseEntity<ExceptionMessage> handleBadRequestException(final ApiBadRequestException badRequest) {

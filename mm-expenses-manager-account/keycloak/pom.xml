@@ -20,10 +20,50 @@
     <version>0.3.3-SNAPSHOT</version>
 
     <properties>
+        <!-- ExpensesManager Keycloak -->
+        <mm-expenses-manager-account-keycloak-spi-version>26.6.2</mm-expenses-manager-account-keycloak-spi-version>
+        <mm-expenses-manager-account-keycloak-kafka-version>4.1.2</mm-expenses-manager-account-keycloak-kafka-version>
 
+        <!-- ExpensesManager resources path -->
+        <app-resource-include-meta-inf-services>src/main/resources/META-INF/services/*</app-resource-include-meta-inf-services>
     </properties>
 
     <dependencies>
+
+        <!-- ExpensesManager dependencies -->
+        <dependency>
+            <groupId>mm-expenses-manager</groupId>
+            <artifactId>common-exceptions</artifactId>
+            <version>${mm-expenses-manager-common-exceptions-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Keycloak dependencies -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-services</artifactId>
+            <version>${mm-expenses-manager-account-keycloak-spi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-server-spi</artifactId>
+            <version>${mm-expenses-manager-account-keycloak-spi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-server-spi-private</artifactId>
+            <version>${mm-expenses-manager-account-keycloak-spi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Kafka dependencies -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${mm-expenses-manager-account-keycloak-kafka-version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -31,11 +71,9 @@
 
         <resources>
             <resource>
-                <directory>${app-resource-directory}</directory>
-                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
                 <includes>
-                    <include>${app-resource-include-yml}</include>
-                    <include>${app-resource-include-xml}</include>
+                    <include>**/*</include>
                 </includes>
             </resource>
         </resources>
@@ -45,48 +83,13 @@
             <!-- Maven plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>resources</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-                        <configuration>
-                            <delimiters>
-                                <delimiter>${properties-delimiter}</delimiter>
-                            </delimiters>
-                            <useDefaultDelimiters>false</useDefaultDelimiters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${spring-boot-version}</version>
-                        </path>
-                        <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok-version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct-version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>${lombok-mapstruct-binding-version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <showWarnings>true</showWarnings>
@@ -95,58 +98,36 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <reuseForks>true</reuseForks>
-                    <forkCount>2</forkCount>
-                </configuration>
+                <artifactId>maven-jar-plugin</artifactId>
             </plugin>
 
-            <!-- Spring plugins -->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
+                        <phase>package</phase>
                         <goals>
-                            <goal>repackage</goal>
-                            <goal>build-info</goal>
+                            <goal>shade</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
 
-            <!-- Jacoco plugins -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <rules>
-                        <rule>
-                            <limits>
-                                <limit>
-                                    <counter>INSTRUCTION</counter>
-                                    <minimum>${app-jacoco-coverage-minimum}</minimum>
-                                </limit>
-                            </limits>
-                        </rule>
-                    </rules>
-                </configuration>
             </plugin>
 
         </plugins>

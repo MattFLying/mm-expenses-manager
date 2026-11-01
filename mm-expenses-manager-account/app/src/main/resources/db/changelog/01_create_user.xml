@@ -1,0 +1,80 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="001" author="mateusz.mucha">
+
+        <createTable tableName="user">
+            <column name="id" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="keycloak_id" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="username" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_email_verified" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_enabled" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="details" type="jsonb">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="permissions" type="jsonb" defaultValue="{}">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_modified_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="id" tableName="user"/>
+        <addUniqueConstraint columnNames="id" tableName="user"/>
+
+        <createIndex indexName="idx_user_keycloak_id" tableName="user">
+            <column name="keycloak_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_user_username" tableName="user">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex indexName="idx_user_email" tableName="user">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex indexName="idx_user_is_deleted" tableName="user">
+            <column name="is_deleted"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
