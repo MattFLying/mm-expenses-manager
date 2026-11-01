@@ -1,0 +1,2 @@
+mm.expenses.manager.common.web.security.user.AccountHttpClient
+mm.expenses.manager.common.web.security.token.CustomJwtAuthenticationConverter

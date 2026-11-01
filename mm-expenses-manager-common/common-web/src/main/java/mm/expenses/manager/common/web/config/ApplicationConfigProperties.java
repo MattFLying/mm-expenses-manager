@@ -38,6 +38,13 @@ public interface ApplicationConfigProperties {
     Contact getContact();
 
     /**
+     * Gets keycloak information.
+     *
+     * @return keycloak information
+     */
+    Keycloak getKeycloak();
+
+    /**
      * Gets developer name together with the role.
      *
      * @return developer name together with the role
@@ -59,6 +66,26 @@ public interface ApplicationConfigProperties {
             return StringUtils.EMPTY;
         }
         return getContact().email();
+    }
+
+    /**
+     * Gets Keycloak URL path.
+     */
+    default String getKeycloakUrl() {
+        if (Objects.isNull(getKeycloak())) {
+            return SecurityRequestConfig.DEFAULT_KEYCLOAK_URL;
+        }
+        return getKeycloak().url();
+    }
+
+    /**
+     * Gets Keycloak realm used within application.
+     */
+    default String getKeycloakRealm() {
+        if (Objects.isNull(getKeycloak())) {
+            return SecurityRequestConfig.DEFAULT_KEYCLOAK_REALM;
+        }
+        return getKeycloak().realm();
     }
 
 }

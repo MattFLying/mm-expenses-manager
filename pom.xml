@@ -28,6 +28,7 @@
         <module>mm-expenses-manager-finance</module>
         <module>mm-expenses-manager-product</module>
         <module>mm-expenses-manager-order</module>
+        <module>mm-expenses-manager-account</module>
     </modules>
 
     <properties>
@@ -67,6 +68,7 @@
         <mm-expenses-manager-finance-api-version>${project-version}</mm-expenses-manager-finance-api-version>
         <mm-expenses-manager-order-api-version>${project-version}</mm-expenses-manager-order-api-version>
         <mm-expenses-manager-product-api-version>${project-version}</mm-expenses-manager-product-api-version>
+        <mm-expenses-manager-account-api-version>${project-version}</mm-expenses-manager-account-api-version>
 
         <!-- ExpensesManager resources path -->
         <app-resource-directory>src/main/resources</app-resource-directory>
@@ -258,6 +260,25 @@
         <pluginManagement>
 
             <plugins>
+
+                <plugin>
+                    <groupId>com.coderplus.maven.plugins</groupId>
+                    <artifactId>copy-rename-maven-plugin</artifactId>
+                    <version>1.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>create-env-file</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>rename</goal>
+                            </goals>
+                            <configuration>
+                                <fileString>APP_VERSION=${project.version}</fileString>
+                                <toFile>${project.basedir}/.env</toFile>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
 
                 <!-- Maven plugins -->
                 <plugin>

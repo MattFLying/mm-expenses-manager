@@ -4,7 +4,7 @@ info:
   version: latest
 
 servers:
-  - url: http://localhost:8190
+  - url: http://localhost:8181/api/v1
 
 tags:
   - name: Order

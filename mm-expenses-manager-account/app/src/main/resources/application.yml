@@ -1,0 +1,142 @@
+app:
+  configuration:
+    name: @project.name@
+    version: @project.version@
+    description: @project.description@
+    active-profile: @active-profile@
+    security-enabled: true
+    port: 8187
+    contact:
+      name: @developer-name@
+      email: @developer-email@
+      role: @developer-role@
+    api:
+      url: /api/v1
+      ui-url: ${app.configuration.api.url}/ui
+      disable-default-url: true
+    database:
+      liquibase:
+        enabled: true
+        master-changelog-path: classpath:/db/changelog-master.xml
+      postgres:
+        host: localhost
+        port: 5432
+        db-name: em_postgresql
+        db-schema: em_account
+        username: admin
+        password: gP_h3cS!Lqu-4
+        show-sql: true
+        format-sql: true
+    keycloak:
+      hostname: localhost
+      port: 8182
+      url: http://${app.configuration.keycloak.hostname}:${app.configuration.keycloak.port}
+      realm: em-app-realm
+      oauth:
+        client-id: em-api-client
+      admin:
+        realm: master
+        client-id: admin-cli
+        username: admin-mm-em
+        secret: nC64n%3!#qP1
+    pagination:
+      min-page-number: 0
+      default-page-size: 10
+      max-page-size: 50
+    message-broker:
+      type: kafka
+      enabled: true
+      brokers: localhost:9092
+      protocol: PLAINTEXT
+      username: kafka
+      password: kafka
+      topics:
+        keycloak-spi-user-registration: kc-spi-user-register
+
+server:
+  port: ${app.configuration.port}
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${app.configuration.keycloak.url}/realms/${app.configuration.keycloak.realm}
+  application:
+    name: ${app.configuration.name}
+  profiles:
+    active: ${app.configuration.active-profile}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${app.configuration.database.postgres.host}:${app.configuration.database.postgres.port}/${app.configuration.database.postgres.db-name}?createDatabaseIfNotExist=true&currentSchema=${app.configuration.database.postgres.db-schema}
+    username: ${app.configuration.database.postgres.username}
+    password: ${app.configuration.database.postgres.password}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: ${app.configuration.database.postgres.show-sql}
+    properties:
+      hibernate:
+        default_schema: ${app.configuration.database.postgres.db-schema}
+        format_sql: ${app.configuration.database.postgres.format-sql}
+  liquibase:
+    enabled: ${app.configuration.database.liquibase.enabled}
+    change-log: ${app.configuration.database.liquibase.master-changelog-path}
+    default-schema: ${app.configuration.database.postgres.db-schema}
+    liquibase-schema: ${app.configuration.database.postgres.db-schema}
+  data:
+    web:
+      pageable:
+        default-page-size: ${app.configuration.pagination.default-page-size}
+        max-page-size: ${app.configuration.pagination.max-page-size}
+  cloud:
+    stream:
+      default-binder: ${app.configuration.message-broker.type}
+      kafka:
+        binder:
+          brokers:
+            - ${app.configuration.message-broker.brokers}
+          configuration:
+            security.protocol: ${app.configuration.message-broker.protocol}
+            sasl.mechanism: SCRAM-SHA-512
+            sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${app.configuration.message-broker.username}' password='${app.configuration.message-broker.password}';
+      bindings:
+        keycloakSpiUserRegistration-in-0:
+          binder: ${app.configuration.message-broker.type}
+          group: @project.name@
+          content-type: application/json
+          destination: ${app.configuration.message-broker.topics.keycloak-spi-user-registration}
+    function:
+      definition: keycloakSpiUserRegistration
+
+springdoc:
+  swagger-ui:
+    path: ${app.configuration.api.ui-url}
+    disable-swagger-default-url: ${app.configuration.api.disable-default-url}
+    tags-sorter: alpha
+    operations-sorter: alpha
+    oauth:
+      client-id: ${app.configuration.keycloak.oauth.client-id}
+  api-docs:
+    path: ${app.configuration.api.url}
+
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          DEBUG
+      springdoc:
+        DEBUG
+      hibernate:
+        SQL:
+          DEBUG
+        orm:
+          jdbc:
+            bind: TRACE
+        type:
+          descriptor:
+            sql:
+              BasicBinder:
+                TRACE

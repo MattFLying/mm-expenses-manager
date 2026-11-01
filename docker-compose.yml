@@ -56,6 +56,54 @@ services:
       - '6379:6379'
     restart: unless-stopped
 
+  # Keycloak
+  keycloak:
+    container_name: em_keycloak
+    image: keycloak/keycloak:26.6
+    hostname: keycloak
+    ports:
+      - '8182:8080'
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/em_postgresql
+      KC_DB_USERNAME: admin
+      KC_DB_PASSWORD: gP_h3cS!Lqu-4
+      KC_DB_SCHEMA: em_keycloak
+
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin-mm-em
+      KC_BOOTSTRAP_ADMIN_PASSWORD: nC64n%3!#qP1
+
+      KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-config.json
+
+      KAFKA_BOOTSTRAP_SERVER: kafka:29092
+      ACCOUNT_SERVICE_SPI_URL: "http://host.docker.internal:8187/api/internal/spi"
+      KEYCLOAK_SPI_ORIGIN_HEADER: "system-spi"
+      HTTP_CONNECTION_TIMEOUT_IN_SECONDS: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8182/health/ready"]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - ./mm-expenses-manager-account/keycloak/config/realm-config.json:/opt/keycloak/data/import/realm-config.json
+      - ./mm-expenses-manager-account/keycloak/target/mm-expenses-manager-account-keycloak-${APP_VERSION}.jar:/opt/keycloak/providers/mm-expenses-manager-account-keycloak-${APP_VERSION}.jar
+    depends_on:
+      - postgres
+      - kafka
+    restart: unless-stopped
+
   # Brokers
   zookeeper:
     container_name: em_zookeeper
