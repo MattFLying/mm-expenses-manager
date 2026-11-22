@@ -3,6 +3,7 @@ package mm.expenses.manager.order.core;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.postgresql.filter.EntityFilter;
 import mm.expenses.manager.common.utils.processor.ProcessorType;
+import mm.expenses.manager.common.web.security.SecurityContext;
 import mm.expenses.manager.order.api.order.model.CreateNewOrderRequest;
 import mm.expenses.manager.order.api.order.model.OrderPage;
 import mm.expenses.manager.order.api.order.model.OrderResponse;
@@ -31,8 +32,8 @@ public class OrderService {
     }
 
     @Transactional
-    public Order create(final CreateNewOrderRequest request) {
-        final var requestedData = requestOf(request);
+    public Order create(final SecurityContext context, final CreateNewOrderRequest request) {
+        final var requestedData = requestOf(context, request);
         final var handler = getHandler(OrderHandler.Type.CREATE_ORDER);
         final var result = handler.handle(requestedData);
 
@@ -40,8 +41,8 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse create(final CreateNewOrderRequest request, final Boolean shouldConvertCurrency) {
-        final var requestedData = requestOf(request, shouldConvertCurrency);
+    public OrderResponse create(final SecurityContext securityContext, final CreateNewOrderRequest request, final Boolean shouldConvertCurrency) {
+        final var requestedData = requestOf(securityContext, request, shouldConvertCurrency);
         final var handler = getHandler(OrderHandler.Type.CREATE_ORDER);
         final var result = handler.handleDecorated(requestedData);
 
@@ -58,24 +59,24 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse update(final UUID orderId, final UpdateOrderRequest request, final Boolean shouldConvertCurrency) {
-        final var requestedData = requestOf(orderId, request, shouldConvertCurrency);
+    public OrderResponse update(final SecurityContext securityContext, final UUID orderId, final UpdateOrderRequest request, final Boolean shouldConvertCurrency) {
+        final var requestedData = requestOf(securityContext, orderId, request, shouldConvertCurrency);
         final var handler = getHandler(OrderHandler.Type.UPDATE_ORDER);
         final var result = handler.handleDecorated(requestedData);
 
         return result.mapDecoratedResponse(OrderResponse.class);
     }
 
-    public Order delete(final UUID orderId) {
-        final var requestedData = requestOf(orderId);
+    public Order delete(final SecurityContext securityContext, final UUID orderId) {
+        final var requestedData = requestOf(securityContext, orderId);
         final var handler = getHandler(OrderHandler.Type.DELETE_SINGLE_ORDER);
         final var result = handler.handle(requestedData);
 
         return result.mapResponse(Order.class);
     }
 
-    public void delete(final Set<UUID> orderIds) {
-        final var requestedData = requestOf(orderIds);
+    public void delete(final SecurityContext securityContext, final Set<UUID> orderIds) {
+        final var requestedData = requestOf(securityContext, orderIds);
         final var handler = getHandler(OrderHandler.Type.DELETE_MANY_ORDERS);
         handler.handle(requestedData);
     }
@@ -88,8 +89,8 @@ public class OrderService {
         return result.mapResponse(Order.class);
     }
 
-    public OrderResponse findById(final UUID orderId, final Boolean isDeleted, final Boolean shouldConvertCurrency) {
-        final var requestedData = requestOf(orderId, isDeleted, shouldConvertCurrency);
+    public OrderResponse findById(final SecurityContext securityContext, final UUID orderId, final Boolean isDeleted, final Boolean shouldConvertCurrency) {
+        final var requestedData = requestOf(securityContext, orderId, isDeleted, shouldConvertCurrency);
         final var handler = getHandler(OrderHandler.Type.FIND_ORDER);
         final var result = handler.handleDecorated(requestedData);
 
@@ -104,8 +105,8 @@ public class OrderService {
         return ((OrderHandler.Response) result).getPagedResponse();
     }
 
-    public OrderPage search(final EntityFilter queryFilter, final Boolean shouldConvertCurrency) {
-        final var requestedData = requestOf(queryFilter, shouldConvertCurrency);
+    public OrderPage search(final SecurityContext securityContext, final EntityFilter queryFilter, final Boolean shouldConvertCurrency) {
+        final var requestedData = requestOf(securityContext, queryFilter, shouldConvertCurrency);
         final var handler = getHandler(OrderHandler.Type.SEARCH_ORDERS);
         final var result = handler.handleDecorated(requestedData);
 
@@ -131,6 +132,14 @@ public class OrderService {
         return OrderHandler.Request.builder().request(request).shouldConvertCurrency(shouldConvertCurrency).build();
     }
 
+    private OrderHandler.Request requestOf(final SecurityContext context, final Object request) {
+        return OrderHandler.Request.builder().securityContext(context).request(request).build();
+    }
+
+    private OrderHandler.Request requestOf(final SecurityContext securityContext, final Object request, final Boolean shouldConvertCurrency) {
+        return OrderHandler.Request.builder().securityContext(securityContext).request(request).shouldConvertCurrency(shouldConvertCurrency).build();
+    }
+
     private OrderHandler.Request requestOf(final UUID orderId, final Object request) {
         return OrderHandler.Request.builder().id(orderId).request(request).build();
     }
@@ -139,12 +148,20 @@ public class OrderService {
         return OrderHandler.Request.builder().id(orderId).request(request).shouldConvertCurrency(shouldConvertCurrency).build();
     }
 
+    private OrderHandler.Request requestOf(final SecurityContext securityContext, final UUID orderId, final Object request, final Boolean shouldConvertCurrency) {
+        return OrderHandler.Request.builder().securityContext(securityContext).id(orderId).request(request).shouldConvertCurrency(shouldConvertCurrency).build();
+    }
+
     private OrderHandler.Request requestOf(final UUID orderId, final Boolean isDeleted) {
         return OrderHandler.Request.builder().id(orderId).isDeleted(isDeleted).build();
     }
 
     private OrderHandler.Request requestOf(final UUID orderId, final Boolean isDeleted, final Boolean shouldConvertCurrency) {
         return OrderHandler.Request.builder().id(orderId).isDeleted(isDeleted).shouldConvertCurrency(shouldConvertCurrency).build();
+    }
+
+    private OrderHandler.Request requestOf(final SecurityContext securityContext, final UUID orderId, final Boolean isDeleted, final Boolean shouldConvertCurrency) {
+        return OrderHandler.Request.builder().securityContext(securityContext).id(orderId).isDeleted(isDeleted).shouldConvertCurrency(shouldConvertCurrency).build();
     }
 
 }

@@ -18,7 +18,20 @@ public enum Permission {
     getUsersInfo(PermissionGroup.ACCOUNT, true),
 
     updateUserInfo(PermissionGroup.ACCOUNT),
-    deleteUserInfo(PermissionGroup.ACCOUNT);
+    deleteUserInfo(PermissionGroup.ACCOUNT),
+
+    // order
+    getOwnOrderInfo(PermissionGroup.ORDER, true),
+    getOwnOrdersInfo(PermissionGroup.ORDER, true),
+    createOwnOrder(PermissionGroup.ORDER, true),
+    updateOwnOrder(PermissionGroup.ORDER, true),
+    deleteOwnOrder(PermissionGroup.ORDER, true),
+
+    getOrderInfo(PermissionGroup.ORDER),
+    getOrdersInfo(PermissionGroup.ORDER),
+    createOrder(PermissionGroup.ORDER),
+    updateOrder(PermissionGroup.ORDER),
+    deleteOrder(PermissionGroup.ORDER);
 
     private final PermissionGroup group;
     private final boolean isInitial;

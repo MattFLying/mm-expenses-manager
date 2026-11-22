@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.update;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -22,11 +21,15 @@ import java.util.stream.Collectors;
  * Summarizes order data after modifications.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class OrderSummaryUpdateDuringUpdate extends UpdateOrderChain {
 
-    private final OrderRepository repository;
     private final Instant modificationTime;
+
+    OrderSummaryUpdateDuringUpdate(final OrderRepository repository, final Instant modificationTime) {
+        super(repository);
+
+        this.modificationTime = modificationTime;
+    }
 
     @Override
     public Order handleRequest(final UpdateOrderRequest request) {

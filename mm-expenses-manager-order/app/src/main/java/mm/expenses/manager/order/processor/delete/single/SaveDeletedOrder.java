@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.delete.single;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -18,10 +17,11 @@ import java.util.UUID;
  * Saves deleted order.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class SaveDeletedOrder extends DeleteOrderByIdChain {
 
-    private final OrderRepository repository;
+    SaveDeletedOrder(final OrderRepository repository) {
+        super(repository);
+    }
 
     @Override
     public void setNextHandler(final ChainCommandExecution<UUID, Order> nextStep) {

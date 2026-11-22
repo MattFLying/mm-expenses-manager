@@ -1,10 +1,8 @@
 package mm.expenses.manager.order.processor.update;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
-import mm.expenses.manager.common.exceptions.api.ApiNotFoundException;
 import mm.expenses.manager.order.api.order.model.UpdateOrderRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
 import mm.expenses.manager.order.core.Order;
@@ -19,14 +17,19 @@ import java.util.UUID;
  * Finds requested order and move to the next step if found.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class FindOrderToUpdate extends UpdateOrderChain {
 
     final static String ORDER_KEY = "order";
 
-    private final OrderRepository repository;
     private final OrderedProductService productService;
     private final Instant modificationTime;
+
+    FindOrderToUpdate(final OrderRepository repository, final OrderedProductService productService, final Instant modificationTime) {
+        super(repository);
+
+        this.productService = productService;
+        this.modificationTime = modificationTime;
+    }
 
     @Override
     public Order handleRequest(final UpdateOrderRequest request) {
@@ -35,8 +38,7 @@ final class FindOrderToUpdate extends UpdateOrderChain {
 
             orderIdOpt.ifPresentOrElse(
                     orderId -> {
-                        final var existedOrder = repository.findByIdAndIsDeleted((UUID) orderId, false)
-                                .orElseThrow(() -> new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(orderId)));
+                        final var existedOrder = findOrderById((UUID) orderId, false);
 
                         context.addArgument(ORDER_KEY, existedOrder);
                     },

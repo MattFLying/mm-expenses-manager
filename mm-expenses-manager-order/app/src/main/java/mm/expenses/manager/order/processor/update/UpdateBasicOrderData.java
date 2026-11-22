@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.update;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -20,14 +19,19 @@ import java.util.Objects;
  * Modifies basic information in order if any detected.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class UpdateBasicOrderData extends UpdateOrderChain {
 
     final static String IS_UPDATED_KEY = "isUpdated";
 
-    private final OrderRepository repository;
     private final OrderedProductService productService;
     private final Instant modificationTime;
+
+    UpdateBasicOrderData(final OrderRepository repository, final OrderedProductService productService, final Instant modificationTime) {
+        super(repository);
+
+        this.productService = productService;
+        this.modificationTime = modificationTime;
+    }
 
     @Override
     public Order handleRequest(final UpdateOrderRequest request) {

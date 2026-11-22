@@ -21,6 +21,7 @@ public abstract class ChainCommandExecution<Request, Response> {
     @Setter(AccessLevel.PROTECTED)
     protected Context context = new Context();
 
+    @Getter(AccessLevel.PROTECTED)
     protected ChainCommandExecution<Request, Response> next;
 
     /**

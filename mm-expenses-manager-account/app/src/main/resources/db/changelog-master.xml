@@ -16,5 +16,8 @@
     <property name="uuidType" value="uuid" dbms="postgresql"/>
 
     <include file="changelog/01_create_user.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/02_create_procedure_to_add_permissions_for_existing_users.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/03_add_initial_account_permissions_to_users.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/04_add_initial_order_permissions_to_users.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

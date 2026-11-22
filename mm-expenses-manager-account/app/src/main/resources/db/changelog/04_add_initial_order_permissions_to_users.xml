@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="004" author="mateusz.mucha">
+
+        <sql splitStatements="false" stripComments="false">
+            CALL add_permission_to_users('ORDER', 'getOwnOrderInfo');
+            CALL add_permission_to_users('ORDER', 'getOwnOrdersInfo');
+            CALL add_permission_to_users('ORDER', 'createOwnOrder');
+            CALL add_permission_to_users('ORDER', 'updateOwnOrder');
+            CALL add_permission_to_users('ORDER', 'deleteOwnOrder');
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

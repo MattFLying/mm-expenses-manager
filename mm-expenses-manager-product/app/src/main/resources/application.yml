@@ -4,13 +4,14 @@ app:
     version: @project.version@
     description: @project.description@
     active-profile: @active-profile@
+    security-enabled: false
     port: 8190
     contact:
       name: @developer-name@
       email: @developer-email@
       role: @developer-role@
     api:
-      url: /api
+      url: /api/v1
       ui-url: ${app.configuration.api.url}/ui
       disable-default-url: true
     database:

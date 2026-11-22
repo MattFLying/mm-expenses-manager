@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -145,16 +146,18 @@ class CriteriaParameterBuilderTest {
         assertThat(result.isJsonBField()).isFalse();
         assertThat(result.isStandard()).isTrue();
 
-        assertThat(result.values()).isNotNull()
-                .isInstanceOf(List.class)
-                .isNotEmpty()
-                .hasSize(1);
-        if (FieldType.List.equals(type) && Operation.isNull.equals(operation)) {
-            assertThat(result.values()).containsExactly(fieldValue);
-        } else if (FieldType.List.equals(type)) {
-            assertThat(result.values()).containsExactly(map.get(nameOfFilteredFieldWithOperator));
+        if (FieldType.List.equals(type) && !Operation.isNull.equals(operation)) {
+            assertThat(result.values()).isNotNull()
+                    .isInstanceOf(List.class)
+                    .isNotEmpty()
+                    .hasSize(1)
+                    .containsExactly(map.get(nameOfFilteredFieldWithOperator));
         } else {
-            assertThat(result.values()).containsExactly(fieldValue);
+            assertThat(result.values()).isNotNull()
+                    .isInstanceOf(List.class)
+                    .isNotEmpty()
+                    .hasSize(1)
+                    .containsExactly(fieldValue);
         }
     }
 
@@ -403,11 +406,16 @@ class CriteriaParameterBuilderTest {
     }
 
     private Object getFieldValueByFieldTypeExceptIsNullOperation(final FieldType type, final Operation operation) {
-        var fieldValue = FieldType.valueOf(getValueByFieldType(type).toString(), type);
-        if (Operation.isNull.equals(operation)) {
-            fieldValue = false;
+        var basicValue = getValueByFieldType(type);
+
+        if (FieldType.UUID.equals(type)) {
+            basicValue = FieldType.valueOf(basicValue.toString(), type);
         }
-        return fieldValue;
+        if (Operation.isNull.equals(operation)) {
+            basicValue = false;
+        }
+
+        return basicValue;
     }
 
     private Object getValueByFieldType(final FieldType type) {
@@ -419,6 +427,8 @@ class CriteriaParameterBuilderTest {
             return 15;
         } else if (FieldType.Instant.equals(type)) {
             return Instant.now();
+        } else if (FieldType.UUID.equals(type)) {
+            return UUID.randomUUID();
         } else {
             return "test value";
         }

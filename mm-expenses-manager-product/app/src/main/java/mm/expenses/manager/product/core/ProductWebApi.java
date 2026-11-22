@@ -18,7 +18,7 @@ public enum ProductWebApi implements WebApi {
 
     DELETE(WebApi.ID_URL, HttpMethod.DELETE, HttpStatus.NO_CONTENT);
 
-    public static final String BASE_URL = "/products";
+    public static final String BASE_URL = "/api/v1/products";
 
     private final String pathUrl;
     private final HttpMethod method;

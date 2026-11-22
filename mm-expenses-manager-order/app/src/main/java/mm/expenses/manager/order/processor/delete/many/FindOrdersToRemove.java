@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.delete.many;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -20,18 +19,22 @@ import java.util.stream.Collectors;
  * Finds requested orders and remove them.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class FindOrdersToRemove extends DeleteMultipleOrdersChain<Set<UUID>> {
 
     final static String ORDERS_TO_REMOVE_KEY = "toRemove";
 
-    private final OrderRepository repository;
     private final Instant deletionTime;
+
+    FindOrdersToRemove(final OrderRepository repository, final Instant deletionTime) {
+        super(repository);
+
+        this.deletionTime = deletionTime;
+    }
 
     @Override
     public List<Order> handleRequest(final Set<UUID> ids) {
         try {
-            final var toRemove = repository.findAllByIdInAndIsDeleted(ids, false);
+            final var toRemove = findOrdersByIds(ids, false);
             if (toRemove.size() != ids.size()) {
                 final var notFoundIds = toRemove.stream()
                         .map(Order::getId)

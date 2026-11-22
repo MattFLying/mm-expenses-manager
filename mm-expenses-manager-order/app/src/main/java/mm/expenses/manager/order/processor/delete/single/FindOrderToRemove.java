@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.delete.single;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -10,6 +9,7 @@ import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.core.OrderRepository;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -17,25 +17,27 @@ import java.util.UUID;
  * Finds requested order and remove it.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class FindOrderToRemove extends DeleteOrderByIdChain {
 
     final static String ORDER_KEY = "order";
 
-    private final OrderRepository repository;
     private final Instant deletionTime;
+
+    FindOrderToRemove(final OrderRepository repository, final Instant deletionTime) {
+        super(repository);
+
+        this.deletionTime = deletionTime;
+    }
 
     @Override
     public Order handleRequest(final UUID orderId) {
         try {
-            final var orderOpt = repository.findByIdAndIsDeleted(orderId, false);
-
-            if (orderOpt.isPresent()) {
-                final var order = orderOpt.get();
-                context.addArgument(ORDER_KEY, order);
-            } else {
+            final var order = findOrderById(orderId, false);
+            if (Objects.isNull(order)) {
                 throw new ApiNotFoundException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(orderId));
             }
+
+            context.addArgument(ORDER_KEY, order);
 
             if (!hasNext()) {
                 setNextHandler(new DeleteSingleOrder(repository, deletionTime));

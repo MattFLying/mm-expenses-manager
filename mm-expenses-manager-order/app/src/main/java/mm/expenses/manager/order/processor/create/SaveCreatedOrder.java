@@ -47,6 +47,7 @@ final class SaveCreatedOrder extends CreateOrderChain {
                         .name(request.getName())
                         .products(orderedProducts)
                         .prices(orderPrices)
+                        .createdBy(getUserId())
                         .createdAt(creationTime)
                         .lastModifiedAt(creationTime)
                         .build();

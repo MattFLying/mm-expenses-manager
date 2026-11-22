@@ -67,7 +67,7 @@ class OrderControllerTest extends OrderApplicationTest {
             when(orderRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedOrderResult)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders").contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders").contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -114,7 +114,7 @@ class OrderControllerTest extends OrderApplicationTest {
             when(orderRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedOrderResultDeleted)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders").param(OrderFilter.IS_DELETED_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders").param(OrderFilter.IS_DELETED_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -165,7 +165,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(financeApiClient.convertMultipleRates(currencyConversionRequestCaptor.capture())).thenReturn(convertedCurrenciesResponse);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders").param(OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders").param(OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -228,7 +228,7 @@ class OrderControllerTest extends OrderApplicationTest {
             when(orderRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedOrderResult)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders").param(OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders").param(OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, Boolean.TRUE.toString()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -278,7 +278,7 @@ class OrderControllerTest extends OrderApplicationTest {
             when(orderRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedOrderResult)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders").param(OrderFilter.NAME_PROPERTY, ORDER_NAME).param(OrderFilter.NAME_OPERATION_PROPERTY, operation.name()).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders").param(OrderFilter.NAME_PROPERTY, ORDER_NAME).param(OrderFilter.NAME_OPERATION_PROPERTY, operation.name()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -327,7 +327,7 @@ class OrderControllerTest extends OrderApplicationTest {
             when(orderRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedOrderResult)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders").param(OrderFilter.PRODUCTS_COUNT_PROPERTY, String.valueOf(productsCount)).param(OrderFilter.PRODUCTS_COUNT_OPERATION_PROPERTY, operation.name()).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders").param(OrderFilter.PRODUCTS_COUNT_PROPERTY, String.valueOf(productsCount)).param(OrderFilter.PRODUCTS_COUNT_OPERATION_PROPERTY, operation.name()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
 
@@ -376,7 +376,7 @@ class OrderControllerTest extends OrderApplicationTest {
             when(orderRepository.findAll(ArgumentMatchers.any(Specification.class), ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(expectedOrderResult)));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders").param(OrderFilter.NAME_PROPERTY, String.valueOf(productsCount)).param(OrderFilter.NAME_OPERATION_PROPERTY, textOperation.name())
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders").param(OrderFilter.NAME_PROPERTY, String.valueOf(productsCount)).param(OrderFilter.NAME_OPERATION_PROPERTY, textOperation.name())
                             .param(OrderFilter.PRODUCTS_COUNT_PROPERTY, String.valueOf(productsCount)).param(OrderFilter.PRODUCTS_COUNT_OPERATION_PROPERTY, numberOperationRequest.name())
                             .contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
@@ -430,7 +430,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.anyBoolean())).thenReturn(Optional.of(expectedOrderResult));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -470,7 +470,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.eq(true))).thenReturn(Optional.of(expectedOrderResult));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders" + "/" + expectedOrderResult.getId().toString()).param(OrderFilter.IS_DELETED_PROPERTY, String.valueOf(true)).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).param(OrderFilter.IS_DELETED_PROPERTY, String.valueOf(true)).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -510,7 +510,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.eq(false))).thenReturn(Optional.of(expectedOrderResult));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders" + "/" + expectedOrderResult.getId().toString()).param(OrderFilter.IS_DELETED_PROPERTY, String.valueOf(false)).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).param(OrderFilter.IS_DELETED_PROPERTY, String.valueOf(false)).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -540,7 +540,7 @@ class OrderControllerTest extends OrderApplicationTest {
 
         @Test
         void shouldNotFindOrderById() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders" + "/" + ID).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders" + "/" + ID).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
         }
@@ -560,7 +560,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(financeApiClient.convertMultipleRates(currencyConversionRequestCaptor.capture())).thenReturn(List.of(expectedConvertedCurrencyResponse));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.get("/orders" + "/" + expectedOrder.getId().toString()).param(OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, String.valueOf(true)).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orders" + "/" + expectedOrder.getId().toString()).param(OrderFilter.SHOULD_CONVERT_CURRENCY_PROPERTY, String.valueOf(true)).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -620,7 +620,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(deletedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.delete("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNoContent());
 
             verify(orderRepository, times(1)).save(orderCaptor.capture());
@@ -639,17 +639,17 @@ class OrderControllerTest extends OrderApplicationTest {
         @Test
         void shouldNotDeleteOrderById_whenOrderIsAlreadyDeleted() throws Exception {
             // given & when
-            Mockito.when(orderRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.eq(false))).thenReturn(Optional.empty());
+            Mockito.when(orderRepository.findByIdAndCreatedByAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.eq(false))).thenReturn(Optional.empty());
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.delete("/orders" + "/" + ID).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orders" + "/" + ID).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
         }
 
         @Test
         void shouldNotDeleteOrderById_whenOrderDoesNotExists() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.delete("/orders" + "/" + ID).contentType(DATA_FORMAT_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orders" + "/" + ID).contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
         }
@@ -681,7 +681,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.saveAll(ArgumentMatchers.any())).thenReturn(List.of(deletedOrderResult_1, deletedOrderResult_2));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.delete("/orders" + "/remove").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(orderIds)))
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orders" + "/remove").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(orderIds)))
                     .andExpect(MockMvcResultMatchers.status().isNoContent());
 
             verify(orderRepository, times(1)).saveAll(ordersCaptor.capture());
@@ -716,10 +716,10 @@ class OrderControllerTest extends OrderApplicationTest {
             orderIds.addIdsItem(expectedOrderResult_2.getId());
 
             // when
-            Mockito.when(orderRepository.findAllByIdInAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.anyBoolean())).thenReturn(List.of(expectedOrderResult_1));
+            Mockito.when(orderRepository.findAllByIdInAndCreatedByAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyBoolean())).thenReturn(List.of(expectedOrderResult_1));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.delete("/orders" + "/remove").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(orderIds)))
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orders" + "/remove").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(orderIds)))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
         }
@@ -730,7 +730,7 @@ class OrderControllerTest extends OrderApplicationTest {
             orderIds.addIdsItem(UUID.randomUUID());
             orderIds.addIdsItem(UUID.randomUUID());
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/orders" + "/remove").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(orderIds)))
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orders" + "/remove").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(orderIds)))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
         }
@@ -754,12 +754,13 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
                     .andExpect(jsonPath("$.name", is(expectedOrderResult.getName())))
                     .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                    .andExpect(jsonPath("$.createdBy").isEmpty())
                     .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
 
                     .andExpect(jsonPath("$.priceSummary", hasSize(1)))
@@ -791,7 +792,7 @@ class OrderControllerTest extends OrderApplicationTest {
             final var request = OrderHelper.createOrderRequest(null, expectedProduct);
 
             // when && then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -804,7 +805,7 @@ class OrderControllerTest extends OrderApplicationTest {
             final var request = OrderHelper.createOrderRequest(null, ORDER_NAME);
 
             // when && then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -817,7 +818,7 @@ class OrderControllerTest extends OrderApplicationTest {
             final var request = OrderHelper.createOrderRequest(List.of(), ORDER_NAME);
 
             // when && then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -835,7 +836,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -848,7 +849,7 @@ class OrderControllerTest extends OrderApplicationTest {
             final var request = OrderHelper.createOrderRequestEmptyProductId(ORDER_NAME);
 
             // when & then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -862,7 +863,7 @@ class OrderControllerTest extends OrderApplicationTest {
             final var request = OrderHelper.createOrderRequestSkipQuantity(ORDER_NAME, expectedProduct, true);
 
             // when & then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -876,7 +877,7 @@ class OrderControllerTest extends OrderApplicationTest {
             final var request = OrderHelper.createOrderRequest(ORDER_NAME, expectedProduct, -0.5);
 
             // when & then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -890,7 +891,7 @@ class OrderControllerTest extends OrderApplicationTest {
             final var request = OrderHelper.createOrderRequest(ORDER_NAME, expectedProduct, 0.0);
 
             // when & then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -905,7 +906,7 @@ class OrderControllerTest extends OrderApplicationTest {
             request.getOrderedProducts().get(0).getPrice().setValue(null);
 
             // when & then
-            mockMvc.perform(MockMvcRequestBuilders.post("/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders").contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(request)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -935,7 +936,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedUpdatedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -959,7 +960,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedUpdatedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -977,7 +978,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.anyBoolean())).thenReturn(Optional.empty());
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + ID).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -997,7 +998,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.findByIdAndIsDeleted(ArgumentMatchers.any(), ArgumentMatchers.anyBoolean())).thenReturn(Optional.of(expectedOrderResult));
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.status().isConflict())
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON));
 
@@ -1021,7 +1022,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedUpdatedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -1079,7 +1080,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedUpdatedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -1106,7 +1107,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedUpdatedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -1149,7 +1150,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedUpdatedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))
@@ -1201,7 +1202,7 @@ class OrderControllerTest extends OrderApplicationTest {
             Mockito.when(orderRepository.save(ArgumentMatchers.any())).thenReturn(expectedUpdatedOrderResult);
 
             // then
-            mockMvc.perform(MockMvcRequestBuilders.patch("/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/orders" + "/" + expectedOrderResult.getId().toString()).contentType(DATA_FORMAT_JSON).content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(MockMvcResultMatchers.content().contentType(DATA_FORMAT_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(jsonPath("$.id", is(expectedOrderResult.getId().toString())))

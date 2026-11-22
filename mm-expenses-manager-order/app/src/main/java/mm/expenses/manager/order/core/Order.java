@@ -48,6 +48,10 @@ public class Order implements Serializable, PriceSummary {
     @JoinColumn(name = "order_id", updatable = false)
     private List<OrderedProduct> products;
 
+    @Column(name = "created_by")
+    @SpecificationDetailsAnnotation(canBeFiltered = true)
+    private UUID createdBy;
+
     @Column(name = "created_at")
     @SpecificationDetailsAnnotation(canBeSorted = true)
     private Instant createdAt;

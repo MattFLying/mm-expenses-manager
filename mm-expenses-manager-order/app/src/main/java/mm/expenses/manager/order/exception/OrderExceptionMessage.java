@@ -28,7 +28,9 @@ public enum OrderExceptionMessage implements ExceptionType {
     ORDER_PRODUCTS_COUNT_MISSING_OPERATOR("order-missing-operator-for-products-count", "Missing operator for orders filtering by products count."),
     ORDER_PRODUCTS_CUSTOM_PRICE_VALUE_MISSING("order-missing-custom-price-for-products", "Missing price value for ordered product %s."),
     ORDER_PRODUCT_QUANTITY_MUST_BE_GREATER_THAN_ZERO("order-product-quantity-must-be-greater-than-zero", "Ordered product quantity must be greater than 0.0."),
-    ORDERED_PRODUCTS_NOT_FOUND("order-products-not-found-error", "Ordered products of ids: '%s' not found.");
+    ORDERED_PRODUCTS_NOT_FOUND("order-products-not-found-error", "Ordered products of ids: '%s' not found."),
+    ORDERS_SEARCH_NO_PERMISSION_FOR_ALL("orders-search-all-no-permission", "No permission to search all orders."),
+    ORDER_NO_PERMISSION("order-no-permission", "No permission to execute this operation.");
 
     private final String code;
     private final String message;

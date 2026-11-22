@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
 import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.common.web.chain.SecuredChainCommandExecution;
 import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.core.OrderMapper;
 import mm.expenses.manager.order.core.OrderRepository;
@@ -32,13 +33,25 @@ class FindOrderHandler extends OrderHandler {
 
     @Override
     public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
-        if (request instanceof OrderHandler.Request findRequest) {
-            final var chain = new FindOrderById(repository, findRequest.isDeleted());
-            return Response.builder()
-                    .response(chain.handleRequest(findRequest.getId()))
-                    .build();
+        try {
+            if (request instanceof OrderHandler.Request findRequest) {
+                final var securityContext = findRequest.getSecurityContext();
+                final var chain = SecuredChainCommandExecution.build(
+                        securityContext,
+                        new FindOrderById(repository, findRequest.isDeleted())
+                );
+
+                return Response.builder()
+                        .response(chain.handleRequest(findRequest.getId()))
+                        .build();
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDER_NOT_FOUND.getMessage());
+        } catch (final ApiException exception) {
+            throw exception;
+        } catch (final Exception exception) {
+            log.error("Unknown find single order error occurred.", exception);
+            throw new ApiConflictException(OrderExceptionMessage.ORDER_NOT_FOUND.withParameters(request.getId()), exception);
         }
-        throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDER_NOT_FOUND.getMessage());
     }
 
     @Override
