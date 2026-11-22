@@ -14,6 +14,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
 
     Optional<Order> findByIdAndIsDeleted(final UUID id, final boolean isDeleted);
 
+    Optional<Order> findByIdAndCreatedByAndIsDeleted(final UUID id, final UUID createdBy, final boolean isDeleted);
+
     List<Order> findAllByIdInAndIsDeleted(final Set<UUID> ids, final boolean isDeleted);
+
+    List<Order> findAllByIdInAndCreatedByAndIsDeleted(final Set<UUID> ids, final UUID createdBy, final boolean isDeleted);
 
 }

@@ -100,9 +100,7 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.OPERATION_REQUIRES_BOOLEAN_VALUE_FOR_FIELD_MESSAGE, operation, name);
             }
 
-            val parsedValues = isBooleanValueExpected
-                    ? List.<Object>of(parseToBoolean(value))
-                    : field.validateValues(value);
+            val parsedValues = parseValues(field, isBooleanValueExpected);
             if (parsedValues.isEmpty()) {
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.EMPTY_VALUE_FOR_FIELD_OF_TYPE_MESSAGE, name, field.getType());
             }
@@ -113,6 +111,13 @@ public record CriteriaParameter(String name, FieldType fieldType, boolean isJson
                 throw new SpecificationCriteriaException(SpecificationCriteriaException.EMPTY_LIST_NOT_ALLOWED_FOR_FIELD_MESSAGE, name);
             }
             return new CriteriaParameter(field.getName(), field.getType(), field.getIsJsonBType(), operation, parsedValues, field.getIsStandard());
+        }
+
+        private List<Object> parseValues(final FilteredField field, final boolean isBooleanValueExpected) {
+            if (isBooleanValueExpected) {
+                return List.<Object>of(parseToBoolean(value));
+            }
+            return field.validateValues(value);
         }
 
     }

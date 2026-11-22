@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import mm.expenses.manager.common.utils.processor.ProcessorHandler;
 import mm.expenses.manager.common.utils.processor.ProcessorType;
+import mm.expenses.manager.common.web.security.SecurityContext;
 import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.core.OrderMapper;
 import mm.expenses.manager.order.core.OrderRepository;
@@ -27,6 +28,9 @@ public abstract class OrderHandler extends ProcessorHandler {
 
     @SuperBuilder
     public static class Request extends ProcessorHandler.Request {
+
+        @Getter
+        private SecurityContext securityContext;
 
         private Boolean isDeleted;
 

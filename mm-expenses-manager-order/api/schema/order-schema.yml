@@ -57,6 +57,13 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: shouldSearchAllOrders
+          in: query
+          required: false
+          description: Defines if search should work for all existing orders.
+          schema:
+            type: boolean
+            default: false
         - name: name
           in: query
           required: false
@@ -499,6 +506,10 @@ components:
         name:
           type: string
           description: Order name.
+        createdBy:
+          type: string
+          format: uuid
+          description: Identifier of user who created the order.
         createdAt:
           type: string
           description: Date when order has been created.

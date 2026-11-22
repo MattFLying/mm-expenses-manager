@@ -9,6 +9,10 @@ import mm.expenses.manager.common.postgresql.specification.FieldType;
 import mm.expenses.manager.common.postgresql.specification.Operation;
 import mm.expenses.manager.common.postgresql.specification.criteria.AdditionalCriteriaParameter;
 import mm.expenses.manager.common.utils.config.PaginationConfig;
+import mm.expenses.manager.common.utils.security.Permission;
+import mm.expenses.manager.common.web.exception.security.ApiForbiddenException;
+import mm.expenses.manager.common.web.security.SecurityContext;
+import mm.expenses.manager.common.web.security.SecurityMode;
 import mm.expenses.manager.order.api.order.model.NumberOperationRequest;
 import mm.expenses.manager.order.api.order.model.TextOperationRequest;
 import mm.expenses.manager.order.exception.OrderExceptionMessage;
@@ -30,8 +34,10 @@ public class OrderFilter extends EntityFilter {
     public static final String NAME_OPERATION_PROPERTY = "nameOperation";
 
     public static final String PRODUCTS_PROPERTY = "products";
+    public static final String USER_ID_PROPERTY = "createdBy";
     public static final String PRODUCTS_COUNT_PROPERTY = "productsCount";
     public static final String PRODUCTS_COUNT_OPERATION_PROPERTY = "productsCountOperation";
+    public static final String SHOULD_SEARCH_ALL_ORDERS_PROPERTY = "shouldSearchAllOrders";
 
     private String name;
     private TextOperationRequest nameOperation;
@@ -39,10 +45,36 @@ public class OrderFilter extends EntityFilter {
     private Integer productsCount;
     private NumberOperationRequest productsCountOperation;
 
+    private Boolean shouldSearchAllOrders;
+    private SecurityContext securityContext;
+
     private PostgreSQLSortOrder sortConfig;
+
+    /**
+     * @return checks if all available orders should be returned in search.
+     */
+    public boolean shouldSearchAllOrders() {
+        return Objects.nonNull(shouldSearchAllOrders) && shouldSearchAllOrders;
+    }
 
     @Override
     protected void buildSpecificQueryParameters(final Map<String, String[]> queryParameters) {
+        // first it is required to check if the security is enabled for the application, if not search works for all stored orders
+        if (SecurityMode.SECURED.equals(securityContext.getSecurityMode())) {
+            // if this is expected to do not search all possible orders just for the currently logged-in user
+            // it is required to assign the id of current user to be used in search
+            if (!shouldSearchAllOrders()) {
+                queryParameters.put(USER_ID_PROPERTY, new String[]{String.valueOf(securityContext.getUserId())});
+            } else {
+                // otherwise if this is expected to search all possible orders, this is required
+                // to verify if current user has a required permission to search all possible orders
+                // even for other users (admin call)
+                if (!securityContext.getPermissions().contains(Permission.getOrdersInfo)) {
+                    throw new ApiForbiddenException(OrderExceptionMessage.ORDERS_SEARCH_NO_PERMISSION_FOR_ALL);
+                }
+            }
+        }
+
         buildPagination(queryParameters);
         buildDeleted(queryParameters);
 

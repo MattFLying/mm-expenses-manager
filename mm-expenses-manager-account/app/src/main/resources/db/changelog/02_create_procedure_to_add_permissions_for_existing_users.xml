@@ -1,0 +1,56 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="002" author="mateusz.mucha">
+
+        <sql splitStatements="false" stripComments="false">
+            CREATE OR REPLACE PROCEDURE em_account.add_permission_to_users(
+            permission_group text,
+            permission_name text
+            )
+            LANGUAGE plpgsql
+            AS $$
+            DECLARE
+            v_group text := TRIM(permission_group);
+            v_perm text := TRIM(permission_name);
+            v_updated_count bigint := 0;
+            BEGIN
+            IF v_group IS NULL OR v_group = '' THEN
+            RAISE EXCEPTION 'Permission group name cannot be empty.';
+            END IF;
+
+            IF v_perm IS NULL OR v_perm = '' THEN
+            RAISE EXCEPTION 'Permission name cannot be empty.';
+            END IF;
+
+            UPDATE em_account."user" u
+            SET permissions = jsonb_set(
+            COALESCE(u.permissions, '{}'::jsonb),
+            ARRAY[v_group],
+            CASE
+            WHEN jsonb_typeof(COALESCE(u.permissions, '{}'::jsonb) -> v_group) = 'array'
+            THEN (COALESCE(u.permissions, '{}'::jsonb) -> v_group) || jsonb_build_array(v_perm)
+            ELSE jsonb_build_array(v_perm)
+            END,
+            true
+            )
+            WHERE
+            jsonb_typeof(COALESCE(u.permissions, '{}'::jsonb) -> v_group) IS DISTINCT FROM 'array'
+            OR NOT ((COALESCE(u.permissions, '{}'::jsonb) -> v_group) @> jsonb_build_array(v_perm));
+
+            GET DIAGNOSTICS v_updated_count = ROW_COUNT;
+
+            RAISE NOTICE 'Updated rows: % (permission_group: "%", permission_name: "%").',
+            v_updated_count,
+            v_group,
+            v_perm;
+            END;
+            $$;
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

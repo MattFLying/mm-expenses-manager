@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.delete.single;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -16,11 +15,15 @@ import java.util.UUID;
  * Deletes order and its associated models with specific flags.
  */
 @Slf4j
-@RequiredArgsConstructor
 public final class DeleteSingleOrder extends DeleteOrderByIdChain {
 
-    private final OrderRepository repository;
     private final Instant deletionTime;
+
+    DeleteSingleOrder(final OrderRepository repository, final Instant deletionTime) {
+        super(repository);
+
+        this.deletionTime = deletionTime;
+    }
 
     @Override
     public Order handleRequest(final UUID orderId) {

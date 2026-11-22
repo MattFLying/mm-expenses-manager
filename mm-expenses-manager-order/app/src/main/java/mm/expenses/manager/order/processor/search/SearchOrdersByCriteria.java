@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.search;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -19,10 +18,11 @@ import java.util.Objects;
  * Execute prepared criterias to search expected orders.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class SearchOrdersByCriteria extends SearchOrdersChain {
 
-    private final OrderRepository repository;
+    SearchOrdersByCriteria(final OrderRepository repository) {
+        super(repository);
+    }
 
     @Override
     public void setNextHandler(final ChainCommandExecution<EntityFilter, Page<Order>> nextStep) {

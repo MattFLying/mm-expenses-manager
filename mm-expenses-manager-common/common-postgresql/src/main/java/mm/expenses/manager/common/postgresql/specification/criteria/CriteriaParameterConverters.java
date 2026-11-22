@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Represents a simple map of available {@link CriteriaParameterConverter}s for specific {@link Operation}s.
@@ -134,6 +136,13 @@ public final class CriteriaParameterConverters extends HashMap<Operation, Criter
                                     values.get(0)
                             );
                         }
+
+                        if (FieldType.UUID.getSimpleName().equals(type.getSimpleName())) {
+                            return values.size() == 1
+                                    ? builder.equal(root.get(paramName), UUID.fromString(String.valueOf(values.get(0))))
+                                    : root.get(paramName).in(values.stream().map(value -> UUID.fromString(String.valueOf(value))).collect(Collectors.toSet()));
+                        }
+
                         return values.size() == 1
                                 ? builder.equal(root.get(paramName), values.get(0))
                                 : root.get(paramName).in(values);
@@ -154,6 +163,12 @@ public final class CriteriaParameterConverters extends HashMap<Operation, Criter
                                     builder.function(JSONB_ARRAY_LENGTH_FUNCTION, Integer.class, root.get(paramName)),
                                     values.get(0)
                             );
+                        }
+
+                        if (FieldType.UUID.getSimpleName().equals(type.getSimpleName())) {
+                            return values.size() == 1
+                                    ? builder.notEqual(root.get(paramName), UUID.fromString(String.valueOf(values.get(0))))
+                                    : builder.not(root.get(paramName).in(values.stream().map(value -> UUID.fromString(String.valueOf(value))).collect(Collectors.toSet())));
                         }
 
                         return values.size() == 1
@@ -317,6 +332,9 @@ public final class CriteriaParameterConverters extends HashMap<Operation, Criter
                         val value = values.get(0);
                         if (value instanceof Boolean boolValue) {
                             return (boolean) boolValue ? builder.isNull(root.get(paramName)) : builder.isNotNull(root.get(paramName));
+                        }
+                        if (value instanceof UUID) {
+                            return builder.isNull(root.get(paramName));
                         }
                         throw new SpecificationCriteriaException(SpecificationCriteriaException.OPERATION_IS_UNSUPPORTED_MESSAGE, Operation.isNull, paramName, type);
                     }

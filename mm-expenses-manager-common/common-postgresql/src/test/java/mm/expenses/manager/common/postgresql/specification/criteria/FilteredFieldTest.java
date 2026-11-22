@@ -1,6 +1,7 @@
 package mm.expenses.manager.common.postgresql.specification.criteria;
 
 import lombok.val;
+import mm.expenses.manager.common.postgresql.exception.SpecificationCriteriaException;
 import mm.expenses.manager.common.postgresql.specification.FieldType;
 import mm.expenses.manager.common.postgresql.specification.FieldTypeArgument;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,6 +49,40 @@ class FilteredFieldTest {
                 .isInstanceOf(List.class)
                 .hasSize(1)
                 .containsExactly(value);
+    }
+
+    @Test
+    void validateValues_shouldValidateValueAsUuid() {
+        // given
+        val name = "";
+        val isJsonBType = false;
+        val value = UUID.randomUUID().toString();
+
+        val filteredField = new FilteredField(name, FieldType.UUID, isJsonBType);
+
+        // when
+        val result = filteredField.validateValues(value);
+
+        // then
+        assertThat(result).isNotNull()
+                .isInstanceOf(List.class)
+                .hasSize(1)
+                .containsExactly(UUID.fromString(value));
+    }
+
+    @Test
+    void validateValues_shouldThrowSpecificationCriteriaException_whenValueIsNotOfUuidFormat() {
+        // given
+        val name = "";
+        val isJsonBType = false;
+        val value = "test";
+
+        val filteredField = new FilteredField(name, FieldType.UUID, isJsonBType);
+
+        // when & then
+        assertThatThrownBy(() -> filteredField.validateValues(value))
+                .isInstanceOf(SpecificationCriteriaException.class)
+                .hasMessage(String.format(SpecificationCriteriaException.UUID_INVALID_VALUE_MESSAGE, value));
     }
 
     @Test

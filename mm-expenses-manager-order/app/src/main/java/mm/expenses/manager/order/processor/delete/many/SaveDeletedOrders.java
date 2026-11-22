@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.delete.many;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -20,10 +19,11 @@ import java.util.UUID;
  * Builds the expected {@link Order} objects and save it into database.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class SaveDeletedOrders extends DeleteMultipleOrdersChain<Set<UUID>> {
 
-    private final OrderRepository repository;
+    SaveDeletedOrders(final OrderRepository repository) {
+        super(repository);
+    }
 
     @Override
     public void setNextHandler(final ChainCommandExecution<Set<UUID>, List<Order>> nextStep) {

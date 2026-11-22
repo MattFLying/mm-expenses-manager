@@ -3,8 +3,8 @@ package mm.expenses.manager.order.processor.create;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
-import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
 import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.common.web.chain.SecuredChainCommandExecution;
 import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.core.OrderMapper;
 import mm.expenses.manager.order.core.OrderRepository;
@@ -39,16 +39,30 @@ class CreateOrderHandler extends OrderHandler {
 
     @Override
     public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
-        final var now = Instant.now();
-        final var chain = ChainCommandExecution.build(
-                new FindOrderedProducts(repository, productService, now),
-                new MapOrderedProducts(repository, productService, now),
-                new CalculatePrices(repository, now),
-                new SaveCreatedOrder(repository, now)
-        );
-        return Response.builder()
-                .response(chain.handleRequest(request.getRequest()))
-                .build();
+        try {
+            if (request instanceof OrderHandler.Request createRequest) {
+                final var now = Instant.now();
+                final var securityContext = createRequest.getSecurityContext();
+
+                final var chain = SecuredChainCommandExecution.build(
+                        securityContext,
+                        new FindOrderedProducts(repository, productService, now),
+                        new MapOrderedProducts(repository, productService, now),
+                        new CalculatePrices(repository, now),
+                        new SaveCreatedOrder(repository, now)
+                );
+
+                return Response.builder()
+                        .response(chain.handleRequest(createRequest.getRequest()))
+                        .build();
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDER_CANNOT_BE_CREATED.getMessage());
+        } catch (final ApiException exception) {
+            throw exception;
+        } catch (final Exception exception) {
+            log.error("Unknown order creation error occurred.", exception);
+            throw new ApiConflictException(OrderExceptionMessage.ORDER_CANNOT_BE_CREATED, exception);
+        }
     }
 
     @Override

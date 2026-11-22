@@ -1,6 +1,7 @@
 package mm.expenses.manager.common.postgresql.specification.criteria;
 
 import lombok.*;
+import mm.expenses.manager.common.postgresql.exception.SpecificationCriteriaException;
 import mm.expenses.manager.common.postgresql.specification.FieldType;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -65,6 +66,7 @@ public class FilteredField {
                     case Integer -> Integer.valueOf(value);
                     case Instant -> Instant.parse(value);
                     case List -> convertToList(value);
+                    case UUID -> convertToUuid(value);
                     default -> value;
                 }).collect(Collectors.toList());
 
@@ -150,6 +152,20 @@ public class FilteredField {
             return new ArrayList<>((Collection<?>) value);
         }
         return new ArrayList<>(List.of(value));
+    }
+
+    /**
+     * Converts passed value to {@link UUID}.
+     */
+    public static UUID convertToUuid(final Object value) {
+        try {
+            if (value instanceof UUID uuid) {
+                return uuid;
+            }
+            return UUID.fromString(String.valueOf(value));
+        } catch (final Exception exception) {
+            throw new SpecificationCriteriaException(SpecificationCriteriaException.UUID_INVALID_VALUE_MESSAGE, value);
+        }
     }
 
     /**

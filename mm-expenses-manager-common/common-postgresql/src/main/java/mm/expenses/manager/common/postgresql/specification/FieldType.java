@@ -9,10 +9,7 @@ import mm.expenses.manager.common.utils.config.ObjectMapperConfig;
 import mm.expenses.manager.common.utils.specification.SpecificationDetailsAnnotation;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Representation of field type defined in entities or another classes to be used during defining
@@ -29,7 +26,8 @@ public enum FieldType {
     Long(Long.class, "long"),
     Integer(Integer.class, "int"),
     Instant(java.time.Instant.class, "Instant"),
-    List(java.util.List.class, "List");
+    List(java.util.List.class, "List"),
+    UUID(java.util.UUID.class, "UUID");
 
     private static final ObjectMapper objectMapper = ObjectMapperConfig.objectMapper();
 
@@ -81,6 +79,9 @@ public enum FieldType {
                 if (Collection.class.isAssignableFrom(field.getType())) {
                     yield List.getName();
                 }
+                if (UUID.class.isAssignableFrom(field.getType())) {
+                    yield UUID.getName();
+                }
 
                 val specificationDetails = field.getAnnotation(SpecificationDetailsAnnotation.class);
                 if (Objects.nonNull(specificationDetails) && specificationDetails.isJsonB()) {
@@ -108,6 +109,8 @@ public enum FieldType {
                 yield java.lang.Boolean.valueOf(value);
             case Instant:
                 yield java.time.Instant.parse(value);
+            case UUID:
+                yield java.util.UUID.fromString(value);
             case List:
                 try {
                     yield objectMapper.readValue(value, java.util.List.class);

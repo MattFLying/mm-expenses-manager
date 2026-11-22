@@ -3,8 +3,8 @@ package mm.expenses.manager.order.processor.search;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
-import mm.expenses.manager.common.utils.chain.ChainCommandExecution;
 import mm.expenses.manager.common.utils.processor.ProcessorHandler;
+import mm.expenses.manager.common.web.chain.SecuredChainCommandExecution;
 import mm.expenses.manager.order.core.Order;
 import mm.expenses.manager.order.core.OrderMapper;
 import mm.expenses.manager.order.core.OrderRepository;
@@ -37,13 +37,25 @@ class SearchOrdersHandler extends OrderHandler {
 
     @Override
     public ProcessorHandler.Response handle(final ProcessorHandler.Request request) {
-        final var chain = ChainCommandExecution.build(
-                new SearchOrdersPrepareSpecificationCriterias(repository, specificationHandler),
-                new SearchOrdersByCriteria(repository)
-        );
-        return Response.builder()
-                .pagedResponse((Page<Order>) chain.handleRequest(request.getRequest()))
-                .build();
+        try {
+            if (request instanceof OrderHandler.Request searchRequest) {
+                final var securityContext = searchRequest.getSecurityContext();
+                final var chain = SecuredChainCommandExecution.build(
+                        securityContext,
+                        new SearchOrdersPrepareSpecificationCriterias(repository, specificationHandler),
+                        new SearchOrdersByCriteria(repository)
+                );
+                return Response.builder()
+                        .pagedResponse((Page<Order>) chain.handleRequest(searchRequest.getRequest()))
+                        .build();
+            }
+            throw new ProcessorHandler.ProcessorHandlerException(OrderExceptionMessage.ORDERS_CANNOT_BE_FOUND.getMessage());
+        } catch (final ApiException exception) {
+            throw exception;
+        } catch (final Exception exception) {
+            log.error("Unknown orders search error occurred.", exception);
+            throw new ApiConflictException(OrderExceptionMessage.ORDERS_CANNOT_BE_FOUND, exception);
+        }
     }
 
     @Override

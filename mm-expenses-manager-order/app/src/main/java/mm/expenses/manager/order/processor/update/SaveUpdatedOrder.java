@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.update;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -17,10 +16,11 @@ import org.springframework.dao.OptimisticLockingFailureException;
  * Save updated order into database.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class SaveUpdatedOrder extends UpdateOrderChain {
 
-    private final OrderRepository repository;
+    SaveUpdatedOrder(final OrderRepository repository) {
+        super(repository);
+    }
 
     @Override
     public void setNextHandler(final ChainCommandExecution<UpdateOrderRequest, Order> nextStep) {

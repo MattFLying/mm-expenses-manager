@@ -4,7 +4,7 @@ app:
     version: @project.version@
     description: @project.description@
     active-profile: @active-profile@
-    security-enabled: false
+    security-enabled: true
     port: 8181
     contact:
       name: @developer-name@

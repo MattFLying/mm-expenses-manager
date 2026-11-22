@@ -33,15 +33,17 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(ProductWebApi.BASE_URL)
+@RequestMapping(value = ProductController.PUBLIC_API_URL)
 class ProductController implements ProductApi {
+
+    static final String PUBLIC_API_URL = "/api/v1";
 
     private final PaginationHelper pagination;
     private final ProductService service;
     private final PriceConverter priceConverter;
 
     @Override
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductPage> findAll(@RequestParam(value = PaginationConfig.PAGE_NUMBER, required = false) final Integer pageNumber,
                                                @RequestParam(value = PaginationConfig.PAGE_SIZE, required = false) final Integer pageSize,
                                                @RequestParam(value = PaginationConfig.SORT, required = false) final SortProductRequest sortOrder,
@@ -77,21 +79,21 @@ class ProductController implements ProductApi {
     }
 
     @Override
-    @GetMapping(value = WebApi.ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/products/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> findById(@PathVariable("id") final UUID id, final Boolean isDeleted) {
         return ResponseEntity.ok(service.findById(id, isDeleted, priceConverter.getDefaultCurrency()));
     }
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> create(@RequestBody final CreateProductRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request, priceConverter.getDefaultCurrency()));
     }
 
     @Override
     @ResponseStatus(HttpStatus.OK)
-    @PatchMapping(value = WebApi.ID_URL, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/products/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductResponse> update(@PathVariable("id") final UUID id, @RequestBody final UpdateProductRequest request) {
         if (!isAnyUpdateProduct(request)) {
             throw new ApiConflictException(ProductExceptionMessage.PRODUCT_NO_UPDATE_DATA);
@@ -101,7 +103,7 @@ class ProductController implements ProductApi {
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(value = WebApi.ID_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/products/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable("id") final UUID id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
@@ -109,7 +111,7 @@ class ProductController implements ProductApi {
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(value = "/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/products/remove", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteByIds(@RequestBody final ProductIds request) {
         service.delete(new HashSet<>(request.getIds()));
 

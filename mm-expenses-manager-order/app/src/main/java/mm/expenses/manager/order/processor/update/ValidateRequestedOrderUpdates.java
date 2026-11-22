@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.update;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -20,15 +19,21 @@ import java.util.UUID;
  * Validates if any change is requested to be updated in given order.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class ValidateRequestedOrderUpdates extends UpdateOrderChain {
 
     final static String ORDER_ID_KEY = "orderId";
 
-    private final OrderRepository repository;
     private final OrderedProductService productService;
     private final Instant modificationTime;
     private final UUID orderId;
+
+    ValidateRequestedOrderUpdates(final OrderRepository repository, final OrderedProductService productService, final Instant modificationTime, final UUID orderId) {
+        super(repository);
+
+        this.productService = productService;
+        this.modificationTime = modificationTime;
+        this.orderId = orderId;
+    }
 
     @Override
     public Order handleRequest(final UpdateOrderRequest request) {

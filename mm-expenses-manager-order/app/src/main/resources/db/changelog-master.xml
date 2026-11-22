@@ -20,5 +20,6 @@
     <include file="changelog/03_create_order_price.xml" relativeToChangelogFile="true"/>
     <include file="changelog/04_create_order_product.xml" relativeToChangelogFile="true"/>
     <include file="changelog/05_create_order_product_price.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/06_order_add_user_reference.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

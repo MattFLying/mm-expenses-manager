@@ -1,0 +1,26 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="default_admin_user_email" value="mateusz.marek.mucha@gmail.com" dbms="postgresql"/>
+
+    <changeSet id="006" author="mateusz.mucha">
+
+        <addColumn tableName="order">
+            <column name="created_by" type="uuid">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <createIndex indexName="idx_order_created_by" tableName="order">
+            <column name="created_by"/>
+        </createIndex>
+
+        <createIndex indexName="idx_order_id_created_by" tableName="order">
+            <column name="id"/>
+            <column name="created_by"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

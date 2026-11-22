@@ -1,6 +1,5 @@
 package mm.expenses.manager.order.processor.delete.many;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mm.expenses.manager.common.exceptions.api.ApiConflictException;
 import mm.expenses.manager.common.exceptions.api.ApiException;
@@ -19,11 +18,15 @@ import java.util.UUID;
  * Delete orders one-by-one.
  */
 @Slf4j
-@RequiredArgsConstructor
 final class DeleteMultipleOrders extends DeleteMultipleOrdersChain<Set<UUID>> {
 
-    private final OrderRepository repository;
     private final Instant deletionTime;
+
+    DeleteMultipleOrders(final OrderRepository repository, final Instant deletionTime) {
+        super(repository);
+
+        this.deletionTime = deletionTime;
+    }
 
     @Override
     public List<Order> handleRequest(final Set<UUID> ids) {
